@@ -4,6 +4,9 @@
 # Artefacts de pipeline (contenu ignoré, dossier conservé via son .gitignore interne)
 # (règle portée par .pipeline/.gitignore)
 
+# Dépendances d'outillage — jamais committées
+node_modules/
+
 # Divers
 Thumbs.db
 .DS_Store
