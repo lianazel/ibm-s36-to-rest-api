@@ -81,7 +81,7 @@ export const dict = {
     },
     meta: {
       description:
-        "A .Net REST API exposing legacy IBM S/36 files running on IBM i as JSON: a real, tested, explained architecture.",
+        "A .Net REST API that turns IBM S/36 flat files still running on IBM i into JSON: a real, tested, explained architecture.",
     },
     section1: {
       title: "The setting",
