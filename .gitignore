@@ -7,6 +7,10 @@
 # Dépendances d'outillage — jamais committées
 node_modules/
 
+# Traces d'outillage local (vérification visuelle, planificateur) — jamais committées
+.playwright-mcp/
+.claude/scheduled_tasks.lock
+
 # Divers
 Thumbs.db
 .DS_Store

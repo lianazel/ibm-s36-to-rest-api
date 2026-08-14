@@ -1,0 +1,179 @@
+/*
+ * styles.css — socle visuel du site IBMiAPI.
+ *
+ * Contrat « Style du produit » (CLAUDE.md) : canevas clair unique pour les
+ * trois registres, bleu IBM pour le S/36, vert pour l'API, aucune esthétique
+ * rétro. Mobile-first : les styles de base sont la vue une colonne ; le grand
+ * écran est un enrichissement (@media min-width: 48rem).
+ */
+
+/* ---- Polices IBM Plex, auto-hébergées (jamais de CDN, exigence CLAUDE.md). */
+/* Sous-ensemble Latin1 : suffisant pour le contenu FR/EN, ~20 Ko par fonte. */
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("../assets/fonts/IBMPlexSans-Regular-Latin1.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("../assets/fonts/IBMPlexSans-SemiBold-Latin1.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("../assets/fonts/IBMPlexMono-Regular-Latin1.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("../assets/fonts/IBMPlexMono-Bold-Latin1.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---- Jetons de design. */
+:root {
+  --color-bg: #ffffff;
+  --color-ink: #161616;          /* encre presque noire (gris 100 IBM) */
+  --color-ink-soft: #525252;     /* texte secondaire, AA sur fond blanc */
+  --color-line: #e0e0e0;         /* filets discrets */
+  --color-s36: #0f62fe;          /* bleu IBM — registre S/36 (AA sur clair) */
+  --color-api: #198038;          /* vert — registre API (5,02:1 sur fond blanc, AA texte) */
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --space: 1rem;
+  --measure: 42rem;              /* largeur de lecture confortable */
+}
+
+/* ---- Base. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+h1,
+h2 {
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+a {
+  color: var(--color-s36);
+}
+
+/* Le survol n'existe que là où il y a un pointeur (UX_METHOD §4 : capacité
+   détectée par media query, jamais par user-agent). */
+@media (hover: hover) {
+  a:hover {
+    text-decoration-thickness: 0.15em;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-s36);
+  outline-offset: 2px;
+}
+
+/* ---- En-tête : une colonne sur mobile, rangée sur grand écran. */
+.site-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space);
+  padding: var(--space);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.brand {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.site-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.site-nav a {
+  text-decoration: none;
+}
+
+.lang-switch {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: var(--color-ink);
+  background: var(--color-bg);
+  border: 1px solid var(--color-ink);
+  padding: 0.25rem 0.75rem;
+  cursor: pointer;
+}
+
+/* ---- Contenu. */
+main {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 0 var(--space);
+}
+
+section {
+  padding: calc(var(--space) * 2) 0;
+  border-bottom: 1px solid var(--color-line);
+  /* L'ancre ne doit pas coller le titre au bord haut de la fenêtre. */
+  scroll-margin-top: var(--space);
+}
+
+.tagline {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* ---- Pied de page. */
+.site-footer {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: calc(var(--space) * 2) var(--space);
+  color: var(--color-ink-soft);
+  font-size: 0.875rem;
+}
+
+/* ---- Enrichissement grand écran. */
+@media (min-width: 48rem) {
+  .site-header {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .site-nav {
+    margin-left: auto;
+  }
+
+  .site-nav ul {
+    flex-direction: row;
+    gap: var(--space);
+  }
+
+  .lang-switch {
+    align-self: center;
+  }
+}
