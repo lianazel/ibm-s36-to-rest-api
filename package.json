@@ -1,6 +1,6 @@
 {
   "name": "ibm-s36-to-rest-api",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "description": "Site statique bilingue : exposer des fichiers IBM S/36 en API REST .Net — et le harnais TWAIM qui a construit ce site.",
   "license": "MIT",
