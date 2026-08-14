@@ -8,6 +8,8 @@
     "test": "vitest run"
   },
   "devDependencies": {
+    "@ibm/plex-mono": "2.5.0",
+    "@ibm/plex-sans": "1.1.0",
     "vitest": "4.1.10"
   }
 }

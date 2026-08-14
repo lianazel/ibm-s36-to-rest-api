@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- CSP stricte : tout vient du dépôt, aucun inline, aucun tiers (polices auto-hébergées). -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+  <!-- Valeurs initiales en français (le document doit en porter avant le JS) ;
+       le mécanisme i18n (data-i18n-attr, document.title) les resynchronise à la bascule. -->
+  <title>Des fichiers S/36 à l'API REST</title>
+  <meta name="description" data-i18n-attr="content:meta.description"
+        content="Une API REST .Net qui expose en JSON des fichiers hérités IBM S/36 tournant sur IBM i : architecture réelle, testée, expliquée.">
+  <link rel="stylesheet" href="css/styles.css">
+  <script type="module" src="js/i18n.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <h1 class="brand" data-i18n="site.title"></h1>
+    <nav class="site-nav" aria-label="Sections" data-i18n-attr="aria-label:nav.aria">
+      <ul>
+        <li><a href="#decor" data-i18n="nav.decor"></a></li>
+        <li><a href="#probleme" data-i18n="nav.probleme"></a></li>
+        <li><a href="#solution" data-i18n="nav.solution"></a></li>
+        <li><a href="#mini-langage" data-i18n="nav.minilangage"></a></li>
+        <li><a href="#methode" data-i18n="nav.methode"></a></li>
+      </ul>
+    </nav>
+    <button type="button" id="lang-switch" class="lang-switch" data-i18n="lang.switch"></button>
+  </header>
+
+  <main>
+    <section id="decor">
+      <p class="tagline" data-i18n="hero.tagline"></p>
+      <h2 data-i18n="section1.title"></h2>
+      <p data-i18n="section1.intro"></p>
+    </section>
+
+    <section id="probleme">
+      <h2 data-i18n="section2.title"></h2>
+      <p data-i18n="section2.intro"></p>
+    </section>
+
+    <section id="solution">
+      <h2 data-i18n="section3.title"></h2>
+      <p data-i18n="section3.intro"></p>
+    </section>
+
+    <section id="mini-langage">
+      <h2 data-i18n="section4.title"></h2>
+      <p data-i18n="section4.intro"></p>
+    </section>
+
+    <section id="methode">
+      <h2 data-i18n="section5.title"></h2>
+      <p data-i18n="section5.intro"></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p data-i18n="footer.notice"></p>
+    <p class="disclaimer" data-i18n="footer.disclaimer"></p>
+    <p><a href="https://lianazel.github.io/" rel="noopener noreferrer" data-i18n="footer.portfolio"></a></p>
+  </footer>
+</body>
+</html>
