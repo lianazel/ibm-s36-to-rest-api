@@ -244,6 +244,46 @@ export function resolveInitialLang(search, stored, navLang) {
 }
 
 /**
+ * La langue de cette visite doit-elle devenir la préférence mémorisée ?
+ *
+ * Vrai si et seulement si l'adresse porte un `lang` valide. Une langue héritée
+ * du stockage ou déduite du navigateur ne se réécrit pas : sans ce filtre, une
+ * visite ordinaire réenregistrerait ce qu'elle vient de lire, et le fait que
+ * rien ne bouge sans paramètre ne serait plus vrai que par accident.
+ *
+ * Extraite de l'amorçage en réponse à la revue du 15 août 2026 (P2) : la
+ * décision y vivait hors de portée de toute porte.
+ *
+ * @param {string} search Chaîne de requête (`location.search`).
+ * @returns {boolean}
+ */
+export function shouldPersistLang(search) {
+  return langFromSearch(search) !== null;
+}
+
+/**
+ * Rend la chaîne de requête débarrassée du paramètre `lang`.
+ *
+ * `lang` est un message **reçu une fois**, pas un état : laissé dans l'adresse,
+ * il regagnerait à chaque rechargement, y compris contre une bascule manuelle
+ * faite la seconde d'avant, et l'adresse partagée mentirait sur la langue
+ * affichée (revue du 15 août 2026, P4, option B).
+ *
+ * Toutes les occurrences de `lang` sont retirées ; les autres paramètres
+ * survivent dans leur ordre — `from` en particulier, dont dépend le retour au
+ * portfolio (`js/menu.js`).
+ *
+ * @param {string} search Chaîne de requête, avec ou sans « ? ».
+ * @returns {string} `""` s'il ne reste rien, sinon la chaîne préfixée de « ? ».
+ */
+export function searchWithoutLang(search) {
+  const params = new URLSearchParams(search);
+  params.delete("lang");
+  const reste = params.toString();
+  return reste === "" ? "" : `?${reste}`;
+}
+
+/**
  * Lit la valeur d'une clé pointée ("footer.notice") dans un dictionnaire.
  * Clé inconnue → undefined : donnée invalide ignorée, jamais de crash.
  */
@@ -304,14 +344,27 @@ if (typeof document !== "undefined") {
   applyI18n(initial);
 
   // Une langue venue de l'adresse devient la nouvelle préférence : une intention
-  // explicite du moment remplace un choix ancien, et sans cet enregistrement
-  // elle rebasculerait au premier rechargement sans paramètre. Les deux autres
-  // cas n'écrivent rien : le comportement d'avant y est intact.
-  if (langFromSearch(search) !== null) {
+  // explicite du moment remplace un choix ancien. Puis le paramètre est retiré
+  // de l'adresse — consommé, il n'a plus rien à y faire, et l'y laisser le
+  // ferait regagner à chaque rechargement contre le bouton de bascule.
+  // Les deux autres cas n'écrivent rien et ne touchent pas à l'adresse.
+  if (shouldPersistLang(search)) {
     try {
       localStorage.setItem(STORAGE_KEY, initial);
     } catch {
       // Stockage inaccessible : la langue de cette visite est bonne, elle ne survivra pas.
+    }
+    try {
+      // `replaceState` : pas de rechargement, pas d'entrée d'historique — le
+      // bouton « précédent » du navigateur reste ce que le lecteur en attend.
+      history.replaceState(
+        history.state,
+        "",
+        location.pathname + searchWithoutLang(search) + location.hash,
+      );
+    } catch {
+      // Contexte qui refuse la réécriture d'adresse (page ouverte en file://,
+      // quota d'appels) : la langue est bonne, l'adresse gardera son paramètre.
     }
   }
 

@@ -6,7 +6,13 @@
  * porte qui compare deux ensembles vides est aveugle, elle doit échouer.
  */
 import { describe, expect, it } from "vitest";
-import { dict, resolveInitialLang, resolveLang } from "../js/i18n.js";
+import {
+  dict,
+  resolveInitialLang,
+  resolveLang,
+  searchWithoutLang,
+  shouldPersistLang,
+} from "../js/i18n.js";
 
 /** Aplati un dictionnaire en liste triée de clés pointées ("footer.notice"). */
 function collectKeys(node, prefix = "") {
@@ -86,6 +92,54 @@ describe("resolveInitialLang — adresse valide > préférence mémorisée > nav
   for (const { search, stored, nav, attendu, prouve } of CAS) {
     it(`search=${JSON.stringify(search)} stored=${JSON.stringify(stored)} nav=${JSON.stringify(nav)} → ${attendu} — ${prouve}`, () => {
       expect(resolveInitialLang(search, stored, nav)).toBe(attendu);
+    });
+  }
+});
+
+describe("shouldPersistLang — on n'enregistre que ce qui vient de l'adresse", () => {
+  /**
+   * Le témoin qui manquait à la v1 : la décision d'enregistrer vivait dans
+   * l'amorçage, hors de portée de la suite. Elle est ici, et elle mord.
+   */
+  const CAS = [
+    { search: "?lang=en", attendu: true, prouve: "un lang valide fait foi" },
+    { search: "?from=portfolio&lang=fr", attendu: true, prouve: "l'ordre des paramètres n'importe pas" },
+    { search: "?lang=EN", attendu: false, prouve: "casse stricte : rien n'est enregistré" },
+    { search: "?lang=de", attendu: false, prouve: "hors liste : rien n'est enregistré" },
+    { search: "?lang=", attendu: false, prouve: "valeur vide : rien n'est enregistré" },
+    { search: "", attendu: false, prouve: "sans paramètre : le stockage n'est PAS réécrit" },
+    { search: "?from=portfolio", attendu: false, prouve: "un autre paramètre ne déclenche rien" },
+  ];
+
+  it("porte non vide : la table couvre les sept cas", () => {
+    expect(CAS.length, "table de cas AVEUGLE").toBeGreaterThanOrEqual(7);
+  });
+
+  for (const { search, attendu, prouve } of CAS) {
+    it(`${JSON.stringify(search)} → ${attendu} — ${prouve}`, () => {
+      expect(shouldPersistLang(search)).toBe(attendu);
+    });
+  }
+});
+
+describe("searchWithoutLang — le paramètre est consommé, pas gardé", () => {
+  const CAS = [
+    { search: "?lang=en", attendu: "", prouve: "seul paramètre : il ne reste rien" },
+    { search: "?from=portfolio&lang=en", attendu: "?from=portfolio", prouve: "`from` survit" },
+    { search: "?lang=en&from=portfolio", attendu: "?from=portfolio", prouve: "quel que soit l'ordre" },
+    { search: "?lang=en&lang=fr", attendu: "", prouve: "toutes les occurrences, pas la première" },
+    { search: "?from=portfolio", attendu: "?from=portfolio", prouve: "sans lang : rendu inchangé" },
+    { search: "", attendu: "", prouve: "chaîne vide : chaîne vide" },
+    { search: "?from=portfolio&x=1&lang=en", attendu: "?from=portfolio&x=1", prouve: "non-fuite : rien d'autre n'est touché" },
+  ];
+
+  it("porte non vide : la table couvre les sept cas", () => {
+    expect(CAS.length, "table de cas AVEUGLE").toBeGreaterThanOrEqual(7);
+  });
+
+  for (const { search, attendu, prouve } of CAS) {
+    it(`${JSON.stringify(search)} → ${JSON.stringify(attendu)} — ${prouve}`, () => {
+      expect(searchWithoutLang(search)).toBe(attendu);
     });
   }
 });
