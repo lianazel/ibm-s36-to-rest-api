@@ -4,6 +4,10 @@
 - Socle du site : structure des pages, style « trois âges » (cf. CLAUDE.md, Style du produit), bilingue FR/EN.
 - Les cinq sections : le décor, le problème, la solution, le mini-langage, la méthode.
 - Visuels recréés (SVG) : plan technique S36, vis-à-vis positionnel/JSON, schéma d'architecture de l'API.
+- CHORE langue dans l'adresse (`?lang=fr|en`, prioritaire sur le navigateur, valeurs hors liste ignorées) : rembourse [P6] ; puis mise à jour du lien d'entrée côté portfolio (`?from=portfolio&lang=…`), une seule fois.
+- Rendu Plex Mono des noms de commandes en ligne (contrat de design écrit et non tenu depuis la session 5).
+- Navigation en ligne dans la barre à partir de 48rem : abandonnée en session 6 (le panneau porte « À propos » à toutes les largeurs). À reprendre le jour où « À propos » trouve un second domicile — le point de rupture est vide et commenté dans `css/styles.css`.
+- Version du produit affichée dans « À propos » : écartée en session 6 faute d'un `/land` capable de la tenir à jour (il ne touche que le manifeste et le pied de `CLAUDE.md`). Exige d'étendre le gabarit avant de réintroduire la ligne.
 - Gate de sortie : relecture d'anonymisation page par page.
 
 ## Jalon 2 (v0.2) — Le site démontre
@@ -12,10 +16,8 @@
 
 ## Dettes et reports — revue du socle (14 août 2026, décision du chef de projet)
 
-- **[W2]** Porte de test HTML↔dictionnaire : chaque `data-i18n`/`data-i18n-attr` de `index.html` doit résoudre dans `dict.fr` (une faute de frappe produit aujourd'hui un élément vide sans test rouge).
 - **[W5]** `<noscript>` d'une phrase + trace produit de la dette « le site requiert JavaScript pour afficher ses textes ».
 - **[W8]** Test d'`applyI18n` + clarification du paramètre `root` (couplage au `document` global) ; le chemin `site.title` exigé par le code n'est couvert par aucune porte.
-- **[W11]** Confort tactile 44 px (bouton de langue, liens de nav) — WCAG 2.2 AA (24 px) déjà tenu.
 - **[W12]** Favicon (404 constaté à la vérification visuelle du socle).
 - **[P6/R&D]** Langue dans l'URL (`?lang=`) : arbitrage A (statu quo) / B (paramètre de requête) / C (arborescences par langue) non rendu, reporté.
 
