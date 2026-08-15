@@ -201,6 +201,89 @@ export function resolveLang(navLang) {
 }
 
 /**
+ * Lit la langue portée par la chaîne de requête, ou `null`.
+ *
+ * Donnée entrante : acceptée seulement si elle vaut **exactement** une langue
+ * supportée. Casse stricte, aucun préfixe — `?lang=` porte un code, pas une
+ * locale : `EN` et `fr-FR` sont refusés. Rien d'autre n'est lu de la requête,
+ * et rien de ce qu'elle contient n'entre dans la page.
+ *
+ * Privée au module, mais partagée par `resolveInitialLang` et l'amorçage :
+ * celui-ci doit savoir si la langue **vient de l'adresse** pour l'enregistrer,
+ * et réécrire ce test chez lui ferait vivre la règle de validation en deux
+ * exemplaires — deux exemplaires qui divergeraient un jour.
+ *
+ * @param {string} search Chaîne de requête, avec ou sans « ? ».
+ * @returns {"fr"|"en"|null}
+ */
+function langFromSearch(search) {
+  const value = new URLSearchParams(search).get("lang");
+  return SUPPORTED_LANGS.includes(value) ? value : null;
+}
+
+/**
+ * Choisit la langue d'ouverture du site.
+ *
+ * Ordre arbitré par le chef de projet (15 août 2026) : **adresse valide >
+ * préférence mémorisée > langue du navigateur**. Le portfolio transmettra
+ * `?from=portfolio&lang=…` : un lecteur venu de sa version anglaise doit
+ * arriver en anglais, quelle que soit la préférence laissée ici la veille.
+ *
+ * Pure : les trois entrées sont fournies, rien n'est lu du DOM ni du stockage.
+ *
+ * @param {string} search Chaîne de requête (`location.search`).
+ * @param {string|null} stored Préférence mémorisée, non validée.
+ * @param {string|undefined} navLang Valeur type `navigator.language`.
+ * @returns {"fr"|"en"}
+ */
+export function resolveInitialLang(search, stored, navLang) {
+  return (
+    langFromSearch(search) ??
+    (SUPPORTED_LANGS.includes(stored) ? stored : resolveLang(navLang))
+  );
+}
+
+/**
+ * La langue de cette visite doit-elle devenir la préférence mémorisée ?
+ *
+ * Vrai si et seulement si l'adresse porte un `lang` valide. Une langue héritée
+ * du stockage ou déduite du navigateur ne se réécrit pas : sans ce filtre, une
+ * visite ordinaire réenregistrerait ce qu'elle vient de lire, et le fait que
+ * rien ne bouge sans paramètre ne serait plus vrai que par accident.
+ *
+ * Extraite de l'amorçage en réponse à la revue du 15 août 2026 (P2) : la
+ * décision y vivait hors de portée de toute porte.
+ *
+ * @param {string} search Chaîne de requête (`location.search`).
+ * @returns {boolean}
+ */
+export function shouldPersistLang(search) {
+  return langFromSearch(search) !== null;
+}
+
+/**
+ * Rend la chaîne de requête débarrassée du paramètre `lang`.
+ *
+ * `lang` est un message **reçu une fois**, pas un état : laissé dans l'adresse,
+ * il regagnerait à chaque rechargement, y compris contre une bascule manuelle
+ * faite la seconde d'avant, et l'adresse partagée mentirait sur la langue
+ * affichée (revue du 15 août 2026, P4, option B).
+ *
+ * Toutes les occurrences de `lang` sont retirées ; les autres paramètres
+ * survivent dans leur ordre — `from` en particulier, dont dépend le retour au
+ * portfolio (`js/menu.js`).
+ *
+ * @param {string} search Chaîne de requête, avec ou sans « ? ».
+ * @returns {string} `""` s'il ne reste rien, sinon la chaîne préfixée de « ? ».
+ */
+export function searchWithoutLang(search) {
+  const params = new URLSearchParams(search);
+  params.delete("lang");
+  const reste = params.toString();
+  return reste === "" ? "" : `?${reste}`;
+}
+
+/**
  * Lit la valeur d'une clé pointée ("footer.notice") dans un dictionnaire.
  * Clé inconnue → undefined : donnée invalide ignorée, jamais de crash.
  */
@@ -253,11 +336,46 @@ if (typeof document !== "undefined") {
   } catch {
     // localStorage inaccessible (navigation privée stricte) : préférence non persistée.
   }
-  // La valeur stockée est une donnée externe : on ne l'applique que validée.
-  const initial = SUPPORTED_LANGS.includes(stored)
-    ? stored
-    : resolveLang(navigator.language);
+  // Valeur stockée et chaîne de requête sont deux données externes : la
+  // fonction qui les arbitre les valide toutes les deux, et c'est elle qui est
+  // testée — l'amorçage ne recalcule surtout pas la priorité de son côté.
+  const search = window.location.search;
+  const initial = resolveInitialLang(search, stored, navigator.language);
   applyI18n(initial);
+
+  // Une langue venue de l'adresse devient la nouvelle préférence : une intention
+  // explicite du moment remplace un choix ancien. Puis le paramètre est retiré
+  // de l'adresse — consommé, il n'a plus rien à y faire, et l'y laisser le
+  // ferait regagner à chaque rechargement contre le bouton de bascule.
+  // Les deux autres cas n'écrivent rien et ne touchent pas à l'adresse.
+  if (shouldPersistLang(search)) {
+    let intentionGardee = false;
+    try {
+      localStorage.setItem(STORAGE_KEY, initial);
+      intentionGardee = true;
+    } catch {
+      // Stockage inaccessible : la langue de cette visite est bonne, elle ne survivra pas.
+    }
+    // Le nettoyage de l'adresse est conditionné au succès de l'enregistrement.
+    // Sans stockage, l'adresse est le DERNIER porteur de l'intention : la
+    // nettoyer quand même ferait rebasculer la langue au premier rechargement
+    // (navigation privée stricte, webview qui bloque le stockage). Défaut
+    // introduit puis mesuré à la revue du 15 août 2026.
+    if (intentionGardee) {
+      try {
+        // `replaceState` : pas de rechargement, pas d'entrée d'historique — le
+        // bouton « précédent » du navigateur reste ce que le lecteur en attend.
+        history.replaceState(
+          history.state,
+          "",
+          location.pathname + searchWithoutLang(search) + location.hash,
+        );
+      } catch {
+        // Contexte qui refuse la réécriture d'adresse (page ouverte en file://,
+        // quota d'appels) : la langue est bonne, l'adresse gardera son paramètre.
+      }
+    }
+  }
 
   // Garde `?.` : une future page peut charger ce module sans porter le bouton.
   document.getElementById("lang-switch")?.addEventListener("click", () => {
