@@ -349,22 +349,31 @@ if (typeof document !== "undefined") {
   // ferait regagner à chaque rechargement contre le bouton de bascule.
   // Les deux autres cas n'écrivent rien et ne touchent pas à l'adresse.
   if (shouldPersistLang(search)) {
+    let intentionGardee = false;
     try {
       localStorage.setItem(STORAGE_KEY, initial);
+      intentionGardee = true;
     } catch {
       // Stockage inaccessible : la langue de cette visite est bonne, elle ne survivra pas.
     }
-    try {
-      // `replaceState` : pas de rechargement, pas d'entrée d'historique — le
-      // bouton « précédent » du navigateur reste ce que le lecteur en attend.
-      history.replaceState(
-        history.state,
-        "",
-        location.pathname + searchWithoutLang(search) + location.hash,
-      );
-    } catch {
-      // Contexte qui refuse la réécriture d'adresse (page ouverte en file://,
-      // quota d'appels) : la langue est bonne, l'adresse gardera son paramètre.
+    // Le nettoyage de l'adresse est conditionné au succès de l'enregistrement.
+    // Sans stockage, l'adresse est le DERNIER porteur de l'intention : la
+    // nettoyer quand même ferait rebasculer la langue au premier rechargement
+    // (navigation privée stricte, webview qui bloque le stockage). Défaut
+    // introduit puis mesuré à la revue du 15 août 2026.
+    if (intentionGardee) {
+      try {
+        // `replaceState` : pas de rechargement, pas d'entrée d'historique — le
+        // bouton « précédent » du navigateur reste ce que le lecteur en attend.
+        history.replaceState(
+          history.state,
+          "",
+          location.pathname + searchWithoutLang(search) + location.hash,
+        );
+      } catch {
+        // Contexte qui refuse la réécriture d'adresse (page ouverte en file://,
+        // quota d'appels) : la langue est bonne, l'adresse gardera son paramètre.
+      }
     }
   }
 
