@@ -205,3 +205,70 @@
 | Correctif du décalage, invérifiable dans l'environnement de mesure | **Posé quand même** (`scrollbar-gutter: stable`), et l'absence de preuve **écrite** dans `test-results.md` | Le raisonnement est vérifié (barre ~15 px mesurée côté chef de projet, contenu centré → moitié). Livrer sans corriger aurait laissé un défaut connu ; livrer en le déclarant prouvé aurait été faux | précédent |
 | Commits hors du plan du prompt (deux correctifs et une leçon après le premier `READY`) | **Ajoutés**, séparés et étiquetés | Précédent de la session 4 pour la leçon ; les correctifs répondent à des défauts trouvés après la clôture. Détachables un par un si le chef de projet les juge de trop | cas d'espèce |
 | Niveau de bump | **Patch** 0.1.3 → 0.1.4 | Le jalon 1 reste inachevé (une section sur cinq écrite, visuels SVG absents, gate d'anonymisation non passée). Le passage minor marque la clôture du jalon — règle déjà inscrite trois fois à ce journal | précédent |
+
+## 15 août 2026 — Session 7 : langue dans l'adresse (v0.1.5) — merge `1e17bc1`
+
+- Incrément `chore/lang-dans-adresse`, **deux révisions de prompt jouées sur la même branche**
+  (`…_v1.md` puis `…_v2.md`), sept commits — rembourse la dette **[P6]** :
+  - **Livrable** : trois fonctions pures exportées dans `js/i18n.js` — `resolveInitialLang`
+    (adresse valide > préférence mémorisée > navigateur), `shouldPersistLang` (la langue de cette
+    visite doit-elle devenir la préférence ?) et `searchWithoutLang` (nettoyage du paramètre consommé).
+    L'amorçage applique la langue, enregistre la préférence si elle vient de l'adresse, **puis** retire
+    `lang` par `history.replaceState`. 27 tests neufs, `tests/i18n.test.js` passe de 5 à 32.
+  - **La règle de validation vit en un seul exemplaire** (`langFromSearch`, privée), partagée par les
+    deux fonctions publiques qui en dépendent. L'amorçage **appelle** `resolveInitialLang` au lieu de
+    recalculer la priorité : sans cela, la porte aurait mesuré du code mort.
+  - **Preuves** : 41/41 (base) → 52/52 (v1) → **68/68 rc 0**. Quatre morsures prouvées au total, chacune
+    sur son propre chemin (casse stricte, refus du préfixe, règle d'enregistrement, nettoyage
+    d'adresse), restaurations vérifiées par `cmp`.
+  - **Scène navigateur décisive** : `?from=portfolio&lang=en` → adresse ramenée à `?from=portfolio`,
+    bascule manuelle en FR, **rechargement → reste en FR**. Le bouton est redevenu le dernier mot.
+    `?lang=de` : ni la langue, ni la préférence, ni l'adresse ne bougent.
+- **Deux revues du `reviewer`, deux verdicts `NEEDS WORK`, et c'est le fait marquant de la session.**
+  - **Revue de la v1** : aucun défaut de code, mais deux réserves justes. (a) `changes.md` affirmait que
+    trois tests prouvaient l'absence d'écriture en préférence — **faux**, `resolveInitialLang` n'a
+    aucune vue sur `localStorage` ; le `if` de l'amorçage n'était gardé par rien, et le supprimer
+    laissait la suite verte. (b) Tant que `?lang=` restait dans l'adresse, il regagnait à chaque
+    rechargement, y compris contre une bascule manuelle. **Reproduit avant d'agir**, dans les deux cas.
+  - **Revue de la v2** : les deux points traités, mais trois réserves nouvelles, dont **une que je
+    n'avais pas vue et qui était la bonne** — la dette mesurée et honnêtement publiée ne vivait que
+    dans `.pipeline/`, **qui est gitignoré**. Elle aurait disparu au merge : mesurée, publiée, perdue.
+    D'où **[W13]**, inscrite à la ROADMAP.
+  - Elle a aussi trouvé une **régression introduite par la v2 elle-même** : stockage indisponible
+    (navigation privée stricte) + adresse nettoyée = intention détruite, langue perdue au rechargement.
+    Reproduite par harnais d'amorçage, corrigée (`7eefe14`).
+- **Le prompt v2 se trompait, et la mesure l'a dit.** Il annonçait que le nouveau témoin ferait rougir
+  la suppression du `if` de l'amorçage. Mutation réelle : **68/68 au vert**. Extraire un prédicat garde
+  la **règle**, pas son **site d'appel**. La réserve avait été posée à l'étape 0, *avant* d'exécuter, et
+  écrite telle que mesurée — contre le prompt. La revue de la v2 a validé la mesure et l'a élargie :
+  supprimer le bloc `replaceState` **entier** laisse aussi la suite verte. Ce n'est pas un `if` qui
+  échappe aux portes, c'est tout le câblage — d'où la formulation de [W13].
+- **Incident d'exécution consigné** : l'enchaînement des trois mutations a dépassé le délai de deux
+  minutes et s'est interrompu **avec une mutation encore en place** dans `js/i18n.js`. Constaté,
+  restauré depuis la sauvegarde, vérifié par `cmp` avant de reprendre, mutations rejouées une par appel.
+  Une preuve interrompue laisse le dépôt sale : ça se vérifie, ça ne se suppose pas.
+- **Incident d'outillage, troisième occurrence** : `.git/index.lock` résiduel bloquant `git checkout -b`
+  (0 octet, aucun détenteur visible côté WSL). Retrait **soumis au chef de projet avant exécution**, la
+  réserve de la session 4 (un client git côté Windows serait invisible depuis WSL) n'étant pas levée.
+  **Fait nouveau** : le recontrôle a attrapé `git ls-files --others --exclude-standard` avec
+  `core.quotepath=false` — la signature de l'extension git de VS Code. Commande en lecture seule, le
+  retrait était sans risque. Piste sur l'origine du verrou, pas conclusion.
+- Tests sur `main` après merge : **68/68, rc 0**. Bump **patch** 0.1.4 → 0.1.5.
+- **Aucune leçon inscrite cette session.** Deux candidates de la session 6 restent non arbitrées ; rien
+  de neuf n'a été soumis. « Aucune » est une information.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| Ordre de priorité de la langue à l'ouverture | Adresse valide **>** préférence mémorisée **>** navigateur, et l'adresse **est enregistrée** | Le portfolio transmettra `?from=portfolio&lang=…` : un lecteur venu de sa version anglaise doit arriver en anglais. Sans enregistrement, la langue rebasculerait au premier rechargement | précédent |
+| `resolveInitialLang` rend une langue, pas sa provenance — comment l'amorçage sait-il qu'il doit enregistrer ? | Helper **privé** `langFromSearch`, partagé par la fonction pure et l'amorçage | Réécrire la validation dans l'amorçage ferait vivre la règle en deux exemplaires, destinés à diverger | précédent |
+| Revue v1 R1 : témoin committé ou dette inscrite ? | **Témoin** `shouldPersistLang`, exportée et testée | La règle méritait une porte ; la revue avait raison de refuser qu'elle vive sans surveillance | précédent |
+| Revue v1 R2 : options A (statu quo) / B (nettoyer l'adresse) / C (le bouton réécrit l'URL) | **B** — le paramètre est retiré après consommation | Un paramètre d'entrée est un message **reçu une fois**, pas un état. Conséquence voulue : le bouton redevient le dernier mot, et l'adresse cesse de mentir sur la langue affichée | précédent |
+| Le prompt v2 affirme que le nouveau témoin fermera la dette | **Contredit par la mesure, et écrit tel que mesuré** | Une porte qui ne mord pas là où on l'annonce est pire qu'une porte absente : elle rassure. La réserve a été posée à l'étape 0, avant d'exécuter | précédent |
+| Où déclarer la dette résiduelle, le prompt v2 disant « ROADMAP déjà faite, rien à refaire » ? | **[W13] inscrite à `tasks/ROADMAP.md`**, hors périmètre du critère 4 | `.pipeline/` est gitignoré : une dette qui n'y vit que là disparaît au merge. L'instruction du prompt supposait que le témoin fermerait la dette ; la mesure a démenti l'hypothèse, et une instruction qui ignore le cas ne l'autorise pas | précédent |
+| Régression du stockage indisponible : documenter ou corriger ? | **Corriger** — le `replaceState` passe dans le chemin de succès de l'écriture | Sans stockage, l'adresse est le **dernier** porteur de l'intention. `changes.md` arbitrait déjà « si un seul des deux doit passer, c'est le premier » — le code disait l'inverse de ce qu'il écrivait | précédent |
+| Ce correctif n'est lui-même gardé par aucune porte | **Livré quand même**, dette nommée | Refuser de corriger un défaut mesuré au motif qu'on ne peut pas encore le surveiller reviendrait à garder la régression pour préserver la symétrie des preuves | cas d'espèce |
+| Retrait du `.git/index.lock` | **Soumis au chef de projet**, pas retiré d'office | Un client git côté Windows est invisible depuis WSL : supprimer un verrou pendant qu'un client écrit l'index peut le corrompre. Le doute ne s'arbitre pas dans l'instant | précédent |
+| Atterrir sur un verdict `NEEDS WORK` affiché | **Oui**, les trois points ayant été traités après la revue | Le verdict n'est pas réécrit après coup : il reste tel qu'il a été rendu, et les artefacts disent ce qui a suivi. Un verdict corrigé rétroactivement ne vaudrait plus rien | précédent |
+| Niveau de bump | **Patch** 0.1.4 → 0.1.5 | Jalon 1 toujours inachevé ; le passage minor marque sa clôture — règle inscrite quatre fois à ce journal | précédent |
