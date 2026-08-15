@@ -27,6 +27,12 @@ export const dict = {
       minilangage: "Le mini-langage",
       methode: "La méthode",
     },
+    menu: {
+      // Nom accessible du panneau : un role="dialog" sans nom n'en a pas.
+      title: "Menu",
+      open: "Ouvrir le menu",
+      close: "Fermer le menu",
+    },
     meta: {
       description:
         "Une API REST .Net qui expose en JSON des fichiers hérités IBM S/36 tournant sur IBM i : architecture réelle, testée, expliquée.",
@@ -73,6 +79,14 @@ export const dict = {
       title: "La méthode",
       intro: "La suite de ce chapitre arrive.",
     },
+    about: {
+      title: "À propos",
+      name: "Des fichiers S/36 à l'API REST",
+      license: "Code sous licence MIT ; textes et visuels réservés.",
+      twaim: "Construit sous le harnais TWAIM : voir la méthode",
+      twaimUrl: "https://twaim-web.vercel.app/",
+      portfolio: "Retour au portfolio",
+    },
     footer: {
       notice:
         "© 2026 Jean-Christophe Cherid. Code sous licence MIT ; textes et visuels réservés.",
@@ -99,6 +113,11 @@ export const dict = {
       solution: "The solution",
       minilangage: "The mini-language",
       methode: "The method",
+    },
+    menu: {
+      title: "Menu",
+      open: "Open menu",
+      close: "Close menu",
     },
     meta: {
       description:
@@ -146,6 +165,14 @@ export const dict = {
       title: "The method",
       intro: "This chapter is coming soon.",
     },
+    about: {
+      title: "About",
+      name: "From S/36 files to a REST API",
+      license: "Code under MIT license; texts and visuals all rights reserved.",
+      twaim: "Built under the TWAIM harness: see the method",
+      twaimUrl: "https://twaim-web.vercel.app/en",
+      portfolio: "Back to the portfolio",
+    },
     footer: {
       notice:
         "© 2026 Jean-Christophe Cherid. Code under MIT license; texts and visuals all rights reserved.",
@@ -189,6 +216,12 @@ function lookup(table, path) {
  * `attribut:clé`, ex. `aria-label:nav.aria`), et aligne `<html lang>` et le
  * titre du document.
  *
+ * Émet `i18n:applied` en fin de course : les composants dont le libellé dépend
+ * de leur propre état — le menu, dont l'`aria-label` dit « ouvrir » ou
+ * « fermer » — ne peuvent pas être servis par `data-i18n` seul, et cette boucle
+ * vient justement d'écraser leur libellé courant. Ils se resynchronisent ici,
+ * sans dupliquer la logique de langue ni s'attacher au bouton de bascule.
+ *
  * @param {"fr"|"en"} lang Langue cible.
  * @param {ParentNode} root Racine de recherche (permet de tester un fragment).
  */
@@ -209,6 +242,7 @@ export function applyI18n(lang, root = document) {
   }
   document.documentElement.lang = lang;
   document.title = table.site.title;
+  document.dispatchEvent(new CustomEvent("i18n:applied", { detail: { lang } }));
 }
 
 /* ---- Amorçage navigateur (inerte sous Vitest : pas de DOM en node). */
