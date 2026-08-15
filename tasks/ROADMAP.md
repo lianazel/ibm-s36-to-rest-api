@@ -53,8 +53,14 @@
   `Incrément :` que la garde exige déjà. **Motif du report** : chaque durcissement lexical de la garde
   a fermé un coin et en a ouvert un autre (citation → puce → parité → étiquette qualifiée) ; la cause
   n'est pas la qualité des correctifs mais le fait qu'une décision d'atterrissage dépende de l'analyse
-  d'un document en prose libre. Résidu connu et **assumé** en attendant : un verdict rendu en liste
-  numérotée ou en citation reste invisible à la garde.
+  d'un document en prose libre. **Résidus connus et assumés** en attendant, tous mesurés : (a) un
+  verdict rendu en **liste numérotée** ou en **citation** reste invisible à la garde ; (b) la parité
+  des blocs de code est **comptée, pas appariée** — une imbrication de largeurs différentes (4 accents
+  graves contenant 3) donne un compte pair et masque encore un verdict de refus ; (c) l'ordre des
+  contrôles fait qu'un bloc non refermé **dans l'en-tête** produit le motif « aucune ligne
+  « Incrément : » », qui envoie chercher au mauvais endroit — un déplacement d'une ligne
+  (`fencesBalanced` avant `declaredIncrement`) le corrigerait, volontairement **non fait** après le
+  verdict `SHIP` pour ne pas livrer du code que la revue n'a pas vu.
 
 ## À arbitrer par le chef de projet
 
