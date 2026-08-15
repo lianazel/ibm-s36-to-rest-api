@@ -59,6 +59,16 @@
   box-sizing: border-box;
 }
 
+/* `[hidden] { display: none }` ne vient que de la feuille du navigateur, et
+   TOUTE règle d'auteur posant `display` sur le même élément la neutralise en
+   silence — c'est ainsi que la cible tactile `.about a { display: inline-flex }`
+   a rendu visible un lien masqué. Ici, l'attribut redevient ce qu'il prétend
+   être : une garantie, pas une suggestion. Le `!important` est le seul moyen de
+   la tenir sans avoir à deviner d'avance toutes les règles à venir. */
+[hidden] {
+  display: none !important;
+}
+
 body {
   margin: 0;
   background: var(--color-bg);
