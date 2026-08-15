@@ -2,6 +2,33 @@
 
 > Une leçon = une erreur commise ici, datée, avec la règle qui l'empêche de revenir.
 
+## 15 août 2026 — Lire l'attribut n'est pas mesurer le pixel
+
+**Type** : Erreur
+**Contexte** : CHORE `menu-hamburger`. Le retour au portfolio devait rester invisible sans
+`?from=portfolio`. Trois vérifications navigateur l'ont déclaré masqué. Le chef de projet a ouvert le
+site sur son téléphone et **l'a vu à l'écran**.
+**Erreur** : mes trois mesures lisaient `a.hidden` — la présence de l'**attribut**. L'attribut était
+bien là. Mais `[hidden] { display: none }` ne vient que de la feuille du **navigateur**, et toute règle
+d'auteur posant `display` sur le même élément la neutralise en silence : ma propre cible tactile
+`.about a { display: inline-flex }` rendait le lien visible. 128 × 44 px peints sous un attribut qui
+disait « caché ». Le lien du pied de page, lui, n'était couvert par aucune règle d'auteur : il était
+correctement masqué — ce qui a rendu le défaut d'autant plus discret, une moitié du contrôle passant
+au vert.
+**Correction** : `[hidden] { display: none !important; }` en tête de feuille, pour que l'attribut
+redevienne une garantie et non une suggestion. Et surtout : **une propriété du DOM qui décrit une
+intention ne se substitue jamais à la mesure de ce qui est peint.** Ce qui se vérifie, c'est
+`getComputedStyle().display` et la boîte rendue (`getBoundingClientRect`), jamais `el.hidden`,
+`classList.contains` ou la présence d'un attribut. La même règle vaut pour `disabled`, `inert`,
+`aria-hidden` : l'état déclaré et l'état rendu sont deux mesures distinctes.
+**Portée du dégât** : aucune — le défaut est mort sur la branche, avant le merge. Il a été trouvé par
+un œil humain sur un appareil réel, pas par mes portes. C'est exactement le rôle que la méthode
+réserve au chef de projet, et il a servi.
+**Applicable globalement ?** : **oui, à mon sens** — vaut pour tout projet web, indépendamment de la
+stack. À arbitrer par le chef de projet ; promotion = geste dédié (entrée A-1). Voisine de la leçon
+globale du 8 août (« une mise en page mesurée dans un autre environnement de polices n'est pas le même
+site ») : même famille, celle des vérifications qui mesurent autre chose que ce qu'elles croient.
+
 ## 14 août 2026 — Cowork : deux assertions non mesurées le même jour
 
 **Type** : Erreur
