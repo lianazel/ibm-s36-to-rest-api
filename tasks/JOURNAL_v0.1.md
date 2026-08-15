@@ -89,3 +89,47 @@
 | Segment surnuméraire dans `data-i18n-attr` (`a:b:c`) | Non signalé | Inerte mais sans effet de bord : le code l'ignore et pose quand même l'attribut. Le signaler légiférerait sur la syntaxe au lieu de mesurer l'effet | cas d'espèce |
 | Où consigner la leçon d'auto-review, l'incrément étant déjà clos `READY` | Commit dédié sur la branche (`26261f0`), `changes.md` et `STATUS.md` repris ensuite | Extension de périmètre arbitrée par le chef de projet (option A sur trois) : le registre des leçons appartient au harnais, pas au site, et la méthode demande de consigner immédiatement | cas d'espèce |
 | Retrait de la dette **[W2]** de `tasks/ROADMAP.md` | **Non fait** — la dette y reste inscrite | Hors du périmètre du prompt, et hors de la liste de staging précise de `/land` : la modifier laisserait un fichier suivi sale après le commit de clôture. Geste dédié à venir | cas d'espèce |
+
+## 15 août 2026 — Session 5 : section « Le décor » (v0.1.3) — merge `173c964`
+
+- Incrément `feat/section-le-decor` (prompt `prompts/v0.1/EVOL_section-le-decor_v2.md`) — **premier contenu
+  du jalon 1** :
+  - **Livrable** : quatre blocs de récit dans la section 1, FR et EN — *Deux lignées, deux philosophies* ·
+    *1988 : le pont d'IBM* · *Les noms changent, la machine continue* · *La preuve vivante*.
+    **13 clés nouvelles par langue, 26 au total** sous `section1.{lignees,pont,noms,preuve}` ;
+    17 lignes de HTML dans la section 1. `section1.title` et `section1.intro` inchangés.
+  - **Méthode de recopie** : la prose n'a pas été transcrite mais **extraite du prompt par script**, puis
+    un second script a comparé caractère par caractère les valeurs chargées depuis `js/i18n.js` à la
+    source. Résultat : **26 valeurs comparées, 0 écart**. Typographie contrôlée *avant* recopie
+    (apostrophes droites, guillemets `« »` à espaces ordinaires, zéro insécable, zéro cadratin en prose) :
+    aucun caractère invisible introduit.
+  - **Contradiction relevée à l'étape 0, arbitrée avant l'ouverture de la branche** : le prompt
+    prescrivait `<code>STRS36</code>` en ligne, or `applyI18n` pose les textes par `el.textContent`
+    (`js/i18n.js:158`) — le balisage se serait affiché chevrons compris — et aucune règle CSS ne cible
+    `code`, `css/styles.css` étant hors périmètre. Voir arbitrages.
+  - **Preuves** : `npm test` **28/28 rc 0** avant et après. Les portes existantes ont été prouvées
+    *voyantes* (36 références i18n dans `index.html` contre 23, dont 13 nouvelles) **et** *mordantes sur
+    ce matériau-ci* (`section1.preuve.p3` altérée → rc 1 nommant la clé ; restaurée, `grep` = 0).
+    Une suite verte ne prouve pas qu'elle a mesuré le matériau neuf : ça se mesure.
+  - **Visuel 360 px, mesuré et non jugé** : débordement **0 px en EN comme en FR** (le FR est le cas
+    défavorable), aucun élément hors viewport, aucun `data-i18n` resté vide, bascule constatée sur les
+    13 éléments. Le site auto-héberge ses polices : la mesure porte sur le site réel, pas sur une
+    substitution de la machine hôte. Erreur console `favicon.ico` 404 = dette **[W12]** connue, pas une
+    régression.
+  - **Vu sur appareil réel** (tunnel éphémère, copie allowlist de 9 fichiers hors dépôt) : rendu conforme
+    sur iPhone, quatre blocs dans l'ordre, aucune coupure. La validation visuelle appartient au chef de
+    projet ; elle a eu lieu.
+- Tests sur `main` après merge : **28/28, rc 0**. Bump **patch** 0.1.2 → 0.1.3 (voir arbitrages).
+- **Aucune leçon inscrite** : deux candidates relevées par l'auto-review, aucune soumise au chef de
+  projet à l'heure de l'atterrissage. « Aucune » est une information, pas un oubli.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| Le prompt prescrit `<code>STRS36</code>` dans la prose ; le mécanisme d'affichage peut-il le rendre ? | **Non** — `STRS36` livré en texte nu (option B sur trois soumises) | `applyI18n` pose par `el.textContent`, qui ne parse pas le balisage : `<code>` se serait affiché chevrons compris. `innerHTML` aurait changé la logique de **toutes** les clés et ouvert une injection de balisage depuis les données. Et aucune règle CSS ne cible `code` : le rendu serait tombé sur la monospace par défaut du navigateur, jamais Plex Mono | précédent |
+| Étendre le périmètre à `css/styles.css` pour poser la règle `code` ? | **Non** — report vers un incrément CSS dédié | Le critère d'acceptation 2 fige le périmètre à deux fichiers. Le contrat de design (« Plex Mono pour les noms de commandes ») reste donc **écrit et non tenu** : c'est une dette, elle est nommée, pas absorbée en silence | cas d'espèce |
+| Cohérence du rendu de `STRS36` dans la section | Texte nu partout | `section1.intro`, gelée par le prompt, l'écrit déjà en texte nu. L'alternative aurait affiché le même nom de commande deux fois dans la même section, une fois nu et une fois en monospace générique | cas d'espèce |
+| Niveau de bump : le gabarit `/land` dit `feat/*` → **minor** (0.2.0) | **Patch** 0.1.2 → 0.1.3, gabarit non suivi | Le MINOR structure les artefacts du projet (`prompts/v0.1/`, `JOURNAL_v0.1.md`, « Jalon 1 (v0.1) »). Vérifié avant de trancher : le jalon 1 est **inachevé** — une section sur cinq écrite, visuels SVG absents, gate d'anonymisation non passée. Passer en 0.2.0 aurait désynchronisé tout le train d'artefacts. Le passage minor marque la **clôture du jalon**, règle déjà inscrite deux fois à ce journal | précédent |
+| Brouillon `EVOL_section-le-decor_v1.md`, non suivi | Supprimé du working tree avant l'ouverture de la branche | Précédent de la session 3 ; jamais committé, supplanté par la v2 exécutée. Aucun commit associé | précédent |
+| Répertoire exposé par le tunnel d'aperçu | Copie **allowlist** de 9 fichiers hors dépôt, jamais la racine | La racine porte `.git`, `.claude/`, et surtout `.pipeline/` et `node_modules/` qui ne sont pas publics. Vérifié par mesure : `CLAUDE.md`, `.pipeline/`, `tasks/`, `prompts/`, `tests/`, `.git/config` tous en 404 sur l'origine servie | précédent |
