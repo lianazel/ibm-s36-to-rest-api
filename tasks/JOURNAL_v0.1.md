@@ -133,3 +133,75 @@
 | Niveau de bump : le gabarit `/land` dit `feat/*` → **minor** (0.2.0) | **Patch** 0.1.2 → 0.1.3, gabarit non suivi | Le MINOR structure les artefacts du projet (`prompts/v0.1/`, `JOURNAL_v0.1.md`, « Jalon 1 (v0.1) »). Vérifié avant de trancher : le jalon 1 est **inachevé** — une section sur cinq écrite, visuels SVG absents, gate d'anonymisation non passée. Passer en 0.2.0 aurait désynchronisé tout le train d'artefacts. Le passage minor marque la **clôture du jalon**, règle déjà inscrite deux fois à ce journal | précédent |
 | Brouillon `EVOL_section-le-decor_v1.md`, non suivi | Supprimé du working tree avant l'ouverture de la branche | Précédent de la session 3 ; jamais committé, supplanté par la v2 exécutée. Aucun commit associé | précédent |
 | Répertoire exposé par le tunnel d'aperçu | Copie **allowlist** de 9 fichiers hors dépôt, jamais la racine | La racine porte `.git`, `.claude/`, et surtout `.pipeline/` et `node_modules/` qui ne sont pas publics. Vérifié par mesure : `CLAUDE.md`, `.pipeline/`, `tasks/`, `prompts/`, `tests/`, `.git/config` tous en 404 sur l'origine servie | précédent |
+
+## 15 août 2026 — Session 6 : menu hamburger mobile-first (v0.1.4) — merge `7114b4f`
+
+- Incrément `chore/menu-hamburger` (prompt `prompts/v0.1/CHORE_menu-hamburger_v1.md`) — la navigation
+  se replie, le site gagne une section « À propos », la dette **[W11]** est remboursée :
+  - **Livrable** : bouton `#nav-toggle` (icône SVG à deux tracés), panneau `#nav-panel` glissant depuis
+    la droite (`min(320px, 85vw)`) avec overlay, section « À propos » (nom, licence, lien TWAIM, retour
+    au portfolio conditionnel), module **`js/menu.js`** (147 lignes, deux fonctions pures exportées) et
+    **`tests/menu.test.js`** (13 tests). 8 clés nouvelles par langue. Cibles tactiles à 44 px.
+  - **Six fichiers**, comme le prescrivait le périmètre. Zéro dépendance, **CSP inchangée**, aucun
+    `innerHTML`, aucun style inline, aucune chaîne de langue dans `js/menu.js`.
+  - **Textes extraits du prompt par script**, jamais transcrits, puis comparés caractère par caractère
+    aux valeurs chargées : **16 valeurs comparées, 0 écart**, aucun caractère invisible.
+  - **Preuves** : `npm test` **28/28 → 41/41 rc 0**. Trois morsures prouvées (libellés `menuAria`
+    inversés → 4 rouges ; égalité stricte de `showPortfolioLink` relâchée en `includes` → 1 rouge ;
+    `about.twaim` altérée dans `index.html` → 1 rouge, **matériau neuf**), restauration vérifiée par
+    `cmp`. Références i18n d'`index.html` : **36 → 44**, 8 nouvelles, 0 perdue — les portes existantes
+    ont vu le matériau de cet incrément, ce qui se mesure et ne se suppose pas.
+- **Quatre défauts trouvés pendant l'incrément — deux par la mesure, deux par le chef de projet.**
+  - *Par la mesure* : (1) la barre se repliait sur deux lignes à 360 px, les deux boutons rejetés à
+    gauche — le titre réclamait ses 273 px pour 328 utiles ; (2) le panneau recouvrait sa propre croix,
+    `#nav-panel` étant écrit **dans** `<header>` — un descendant positionné peint toujours au-dessus du
+    fond de son parent, quel que soit le z-index. Corrigé par la structure, pas par un z-index de plus.
+  - *Par le chef de projet, sur appareil réel puis sur son poste* : (3) l'attribut `hidden` ne masquait
+    pas le lien du portfolio dans le panneau — `[hidden] { display: none }` ne vient que de la feuille
+    du **navigateur**, et la cible tactile `.about a { display: inline-flex }`, règle d'auteur, la
+    neutralisait : **128 × 44 px peints sous un attribut qui disait « caché »** ; (4) le contenu se
+    décalait d'environ 8 px à l'ouverture du menu, le verrou de défilement escamotant la barre (~15 px
+    sur Windows, contenu centré → la moitié).
+- **Ce que ces deux derniers défauts ont en commun** — et c'est le fait marquant de la session : les
+  vérifications avaient regardé au bon endroit avec le mauvais instrument. La première lisait
+  `a.hidden`, la présence d'un **attribut**, au lieu du rendu. La seconde tournait dans un navigateur à
+  **barres de défilement de largeur 0**, incapable par construction de produire un décalage causé par
+  la disparition d'une barre. Deux verts qui ne mesuraient rien. **Leçon locale consignée** (commit
+  dédié `3a6a115`, avant le merge) : *lire l'attribut n'est pas mesurer le pixel* — ce qui se vérifie
+  est `getComputedStyle().display` et la boîte rendue, jamais `el.hidden`, `classList.contains` ou la
+  présence d'un attribut ; même règle pour `disabled`, `inert`, `aria-hidden`. Signalée comme
+  probablement promouvable en global ; **promotion non demandée à l'heure de l'atterrissage**.
+- **Seconde leçon candidate, proposée et non tranchée** : *avant de conclure qu'un défaut d'affichage
+  est absent, vérifier que l'environnement de mesure est capable de le produire.* Voisine de l'entrée
+  globale du 1er août sur les conclusions négatives, appliquée au rendu. Soumise au chef de projet,
+  restée sans arbitrage : elle n'est **pas** écrite. « Non tranchée » est une information.
+- **Validation sur appareil réel** (iPhone 14, Safari, tunnel éphémère, copie allowlist de 8 fichiers) :
+  deux passages. Le premier a **trouvé** le défaut (3) ; le second a constaté « À propos » correcte en
+  FR et en EN, **bascule de langue effectuée panneau ouvert** — le contenu du panneau a suivi sans
+  refermer, ce qui vérifie `i18n:applied` ailleurs que dans Chromium. Cas positif de `?from=portfolio`
+  vu sur grand écran (Chrome/Windows), cas négatif vu sur téléphone : les deux sens de la règle ont été
+  vus au doigt.
+- **Reste non prouvé, et écrit tel quel dans `test-results.md`** : le correctif du décalage (défaut 4)
+  — l'environnement de mesure a des barres de largeur 0 et ne peut **ni** montrer le défaut **ni**
+  démontrer sa correction ; le lecteur d'écran ; `prefers-reduced-motion`.
+- **Six commits sur la branche au lieu des deux prescrits** : les deux du prompt, plus `c269eed` et
+  `fdad186` (les deux correctifs, postérieurs au premier `READY`) et `3a6a115` (la leçon). Séparés et
+  étiquetés, détachables un par un.
+- Tests sur `main` après merge : **41/41, rc 0**. Bump **patch** 0.1.3 → 0.1.4.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| `/land` ne sait pas tenir `about.version` à jour (étape 4 ne touche que le manifeste et le pied de `CLAUDE.md`, étape 6 ne stage pas `js/i18n.js`) | **Clé retirée** du §2.4 et de la section (option 2 sur trois, chef de projet) | Le prompt interdit « un compteur qui ment ». Retirer la ligne tient le périmètre à six fichiers et ne touche pas au harnais ; étendre `/land` restait l'autre voie, inscrite à la ROADMAP | cas d'espèce |
+| « À propos » à ≥48rem, le CSS ne sachant ni déplacer ni dupliquer un élément | **Vit dans le panneau à toutes les largeurs** (échappatoire du §2.2, chef de projet) | Conséquence assumée : le bouton du menu reste visible sur grand écran et la nav ne redevient jamais une rangée — **écart au critère d'acceptation 1**, tracé. Le bloc `@media` est vide et porte le commentaire qui dit ce qui le remplira | précédent |
+| `data-label-open`/`data-label-close` prescrits par le §2.1 | **Non posés** ; les libellés viennent du dictionnaire via `menuAria` | Le §2.1 se corrige lui-même entre parenthèses, et c'est la seule lecture compatible avec `applyI18n` : `split(":")` déstructuré en deux n'honore qu'une paire (fait établi en session 4) | précédent |
+| Comment `menu.js` suit la bascule de langue, `i18n.js` n'exposant ni événement ni rappel | `applyI18n` émet `i18n:applied` | Option « exposer un rappel » du §2.3. Nécessaire et non décoratif : `applyI18n` repose l'`aria-label` du bouton depuis `menu.open` à chaque bascule et écraserait « Fermer le menu » sur un panneau ouvert. Vérifié sur appareil réel | précédent |
+| Nom accessible du panneau, aucune clé prévue | Clé **`menu.title`** ajoutée (« Menu » / « Menu ») | Un `role="dialog"` sans nom accessible est un défaut ARIA ; `nav.aria` (« Sections ») serait faux, le panneau portant aussi « À propos ». Un mot technique identique dans les deux langues : aucun libellé du prompt n'est réécrit | précédent |
+| `role="dialog"` et `aria-modal` dans le HTML, comme l'écrit le §2.3 ? | **Non — posés par `js/menu.js`** | `aria-modal="true"` déclare que tout le reste du document est hors service. Sans le script, le panneau est en flux et le document reste lisible : l'annonce serait un mensonge, et elle casserait le chemin que protège le critère 1 | précédent |
+| Le bouton du menu appartient-il au piège de focus ? | **Inclus** dans le cycle | La croix **est** le bouton, situé hors du panneau : l'exclure la rendrait inatteignable au clavier. Bouclage vérifié dans les deux sens par frappes réelles | précédent |
+| Verrou de défilement, non demandé par le prompt | **Ajouté** (`overflow: hidden` sur la racine) | Sans lui, l'en-tête — donc la croix — s'en va vers le haut au défilement pendant que le panneau reste fixe. Un modal dont le bouton de fermeture disparaît n'est pas un modal. A entraîné le défaut (4), corrigé à son tour | cas d'espèce |
+| Comment refermer la faille de l'attribut `hidden` | `[hidden] { display: none !important }` en tête de feuille | Corriger le seul sélecteur fautif laissait le piège intact pour la prochaine règle qui poserait `display`. L'attribut redevient une garantie sans qu'il faille deviner d'avance les règles à venir | précédent |
+| Correctif du décalage, invérifiable dans l'environnement de mesure | **Posé quand même** (`scrollbar-gutter: stable`), et l'absence de preuve **écrite** dans `test-results.md` | Le raisonnement est vérifié (barre ~15 px mesurée côté chef de projet, contenu centré → moitié). Livrer sans corriger aurait laissé un défaut connu ; livrer en le déclarant prouvé aurait été faux | précédent |
+| Commits hors du plan du prompt (deux correctifs et une leçon après le premier `READY`) | **Ajoutés**, séparés et étiquetés | Précédent de la session 4 pour la leçon ; les correctifs répondent à des défauts trouvés après la clôture. Détachables un par un si le chef de projet les juge de trop | cas d'espèce |
+| Niveau de bump | **Patch** 0.1.3 → 0.1.4 | Le jalon 1 reste inachevé (une section sur cinq écrite, visuels SVG absents, gate d'anonymisation non passée). Le passage minor marque la clôture du jalon — règle déjà inscrite trois fois à ce journal | précédent |
