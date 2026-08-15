@@ -34,14 +34,19 @@ const EM_DASH = "—";
  * se fait désarmer, elle ne protège personne.
  *
  * Ce qui est retiré : l'emphase (accent grave, astérisque) où qu'elle soit, et
- * la décoration de bord gauche (titre, citation, puce). Le trait d'union et le
- * souligné sont **conservés** : ils appartiennent aux noms d'incrément
- * (`lang-dans-adresse`), les retirer confondrait deux incréments distincts.
+ * le marqueur de titre en bord gauche. Le trait d'union et le souligné sont
+ * **conservés** : ils appartiennent aux noms d'incrément (`lang-dans-adresse`),
+ * les retirer confondrait deux incréments distincts.
+ *
+ * Ce qui n'est **plus** retiré, depuis la revue de cet incrément : les marqueurs
+ * de citation (`>`) et de diff (`+`, `-`) en bord gauche. Les retirer faisait
+ * d'une ligne *citée* une ligne de verdict — `> VERDICT : SHIP` ou
+ * `+VERDICT : SHIP` valaient décision. Une citation n'est pas une décision.
  */
 function stripDecoration(line) {
   return line
     .replace(/[`*]/g, "")
-    .replace(/^[\s#>+-]+/, "")
+    .replace(/^[\s#]+/, "")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -58,6 +63,35 @@ function quote(text) {
 
 function lines(text) {
   return text.split(/\r?\n/);
+}
+
+/**
+ * Toutes les lignes de verdict d'une revue, blocs de code exclus.
+ *
+ * **Toutes**, et pas la première : la revue la plus susceptible de citer une
+ * ligne de verdict est celle de cette porte-là. Mesuré sur le module avant
+ * correction — un `VERDICT : SHIP` cité en exemple, suivi du vrai
+ * `VERDICT : NEEDS WORK`, faisait passer l'atterrissage. Le `reviewer` a dû
+ * préfixer ses propres citations pour ne pas voir sa revue lue à l'envers.
+ *
+ * Blocs de code exclus pour la même raison : un exemple encadré de ``` est une
+ * illustration, jamais une décision. Limite connue : les délimiteurs sont
+ * comptés à plat, une clôture manquante fait ignorer la fin du document — le
+ * refus qui en découle est du bon côté (aucun verdict vu = refus).
+ */
+function verdictLines(all) {
+  const found = [];
+  let insideFence = false;
+  for (const line of all) {
+    if (/^\s*(```|~~~)/.test(line)) {
+      insideFence = !insideFence;
+      continue;
+    }
+    if (!insideFence && /^verdict\s*:/.test(normalize(line))) {
+      found.push(line);
+    }
+  }
+  return found;
 }
 
 /**
@@ -97,11 +131,20 @@ export function reviewIsFreshFor(reviewText, incrementName) {
   // suivre le deux-points, seul. `NEEDS WORK`, `BLOCK`, `NEEDS SHIP` et
   // `SHIP — sous réserve` sont donc des refus, comme la ligne de gabarit
   // `VERDICT : SHIP | NEEDS WORK | BLOCK` de `reviewer.md`.
-  const verdictLine = all.find((line) => /^verdict\s*:/.test(normalize(line)));
-  if (verdictLine === undefined || !/^verdict\s*:\s*ship$/.test(normalize(verdictLine))) {
+  //
+  // L'unanimité est exigée, et elle échoue FERMÉ : dès qu'une ligne de verdict
+  // dit autre chose que SHIP, l'atterrissage est refusé, quelle que soit sa
+  // place dans le document. Retenir la première ligne laissait une revue de
+  // refus passer derrière un SHIP cité en exemple.
+  const verdicts = verdictLines(all);
+  if (verdicts.length === 0) {
+    return { ok: false, reason: "verdict du reviewer absent ou différent de SHIP : absent" };
+  }
+  const dissenting = verdicts.find((line) => !/^verdict\s*:\s*ship$/.test(normalize(line)));
+  if (dissenting !== undefined) {
     return {
       ok: false,
-      reason: `verdict du reviewer absent ou différent de SHIP : ${verdictLine === undefined ? "absent" : quote(verdictLine)}`,
+      reason: `verdict du reviewer absent ou différent de SHIP : ${quote(dissenting)}`,
     };
   }
 

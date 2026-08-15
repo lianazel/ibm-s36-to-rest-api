@@ -29,6 +29,26 @@
   dans l'ÉTAPE 0 — elle mesurerait la présence de la consigne, pas son exécution ; l'écart doit être
   dit s'il est pris.
 
+- **[W15]** La pré-garde de revue mesure une **forme**, pas une **provenance** ni une **fraîcheur**.
+  Rien n'établit que `.pipeline/review.md` vienne du `reviewer` plutôt que de l'agent qui a écrit le
+  code, ni qu'il porte sur le commit qu'on fait atterrir : une revue rendue avant trois commits de plus
+  passe la garde à l'identique. Or `CLAUDE.md` promet une revue « indépendante » et `land.md` une revue
+  « fraîche » — le texte promet plus que le code ne tient. Relevé par le `reviewer` le 15 août 2026.
+  Pistes proposées (P6, non exécutées) : **A** — ancrer la revue à l'empreinte du commit revu (la garde
+  compare alors deux hashes, pas deux libellés) ; **B** — archiver chaque revue dans `tasks/revues/`
+  (coût d'anonymisation récurrent, à vouloir explicitement) ; **C** — écrire la dette sans coder.
+
+## À arbitrer par le chef de projet
+
+- **Un précédent de la session 7 est révoqué par la garde de revue** (15 août 2026). Le journal acte
+  « Atterrir sur un verdict `NEEDS WORK` affiché → **Oui**, les trois points ayant été traités après la
+  revue » (portée *précédent*, `tasks/JOURNAL_v0.1.md`). La garde interdit désormais ce chemin, comme
+  le prescrit le prompt (« un verdict `NEEDS WORK` ou `BLOCK` n'atterrit jamais »). **Coût** : après
+  correction des points d'une revue, il faut une **seconde passe du `reviewer`**, qui écrase la
+  précédente — la revue qui autorise l'atterrissage n'est archivée nulle part (cf. [W15], piste B).
+  Inscrit ici parce que `.pipeline/` est gitignoré : sans cela, la révocation d'un précédent committé
+  ne vivrait que dans un artefact effacé au merge.
+
 ## Décisions actées
 - Dépôt public `ibm-s36-to-rest-api`, site sur `https://lianazel.github.io/ibm-s36-to-rest-api/`.
 - Traces du harnais publiques (précédent : portfolio) ; référentiel TWAIM et PDF du POC privés.
