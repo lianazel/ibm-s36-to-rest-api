@@ -189,6 +189,82 @@ const CASES = [
     attendu: INCREMENT,
     ok: true,
   },
+  // Deuxième passe de revue : chacune des deux corrections précédentes avait
+  // ouvert une porte de service. La puce Markdown rendait le verdict invisible,
+  // et un bloc de code non refermé faisait disparaître la fin du document.
+  {
+    fait: "puce — `- **VERDICT : SHIP**` est la forme que reviewer.md donne en exemple : elle doit être lue",
+    review: reviewHeaded(INCREMENT, "- **VERDICT : SHIP**"),
+    attendu: INCREMENT,
+    ok: true,
+  },
+  {
+    fait: "puce — un refus en puce refuse : invisible, il ne pourrait pas refuser",
+    review: reviewHeaded(INCREMENT, "- **VERDICT : NEEDS WORK**"),
+    attendu: INCREMENT,
+    ok: false,
+    motif: /différent de SHIP/,
+  },
+  {
+    fait: "puce astérisque et puce tiret sont le même objet Markdown, donc le même verdict",
+    review: reviewHeaded(INCREMENT, "* **VERDICT : SHIP**"),
+    attendu: INCREMENT,
+    ok: true,
+  },
+  {
+    fait: "attaque R1 — un SHIP en synthèse ne couvre pas un refus rendu en puce plus bas",
+    review: reviewHeaded(INCREMENT, ["**VERDICT : SHIP**", "", "Après relecture :", "", "- **VERDICT : NEEDS WORK**"].join("\n")),
+    attendu: INCREMENT,
+    ok: false,
+    motif: /différent de SHIP/,
+  },
+  {
+    // `+VERDICT` (sans espace) reste une ligne de diff, donc invisible : c'est
+    // le pendant de la puce, et l'espace est toute la différence.
+    fait: "une ligne de diff `+VERDICT : SHIP` n'est toujours pas une puce, donc pas une décision",
+    review: reviewHeaded(INCREMENT, ["+VERDICT : SHIP", "", "- **VERDICT : BLOCK**"].join("\n")),
+    attendu: INCREMENT,
+    ok: false,
+    motif: /différent de SHIP/,
+  },
+  {
+    fait: "attaque C1 — un bloc de code non refermé engloutit la fin du document : refus, pas décision",
+    review: reviewHeaded(INCREMENT, ["**VERDICT : SHIP**", "", "```", "exemple jamais refermé", "", "## VERDICT : **NEEDS WORK**"].join("\n")),
+    attendu: INCREMENT,
+    ok: false,
+    motif: /non appariés/,
+  },
+  // Règle 2 — reportée de la 1ʳᵉ passe, fermée à la 2ᵉ : nommer un incrément
+  // n'est pas porter sur lui. La comparaison s'ancre sur la ligne étiquetée.
+  {
+    fait: "attaque A4 — une revue d'un AUTRE incrément qui mentionne le nôtre au fil de son en-tête",
+    review: [`# REVUE — ${INCREMENT}`, "", `**Incrément** : ${INCREMENT}`, "", "Ne porte PAS sur CHORE garde-revue-land.", "", "---", "", "## VERDICT : **SHIP**"].join("\n"),
+    attendu: "CHORE garde-revue-land",
+    ok: false,
+    motif: /ne porte pas l'incrément/,
+  },
+  {
+    fait: "attaque A5 — `garde-revue-land-v2` n'est pas `garde-revue-land` : la frontière du nom est tenue",
+    review: reviewHeaded("CHORE garde-revue-land-v2", "## VERDICT : **SHIP**"),
+    attendu: "CHORE garde-revue-land",
+    ok: false,
+    motif: /ne porte pas l'incrément/,
+  },
+  {
+    // Forme réellement écrite par le reviewer en session 7 : accents graves
+    // autour du slug, commentaire entre parenthèses après le nom.
+    fait: "un commentaire après le nom déclaré reste admis — c'est la forme réelle des revues du projet",
+    review: ["# REVUE — CHORE langue dans l'adresse", "", "**Incrément** : CHORE `lang-dans-adresse` (rembourse la dette [P6])", "", "---", "", "## VERDICT : **SHIP**"].join("\n"),
+    attendu: INCREMENT,
+    ok: true,
+  },
+  {
+    fait: "un en-tête sans ligne « Incrément : » ne déclare rien : la garde refuse au lieu de deviner",
+    review: ["# REVUE — CHORE garde-revue-land", "", "Revue de l'incrément du jour.", "", "---", "", "## VERDICT : **SHIP**"].join("\n"),
+    attendu: INCREMENT,
+    ok: false,
+    motif: /aucune ligne/,
+  },
 ];
 
 describe("reviewIsFreshFor — aucun atterrissage sans revue fraîche du reviewer", () => {

@@ -38,6 +38,14 @@
   compare alors deux hashes, pas deux libellés) ; **B** — archiver chaque revue dans `tasks/revues/`
   (coût d'anonymisation récurrent, à vouloir explicitement) ; **C** — écrire la dette sans coder.
 
+- **[W16]** Le contrat de l'agent (`.claude/agents/reviewer.md`) et la garde de `/land` ne sont pas
+  alignés. La garde exige désormais une ligne étiquetée `Incrément : <nom>` dans les 10 premières
+  lignes et un verdict sur sa propre ligne ; le contrat ne prescrit que le second, et **donne le
+  verdict en exemple sous forme de puce** — forme que la garde a refusée en silence pendant une passe
+  entière (défaut F-2, 15 août 2026). Tant que les deux textes vivent séparément, chaque durcissement
+  de la garde peut invalider la forme que l'agent a reçu l'ordre d'écrire. Le geste — aligner
+  `reviewer.md` — est **hors du périmètre** du prompt de cet incrément : il exige son propre prompt.
+
 ## À arbitrer par le chef de projet
 
 - **Un précédent de la session 7 est révoqué par la garde de revue** (15 août 2026). Le journal acte

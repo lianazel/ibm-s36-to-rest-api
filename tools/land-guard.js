@@ -38,15 +38,24 @@ const EM_DASH = "—";
  * **conservés** : ils appartiennent aux noms d'incrément (`lang-dans-adresse`),
  * les retirer confondrait deux incréments distincts.
  *
- * Ce qui n'est **plus** retiré, depuis la revue de cet incrément : les marqueurs
- * de citation (`>`) et de diff (`+`, `-`) en bord gauche. Les retirer faisait
- * d'une ligne *citée* une ligne de verdict — `> VERDICT : SHIP` ou
- * `+VERDICT : SHIP` valaient décision. Une citation n'est pas une décision.
+ * Ce qui n'est **plus** retiré, depuis la 2ᵉ passe de revue : le marqueur de
+ * citation (`>`) et ceux de diff. Les retirer faisait d'une ligne *citée* une
+ * ligne de verdict — `> VERDICT : SHIP` ou `+VERDICT : SHIP` valaient décision.
+ * Une citation n'est pas une décision.
+ *
+ * La **puce** Markdown, elle, est bien retirée — mais l'espace qui la suit est
+ * obligatoire, et c'est tout l'écart : `- VERDICT : SHIP` est une puce (la forme
+ * que `.claude/agents/reviewer.md:24` donne en exemple à l'agent), `+VERDICT`
+ * est une ligne de diff. Confondre les deux a coûté une passe de revue : à ne
+ * pas voir la puce, la garde rendait le verdict **invisible**, donc incapable de
+ * refuser.
  */
 function stripDecoration(line) {
   return line
     .replace(/[`*]/g, "")
-    .replace(/^[\s#]+/, "")
+    .replace(/^\s+/, "")
+    .replace(/^#+\s*/, "")
+    .replace(/^[-+] +/, "")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -75,9 +84,11 @@ function lines(text) {
  * préfixer ses propres citations pour ne pas voir sa revue lue à l'envers.
  *
  * Blocs de code exclus pour la même raison : un exemple encadré de ``` est une
- * illustration, jamais une décision. Limite connue : les délimiteurs sont
- * comptés à plat, une clôture manquante fait ignorer la fin du document — le
- * refus qui en découle est du bon côté (aucun verdict vu = refus).
+ * illustration, jamais une décision. L'appariement des délimiteurs est vérifié
+ * en amont par `fencesBalanced` : sans lui, une clôture manquante faisait
+ * ignorer la fin du document — et j'avais écrit, sans le mesurer, que le refus
+ * qui en découlait était « du bon côté ». C'était faux : un `SHIP` de synthèse
+ * lu avant la rupture suffisait à faire atterrir la revue qui le refusait.
  */
 function verdictLines(all) {
   const found = [];
@@ -92,6 +103,34 @@ function verdictLines(all) {
     }
   }
   return found;
+}
+
+/**
+ * Les délimiteurs de bloc de code sont-ils appariés ?
+ *
+ * Un document impair n'est pas analysable de façon sûre : tout ce qui suit la
+ * rupture est lu comme du code et disparaît de l'analyse, verdict compris. On
+ * refuse, plutôt que de rendre une décision sur un texte à moitié vu.
+ */
+function fencesBalanced(all) {
+  return all.filter((line) => /^\s*(```|~~~)/.test(line)).length % 2 === 0;
+}
+
+/**
+ * Le nom d'incrément déclaré par l'en-tête de la revue, ou `null`.
+ *
+ * **Une ligne étiquetée**, pas une occurrence quelconque : chercher le nom
+ * n'importe où dans l'en-tête acceptait une revue d'un *autre* incrément qui se
+ * contentait de mentionner le nôtre au fil d'une phrase — le défaut historique
+ * du projet, déguisé en mention. L'étiquette est reconnue largement
+ * (« Incrément », « Incrément revu »…), la **valeur** est comparée strictement.
+ */
+function declaredIncrement(header) {
+  for (const line of header) {
+    const match = /^incr[ée]ment[^:]*:\s*(.+)$/.exec(normalize(line));
+    if (match) return match[1].trim();
+  }
+  return null;
 }
 
 /**
@@ -119,11 +158,22 @@ export function reviewIsFreshFor(reviewText, incrementName) {
   const header = all.slice(0, HEADER_LINES);
   const expected = normalize(incrementName);
 
-  if (!header.some((line) => normalize(line).includes(expected))) {
+  const declared = declaredIncrement(header);
+  if (declared === null) {
     const found = header.find((line) => line.trim() !== "") ?? "";
     return {
       ok: false,
-      reason: `review.md ne porte pas l'incrément courant : ${quote(found)} vs ${quote(incrementName)}`,
+      reason: `review.md ne porte pas l'incrément courant : aucune ligne « Incrément : » dans l'en-tête (${quote(found)}) vs ${quote(incrementName)}`,
+    };
+  }
+  // La valeur déclarée doit COMMENCER par le nom attendu, et s'y arrêter : un
+  // commentaire qui suit est admis (« CHORE x (rembourse la dette [P6]) »), une
+  // suite collée ne l'est pas — sans cette frontière, « CHORE x-v2 » passait
+  // pour « CHORE x ».
+  if (!declared.startsWith(expected) || /[\p{L}\p{N}_-]/u.test(declared.charAt(expected.length))) {
+    return {
+      ok: false,
+      reason: `review.md ne porte pas l'incrément courant : ${quote(declared)} vs ${quote(incrementName)}`,
     };
   }
 
@@ -136,6 +186,13 @@ export function reviewIsFreshFor(reviewText, incrementName) {
   // dit autre chose que SHIP, l'atterrissage est refusé, quelle que soit sa
   // place dans le document. Retenir la première ligne laissait une revue de
   // refus passer derrière un SHIP cité en exemple.
+  if (!fencesBalanced(all)) {
+    return {
+      ok: false,
+      reason: "blocs de code non appariés : la revue n'est pas analysable de façon sûre, la fin du document serait ignorée",
+    };
+  }
+
   const verdicts = verdictLines(all);
   if (verdicts.length === 0) {
     return { ok: false, reason: "verdict du reviewer absent ou différent de SHIP : absent" };
