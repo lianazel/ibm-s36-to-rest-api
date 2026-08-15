@@ -13,10 +13,34 @@
         content="Une API REST .Net qui expose en JSON des fichiers hérités IBM S/36 tournant sur IBM i : architecture réelle, testée, expliquée.">
   <link rel="stylesheet" href="css/styles.css">
   <script type="module" src="js/i18n.js"></script>
+  <script type="module" src="js/menu.js"></script>
 </head>
 <body>
   <header class="site-header">
     <h1 class="brand" data-i18n="site.title"></h1>
+    <button type="button" id="lang-switch" class="lang-switch" data-i18n="lang.switch"></button>
+    <button type="button" id="nav-toggle" class="nav-toggle"
+            aria-expanded="false" aria-controls="nav-panel"
+            aria-label="Ouvrir le menu" data-i18n-attr="aria-label:menu.open">
+      <!-- Deux tracés, un seul visible : la classe portée par <html> bascule. -->
+      <svg class="nav-toggle-icon" viewBox="0 0 24 24" width="24" height="24"
+           fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+           aria-hidden="true" focusable="false">
+        <path class="icon-burger" d="M4 7h16M4 12h16M4 17h16"></path>
+        <path class="icon-close" d="M6 6l12 12M18 6L6 18"></path>
+      </svg>
+    </button>
+  </header>
+
+  <div id="nav-overlay" class="nav-overlay"></div>
+
+  <!-- Panneau hors de l'en-tête, et non dedans : un descendant positionné peint
+       toujours au-dessus du fond de son parent, quel que soit son z-index — le
+       panneau ouvert recouvrirait sa propre croix. En flux (sans JavaScript),
+       il se lit à la place où il est écrit, juste sous l'en-tête.
+       role="dialog" et aria-modal sont posés par js/menu.js : sans lui, le
+       document entier doit rester lisible. -->
+  <div id="nav-panel" class="nav-panel" aria-label="Menu" data-i18n-attr="aria-label:menu.title">
     <nav class="site-nav" aria-label="Sections" data-i18n-attr="aria-label:nav.aria">
       <ul>
         <li><a href="#decor" data-i18n="nav.decor"></a></li>
@@ -26,8 +50,22 @@
         <li><a href="#methode" data-i18n="nav.methode"></a></li>
       </ul>
     </nav>
-    <button type="button" id="lang-switch" class="lang-switch" data-i18n="lang.switch"></button>
-  </header>
+
+    <section class="about">
+      <h2 data-i18n="about.title"></h2>
+      <p class="about-name" data-i18n="about.name"></p>
+      <p data-i18n="about.license"></p>
+      <p>
+        <a href="https://twaim-web.vercel.app/" target="_blank" rel="noopener noreferrer"
+           data-i18n="about.twaim" data-i18n-attr="href:about.twaimUrl"></a>
+      </p>
+      <!-- Révélé par js/menu.js sur `?from=portfolio` uniquement, jamais autrement. -->
+      <p>
+        <a href="https://lianazel.github.io/" rel="noopener noreferrer"
+           data-portfolio-link data-i18n="about.portfolio" hidden></a>
+      </p>
+    </section>
+  </div>
 
   <main>
     <section id="decor">
@@ -77,7 +115,8 @@
   <footer class="site-footer">
     <p data-i18n="footer.notice"></p>
     <p class="disclaimer" data-i18n="footer.disclaimer"></p>
-    <p><a href="https://lianazel.github.io/" rel="noopener noreferrer" data-i18n="footer.portfolio"></a></p>
+    <p><a href="https://lianazel.github.io/" rel="noopener noreferrer"
+          data-portfolio-link data-i18n="footer.portfolio" hidden></a></p>
   </footer>
 </body>
 </html>

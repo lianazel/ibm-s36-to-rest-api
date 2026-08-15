@@ -91,10 +91,11 @@ a {
   outline-offset: 2px;
 }
 
-/* ---- En-tête : une colonne sur mobile, rangée sur grand écran. */
+/* ---- En-tête : titre à gauche, langue puis menu à droite (UX_METHOD §3.1). */
 .site-header {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
   gap: var(--space);
   padding: var(--space);
   border-bottom: 1px solid var(--color-line);
@@ -103,6 +104,133 @@ a {
 .brand {
   margin: 0;
   font-size: 1.25rem;
+  /* Base nulle : sans elle, le titre réclame sa largeur de texte entière
+     (273 px mesurés à 360 px de large) et pousse les deux boutons sur une
+     seconde ligne, alignés à gauche. Il occupe donc la place restante et se
+     replie sur deux lignes s'il le faut — les boutons tiennent le bord droit. */
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* Cibles tactiles 44 px (dette [W11]) : la norme WCAG 2.2 AA n'en exige que 24,
+   mais un pouce n'est pas un curseur. Le carré vaut pour les deux boutons. */
+.lang-switch,
+.nav-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  color: var(--color-ink);
+  background: var(--color-bg);
+  cursor: pointer;
+}
+
+.lang-switch {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  border: 1px solid var(--color-ink);
+  padding: 0.25rem 0.75rem;
+}
+
+/* Le bouton ne fait rien sans JavaScript : il n'apparaît que si le script tourne. */
+.nav-toggle {
+  display: none;
+  border: 1px solid transparent;
+  padding: 0;
+}
+
+.nav-js .nav-toggle {
+  display: inline-flex;
+}
+
+/* L'en-tête passe au-dessus du panneau et de l'overlay : la croix EST le bouton
+   du menu, il doit rester cliquable une fois le panneau ouvert, et la langue se
+   bascule menu ouvert. Fond opaque, sans quoi le panneau se lirait au travers. */
+.nav-js .site-header {
+  position: relative;
+  z-index: 12;
+  background: var(--color-bg);
+}
+
+/* Un seul des deux tracés est visible ; l'état vient de la racine. */
+.icon-close {
+  display: none;
+}
+
+.nav-open .icon-burger {
+  display: none;
+}
+
+.nav-open .icon-close {
+  display: block;
+}
+
+/* ---- Panneau de navigation.
+   Sans JavaScript, c'est un bloc en flux sous l'en-tête : rien n'est caché,
+   rien n'est piégé. Le mode replié n'existe que sous la classe `nav-js`. */
+.nav-panel {
+  padding: 0 var(--space) var(--space);
+}
+
+.nav-overlay {
+  display: none;
+}
+
+/* Panneau ouvert, la page dessous ne défile plus : sans ce verrou, l'en-tête
+   — donc la croix — s'en irait vers le haut pendant que le panneau, lui, reste
+   fixe. Un modal dont le bouton de fermeture disparaît n'est pas un modal. */
+.nav-js.nav-open {
+  overflow: hidden;
+}
+
+.nav-js .nav-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 11;
+  width: min(320px, 85vw);
+  height: 100%;
+  overflow-y: auto;
+  /* L'en-tête étant au-dessus, le panneau réserve sa bande : 82 px mesurés à
+     360 px (titre replié sur deux lignes), arrondis au-dessus. Sous la bande,
+     le contenu du panneau disparaîtrait derrière un en-tête opaque. */
+  padding: calc(var(--space) * 2 + 3.5rem) var(--space) var(--space);
+  background: var(--color-bg);
+  border-left: 1px solid var(--color-line);
+  /* Hors écran par transformation : un élément `fixed` ne crée pas de
+     défilement horizontal, contrairement à un décalage par `right`. */
+  transform: translateX(100%);
+  transition: transform 0.2s ease;
+}
+
+.nav-js.nav-open .nav-panel {
+  transform: translateX(0);
+}
+
+.nav-js .nav-overlay {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: rgb(22 22 22 / 50%);
+  opacity: 0;
+  /* `visibility` n'anime rien : elle retire l'overlay du chemin du pointeur
+     une fois l'estompe finie. Le mouvement reste `transform`/`opacity` (§3.6). */
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s;
+}
+
+.nav-js.nav-open .nav-overlay {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-js .nav-panel,
+  .nav-js .nav-overlay {
+    transition: none;
+  }
 }
 
 .site-nav ul {
@@ -115,18 +243,43 @@ a {
 }
 
 .site-nav a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
   text-decoration: none;
 }
 
-.lang-switch {
-  align-self: flex-start;
-  font-family: var(--font-mono);
+/* ---- « À propos », dans le panneau à toutes les largeurs.
+   Le sélecteur d'élément `section` (plus bas) poserait ici une marge de
+   chapitre et un filet de séparation : on les reprend. */
+.about {
+  margin-top: var(--space);
+  padding: var(--space) 0 0;
+  border-top: 1px solid var(--color-line);
+  border-bottom: none;
+  color: var(--color-ink-soft);
   font-size: 0.875rem;
+}
+
+.about h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
   color: var(--color-ink);
-  background: var(--color-bg);
-  border: 1px solid var(--color-ink);
-  padding: 0.25rem 0.75rem;
-  cursor: pointer;
+}
+
+.about p {
+  margin: 0.25rem 0;
+}
+
+.about-name {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.about a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
 }
 
 /* ---- Contenu. */
@@ -157,23 +310,11 @@ section {
   font-size: 0.875rem;
 }
 
-/* ---- Enrichissement grand écran. */
-@media (min-width: 48rem) {
-  .site-header {
-    flex-direction: row;
-    align-items: center;
-  }
-
-  .site-nav {
-    margin-left: auto;
-  }
-
-  .site-nav ul {
-    flex-direction: row;
-    gap: var(--space);
-  }
-
-  .lang-switch {
-    align-self: center;
-  }
-}
+/* ---- Grand écran.
+   Le point de rupture 48rem ne porte plus de règle : la section « À propos »
+   vivant dans le panneau à toutes les largeurs (arbitrage du chef de projet,
+   15 août 2026), le panneau et son bouton restent en service partout, et la
+   navigation ne redevient donc jamais une rangée dans la barre. L'en-tête est
+   déjà une rangée dès le premier pixel, et la largeur de lecture est tenue par
+   `--measure` : il n'y a rien à enrichir ici. Le jour où « À propos » trouve un
+   second domicile, la rangée de navigation revient à cette place. */
