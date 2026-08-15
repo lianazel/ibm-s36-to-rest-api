@@ -265,6 +265,51 @@ const CASES = [
     ok: false,
     motif: /aucune ligne/,
   },
+  // Troisième passe de revue : l'étiquette introduite à la 2ᵉ passe était
+  // ouverte (`incrément[^:]*:`) et lue jusque dans les blocs de code. Le défaut
+  // fondateur — la revue d'un AUTRE incrément — revenait par la porte qui
+  // venait de le fermer.
+  {
+    fait: "attaque F-4a — « Incrément précédent : <le nôtre> » dans la revue d'un autre incrément",
+    review: ["# REVUE — CHORE menu-hamburger", "", "**Incrément précédent** : CHORE garde-revue-land", "", "Revue de menu-hamburger.", "", "## VERDICT : **SHIP**"].join("\n"),
+    attendu: "CHORE garde-revue-land",
+    ok: false,
+    motif: /aucune ligne/,
+  },
+  {
+    fait: "attaque F-4a bis — un qualificatif quelconque ne déclare pas le sujet de la revue",
+    review: ["# REVUE", "", "**Incrément d'à côté** : CHORE garde-revue-land", "", "## VERDICT : **SHIP**"].join("\n"),
+    attendu: "CHORE garde-revue-land",
+    ok: false,
+    motif: /aucune ligne/,
+  },
+  {
+    fait: "attaque F-4b — un gabarit encadré ne vaut pas déclaration, comme il ne vaut pas décision",
+    review: ["# REVUE", "```", "**Incrément** : CHORE garde-revue-land", "```", "", "## VERDICT : **SHIP**"].join("\n"),
+    attendu: "CHORE garde-revue-land",
+    ok: false,
+    motif: /aucune ligne/,
+  },
+  {
+    fait: "W-4 — « <nom> v2 » : un mot qui suit le nom n'est pas un commentaire, c'est un autre nom",
+    review: ["# REVUE", "", "**Incrément** : CHORE garde-revue-land v2", "", "## VERDICT : **SHIP**"].join("\n"),
+    attendu: "CHORE garde-revue-land",
+    ok: false,
+    motif: /ne porte pas l'incrément/,
+  },
+  {
+    fait: "W-4 bis — « <nom> bis » est refusé pour la même raison",
+    review: ["# REVUE", "", "**Incrément** : CHORE garde-revue-land bis", "", "## VERDICT : **SHIP**"].join("\n"),
+    attendu: "CHORE garde-revue-land",
+    ok: false,
+    motif: /ne porte pas l'incrément/,
+  },
+  {
+    fait: "témoin — « Incrément revu : » reste une déclaration valable",
+    review: ["# REVUE", "", "**Incrément revu** : CHORE garde-revue-land", "", "## VERDICT : **SHIP**"].join("\n"),
+    attendu: "CHORE garde-revue-land",
+    ok: true,
+  },
 ];
 
 describe("reviewIsFreshFor — aucun atterrissage sans revue fraîche du reviewer", () => {

@@ -45,6 +45,16 @@
   entière (défaut F-2, 15 août 2026). Tant que les deux textes vivent séparément, chaque durcissement
   de la garde peut invalider la forme que l'agent a reçu l'ordre d'écrire. Le geste — aligner
   `reviewer.md` — est **hors du périmètre** du prompt de cet incrément : il exige son propre prompt.
+  **Contenu attendu de ce prompt**, tel que trois passes de revue l'ont dessiné : (1) la piste **A** —
+  le `reviewer` émet une **ligne canonique** lisible par la machine (`<incrément> | SHIP | <commit
+  revu>`), la garde cesse d'analyser de la prose libre, et l'empreinte du commit ferme au passage la
+  moitié « fraîcheur » de [W15] ; (2) prescrire d'**encadrer les citations** de lignes de verdict — une
+  revue qui cite le gabarit en puce hors bloc se refuse elle-même ; (3) prescrire l'étiquette
+  `Incrément :` que la garde exige déjà. **Motif du report** : chaque durcissement lexical de la garde
+  a fermé un coin et en a ouvert un autre (citation → puce → parité → étiquette qualifiée) ; la cause
+  n'est pas la qualité des correctifs mais le fait qu'une décision d'atterrissage dépende de l'analyse
+  d'un document en prose libre. Résidu connu et **assumé** en attendant : un verdict rendu en liste
+  numérotée ou en citation reste invisible à la garde.
 
 ## À arbitrer par le chef de projet
 

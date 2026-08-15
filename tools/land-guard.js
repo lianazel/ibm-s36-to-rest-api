@@ -90,19 +90,31 @@ function lines(text) {
  * qui en découlait était « du bon côté ». C'était faux : un `SHIP` de synthèse
  * lu avant la rupture suffisait à faire atterrir la revue qui le refusait.
  */
-function verdictLines(all) {
-  const found = [];
-  let insideFence = false;
+function verdictLines(all, fenced) {
+  return all.filter((line, index) => !fenced[index] && /^verdict\s*:/.test(normalize(line)));
+}
+
+/**
+ * Vrai, pour chaque ligne, si elle appartient à un bloc de code — délimiteurs
+ * compris.
+ *
+ * Un seul masque sert à la **déclaration d'incrément** et au **verdict** : les
+ * faire diverger était une incohérence mesurée à la 3ᵉ passe de revue — un
+ * gabarit encadré valait déclaration là où le même encadré ne valait pas
+ * décision, et le penchant allait du mauvais côté.
+ */
+function fenceMask(all) {
+  const mask = [];
+  let inside = false;
   for (const line of all) {
     if (/^\s*(```|~~~)/.test(line)) {
-      insideFence = !insideFence;
+      inside = !inside;
+      mask.push(true);
       continue;
     }
-    if (!insideFence && /^verdict\s*:/.test(normalize(line))) {
-      found.push(line);
-    }
+    mask.push(inside);
   }
-  return found;
+  return mask;
 }
 
 /**
@@ -122,12 +134,21 @@ function fencesBalanced(all) {
  * **Une ligne étiquetée**, pas une occurrence quelconque : chercher le nom
  * n'importe où dans l'en-tête acceptait une revue d'un *autre* incrément qui se
  * contentait de mentionner le nôtre au fil d'une phrase — le défaut historique
- * du projet, déguisé en mention. L'étiquette est reconnue largement
- * (« Incrément », « Incrément revu »…), la **valeur** est comparée strictement.
+ * du projet, déguisé en mention.
+ *
+ * L'étiquette est **close**, et ce point a coûté une passe de revue : écrite
+ * `incrément[^:]*:`, elle se voulait « reconnue largement » et reconnaissait en
+ * réalité **tout**, `Incrément précédent :` compris. Une revue d'un autre
+ * incrément citant le nôtre sous cette étiquette faisait atterrir — le défaut
+ * fondateur, revenu par la porte qui venait de le fermer. Seules
+ * « Incrément », « Incréments » et « Incrément revu » déclarent le sujet ; tout
+ * autre qualificatif parle d'autre chose.
  */
-function declaredIncrement(header) {
-  for (const line of header) {
-    const match = /^incr[ée]ment[^:]*:\s*(.+)$/.exec(normalize(line));
+function declaredIncrement(all, fenced) {
+  const upTo = Math.min(HEADER_LINES, all.length);
+  for (let index = 0; index < upTo; index += 1) {
+    if (fenced[index]) continue;
+    const match = /^incr[ée]ments?(?:\s+revue?)?\s*:\s*(.+)$/.exec(normalize(all[index]));
     if (match) return match[1].trim();
   }
   return null;
@@ -155,22 +176,23 @@ export function reviewIsFreshFor(reviewText, incrementName) {
   }
 
   const all = lines(reviewText);
-  const header = all.slice(0, HEADER_LINES);
+  const fenced = fenceMask(all);
   const expected = normalize(incrementName);
 
-  const declared = declaredIncrement(header);
+  const declared = declaredIncrement(all, fenced);
   if (declared === null) {
-    const found = header.find((line) => line.trim() !== "") ?? "";
+    const found = all.slice(0, HEADER_LINES).find((line) => line.trim() !== "") ?? "";
     return {
       ok: false,
       reason: `review.md ne porte pas l'incrément courant : aucune ligne « Incrément : » dans l'en-tête (${quote(found)}) vs ${quote(incrementName)}`,
     };
   }
-  // La valeur déclarée doit COMMENCER par le nom attendu, et s'y arrêter : un
-  // commentaire qui suit est admis (« CHORE x (rembourse la dette [P6]) »), une
-  // suite collée ne l'est pas — sans cette frontière, « CHORE x-v2 » passait
-  // pour « CHORE x ».
-  if (!declared.startsWith(expected) || /[\p{L}\p{N}_-]/u.test(declared.charAt(expected.length))) {
+  // La valeur déclarée doit COMMENCER par le nom attendu, puis s'arrêter : ce
+  // qui suit ne peut être qu'un commentaire, et un commentaire s'introduit par
+  // une ponctuation, jamais par un mot. Sans cette frontière, « CHORE x-v2 »,
+  // « CHORE x v2 » et « CHORE x bis » passaient tous pour « CHORE x ».
+  const trailing = declared.startsWith(expected) ? declared.slice(expected.length) : null;
+  if (trailing === null || !(trailing === "" || /^\s*[(\[{«"—–·|:,;.\/]/.test(trailing))) {
     return {
       ok: false,
       reason: `review.md ne porte pas l'incrément courant : ${quote(declared)} vs ${quote(incrementName)}`,
@@ -193,7 +215,7 @@ export function reviewIsFreshFor(reviewText, incrementName) {
     };
   }
 
-  const verdicts = verdictLines(all);
+  const verdicts = verdictLines(all, fenced);
   if (verdicts.length === 0) {
     return { ok: false, reason: "verdict du reviewer absent ou différent de SHIP : absent" };
   }
