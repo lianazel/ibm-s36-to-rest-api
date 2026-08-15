@@ -59,6 +59,16 @@
   box-sizing: border-box;
 }
 
+/* La gouttière de barre de défilement est réservée en permanence, y compris
+   quand le verrou du panneau pose `overflow: hidden`. Sans elle, l'ouverture du
+   menu escamote la barre : la fenêtre gagne sa largeur (~15 px sur Windows), et
+   le contenu, centré, se décale de la moitié — écart constaté à l'écran par le
+   chef de projet. Invisible sur les systèmes à barres superposées (macOS, iOS,
+   Chrome headless), ce qui est précisément ce qui l'a laissé passer ici. */
+html {
+  scrollbar-gutter: stable;
+}
+
 /* `[hidden] { display: none }` ne vient que de la feuille du navigateur, et
    TOUTE règle d'auteur posant `display` sur le même élément la neutralise en
    silence — c'est ainsi que la cible tactile `.about a { display: inline-flex }`
