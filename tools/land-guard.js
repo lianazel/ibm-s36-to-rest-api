@@ -69,9 +69,10 @@ import { readFileSync } from "node:fs";
  *     autorise l'atterrissage : refus « verdict du reviewer : <trouvé> ».
  *  6. `reservations` : tableau (vide autorisé). Chaque élément porte **tous** les
  *     champs `pillar` (P1..P6, ARCHI, UX), `severity` (FAIL|WARN), `file`
- *     (chaîne), `line` (entier ≥ 1 ou null), `finding` et `expected` (chaînes non
- *     vides). Élément incomplet ou mal typé : refus « réserve n°<i> hors
- *     contrat : <champ fautif> ».
+ *     (**chemin relatif au dépôt** : ni absolu, ni remontant — contrôlé, pas
+ *     seulement décrit), `line` (entier ≥ 1 ou null), `finding` et `expected`
+ *     (chaînes non vides). Élément incomplet ou mal typé : refus « réserve n°<i>
+ *     hors contrat : <champ fautif> ».
  *  7. Cohérence : « SHIP » avec au moins une réserve « FAIL » → refus « verdict
  *     SHIP incohérent avec <n> réserve(s) FAIL » : un document qui dit « bon » et
  *     « bloquant » ne décide rien. « NEEDS_WORK »/« BLOCK » sans aucune réserve →
@@ -80,7 +81,9 @@ import { readFileSync } from "node:fs";
  *     entiers, passed ≤ total) sont **obligatoires et vérifiés dans leur forme**,
  *     mais la garde ne les compare à rien : ils servent au compte rendu humain et
  *     au journal.
- *  9. `overrule` : `null`, ou { by, reason (non vide), at (ISO) }. Un « BLOCK »
+ *  9. `overrule` : `null`, ou { by (**le littéral « chef de projet »** : c'est la
+ *     seule échappatoire du veto P5 et elle n'appartient qu'à lui), reason (non
+ *     vide), at (ISO) }. Un « BLOCK »
  *     overrulé par le chef de projet ne se contourne pas : le `reviewer` réémet
  *     le document avec « SHIP » et `overrule` renseigné, et la garde ne lit
  *     toujours que `verdict`. `overrule` renseigné avec un verdict autre que
@@ -91,12 +94,21 @@ import { readFileSync } from "node:fs";
  * Les trois champs qui **décident** sont `increment`, `commit`, `verdict`. Le
  * reste est vérifié dans sa forme parce qu'un document à moitié conforme n'est
  * pas un contrat.
+ *
+ * Ce que le contrat **ne** dit pas, et qui doit rester lisible ici : il atteste
+ * l'identité et la fraîcheur d'une revue, **jamais sa substance**. Un document
+ * conforme, `SHIP`, `reservations: []`, `tests: {passed:0,total:0}` passe la
+ * garde. L'anti-sycophanie vit dans le contrat de l'agent, pas dans cette porte,
+ * et elle n'y est pas mécanisable sans engendrer des réserves de remplissage.
  */
+/** Écrit une seule fois : un `twaim.review/2` ne doit pas exiger deux retouches. */
+const CONTRACT_ID = "twaim.review/1";
+
 export const REVIEW_CONTRACT = Object.freeze({
-  id: "twaim.review/1",
+  id: CONTRACT_ID,
   /** Champs de la racine, dans l'ordre où ils sont vérifiés. */
   fields: Object.freeze({
-    contract: { kind: "string", equals: "twaim.review/1" },
+    contract: { kind: "string", equals: CONTRACT_ID },
     increment: { kind: "string", nonEmpty: true },
     commit: { kind: "sha40" },
     base: { kind: "sha40" },
@@ -111,13 +123,16 @@ export const REVIEW_CONTRACT = Object.freeze({
   reservation: Object.freeze({
     pillar: { kind: "string", oneOf: ["P1", "P2", "P3", "P4", "P5", "P6", "ARCHI", "UX"] },
     severity: { kind: "string", oneOf: ["FAIL", "WARN"] },
-    file: { kind: "string", nonEmpty: true },
+    file: { kind: "repo-path" },
     line: { kind: "positive-int-or-null" },
     finding: { kind: "string", nonEmpty: true },
     expected: { kind: "string", nonEmpty: true },
   }),
   overrule: Object.freeze({
-    by: { kind: "string", nonEmpty: true },
+    // Le signataire est **contraint au littéral** : l'overrule est la seule
+    // échappatoire du veto P5, et il n'appartient qu'au chef de projet. Sans
+    // cette contrainte, un `overrule` signé « le reviewer lui-même » passait.
+    by: { kind: "string", equals: "chef de projet" },
     reason: { kind: "string", nonEmpty: true },
     at: { kind: "iso8601" },
   }),
@@ -141,8 +156,21 @@ const SHA40 = /^[0-9a-f]{40}$/;
 /** Forme ISO 8601 ; la garde ne compare aucune date, elle en vérifie la forme. */
 const ISO_8601 = /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(:\d{2})?(\.\d+)?(Z|[+-]\d{2}:?\d{2})?$/;
 
+/**
+ * Cite une valeur du document dans un motif de refus.
+ *
+ * Les caractères de contrôle sont neutralisés **avant** tout le reste, parce que
+ * ces valeurs viennent d'un document non fiable et finissent sur un terminal.
+ * Mesuré à la 1ʳᵉ passe de revue de cet incrément : un `increment` portant
+ * `ESC[2K ESC[G` faisait afficher « OK » **dans la ligne de REFUS elle-même** —
+ * le code de sortie ne mentait pas, la ligne imprimée si, et c'est elle que
+ * `/land` a pour consigne de citer.
+ */
 function quote(value) {
-  const flat = String(value).replace(/\s+/g, " ").trim();
+  const flat = String(value)
+    .replace(/[\p{Cc}\p{Cf}]/gu, "·")
+    .replace(/\s+/g, " ")
+    .trim();
   return flat.length > QUOTE_MAX ? `${flat.slice(0, QUOTE_MAX)}…` : flat;
 }
 
@@ -192,6 +220,14 @@ function checkField(value, spec) {
     case "positive-int-or-null":
       if (value === null) return null;
       if (!Number.isInteger(value) || value < 1) return "attendu un entier ≥ 1 ou null";
+      return null;
+    case "repo-path":
+      // « chemin relatif au dépôt » était décrit et non contrôlé : une réserve
+      // pointant `/etc/passwd` passait. Une réserve désigne un fichier du dépôt.
+      if (typeof value !== "string") return "attendu une chaîne";
+      if (value.trim() === "") return "chaîne vide";
+      if (/^([/\\]|[A-Za-z]:)/.test(value)) return "attendu un chemin relatif au dépôt, pas absolu";
+      if (value.split(/[/\\]/).includes("..")) return "attendu un chemin dans le dépôt, sans remontée";
       return null;
     default:
       // Un `kind` inconnu est un défaut du contrat lui-même : refuser, jamais
@@ -244,13 +280,19 @@ export function parseReview(text) {
  * C'est cette fonction seule que le `reviewer` peut appeler (`--shape`) quand il
  * revoit depuis `/ship`, avant que `STATUS.md` ne porte un `READY`.
  *
+ * Le contrat est un **paramètre** : sans cette couture, le chemin « un `kind`
+ * que personne ne sait vérifier » serait improuvable, `REVIEW_CONTRACT` étant
+ * gelé (leçon du 10 août 2026 — si un chemin bloquant n'a aucune cible où mordre
+ * sans abîmer le dépôt, il manque une couture).
+ *
  * @param {object} review document déjà analysé par `parseReview`
+ * @param {object} [contract] contrat appliqué ; `REVIEW_CONTRACT` par défaut
  * @returns {{ok: boolean, reason: string}}
  */
-export function validateReviewShape(review) {
+export function validateReviewShape(review, contract = REVIEW_CONTRACT) {
   if (!isPlainObject(review)) return { ok: false, reason: "review absent" };
 
-  for (const [name, spec] of Object.entries(REVIEW_CONTRACT.fields)) {
+  for (const [name, spec] of Object.entries(contract.fields)) {
     if (!(name in review)) {
       return { ok: false, reason: `champ ${name} hors contrat : absent` };
     }
@@ -261,29 +303,29 @@ export function validateReviewShape(review) {
   }
 
   for (const [index, reservation] of review.reservations.entries()) {
-    const wrong = checkShape(reservation, REVIEW_CONTRACT.reservation, `réserve n°${index + 1} hors contrat`);
+    const wrong = checkShape(reservation, contract.reservation, `réserve n°${index + 1} hors contrat`);
     if (wrong) return { ok: false, reason: wrong };
   }
 
   for (const [index, proposal] of review.rd.entries()) {
-    const wrong = checkShape(proposal, REVIEW_CONTRACT.rd, `rd n°${index + 1} hors contrat`);
+    const wrong = checkShape(proposal, contract.rd, `rd n°${index + 1} hors contrat`);
     if (wrong) return { ok: false, reason: wrong };
   }
 
   // Règle 7 — cohérence interne. Un document qui se contredit ne décide rien, et
   // le laisser passer reviendrait à faire trancher la garde à sa place.
   const failures = review.reservations.filter((reservation) => reservation.severity === "FAIL").length;
-  if (review.verdict === REVIEW_CONTRACT.verdictThatLands && failures > 0) {
+  if (review.verdict === contract.verdictThatLands && failures > 0) {
     return { ok: false, reason: `verdict SHIP incohérent avec ${failures} réserve(s) FAIL` };
   }
-  if (review.verdict !== REVIEW_CONTRACT.verdictThatLands && review.reservations.length === 0) {
+  if (review.verdict !== contract.verdictThatLands && review.reservations.length === 0) {
     return { ok: false, reason: `verdict ${review.verdict} sans réserve : rien à corriger, donc rien à refuser` };
   }
 
   if (review.overrule !== null) {
-    const wrong = checkShape(review.overrule, REVIEW_CONTRACT.overrule, "overrule hors contrat");
+    const wrong = checkShape(review.overrule, contract.overrule, "overrule hors contrat");
     if (wrong) return { ok: false, reason: wrong };
-    if (review.verdict !== REVIEW_CONTRACT.verdictThatLands) {
+    if (review.verdict !== contract.verdictThatLands) {
       return { ok: false, reason: `overrule sans effet : verdict ${review.verdict}` };
     }
   }
@@ -400,37 +442,55 @@ function readOrNull(path) {
   }
 }
 
-function runCli(argv) {
-  const verdict = (ok, reason) => {
-    console.log(ok ? "OK" : `REFUS — ${reason}`);
-    return ok ? 0 : 1;
-  };
+/**
+ * Décide ce que la ligne de commande imprime et avec quel code de sortie.
+ *
+ * **Exportée et sans effet de bord** : elle rend `{code, line}` au lieu
+ * d'imprimer et de sortir. C'est la couche que les trois lecteurs de la porte
+ * empruntent réellement (`/land`, le `reviewer`, le test à blanc) ; la laisser
+ * hors de portée des tests aurait laissé sans témoin le chemin le plus emprunté.
+ * `readFile` est un paramètre pour la même raison : un fichier absent se prouve
+ * sans en supprimer un du dépôt.
+ *
+ * @param {string[]} argv arguments après le nom du script
+ * @param {(path: string) => string|null} [readFile] lecteur de fichier
+ * @returns {{code: 0|1, line: string}}
+ */
+export function runCli(argv, readFile = readOrNull) {
+  const refuse = (reason) => ({ code: 1, line: `REFUS — ${reason}` });
 
   if (argv[0] === "--shape") {
-    if (argv.length !== 2) return verdict(false, "usage : node tools/land-guard.js --shape <review.json>");
-    const text = readOrNull(argv[1]);
-    if (text === null) return verdict(false, `${argv[1]} introuvable`);
+    if (argv.length !== 2) return refuse("usage : node tools/land-guard.js --shape <review.json>");
+    const text = readFile(argv[1]);
+    if (text === null) return refuse(`${argv[1]} introuvable`);
     const parsed = parseReview(text);
-    if (!parsed.ok) return verdict(false, parsed.reason);
+    if (!parsed.ok) return refuse(parsed.reason);
     const shape = validateReviewShape(parsed.review);
-    return verdict(shape.ok, shape.reason);
+    if (!shape.ok) return refuse(shape.reason);
+    // « OK (forme seule) », jamais « OK » nu : ce mode ne compare ni l'incrément
+    // ni le commit. Mesuré à la 1ʳᵉ passe de revue — un document visant un autre
+    // incrément, sur un autre commit, portant un verdict NEEDS_WORK, imprimait
+    // le même « OK » que celui qui autorise un atterrissage.
+    return { code: 0, line: "OK (forme seule)" };
   }
 
   if (argv.length !== 3) {
-    return verdict(false, "usage : node tools/land-guard.js <review.json> <STATUS.md> <sha>");
+    return refuse("usage : node tools/land-guard.js <review.json> <STATUS.md> <sha>");
   }
   const [reviewPath, statusPath, sha] = argv;
-  const reviewText = readOrNull(reviewPath);
-  if (reviewText === null) return verdict(false, `${reviewPath} introuvable`);
-  const statusText = readOrNull(statusPath);
-  if (statusText === null) return verdict(false, `${statusPath} introuvable`);
+  const reviewText = readFile(reviewPath);
+  if (reviewText === null) return refuse(`${reviewPath} introuvable`);
+  const statusText = readFile(statusPath);
+  if (statusText === null) return refuse(`${statusPath} introuvable`);
 
   const result = landGuard(reviewText, statusText, sha);
-  return verdict(result.ok, result.reason);
+  return result.ok ? { code: 0, line: "OK" } : refuse(result.reason);
 }
 
 // Exécuté seulement en lancement direct : sous Vitest, `process.argv[1]` est le
 // lanceur de tests, jamais ce fichier.
 if (typeof process !== "undefined" && typeof process.argv[1] === "string" && process.argv[1].endsWith("land-guard.js")) {
-  process.exit(runCli(process.argv.slice(2)));
+  const { code, line } = runCli(process.argv.slice(2));
+  console.log(line);
+  process.exit(code);
 }

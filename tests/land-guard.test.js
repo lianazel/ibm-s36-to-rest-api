@@ -19,7 +19,9 @@ import {
   incrementFromStatus,
   landGuard,
   parseReview,
+  REVIEW_CONTRACT,
   reviewAuthorizes,
+  runCli,
   validateReviewShape,
 } from "../tools/land-guard.js";
 
@@ -227,6 +229,38 @@ const CAS = [
     ok: false,
     motif: /review absent/,
   },
+  // Cinq cas nés de la 1ʳᵉ passe de revue de cet incrément : le contrat décrivait
+  // plus qu'il ne contrôlait, et deux chemins n'avaient aucun témoin possible.
+  {
+    fait: "overrule — le signataire est contraint : le veto P5 ne se lève pas soi-même",
+    run: () => validateReviewShape(doc({ overrule: { ...OVERRULE, by: "le reviewer lui-même" } })),
+    ok: false,
+    motif: /overrule hors contrat/,
+  },
+  {
+    fait: "réserve — un `file` absolu ne désigne pas un fichier du dépôt",
+    run: () => validateReviewShape(doc({ reservations: [reservation({ file: "/etc/passwd" })] })),
+    ok: false,
+    motif: /réserve n°1/,
+  },
+  {
+    fait: "réserve — un `file` qui remonte hors du dépôt est refusé",
+    run: () => validateReviewShape(doc({ reservations: [reservation({ file: "../../secrets.env" })] })),
+    ok: false,
+    motif: /réserve n°1/,
+  },
+  {
+    // Témoin du `default` de `checkField` : sans le contrat en paramètre, ce
+    // chemin serait improuvable, `REVIEW_CONTRACT` étant gelé.
+    fait: "contrat — un `kind` que personne ne sait vérifier échoue FERMÉ, il ne laisse pas passer",
+    run: () =>
+      validateReviewShape(doc(), {
+        ...REVIEW_CONTRACT,
+        fields: { ...REVIEW_CONTRACT.fields, increment: { kind: "martien" } },
+      }),
+    ok: false,
+    motif: /type de contrat inconnu/,
+  },
 
   // ---- reviewAuthorizes : règles 3, 4, 5 dans cet ordre -----------------------
   {
@@ -321,6 +355,74 @@ describe("land-guard — aucun atterrissage sans review.json frais, conforme et 
     const { ok, review } = parseReview(texte(doc({ increment: "CHORE x" })));
     expect(ok).toBe(true);
     expect(review.increment).toBe("CHORE x");
+  });
+
+  it("un motif de refus ne peut pas repeindre le terminal : les caractères de contrôle sont neutralisés", () => {
+    // Mesuré à la 1ʳᵉ passe de revue : un `increment` portant « ESC[2K ESC[G »
+    // faisait afficher « OK » DANS la ligne de REFUS. Le code de sortie disait
+    // vrai, la ligne imprimée mentait — et c'est elle que `/land` doit citer.
+    const { ok, reason } = reviewAuthorizes(doc({ increment: "\u001b[2K\u001b[GOK" }), { increment: INCREMENT, commit: SHA });
+    expect(ok).toBe(false);
+    expect(reason).toMatch(/ne porte pas l'incrément/);
+    expect(reason).not.toMatch(/\u001b/);
+    expect(reason).not.toMatch(/[\p{Cc}]/u);
+  });
+});
+
+describe("runCli — la couche que /land, le reviewer et le test à blanc empruntent vraiment", () => {
+  /** Faux disque : un fichier absent se prouve sans en supprimer un du dépôt. */
+  const disque = (fichiers) => (path) => (path in fichiers ? fichiers[path] : null);
+
+  it("un fichier introuvable refuse en nommant le chemin lu", () => {
+    const { code, line } = runCli(["absent.json", "STATUS.md", SHA], disque({}));
+    expect(code).toBe(1);
+    expect(line).toMatch(/^REFUS — absent\.json introuvable$/);
+  });
+
+  it("un STATUS.md introuvable refuse en le nommant, lui, et pas la revue", () => {
+    const { code, line } = runCli(["r.json", "absent.md", SHA], disque({ "r.json": texte(doc()) }));
+    expect(code).toBe(1);
+    expect(line).toMatch(/absent\.md introuvable/);
+  });
+
+  it("chaîne complète conforme : imprime exactement OK et sort en 0", () => {
+    const { code, line } = runCli(["r.json", "s.md", SHA], disque({ "r.json": texte(doc()), "s.md": READY }));
+    expect(code).toBe(0);
+    expect(line).toBe("OK");
+  });
+
+  it("un refus imprime la ligne REFUS et sort en 1", () => {
+    const fichiers = { "r.json": texte(doc({ verdict: "BLOCK", reservations: [reservation({ severity: "FAIL" })] })), "s.md": READY };
+    const { code, line } = runCli(["r.json", "s.md", SHA], disque(fichiers));
+    expect(code).toBe(1);
+    expect(line).toMatch(/^REFUS — verdict du reviewer/);
+  });
+
+  it("`--shape` ne dit pas OK tout court : il dit ce qu'il n'a PAS vérifié", () => {
+    // Sans cette distinction, un document visant un autre incrément, sur un
+    // autre commit, avec un verdict NEEDS_WORK, imprimait le même « OK » que
+    // celui qui autorise un atterrissage.
+    const nAutorisePas = doc({
+      verdict: "NEEDS_WORK",
+      increment: "CHORE autre-chose",
+      commit: SHA_PREV,
+      reservations: [reservation({ severity: "FAIL" })],
+    });
+    const { code, line } = runCli(["--shape", "r.json"], disque({ "r.json": texte(nAutorisePas) }));
+    expect(code).toBe(0);
+    expect(line).toBe("OK (forme seule)");
+    expect(line).not.toBe("OK");
+  });
+
+  it("`--shape` refuse un document mal formé", () => {
+    const { code, line } = runCli(["--shape", "r.json"], disque({ "r.json": texte(sans("commit")) }));
+    expect(code).toBe(1);
+    expect(line).toMatch(/champ commit hors contrat/);
+  });
+
+  it("un usage incomplet refuse au lieu de deviner les arguments manquants", () => {
+    expect(runCli(["r.json"], disque({})).code).toBe(1);
+    expect(runCli(["--shape"], disque({})).line).toMatch(/usage/);
   });
 });
 
