@@ -37,6 +37,7 @@ du prompt peut se tromper ; c'est précisément pourquoi cette étape existe.
 ## ÉTAPE 4 — REVUE
 - Délègue au subagent `reviewer` (lire `CLAUDE.md` + les 3 fichiers `.pipeline/` → `review.md`).
 - Affiche `.pipeline/review.md` intégralement au chef de projet.
+- **Cette étape n'est pas facultative et ne dépend pas de `/ship`** : `/land` refuse d'atterrir sans `review.md` frais (voir `tools/land-guard.js`). Un incrément lancé par « exécute le prompt » doit déléguer la revue au `reviewer` avant d'écrire `READY`.
 
 ## RAPPORT FINAL
 - Résume : feature, branche, verdict, score sécurité.

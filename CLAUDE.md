@@ -40,6 +40,7 @@ UI **mobile-first** (petit écran d'abord, enrichi vers le desktop). Site de con
 
 - **Prompts Cowork → Claude Code** : dans `prompts/v<minor>/` (cf. ci-dessus).
 - **Artefacts pipeline** dans `.pipeline/` (non commité) : `spec.md`, `changes.md`, `test-results.md`, `last-diff.patch`, `review.md`, `RAPPORT_DIAGNOSTIC_*.md`.
+- **Revue indépendante obligatoire** : le `reviewer` écrit `.pipeline/review.md` (verdict SHIP) **avant** tout `READY`, quel que soit le mode de lancement ; `/land` le vérifie en pré-garde (`tools/land-guard.js`) et refuse sinon.
 - **Revue Claude Code → Cowork — SANS capture d'écran.** Cowork a accès en lecture au dépôt : il revoit le code en **ouvrant les fichiers** et lit les artefacts `.pipeline/` directement. À la clôture d'un `/ship` (ou `/fix`), Claude Code écrit en **dernier** `.pipeline/STATUS.md` = `READY — étape <N> — <horodatage ISO> — <branche> — tests <X/Y>` (feu vert de revue). Règles Cowork : (1) lire les artefacts **seulement après** clôture ; (2) vérifier l'incrément par le **contenu** (titre + `STATUS.md`), **jamais** par la date de modification (mtime périmé possible sur montage) ; (3) état de synchro `main`/`origin/main` : uniquement par réfs git en direct, jamais depuis un artefact.
 
 ## Stack
