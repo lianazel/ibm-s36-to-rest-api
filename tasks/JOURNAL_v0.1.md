@@ -272,3 +272,78 @@
 | Retrait du `.git/index.lock` | **Soumis au chef de projet**, pas retiré d'office | Un client git côté Windows est invisible depuis WSL : supprimer un verrou pendant qu'un client écrit l'index peut le corrompre. Le doute ne s'arbitre pas dans l'instant | précédent |
 | Atterrir sur un verdict `NEEDS WORK` affiché | **Oui**, les trois points ayant été traités après la revue | Le verdict n'est pas réécrit après coup : il reste tel qu'il a été rendu, et les artefacts disent ce qui a suivi. Un verdict corrigé rétroactivement ne vaudrait plus rien | précédent |
 | Niveau de bump | **Patch** 0.1.4 → 0.1.5 | Jalon 1 toujours inachevé ; le passage minor marque sa clôture — règle inscrite quatre fois à ce journal | précédent |
+
+## Session 8 — 15/17 août 2026 — CHORE `garde-revue-land` (merge `bfacccb`, 0.1.5 → 0.1.6)
+
+**Prompt** : `prompts/v0.1/CHORE_garde-revue-land_v1.md` · **Branche** : `chore/garde-revue-land`
+(5 commits) · **Suite** : 68/68 → **113/113, rc 0** · **Revue** : 4 passes du `reviewer`
+(`NEEDS WORK` ×3, puis **`SHIP`**).
+
+- **Ce que l'incrément ferme.** La revue vivait à l'étape 4 de `/ship`, commande facultative : quatre
+  incréments d'affilée ont atterri sans revue indépendante, `review.md` portant encore « EVOL
+  socle-du-site » à la session 6. La revue devient une **pré-garde de `/land`** : la règle vit en un
+  seul exemplaire dans `tools/land-guard.js` (fonctions pures, aucune dépendance, hors du site), lue
+  par la commande **et** par `tests/land-guard.test.js`. Une porte qui vit dans une commande
+  facultative n'est pas une porte.
+- **La porte s'est prouvée sur elle-même, et c'est le fait marquant.** Elle a **refusé les trois
+  premières revues de cet incrément**, chacune pour le motif que le `reviewer` venait de rendre, et
+  n'a accepté la quatrième que parce qu'elle portait `SHIP`. Le critère d'acceptation 4 du prompt est
+  atteint sur pièce, pas sur parole : `incrementFromStatus` → `CHORE garde-revue-land`,
+  `reviewIsFreshFor` → `{"ok":true}`, et la même revue refusée pour tout autre incrément.
+- **Trois `NEEDS WORK`, trois défauts réels, tous reproduits avant correction.** (a) La garde ne lisait
+  que la **première** ligne `VERDICT` : un `SHIP` cité en exemple couvrait le vrai refus — et la revue
+  la plus susceptible de citer une ligne de verdict est celle de cette porte-là ; le `reviewer` a dû
+  préfixer ses citations pour ne pas voir son verdict lu à l'envers. (b) En cessant de retirer `-` en
+  bord gauche, j'ai rendu la **puce** invisible — or `reviewer.md:24` donne le verdict *en puce* : un
+  refus invisible ne peut pas refuser. (c) L'étiquette `incrément[^:]*:` se voulait « reconnue
+  largement » et reconnaissait **tout**, `Incrément précédent :` compris : le défaut fondateur revenu
+  par la porte qui venait de le fermer.
+- **Chaque durcissement a fermé un coin lexical et en a ouvert un autre** : citation → puce → parité →
+  étiquette qualifiée. La cause n'est pas la qualité des correctifs, c'est qu'une décision
+  d'atterrissage dépend de **l'analyse d'un document en prose libre**. D'où **[W16]** et sa piste A —
+  que le `reviewer` émette une ligne canonique lisible par la machine.
+- **Deux fois, la revue a attrapé chez moi une affirmation vérifiable écrite sans sa vérification** :
+  « une clôture ``` manquante donne un refus du bon côté » (faux, réfuté par la mesure C1), puis,
+  corrigée, « la parité n'est plus une limite » (trop large — l'appariement **compte** les
+  délimiteurs, il ne les apparie pas ; 4 délimiteurs imbriqués masquent encore un refus). La première
+  survivait de plus dans un **second domicile**, la section « Non couvert » — celle qu'on lit
+  précisément pour savoir ce qui n'est pas couvert.
+- **Preuves** : **neuf mutations** (M1-M9), une par règle neuve, chacune rougissant sur ses propres cas
+  — l'unanimité et le rétrécissement de la décoration n'étaient d'abord mesurés par **aucun** cas, les
+  attaques étant déjà arrêtées en amont ; sans témoin dédié, deux règles vivantes dans le code auraient
+  été mortes dans les preuves. Restaurations vérifiées par `cmp` + `grep MUTATION` sans résidu. Morsure
+  à blanc sur l'état réel du dépôt consignée. Site prouvé intact (`git diff main...HEAD -- index.html
+  css js` vide).
+- **Incident de mesure, consigné** : deux de mes cas neufs ont rougi à l'écriture. Ce n'était pas le
+  code — les deux passaient un mauvais `attendu`. Diagnostiqué en rejouant les entrées à l'isolement
+  **avant** de toucher au module. Une porte qui rougit se diagnostique avant de se « réparer ».
+- **Incident d'outillage, quatrième occurrence** : `.git/index.lock` a fait échouer un `git checkout
+  main` en pleine pré-garde. Vérification faite : le verrou était **transitoire** (absent au
+  recontrôle, aucun détenteur visible), le `checkout` n'avait rien écrit, et je suis resté sur la
+  branche d'incrément — donc aucun demi-état. Aucun retrait manuel n'a été nécessaire, la réserve de
+  la session 4 n'a pas eu à être tranchée.
+- **Aucune leçon inscrite cette session.** Deux candidates soumises au chef de projet, non arbitrées à
+  l'heure de la clôture : « *reconnu largement n'est pas une règle, c'est une intention — en expression
+  régulière, elle devient reconnu n'importe quoi* » et « *une affirmation réfutée se retire de tous ses
+  domiciles* ». Les deux candidates de la session 6 restent également non arbitrées.
+- **Dettes inscrites** : **[W14]** le câblage de la pré-garde n'est gardé par aucune porte (famille
+  [W8]/[W13]) · **[W15]** la garde mesure une **forme**, pas une **provenance** ni une **fraîcheur** —
+  rien n'établit que la revue vienne du `reviewer` ni qu'elle porte sur le commit qu'on fait atterrir,
+  alors que `CLAUDE.md` promet « indépendante » · **[W16]** le contrat de l'agent et la garde ne sont
+  pas alignés, avec le contenu attendu du prompt dédié et **trois résidus mesurés** (verdict en liste
+  numérotée ou en citation : invisible ; parité comptée et non appariée ; ordre des contrôles).
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| La garde doit-elle lire le verdict à la lettre du prompt (`VERDICT : SHIP`, casse et espaces) ? | **Non** — décoration Markdown normalisée | Mesuré : `reviewer.md:24` **prescrit** le gras et la puce, la revue réelle écrit `## VERDICT : **NEEDS WORK**`. À la lettre, la garde aurait refusé **toute** sortie authentique de l'agent, y compris celle de cet incrément. Une porte qui refuse tout le monde se fait désarmer | précédent |
+| Jusqu'où tolérer la décoration ? | **L'espace après le marqueur tranche** : `- VERDICT` est une puce, `+VERDICT` une ligne de diff | Deux passes ont montré les deux échecs symétriques : trop tolérant, une **citation** vaut décision ; pas assez, la **puce** rend le refus invisible. Un refus invisible est pire qu'un refus tardif | précédent |
+| Le nom d'incrément se cherche-t-il n'importe où dans l'en-tête ? | **Non** — ligne à **étiquette close** (`Incrément`, `Incréments`, `Incrément revu`), hors bloc de code, valeur bornée par une ponctuation | Mesuré : une revue d'un **autre** incrément qui mentionne le nôtre passait, et `<nom> v2` / `<nom>-v2` / `<nom> bis` aussi. Plus strict que le prompt, et c'est le prix de la porte que l'incrément existe pour fermer | précédent |
+| `incrementFromStatus`, second export non demandé par le prompt : feature en trop ? | **Non, à garder** | Le prompt **énonce** la règle (§2.1) et **ordonne** de l'appliquer (§2.2), mais la laisse en prose. Une règle en prose n'est gardée par rien : c'est la famille de [W13]. Tranché par le `reviewer` en 1ʳᵉ passe | précédent |
+| Écrire à `tasks/ROADMAP.md` alors que le prompt clôt son périmètre par « Rien d'autre » ? | **Oui** — [W14], [W15], [W16] et la section « À arbitrer » | `.pipeline/` est gitignoré : une dette qui n'y vit que là **disparaît au merge**. P2 prime sur une clause de périmètre — position confirmée par le `reviewer` | précédent |
+| Faut-il une porte pour chaque règle neuve, même quand les attaques sont déjà arrêtées en amont ? | **Oui, un témoin dédié par règle** | Sans cela, l'unanimité et le rétrécissement de la décoration n'étaient mesurés par aucun cas : deux règles vivantes dans le code, mortes dans les preuves. Une règle qu'aucun cas ne mesure est du code mort qui rassure | précédent |
+| Corriger les deux réserves non bloquantes de la 4ᵉ passe (après le `SHIP`) ? | **La documentaire oui, celle qui touche le code non** | Le `SHIP` porte sur `e4c3037`. Modifier le code après lui reviendrait à faire atterrir du code qu'**aucune revue n'a vu** — ce que cette garde existe pour empêcher, et que [W15] l'empêche justement de détecter. L'écart est écrit dans les artefacts et en résidu (c) de [W16] | précédent |
+| Le précédent de la session 7 (atterrir sur un `NEEDS WORK` traité après coup) survit-il ? | **Non, il est révoqué** | Le prompt le tranche (« un verdict `NEEDS WORK` ou `BLOCK` n'atterrit jamais ») et la garde l'applique. Coût mesuré sur cet incrément même : quatre passes, chacune écrasant `review.md`. Inscrit en « À arbitrer » pour confirmation du chef de projet | précédent |
+| Inscrire les deux leçons candidates sans validation explicite ? | **Non** | Mode 2 de la boucle d'auto-amélioration : le chef de projet valide. Le précédent de la session 7 est suivi — le journal dit « aucune inscrite, deux candidates non arbitrées ». « Aucune » est une information | précédent |
+| Niveau de bump | **Patch** 0.1.5 → 0.1.6 | Jalon 1 toujours inachevé ; le passage minor marque sa clôture — règle inscrite cinq fois à ce journal | précédent |
