@@ -426,3 +426,68 @@
 | Faut-il un témoin pour un chemin qu'un objet gelé rend inatteignable ? | **Oui — la ressource devient un paramètre** (`validateReviewShape(review, contract)`) | Sans couture, l'affirmation « échoue fermé » n'était pas mesurable (leçon du 10 août). Conséquence assumée et payée : la couture a élargi la surface publique, et c'est ainsi que « totale » est devenue fausse ([W17]) | précédent |
 | Supprimer `.pipeline/review.md`, non demandé par le prompt | **Oui** | Plus aucun lecteur n'existe ; laissé en place, il ne servait plus que de leurre à côté de `review.json`. Geste dans un dossier gitignoré, sans effet sur le livré | cas d'espèce |
 | Niveau de bump | **Patch** 0.1.6 → 0.1.7 | Jalon 1 toujours inachevé ; le passage minor marque sa clôture — règle inscrite six fois à ce journal | précédent |
+
+## Session 10 — 17 août 2026 — EVOL `decor-voix-premiere-personne` (merge `7054dc2`, 0.1.7 → 0.1.8)
+
+**Prompt** : `prompts/v0.1/EVOL_decor-voix-premiere-personne_v1.md` · **Branche** :
+`feat/decor-voix-premiere-personne` (2 commits) · **Suite** : **134/134, rc 0**, inchangée de bout en bout ·
+**Revue** : **1 passe**, verdict **`SHIP`**, 4 réserves **toutes `WARN`**, **aucun `FAIL`**, 1 proposition R&D.
+
+- **Le premier incrément de contenu depuis la session 5.** Les quatre sessions précédentes étaient du
+  harnais (`menu-hamburger`, `lang-dans-adresse`, `garde-revue-land`, `revue-structuree`). Celui-ci ne
+  touche que le texte : deux clés, deux langues, quatre sous-chaînes. Le vécu du bloc « La preuve vivante »
+  passe à la première personne — le « je » est réservé au vécu, la voix neutre reste celle de l'explication
+  (décision du chef de projet du 15 août).
+- **La première passe a suffi, pour la première fois depuis la session 6.** Trois passes en session 8,
+  trois en session 9, une ici. La différence n'est pas la vigilance : c'est la **surface**. Un incrément qui
+  ne touche aucune logique n'offre pas de prise aux défauts qui ont occupé les deux sessions précédentes.
+- **La preuve demandée était une lecture, je l'ai remplacée par une mesure.** Le prompt faisait vérifier
+  « le reste identique octet pour octet » **en comparant avec `git diff`** — à l'œil, sur quatre lignes de
+  500 caractères. Mesure faite à la place : extraction du fichier d'avant, application des quatre
+  remplacements par script **avec contrôle d'unicité de chaque occurrence** (échec si 0 ou ≥ 2), puis `cmp`
+  et `sha256` contre le livré. Identiques. Ce que la lecture ne donnait pas : la certitude qu'aucun des
+  quatre remplacements n'a frappé une **autre clé** du dictionnaire par ricochet.
+- **Le `reviewer` a refait la mesure dans l'autre sens** — reconstruction `after → before` quand la mienne
+  allait `before → after` — et a retrouvé le `sha256` de `main`. Ce n'est pas une relecture de mon artefact,
+  c'est une seconde mesure indépendante : la seule forme de confirmation qui vaille pour une assertion
+  d'identité octet pour octet.
+- **Les quatre réserves portent toutes sur mes artefacts, aucune sur le code livré** — et trois sur quatre
+  sont la **même classe de défaut que les deux sessions précédentes** : la substance juste, **l'étiquette du
+  chiffre fausse**. « Les 20 710 octets du fichier » désignait l'état d'**avant** alors que la phrase
+  concluait sur le livré (20 667, −43, somme exacte des quatre raccourcissements) ; la preuve la plus forte
+  était décrite via `HEAD`, **référence mobile** qui ne désignait plus le même fichier une fois le commit
+  `feat` posé, donc une procédure **non rejouable** ; et « ni longueur de bloc susceptible de changer la
+  mise en page » glissait un membre **non mesuré** entre deux qui l'étaient. Non corrigées : le prompt
+  prescrit de ne pas toucher aux `WARN` d'un `SHIP`.
+- **J'ai corrigé une phrase de ma propre spec avant le handoff** : j'y avais écrit « quatre sections de
+  diff », il y en a **deux** (`p1` et `p2` sont adjacentes dans chaque langue). Le compte qui porte la preuve
+  est celui des **lignes** (`numstat` = `4 4`), pas celui des sections.
+- **Réserve `P2` consignée ici parce qu'elle mourrait au merge.** `.pipeline/` est gitignoré ; le journal a
+  tranché deux fois qu'une dette qui n'y vit que là disparaît (entrées des sessions 6 et 8). Constat du
+  `reviewer`, conservé : **aucune porte ne garde la voix éditoriale** — remettre « L'auteur de ce site »
+  laisserait la suite à 134/134, `i18n.test.js` ne contrôlant que la parité des clés, la non-vacuité et
+  `valeur != clé`, et `i18n-html.test.js` que la résolution des clés d'`index.html`. Même forme que
+  **[W8]/[W13]/[W14]** : la règle existe, son site d'application n'est gardé par rien. Et le motif que
+  j'avais opposé — « une porte figerait le texte » — est **plus large que ce qu'il couvre** : il vaut pour
+  une porte qui épingle une formulation, pas pour la **porte négative** que l'incrément a exécutée à la main
+  (`grep` : ni `L'auteur` ni `The author`), laquelle interdit une formule abandonnée **sans figer une seule
+  phrase**. L'inscription au registre des dettes **n'a pas été arbitrée** avant l'atterrissage : elle
+  exigerait un commit sur la branche, donc invaliderait la revue `SHIP` qui l'autorise (champ `commit`) —
+  la situation exacte de **[W17]** en session 9.
+- **Proposition R&D du `reviewer` (format B), non exécutée** : une **porte des formules abandonnées**, test
+  interdisant au dictionnaire de contenir des formulations retirées par arbitrage (à commencer par
+  `L'auteur` / `The author`), alimentée d'une ligne à chaque décision éditoriale. C'est le milieu manquant
+  entre « aucune porte » et « une porte qui figerait le texte », sans dépendance.
+- **Anonymisation (P1) vérifiée par le `reviewer`** : le passage au « je » n'introduit rien d'identifiant —
+  ni employeur, ni lieu, ni date de carrière, ni secteur ; le référent était déjà explicite. `index.html` ne
+  porte aucun texte en dur pour ce bloc, donc aucune copie divergente ailleurs.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| Niveau de bump : `feat/*` vaut **minor** par défaut dans `/land` | **Patch** 0.1.7 → 0.1.8, par `bump=patch` du chef de projet | Le préfixe de branche décrit la **nature du geste**, pas la portée produit. Jalon 1 toujours inachevé ; le passage minor est réservé à sa clôture — règle désormais inscrite sept fois à ce journal. Un `feat/` de contenu qui remplace quatre sous-chaînes n'ouvre aucune capacité | précédent |
+| Les quatre réserves `WARN` d'un verdict `SHIP` | **Non corrigées**, affichées telles quelles au chef de projet | Consigne explicite du prompt (« n'y touche pas, elles sont pour le chef de projet »). Corriger un artefact de `.pipeline/` n'aurait pourtant **pas** invalidé la revue — ces fichiers ne sont pas commités, le champ `commit` n'aurait pas bougé. La retenue vient de la consigne, pas d'une contrainte technique : c'est le rédacteur du prompt qui garde la main sur ses artefacts | cas d'espèce |
+| La preuve « octet pour octet » que le prompt fait vérifier **à l'œil** | **Remplacée par une mesure** (reconstruction + contrôle d'unicité + `cmp` + `sha256`), écart déclaré à l'artefact | Une assertion d'identité absolue ne se lit pas dans un diff de quatre lignes de 500 caractères. Leçon du 17 août : on mesure ou on réécrit, jamais d'adverbe entre les deux. L'écart au prompt élargit la preuve, il ne la contourne pas | précédent |
+| Lecture retenue pour « quatre lignes modifiées, aucune ligne ajoutée ni supprimée » | **`--numstat` = `4 4`** avec nombre total de lignes inchangé (390 → 390), annoncé **avant** d'agir | Un diff unifié compte une ligne remplacée comme un ajout **et** une suppression : `--stat` affiche `8 ++++----`, donc le critère est infalsifiable tel qu'il est écrit. Un critère de preuve se règle avant de produire la preuve, pas au moment de la présenter | précédent |
+| Inscrire la voix éditoriale au registre des dettes (réserve `P2`) | **Non tranché** — le fond de la réserve est consigné à ce journal, le registre `ROADMAP.md` reste sans ligne | L'inscription exigeait un commit sur la branche, donc l'invalidation de la revue `SHIP` qui autorisait l'atterrissage : situation identique à **[W17]** en session 9. Le journal étant commité, le constat survit au merge — ce que `.pipeline/` ne permettait pas. La décision reste ouverte | cas d'espèce |

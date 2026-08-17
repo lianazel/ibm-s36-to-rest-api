@@ -2,6 +2,36 @@
 
 > Une leçon = une erreur commise ici, datée, avec la règle qui l'empêche de revenir.
 
+## 17 août 2026 — Un chiffre porte son état, une preuve porte un sha : sinon ni l'un ni l'autre ne se vérifie
+
+**Type** : Erreur
+**Contexte** : EVOL `decor-voix-premiere-personne` (merge `7054dc2`). Incrément minuscule — quatre
+sous-chaînes de texte — dont j'avais **renforcé** la preuve de mon propre chef : reconstruction du fichier
+attendu, contrôle d'unicité, `cmp`, `sha256`. La mesure était bonne ; c'est sa **description** qui a failli.
+**Erreur** : deux défauts de la même famille, tous deux dans les artefacts, aucun dans le code livré.
+(1) « sur les **20 710 octets** du fichier, rien d'autre n'a bougé » — 20 710 est la taille d'**avant**, le
+livré fait 20 667 ; la phrase ne disait pas lequel des deux états elle désignait, et c'est ce chiffre qui
+portait la conclusion. (2) « le fichier de **`HEAD`** a été extrait » — vrai au moment de la mesure, faux
+une minute plus tard : depuis le commit `feat`, `HEAD` désigne le fichier d'**après**, et la procédure telle
+qu'écrite ne se rejoue pas (contrôle d'unicité à 0 occurrence). Une preuve dont toute la valeur est d'être
+rejouable désignait un point qui bouge.
+**Correction** : un nombre s'écrit **avec son état** (« 20 710 avant, 20 667 après ») ou ne s'écrit pas ; une
+procédure de preuve nomme un **sha figé** (`645d23d`), jamais `HEAD`, `main` ou toute réf qui se déplace
+entre l'écriture et la lecture. Règle mécanique : dans un artefact, tout **nombre** et toute **référence
+git** se relisent en se demandant « à quel instant ceci est-il vrai ? » — s'il faut connaître le moment de
+rédaction pour répondre, l'écrit est faux pour son lecteur.
+**Parenté** : troisième session consécutive sur la même racine — « une somme juste ne prouve pas des termes
+justes » (16 août) et « coder ou dire, pas d'adverbe entre les deux » (17 août). Les trois disent une même
+chose sous trois angles : **le code était juste, sa description ne l'était pas**, et c'est la description
+qui rassure. Ici la description a même été rédigée *après* une mesure exacte.
+**Portée du dégât** : aucune sur le livré — les quatre réserves étaient `WARN`, le verdict `SHIP`, et les
+artefacts fautifs vivent dans `.pipeline/`, gitignoré.
+**Applicable globalement ?** : à arbitrer par le chef de projet. À mon sens **oui** pour le volet référence
+git (il vaut pour tout dépôt, toute stack, et voisine la leçon globale du 1ᵉʳ août sur le chemin absolu
+périmé qui « répond vide » au lieu de protester) ; le volet « chiffre sans état » est peut-être déjà couvert
+par « un nombre reçu n'est pas plus mesuré qu'un nombre écrit » (11 août) — ce qu'il ajoute est qu'un nombre
+**mesuré par soi-même** reste faux s'il perd l'étiquette de l'état qu'il décrit.
+
 ## 17 août 2026 — Coder ou dire, pas d'adverbe entre les deux
 
 **Type** : Erreur
