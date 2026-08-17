@@ -491,3 +491,78 @@
 | La preuve « octet pour octet » que le prompt fait vérifier **à l'œil** | **Remplacée par une mesure** (reconstruction + contrôle d'unicité + `cmp` + `sha256`), écart déclaré à l'artefact | Une assertion d'identité absolue ne se lit pas dans un diff de quatre lignes de 500 caractères. Leçon du 17 août : on mesure ou on réécrit, jamais d'adverbe entre les deux. L'écart au prompt élargit la preuve, il ne la contourne pas | précédent |
 | Lecture retenue pour « quatre lignes modifiées, aucune ligne ajoutée ni supprimée » | **`--numstat` = `4 4`** avec nombre total de lignes inchangé (390 → 390), annoncé **avant** d'agir | Un diff unifié compte une ligne remplacée comme un ajout **et** une suppression : `--stat` affiche `8 ++++----`, donc le critère est infalsifiable tel qu'il est écrit. Un critère de preuve se règle avant de produire la preuve, pas au moment de la présenter | précédent |
 | Inscrire la voix éditoriale au registre des dettes (réserve `P2`) | **Non tranché** — le fond de la réserve est consigné à ce journal, le registre `ROADMAP.md` reste sans ligne | L'inscription exigeait un commit sur la branche, donc l'invalidation de la revue `SHIP` qui autorisait l'atterrissage : situation identique à **[W17]** en session 9. Le journal étant commité, le constat survit au merge — ce que `.pipeline/` ne permettait pas. La décision reste ouverte | cas d'espèce |
+
+## Session 11 — 17 août 2026 — EVOL `section-le-probleme` (merge `e9d5a45`, 0.1.8 → 0.1.9)
+
+**Prompt** : `prompts/v0.1/EVOL_section-le-probleme_v1.md` · **Branche** : `feat/section-le-probleme`
+(2 commits) · **Suite** : **134/134, rc 0**, inchangée · **Revue** : **1 passe**, verdict **`SHIP`**,
+**6 réserves `WARN`**, **aucun `FAIL`**, 1 proposition R&D.
+
+`section2.intro` porte l'énoncé du problème en quatre phrases, FR et EN. `section2.title` inchangé, aucune
+clé ajoutée, aucun test touché. Deuxième contenu du jalon 1 ; les sections 3, 4 et 5 restent provisoires.
+
+### Les trois écarts de cet incrément, consignés ici parce qu'ils ne survivraient nulle part ailleurs
+
+`.pipeline/` est gitignoré : ce que la revue relève y meurt au merge (précédents des sessions 6 et 8).
+Les trois écarts ci-dessous sont les seuls actes de l'incrément dont la portée dépasse l'incrément.
+
+1. **La preuve 3 du prompt était inexécutable, et le prompt l'ignorait.** Elle exigeait `grep` → « aucune
+   ligne » sur les deux textes provisoires, alors que **les sections 2, 3, 4 et 5 les partagent** — 8
+   occurrences avant l'incrément. Le critère d'acceptation 2 (« textes provisoires disparus ») portait la
+   même supposition. Le périmètre — « une clé, deux langues. Rien d'autre » — les rendait tous deux
+   impossibles. **Arbitrage du chef de projet** : livrable exécuté tel qu'écrit, **preuve 3 restreinte au
+   périmètre**. Mesuré après coup : 6 occurrences restantes, exactement `section3`, `section4`, `section5`
+   dans les deux langues, et `diff` contre `c27c29a` ne rapporte que `68c68` et `154c154`.
+2. **« des noms de colonnes de six caractères », sans « au plus ».** L'étude v2 l. 37 (« Convention
+   respectée »), `CLAUDE.md` et `NOTES_CONTENU_le-probleme_v3.md` l. 28 disent un **maximum**. En sens
+   inverse, et vérifié : l'étude emploie elle-même la forme courte **trois fois** (l. 14, 114, 139), et les
+   **16** colonnes du cas fictif font **toutes exactement six caractères**. La phrase est donc vraie de tout
+   ce que le site montre ; l'imprécision ne porte que sur la règle générale. **Arbitrage du chef de projet** :
+   exécuter tel quel, écart consigné.
+3. **« Aucune description » contredit l'arbitrage 7 des notes v3 — relevé par le `reviewer`, non consigné
+   par moi.** La troisième phrase est exactement sourcée (manuel IBM SC41-4730-00 p. 7-33 : les fichiers du
+   monde S/36 sont *program-described*, l'information de niveau champ vient des programmes). Mais
+   l'arbitrage 7, **corrigé par le chef de projet le jour même**, prescrit pour la prose l'énoncé inverse :
+   « ces fichiers avaient reçu une description : le SQL voyait des colonnes ». Le mot « table » installe la
+   même vue SQL, qui suppose une description posée quelque part. **Rien n'est tranché** : tant que la section
+   se limite à ces quatre phrases, la contradiction reste invisible ; elle deviendra frontale quand les
+   blocs 1 à 4 de la charpente montreront le tableau de `CDEMST` et le témoignage des colonnes vues en SQL.
+   **À trancher avant d'écrire ces blocs.**
+
+### Le reste de la session
+
+- **Le contrôle d'unicité a empêché avant de prouver.** Les deux remplacements ont été **refusés par
+  l'outil d'édition** faute de cible unique — et c'est ce refus qui a révélé le défaut 1. À l'incrément
+  précédent, j'avais dû coder ce contrôle à la main pour rendre une preuve honnête ; ici il était intégré,
+  et il a servi à **empêcher**. Un `sed` ou un remplacement global aurait réécrit les quatre sections en
+  silence. La cible se désigne donc par son **contexte de section** (`title` + `intro`), seule forme unique.
+- **Les deux corrections demandées par la revue de la session 10 sont réelles**, le `reviewer` l'a vérifié :
+  chiffres étiquetés de leur état (20 667 avant, 21 140 après), reconstruction ancrée au sha **figé**
+  `c27c29a` et rejouable. **Mais le défaut s'est déplacé** : trois nombres présentés comme mesurés, **deux
+  faux et un périmé** — 14 colonnes au lieu de 16, deux occurrences au lieu de trois, « quatre chapitres
+  vides » au lieu de trois. J'ai réparé la mécanique de mes preuves et laissé filer les chiffres autour.
+- **Cause racine de mon décompte faux, mesurée** : mon motif `[A-Z]{6}` **excluait en silence** tout nom de
+  colonne portant un chiffre — `ADRFA1` et `ADRFA2` n'ont jamais été vues. Un « mesuré une à une » qui
+  reposait sur un filtre aveugle à une classe entière. Recompté avec un motif admettant les chiffres :
+  **16 sur 16**, la conclusion se renforce.
+- **Une réserve vise la prose elle-même, et le `reviewer` a nommé sa propre limite** : la valeur EN décalque
+  la syntaxe française en trois endroits, alors que le prompt annonce « chaque langue s'adresse à son
+  lecteur ». Il précise que `STYLE_METHOD` S-4 vise le vocabulaire, pas la syntaxe — « mon constat est
+  voisin de la règle, pas dedans ». Point pour l'auteur du prompt ; la prose étant gelée, l'exécutant ne
+  pouvait rien.
+- **Proposition R&D (format B), non exécutée** : un **inventaire déclaré du texte provisoire** — une porte
+  qui compte les formules d'attente et refuse tout écart au nombre déclaré, décroissant d'un geste
+  délibéré à chaque chapitre rédigé, nul à la clôture du jalon 1. L'incrément a montré les trois faces du
+  manque : formule partagée par quatre sections, substitution globale silencieuse, preuve 3 inexprimable.
+  Distincte de la porte des formules abandonnées proposée en session 10.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| La preuve 3 et le critère 2 du prompt sont impossibles dans le périmètre annoncé | **Livrable exécuté tel qu'écrit, preuve 3 restreinte à la section 2** | Le livrable, lui, n'était pas ambigu : la cible se désigne par son contexte. Élargir le périmètre aurait exigé d'inventer le contenu des sections 3, 4 et 5, qui n'existe ni dans l'étude ni dans les notes — et contredit la décision du 17 août de commencer par le seul énoncé | cas d'espèce |
+| « six caractères » là où trois sources du projet disent « au maximum » | **Exécuter tel quel**, écart consigné aux artefacts et à ce journal | La prose est gelée par le prompt (« ne pas la réécrire ») : la corriger était le geste du rédacteur, pas de l'exécutant. Et la phrase est vraie des 16 colonnes du cas fictif — l'imprécision ne porte que sur la règle générale | cas d'espèce |
+| Les six réserves `WARN` d'un verdict `SHIP` | **Non corrigées**, affichées telles quelles | Consigne explicite du prompt. Même remarque qu'à la session 10 : corriger un artefact de `.pipeline/` n'aurait pas invalidé la revue, ces fichiers n'étant pas commités. La retenue vient de la consigne | cas d'espèce |
+| Les trois chiffres corrigés par le `reviewer` (16 colonnes, 3 occurrences, 3 chapitres) | **Re-mesurés par moi avant d'être écrits ici** | Leçon globale du 11 août : un nombre **reçu** n'est pas plus mesuré qu'un nombre écrit, la source ne change pas son statut. La vérification a d'ailleurs révélé la cause racine — un motif aveugle aux noms portant un chiffre | précédent |
+| « Aucune description » contre l'arbitrage 7 des notes v3 (réserve `ARCHI`) | **Non tranché**, consigné à ce journal comme écart n° 3 | Le livrable est gelé et la contradiction n'est pas visible tant que la section se limite à son énoncé. Elle le deviendra aux blocs 1 à 4 : la décision doit être prise **avant** leur écriture, pas après | cas d'espèce |
+| Niveau de bump | **Patch** 0.1.8 → 0.1.9, par `bump=patch` du chef de projet | Jalon 1 toujours inachevé ; le passage minor est réservé à sa clôture. Huitième inscription de cette règle à ce journal | précédent |

@@ -2,6 +2,36 @@
 
 > Une leçon = une erreur commise ici, datée, avec la règle qui l'empêche de revenir.
 
+## 17 août 2026 — Réparer la preuve n'immunise pas ce qui l'entoure, et un filtre qui exclut ne prévient pas
+
+**Type** : Erreur
+**Contexte** : EVOL `section-le-probleme` (merge `e9d5a45`), lendemain de la leçon « un chiffre porte son
+état ». J'avais appliqué ses deux correctifs **d'emblée** : chiffres étiquetés avant/après, reconstruction
+ancrée à un sha figé. Le `reviewer` a confirmé les deux réels — puis a trouvé **trois autres nombres faux**
+dans les mêmes artefacts.
+**Erreur** : « les **14** colonnes du cas fictif (mesuré une à une) » — il y en a **16** ; « l'étude emploie
+la forme courte **deux** fois » — **trois** ; « quatre chapitres vides » — **trois**, le compte d'avant mon
+propre geste. J'avais durci la **mécanique de preuve** et laissé la prose autour porter des chiffres non
+mesurés. Pire, la cause racine du premier : mon motif `[A-Z]{6}` **excluait en silence** tout nom portant un
+chiffre, donc `ADRFA1` et `ADRFA2` n'ont jamais été vues. « Mesuré une à une » désignait en réalité un
+filtre aveugle à une classe entière — et un filtre qui exclut ne lève aucune erreur, il **répond moins**.
+**Correction** : deux règles distinctes. (1) **Le périmètre d'une correction est celui qu'on lui donne** :
+réparer le mécanisme d'une preuve ne rend pas vraies les affirmations qui l'entourent — au dépôt d'un
+artefact, chaque nombre est une assertion à mesurer, y compris ceux qui ne servent qu'à situer. (2) **Un
+motif de recherche est une hypothèse, pas une mesure** : avant de conclure d'un `grep`, se demander ce que
+le motif **ne peut pas** matcher (chiffres, accents, casse, césures) et vérifier le total par un second
+chemin. Un filtre trop étroit produit un résultat **plausible**, donc jamais suspect.
+**Parenté** : quatrième session consécutive sur la même racine — le code est juste, sa **description** ne
+l'est pas. Ce que celle-ci ajoute : le défaut **se déplace** quand on le chasse d'un endroit, et il se loge
+là où la vigilance vient de baisser parce qu'on croit avoir payé.
+**Portée du dégât** : aucune sur le livré — six réserves `WARN`, verdict `SHIP`, artefacts gitignorés. Les
+trois chiffres corrigés ont été **re-mesurés par moi** avant d'entrer au journal, et c'est cette
+re-mesure qui a exhibé la cause racine.
+**Applicable globalement ?** : à arbitrer par le chef de projet. Le volet (2) — un motif est une hypothèse,
+vérifier ce qu'il exclut — me paraît **universel** et sans équivalent dans le registre global ; il est
+voisin de « un silence dans une trace n'est pas une mesure » (4 août) sans se confondre avec lui : là il
+s'agissait d'un silence subi, ici d'un silence **qu'on a soi-même construit**.
+
 ## 17 août 2026 — Un chiffre porte son état, une preuve porte un sha : sinon ni l'un ni l'autre ne se vérifie
 
 **Type** : Erreur
