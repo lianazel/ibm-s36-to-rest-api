@@ -34,8 +34,8 @@ du prompt peut se tromper ; c'est précisément pourquoi cette étape existe.
 - Écris `.pipeline/test-results.md`. Si FAILED : **STOP**, affiche au chef de projet.
 
 ## ÉTAPE 3 — REVUE
-- Délègue au subagent `reviewer` (lire `CLAUDE.md` + le `RAPPORT_DIAGNOSTIC` + `changes.md` + `test-results.md` → `review.md`).
-- Affiche `review.md` au chef de projet. **Ne merge/push rien.**
+- Délègue au subagent `reviewer` (lire `CLAUDE.md` + le `RAPPORT_DIAGNOSTIC` + `changes.md` + `test-results.md` → `review.json`).
+- Affiche au chef de projet le `verdict` et la liste des `reservations` de `.pipeline/review.json`, tels quels. **Ne merge/push rien.**
 
 ## ÉTAPE 4 — HANDOFF (dernier geste, §5 / KICKOFF « Signal de fin »)
 - **Commit de l'incrément sur la branche** `fix/<slug>`, en **staging PRÉCIS** : uniquement les

@@ -1,329 +1,313 @@
 /**
  * land-guard.test.js — porte de la pré-garde de revue de `/land`.
  *
- * Ce qu'elle ferme : quatre incréments ont atterri avec un `review.md` périmé,
- * personne ne l'ayant vérifié. La règle vit désormais dans `tools/land-guard.js`,
+ * Ce qu'elle ferme : quatre incréments ont atterri avec un compte rendu de revue
+ * périmé, personne ne l'ayant vérifié. La règle vit dans `tools/land-guard.js`,
  * et ce fichier atteste qu'elle mord — pas seulement le jour où on l'écrit.
  *
- * Les cas sont **écrits en table**, jamais lus depuis `.pipeline/` : ce dossier
- * est gitignoré, une porte qui s'y appuierait mesurerait un artefact absent chez
- * quiconque cloche le dépôt, et son chemin d'échec exigerait d'abîmer un fichier
- * réel pour être prouvé.
+ * Un témoin committé **par chemin capable de refuser** (règle du 14 août 2026 :
+ * une preuve jetée protège le jour où on la fait, un témoin committé protège
+ * encore). Chaque `reason` est vérifié par un **motif court** : le message peut
+ * évoluer, le chemin de refus non.
+ *
+ * Les documents sont construits en table, jamais lus depuis `.pipeline/` : ce
+ * dossier est gitignoré, une porte qui s'y appuierait mesurerait un artefact
+ * absent chez quiconque clone le dépôt.
  */
 import { describe, expect, it } from "vitest";
-import { incrementFromStatus, reviewIsFreshFor } from "../tools/land-guard.js";
+import {
+  incrementFromStatus,
+  landGuard,
+  parseReview,
+  reviewAuthorizes,
+  validateReviewShape,
+} from "../tools/land-guard.js";
 
-const INCREMENT = "CHORE lang-dans-adresse";
+const INCREMENT = "CHORE revue-structuree";
+const SHA = "0123456789abcdef0123456789abcdef01234567";
+const SHA_PREV = "fedcba9876543210fedcba9876543210fedcba98";
+const READY = `READY — ${INCREMENT} — 2026-08-17T10:00:00Z — chore/revue-structuree — tests 124/124`;
 
-/** En-tête minimal conforme : l'incrément se nomme dans les 10 premières lignes. */
-function reviewHeaded(name, body) {
-  return [`# REVUE — ${name}`, "", `**Incrément** : ${name}`, "", "---", "", body].join("\n");
+/** Document conforme ; chaque cas n'en altère que ce qu'il mesure. */
+function doc(overrides = {}) {
+  return {
+    contract: "twaim.review/1",
+    increment: INCREMENT,
+    commit: SHA,
+    base: SHA_PREV,
+    reviewed_at: "2026-08-17T10:00:00Z",
+    tests: { passed: 124, total: 124 },
+    verdict: "SHIP",
+    reservations: [],
+    overrule: null,
+    rd: [],
+    ...overrides,
+  };
 }
 
+function reservation(overrides = {}) {
+  return {
+    pillar: "P3",
+    severity: "WARN",
+    file: "tools/land-guard.js",
+    line: 42,
+    finding: "ce qui a été constaté",
+    expected: "la correction attendue",
+    ...overrides,
+  };
+}
+
+const OVERRULE = { by: "chef de projet", reason: "motif écrit", at: "2026-08-17T10:00:00Z" };
+
+/** Document privé d'un champ obligatoire — un cas par champ. */
+function sans(field) {
+  const document = doc();
+  delete document[field];
+  return document;
+}
+
+const texte = (document) => JSON.stringify(document);
+
 /**
- * Table de cas de `reviewIsFreshFor`. Chaque entrée nomme le fait qu'elle
- * défend : un cas dont on ne sait pas dire ce qu'il protège ne protège rien.
+ * Table unique : chaque cas nomme le fait qu'il défend et porte sa propre
+ * invocation. Un cas dont on ne sait pas dire ce qu'il protège ne protège rien.
  */
-const CASES = [
+const CAS = [
+  // ---- parseReview : règles 1 et 2 -------------------------------------------
   {
-    fait: "une revue absente ne prouve rien — c'est l'état du dépôt quand personne n'a lancé le reviewer",
-    review: "",
-    attendu: INCREMENT,
+    fait: "parseReview — un fichier vide n'est pas une revue",
+    run: () => parseReview(""),
     ok: false,
-    motif: /absent ou vide/,
+    motif: /illisible/,
   },
   {
-    fait: "une lecture ratée rend autre chose qu'une chaîne, et ce n'est pas une revue non plus",
-    review: null,
-    attendu: INCREMENT,
+    fait: "parseReview — du JSON invalide est refusé, et le motif cite l'analyseur",
+    run: () => parseReview('{ "verdict": SHIP }'),
     ok: false,
-    motif: /absent ou vide/,
+    motif: /illisible/,
   },
   {
-    fait: "LE défaut historique — la revue de l'incrément précédent, avec son verdict SHIP bien réel",
-    review: reviewHeaded("CHORE menu-hamburger", "VERDICT : SHIP"),
-    attendu: INCREMENT,
+    fait: "parseReview — une racine tableau n'est pas un document de revue",
+    run: () => parseReview("[]"),
+    ok: false,
+    motif: /racine n'est pas un objet/,
+  },
+  {
+    fait: "parseReview — sans champ `contract`, on ne sait pas quelles règles appliquer",
+    run: () => parseReview(texte(sans("contract"))),
+    ok: false,
+    motif: /contrat inconnu/,
+  },
+  {
+    fait: "parseReview — un contrat futur (`twaim.review/2`) est refusé, pas deviné",
+    run: () => parseReview(texte(doc({ contract: "twaim.review/2" }))),
+    ok: false,
+    motif: /contrat inconnu/,
+  },
+  {
+    fait: "parseReview — un document conforme est accepté et rendu",
+    run: () => parseReview(texte(doc())),
+    ok: true,
+  },
+
+  // ---- validateReviewShape : un champ obligatoire absent, un cas par champ ----
+  ...["increment", "commit", "base", "reviewed_at", "tests", "verdict", "reservations", "overrule", "rd"].map((field) => ({
+    fait: `validateReviewShape — champ obligatoire absent : \`${field}\``,
+    run: () => validateReviewShape(sans(field)),
+    ok: false,
+    motif: new RegExp(`champ ${field} hors contrat`),
+  })),
+  {
+    fait: "validateReviewShape — `ship` en minuscules n'est pas `SHIP` : le contrat n'est pas une suggestion",
+    run: () => validateReviewShape(doc({ verdict: "ship" })),
+    ok: false,
+    motif: /verdict hors contrat/,
+  },
+  {
+    fait: "validateReviewShape — `NEEDS WORK` avec une espace n'est pas `NEEDS_WORK`",
+    run: () => validateReviewShape(doc({ verdict: "NEEDS WORK", reservations: [reservation()] })),
+    ok: false,
+    motif: /verdict hors contrat/,
+  },
+  {
+    fait: "validateReviewShape — une réserve sans `line` est incomplète (le champ vaut `null`, il ne s'omet pas)",
+    run: () => {
+      const incomplete = reservation();
+      delete incomplete.line;
+      return validateReviewShape(doc({ reservations: [incomplete] }));
+    },
+    ok: false,
+    motif: /réserve n°1/,
+  },
+  {
+    fait: "validateReviewShape — `line: null` est admis : une réserve peut ne viser aucune ligne",
+    run: () => validateReviewShape(doc({ reservations: [reservation({ line: null })] })),
+    ok: true,
+  },
+  {
+    fait: "validateReviewShape — `severity: MAJOR` n'existe pas au contrat",
+    run: () => validateReviewShape(doc({ reservations: [reservation({ severity: "MAJOR" })] })),
+    ok: false,
+    motif: /réserve n°1/,
+  },
+  {
+    fait: "validateReviewShape — `pillar: P9` n'existe pas : les piliers sont énumérés",
+    run: () => validateReviewShape(doc({ reservations: [reservation({ pillar: "P9" })] })),
+    ok: false,
+    motif: /réserve n°1/,
+  },
+  {
+    fait: "validateReviewShape — la deuxième réserve fautive est nommée par son rang",
+    run: () => validateReviewShape(doc({ reservations: [reservation(), reservation({ finding: "" })] })),
+    ok: false,
+    motif: /réserve n°2/,
+  },
+  {
+    fait: "validateReviewShape — SHIP avec une réserve FAIL ne décide rien",
+    run: () => validateReviewShape(doc({ reservations: [reservation({ severity: "FAIL" })] })),
+    ok: false,
+    motif: /incohérent/,
+  },
+  {
+    fait: "validateReviewShape — NEEDS_WORK sans réserve : rien à corriger, donc rien à refuser",
+    run: () => validateReviewShape(doc({ verdict: "NEEDS_WORK" })),
+    ok: false,
+    motif: /sans réserve/,
+  },
+  {
+    fait: "validateReviewShape — BLOCK sans réserve est refusé pour la même raison",
+    run: () => validateReviewShape(doc({ verdict: "BLOCK" })),
+    ok: false,
+    motif: /sans réserve/,
+  },
+  {
+    fait: "validateReviewShape — un overrule sur un verdict BLOCK est sans effet : le reviewer réémet, il ne commente pas",
+    run: () => validateReviewShape(doc({ verdict: "BLOCK", reservations: [reservation({ severity: "FAIL" })], overrule: OVERRULE })),
+    ok: false,
+    motif: /overrule sans effet/,
+  },
+  {
+    fait: "validateReviewShape — un overrule sans motif écrit n'est pas un overrule",
+    run: () => validateReviewShape(doc({ overrule: { ...OVERRULE, reason: "" } })),
+    ok: false,
+    motif: /overrule hors contrat/,
+  },
+  {
+    fait: "validateReviewShape — `tests.passed` ne peut pas dépasser `tests.total`",
+    run: () => validateReviewShape(doc({ tests: { passed: 125, total: 124 } })),
+    ok: false,
+    motif: /champ tests hors contrat/,
+  },
+  {
+    fait: "validateReviewShape — un `commit` de 39 hexadécimaux n'est pas un SHA",
+    run: () => validateReviewShape(doc({ commit: SHA.slice(0, 39) })),
+    ok: false,
+    motif: /champ commit hors contrat/,
+  },
+  {
+    fait: "validateReviewShape — `reviewed_at` doit avoir la forme d'un horodatage ISO 8601",
+    run: () => validateReviewShape(doc({ reviewed_at: "hier soir" })),
+    ok: false,
+    motif: /champ reviewed_at hors contrat/,
+  },
+  {
+    fait: "validateReviewShape — une proposition R&D hors format A/B/C est refusée",
+    run: () => validateReviewShape(doc({ rd: [{ format: "D", title: "piste" }] })),
+    ok: false,
+    motif: /rd n°1/,
+  },
+  {
+    fait: "validateReviewShape — un document conforme portant deux réserves WARN est accepté",
+    run: () => validateReviewShape(doc({ reservations: [reservation(), reservation({ pillar: "P4", line: null })] })),
+    ok: true,
+  },
+  {
+    fait: "validateReviewShape — appelée sans document, elle refuse au lieu de supposer",
+    run: () => validateReviewShape(null),
+    ok: false,
+    motif: /review absent/,
+  },
+
+  // ---- reviewAuthorizes : règles 3, 4, 5 dans cet ordre -----------------------
+  {
+    fait: "reviewAuthorizes — un accent d'écart et ce n'est plus le même incrément : aucune normalisation",
+    run: () => reviewAuthorizes(doc({ increment: "CHORE revue-structurée" }), { increment: INCREMENT, commit: SHA }),
     ok: false,
     motif: /ne porte pas l'incrément/,
   },
   {
-    fait: "NEEDS WORK est un refus : la revue a parlé, elle n'a pas autorisé l'atterrissage",
-    review: reviewHeaded(INCREMENT, "VERDICT : NEEDS WORK"),
-    attendu: INCREMENT,
+    fait: "reviewAuthorizes — une revue rendue sur le commit précédent ne relit pas ce qui atterrit",
+    run: () => reviewAuthorizes(doc({ commit: SHA_PREV }), { increment: INCREMENT, commit: SHA }),
     ok: false,
-    motif: /différent de SHIP/,
+    motif: /ne relit pas le commit/,
   },
   {
-    fait: "BLOCK est un veto (P5) ; il s'overrule par une revue mise à jour, jamais par un contournement",
-    review: reviewHeaded(INCREMENT, "VERDICT : BLOCK"),
-    attendu: INCREMENT,
+    fait: "reviewAuthorizes — un SHA en majuscules est refusé : le contrat dit minuscules",
+    run: () => reviewAuthorizes(doc({ commit: SHA.toUpperCase() }), { increment: INCREMENT, commit: SHA }),
     ok: false,
-    motif: /différent de SHIP/,
+    motif: /ne relit pas le commit/,
   },
   {
-    fait: "le cas nominal : bon incrément, verdict SHIP sur sa ligne",
-    review: reviewHeaded(INCREMENT, "VERDICT : SHIP"),
-    attendu: INCREMENT,
+    fait: "reviewAuthorizes — NEEDS_WORK n'atterrit jamais",
+    run: () => reviewAuthorizes(doc({ verdict: "NEEDS_WORK", reservations: [reservation()] }), { increment: INCREMENT, commit: SHA }),
+    ok: false,
+    motif: /verdict du reviewer/,
+  },
+  {
+    fait: "reviewAuthorizes — BLOCK n'atterrit jamais (veto P5, overrulable par réémission)",
+    run: () => reviewAuthorizes(doc({ verdict: "BLOCK", reservations: [reservation({ severity: "FAIL" })] }), { increment: INCREMENT, commit: SHA }),
+    ok: false,
+    motif: /verdict du reviewer/,
+  },
+  {
+    fait: "reviewAuthorizes — bon incrément, bon commit, SHIP : l'atterrissage est autorisé",
+    run: () => reviewAuthorizes(doc(), { increment: INCREMENT, commit: SHA }),
     ok: true,
   },
   {
-    fait: "la casse ne décide de rien — aucun incrément ne se distingue d'un autre par elle",
-    review: reviewHeaded(INCREMENT, "verdict: ship"),
-    attendu: INCREMENT,
+    fait: "reviewAuthorizes — un SHIP réémis avec overrule renseigné autorise aussi",
+    run: () => reviewAuthorizes(doc({ overrule: OVERRULE }), { increment: INCREMENT, commit: SHA }),
     ok: true,
   },
+
+  // ---- landGuard : l'enchaînement, et l'ordre des contrôles -------------------
   {
-    fait: "le verdict est une LIGNE : le mot SHIP au fil du texte n'est pas une décision",
-    review: reviewHeaded(INCREMENT, "Rien ne s'oppose au SHIP de cet incrément, à mon sens."),
-    attendu: INCREMENT,
+    fait: "landGuard — un STATUS.md en CLOSED refuse avant toute lecture du verdict",
+    run: () => landGuard(texte(doc()), "CLOSED — session 8 : incrément précédent", SHA),
     ok: false,
-    motif: /absent/,
+    motif: /pas en phase READY/,
   },
   {
-    // Témoin de F1+F2 : la forme réellement produite par l'agent. `reviewer.md`
-    // prescrit `**VERDICT : SHIP | NEEDS WORK | BLOCK**`, et la revue de la
-    // session 7 écrit `## VERDICT : **NEEDS WORK**` avec un en-tête à accents
-    // graves. Sans ce cas, une comparaison littérale reviendrait en douce et
-    // refuserait toute revue authentique — cette porte-ci rougirait la première.
-    fait: "la décoration Markdown réelle du reviewer passe : titre, gras, accents graves autour du slug",
-    review: ["# REVUE — CHORE langue dans l'adresse", "", "**Incrément** : CHORE `lang-dans-adresse`", "", "---", "", "## VERDICT : **SHIP**"].join("\n"),
-    attendu: INCREMENT,
-    ok: true,
-  },
-  {
-    fait: "SHIP précédé de NEEDS n'est pas SHIP : le mot doit suivre le deux-points, seul",
-    review: reviewHeaded(INCREMENT, "VERDICT : NEEDS SHIP"),
-    attendu: INCREMENT,
+    fait: "landGuard — LE CAS HISTORIQUE : une revue conforme portant l'incrément PRÉCÉDENT",
+    run: () => landGuard(texte(doc({ increment: "CHORE lang-dans-adresse" })), READY, SHA),
     ok: false,
-    motif: /différent de SHIP/,
+    motif: /ne porte pas l'incrément courant/,
   },
   {
-    fait: "un SHIP assorti d'une réserve n'est pas un SHIP : rien ne suit le mot sur la ligne",
-    review: reviewHeaded(INCREMENT, "VERDICT : SHIP — sous réserve du point 3"),
-    attendu: INCREMENT,
+    fait: "landGuard — un document illisible est refusé par le premier contrôle, pas par le dernier",
+    run: () => landGuard("pas du JSON", READY, SHA),
     ok: false,
-    motif: /différent de SHIP/,
+    motif: /illisible/,
   },
   {
-    fait: "l'incrément se nomme dans l'en-tête : cité 15 lignes plus bas, il ne dit pas de quoi parle la revue",
-    review: ["# REVUE", ...Array(12).fill(""), `**Incrément** : ${INCREMENT}`, "", "VERDICT : SHIP"].join("\n"),
-    attendu: INCREMENT,
-    ok: false,
-    motif: /ne porte pas l'incrément/,
-  },
-  {
-    fait: "sans nom attendu, la garde ne sait pas ce qu'elle vérifie — elle refuse au lieu de tout accepter",
-    review: reviewHeaded(INCREMENT, "VERDICT : SHIP"),
-    attendu: "",
-    ok: false,
-    motif: /ne sait pas ce qu'elle vérifie/,
-  },
-  {
-    fait: "la ligne de gabarit de reviewer.md énumère les verdicts possibles ; elle n'en rend aucun",
-    review: reviewHeaded(INCREMENT, "**VERDICT : SHIP | NEEDS WORK | BLOCK**"),
-    attendu: INCREMENT,
-    ok: false,
-    motif: /différent de SHIP/,
-  },
-  // Les six cas suivants sont nés de la revue de CET incrément : la première
-  // version ne retenait que la PREMIÈRE ligne de verdict, et quatre textes
-  // passaient la garde en citant un SHIP avant de rendre un refus. Le reviewer
-  // a dû préfixer ses propres citations pour que sa revue ne soit pas lue à
-  // l'envers — la porte échouait sur elle-même. Attaques rejouées, motifs
-  // mesurés, avant et après correction.
-  {
-    fait: "attaque A1 — un SHIP cité dans un bloc de code ne couvre pas le vrai verdict rendu plus bas",
-    review: reviewHeaded(INCREMENT, ["Exemple de ligne acceptée :", "```", "VERDICT : SHIP", "```", "", "## VERDICT : **NEEDS WORK**"].join("\n")),
-    attendu: INCREMENT,
-    ok: false,
-    motif: /différent de SHIP/,
-  },
-  {
-    fait: "attaque A2 — une ligne de diff `+VERDICT : SHIP` est une citation, pas une décision",
-    review: reviewHeaded(INCREMENT, ["+VERDICT : SHIP", "", "## VERDICT : **BLOCK**"].join("\n")),
-    attendu: INCREMENT,
-    ok: false,
-    motif: /différent de SHIP/,
-  },
-  {
-    fait: "attaque A3 — un SHIP en citation `>` ne couvre pas le refus rendu plus bas",
-    review: reviewHeaded(INCREMENT, ["> VERDICT : SHIP", "", "## VERDICT : **NEEDS WORK**"].join("\n")),
-    attendu: INCREMENT,
-    ok: false,
-    motif: /différent de SHIP/,
-  },
-  {
-    fait: "attaque A4 — une revue qui ne fait que citer un SHIP en exemple n'a rendu aucun verdict",
-    review: reviewHeaded(INCREMENT, ["```", "VERDICT : SHIP", "```", "", "Fin de la revue."].join("\n")),
-    attendu: INCREMENT,
-    ok: false,
-    motif: /absent/,
-  },
-  {
-    fait: "unanimité — deux lignes de verdict concordantes (synthèse puis conclusion) autorisent",
-    review: reviewHeaded(INCREMENT, ["**VERDICT : SHIP**", "", "…", "", "## VERDICT : **SHIP**"].join("\n")),
-    attendu: INCREMENT,
-    ok: true,
-  },
-  {
-    fait: "pas de refus indu — un refus cité en exemple encadré n'annule pas le SHIP réellement rendu",
-    review: reviewHeaded(INCREMENT, ["Refusé par la garde :", "```", "VERDICT : NEEDS WORK", "```", "", "## VERDICT : **SHIP**"].join("\n")),
-    attendu: INCREMENT,
-    ok: true,
-  },
-  {
-    // Témoin de la règle d'unanimité elle-même : sans lui, elle ne serait
-    // mesurée par aucun cas (les attaques A1-A4 sont déjà arrêtées en amont,
-    // par l'exclusion des blocs de code et le rétrécissement de la décoration).
-    fait: "contradiction interne — un SHIP en synthèse, un refus en conclusion : la garde échoue FERMÉ",
-    review: reviewHeaded(INCREMENT, ["**VERDICT : SHIP**", "", "…après relecture, je me ravise :", "", "## VERDICT : **NEEDS WORK**"].join("\n")),
-    attendu: INCREMENT,
-    ok: false,
-    motif: /différent de SHIP/,
-  },
-  {
-    // Témoin du rétrécissement de la décoration : tant que `>` était retiré en
-    // bord gauche, cette revue-ci était refusée alors qu'elle rend un SHIP.
-    fait: "pas de refus indu — un refus cité en `>` n'annule pas le SHIP réellement rendu",
-    review: reviewHeaded(INCREMENT, ["Exemple de refus :", "> VERDICT : NEEDS WORK", "", "## VERDICT : **SHIP**"].join("\n")),
-    attendu: INCREMENT,
-    ok: true,
-  },
-  // Deuxième passe de revue : chacune des deux corrections précédentes avait
-  // ouvert une porte de service. La puce Markdown rendait le verdict invisible,
-  // et un bloc de code non refermé faisait disparaître la fin du document.
-  {
-    fait: "puce — `- **VERDICT : SHIP**` est la forme que reviewer.md donne en exemple : elle doit être lue",
-    review: reviewHeaded(INCREMENT, "- **VERDICT : SHIP**"),
-    attendu: INCREMENT,
-    ok: true,
-  },
-  {
-    fait: "puce — un refus en puce refuse : invisible, il ne pourrait pas refuser",
-    review: reviewHeaded(INCREMENT, "- **VERDICT : NEEDS WORK**"),
-    attendu: INCREMENT,
-    ok: false,
-    motif: /différent de SHIP/,
-  },
-  {
-    fait: "puce astérisque et puce tiret sont le même objet Markdown, donc le même verdict",
-    review: reviewHeaded(INCREMENT, "* **VERDICT : SHIP**"),
-    attendu: INCREMENT,
-    ok: true,
-  },
-  {
-    fait: "attaque R1 — un SHIP en synthèse ne couvre pas un refus rendu en puce plus bas",
-    review: reviewHeaded(INCREMENT, ["**VERDICT : SHIP**", "", "Après relecture :", "", "- **VERDICT : NEEDS WORK**"].join("\n")),
-    attendu: INCREMENT,
-    ok: false,
-    motif: /différent de SHIP/,
-  },
-  {
-    // `+VERDICT` (sans espace) reste une ligne de diff, donc invisible : c'est
-    // le pendant de la puce, et l'espace est toute la différence.
-    fait: "une ligne de diff `+VERDICT : SHIP` n'est toujours pas une puce, donc pas une décision",
-    review: reviewHeaded(INCREMENT, ["+VERDICT : SHIP", "", "- **VERDICT : BLOCK**"].join("\n")),
-    attendu: INCREMENT,
-    ok: false,
-    motif: /différent de SHIP/,
-  },
-  {
-    fait: "attaque C1 — un bloc de code non refermé engloutit la fin du document : refus, pas décision",
-    review: reviewHeaded(INCREMENT, ["**VERDICT : SHIP**", "", "```", "exemple jamais refermé", "", "## VERDICT : **NEEDS WORK**"].join("\n")),
-    attendu: INCREMENT,
-    ok: false,
-    motif: /non appariés/,
-  },
-  // Règle 2 — reportée de la 1ʳᵉ passe, fermée à la 2ᵉ : nommer un incrément
-  // n'est pas porter sur lui. La comparaison s'ancre sur la ligne étiquetée.
-  {
-    fait: "attaque A4 — une revue d'un AUTRE incrément qui mentionne le nôtre au fil de son en-tête",
-    review: [`# REVUE — ${INCREMENT}`, "", `**Incrément** : ${INCREMENT}`, "", "Ne porte PAS sur CHORE garde-revue-land.", "", "---", "", "## VERDICT : **SHIP**"].join("\n"),
-    attendu: "CHORE garde-revue-land",
-    ok: false,
-    motif: /ne porte pas l'incrément/,
-  },
-  {
-    fait: "attaque A5 — `garde-revue-land-v2` n'est pas `garde-revue-land` : la frontière du nom est tenue",
-    review: reviewHeaded("CHORE garde-revue-land-v2", "## VERDICT : **SHIP**"),
-    attendu: "CHORE garde-revue-land",
-    ok: false,
-    motif: /ne porte pas l'incrément/,
-  },
-  {
-    // Forme réellement écrite par le reviewer en session 7 : accents graves
-    // autour du slug, commentaire entre parenthèses après le nom.
-    fait: "un commentaire après le nom déclaré reste admis — c'est la forme réelle des revues du projet",
-    review: ["# REVUE — CHORE langue dans l'adresse", "", "**Incrément** : CHORE `lang-dans-adresse` (rembourse la dette [P6])", "", "---", "", "## VERDICT : **SHIP**"].join("\n"),
-    attendu: INCREMENT,
-    ok: true,
-  },
-  {
-    fait: "un en-tête sans ligne « Incrément : » ne déclare rien : la garde refuse au lieu de deviner",
-    review: ["# REVUE — CHORE garde-revue-land", "", "Revue de l'incrément du jour.", "", "---", "", "## VERDICT : **SHIP**"].join("\n"),
-    attendu: INCREMENT,
-    ok: false,
-    motif: /aucune ligne/,
-  },
-  // Troisième passe de revue : l'étiquette introduite à la 2ᵉ passe était
-  // ouverte (`incrément[^:]*:`) et lue jusque dans les blocs de code. Le défaut
-  // fondateur — la revue d'un AUTRE incrément — revenait par la porte qui
-  // venait de le fermer.
-  {
-    fait: "attaque F-4a — « Incrément précédent : <le nôtre> » dans la revue d'un autre incrément",
-    review: ["# REVUE — CHORE menu-hamburger", "", "**Incrément précédent** : CHORE garde-revue-land", "", "Revue de menu-hamburger.", "", "## VERDICT : **SHIP**"].join("\n"),
-    attendu: "CHORE garde-revue-land",
-    ok: false,
-    motif: /aucune ligne/,
-  },
-  {
-    fait: "attaque F-4a bis — un qualificatif quelconque ne déclare pas le sujet de la revue",
-    review: ["# REVUE", "", "**Incrément d'à côté** : CHORE garde-revue-land", "", "## VERDICT : **SHIP**"].join("\n"),
-    attendu: "CHORE garde-revue-land",
-    ok: false,
-    motif: /aucune ligne/,
-  },
-  {
-    fait: "attaque F-4b — un gabarit encadré ne vaut pas déclaration, comme il ne vaut pas décision",
-    review: ["# REVUE", "```", "**Incrément** : CHORE garde-revue-land", "```", "", "## VERDICT : **SHIP**"].join("\n"),
-    attendu: "CHORE garde-revue-land",
-    ok: false,
-    motif: /aucune ligne/,
-  },
-  {
-    fait: "W-4 — « <nom> v2 » : un mot qui suit le nom n'est pas un commentaire, c'est un autre nom",
-    review: ["# REVUE", "", "**Incrément** : CHORE garde-revue-land v2", "", "## VERDICT : **SHIP**"].join("\n"),
-    attendu: "CHORE garde-revue-land",
-    ok: false,
-    motif: /ne porte pas l'incrément/,
-  },
-  {
-    fait: "W-4 bis — « <nom> bis » est refusé pour la même raison",
-    review: ["# REVUE", "", "**Incrément** : CHORE garde-revue-land bis", "", "## VERDICT : **SHIP**"].join("\n"),
-    attendu: "CHORE garde-revue-land",
-    ok: false,
-    motif: /ne porte pas l'incrément/,
-  },
-  {
-    fait: "témoin — « Incrément revu : » reste une déclaration valable",
-    review: ["# REVUE", "", "**Incrément revu** : CHORE garde-revue-land", "", "## VERDICT : **SHIP**"].join("\n"),
-    attendu: "CHORE garde-revue-land",
+    fait: "landGuard — chaîne complète conforme : OK",
+    run: () => landGuard(texte(doc()), READY, SHA),
     ok: true,
   },
 ];
 
-describe("reviewIsFreshFor — aucun atterrissage sans revue fraîche du reviewer", () => {
+describe("land-guard — aucun atterrissage sans review.json frais, conforme et SHIP", () => {
   /**
    * Garde de non-vacuité : une table vidée par accident rendrait cette porte
-   * verte et muette. Le plancher de 7 est celui du prompt qui l'a commandée.
+   * verte et muette. Le plancher de 35 est celui du prompt qui l'a commandée.
    */
-  it("la table compte au moins 7 cas", () => {
-    expect(CASES.length).toBeGreaterThanOrEqual(7);
+  it("la table compte au moins 35 cas", () => {
+    expect(CAS.length).toBeGreaterThanOrEqual(35);
   });
 
-  for (const cas of CASES) {
+  for (const cas of CAS) {
     it(cas.fait, () => {
-      const { ok, reason } = reviewIsFreshFor(cas.review, cas.attendu);
+      const { ok, reason } = cas.run();
       expect(ok).toBe(cas.ok);
       if (cas.ok) {
         expect(reason).toBe("");
@@ -332,12 +316,17 @@ describe("reviewIsFreshFor — aucun atterrissage sans revue fraîche du reviewe
       }
     });
   }
+
+  it("parseReview rend l'objet analysé quand le document est conforme", () => {
+    const { ok, review } = parseReview(texte(doc({ increment: "CHORE x" })));
+    expect(ok).toBe(true);
+    expect(review.increment).toBe("CHORE x");
+  });
 });
 
 describe("incrementFromStatus — le nom comparé vient de STATUS.md, pas d'une supposition", () => {
   it("rend l'incrément d'une ligne READY", () => {
-    const status = "READY — CHORE garde-revue-land — 2026-08-15T22:00:00Z — chore/garde-revue-land — tests 82/82";
-    expect(incrementFromStatus(status)).toEqual({ ok: true, name: "CHORE garde-revue-land", reason: "" });
+    expect(incrementFromStatus(READY)).toEqual({ ok: true, name: INCREMENT, reason: "" });
   });
 
   it("refuse une ligne CLOSED, dont le second champ est un libellé de session et non un incrément", () => {
@@ -349,7 +338,7 @@ describe("incrementFromStatus — le nom comparé vient de STATUS.md, pas d'une 
   });
 
   it("refuse une phase LANDING : un /land coupé se reprend, il ne se rejoue pas à l'aveugle", () => {
-    const { ok, reason } = incrementFromStatus("LANDING — CHORE x — 2026-08-15T22:00:00Z — chore/x");
+    const { ok, reason } = incrementFromStatus("LANDING — CHORE x — 2026-08-17T10:00:00Z — chore/x");
     expect(ok).toBe(false);
     expect(reason).toMatch(/pas en phase READY/);
   });
@@ -359,13 +348,13 @@ describe("incrementFromStatus — le nom comparé vient de STATUS.md, pas d'une 
   });
 
   it("refuse une ligne READY amputée de son second séparateur", () => {
-    const { ok, reason } = incrementFromStatus("READY — CHORE garde-revue-land");
+    const { ok, reason } = incrementFromStatus(`READY — ${INCREMENT}`);
     expect(ok).toBe(false);
     expect(reason).toMatch(/malformée/);
   });
 
   it("refuse un nom d'incrément vide entre les deux séparateurs", () => {
-    const { ok, reason } = incrementFromStatus("READY —  — 2026-08-15T22:00:00Z — chore/x — tests 1/1");
+    const { ok, reason } = incrementFromStatus("READY —  — 2026-08-17T10:00:00Z — chore/x — tests 1/1");
     expect(ok).toBe(false);
     expect(reason).toMatch(/vide/);
   });

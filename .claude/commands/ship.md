@@ -35,9 +35,9 @@ du prompt peut se tromper ; c'est précisément pourquoi cette étape existe.
 - Écris `.pipeline/test-results.md` (PASSED/FAILED + fichier + ligne). Si FAILED : **STOP**, affiche au chef de projet.
 
 ## ÉTAPE 4 — REVUE
-- Délègue au subagent `reviewer` (lire `CLAUDE.md` + les 3 fichiers `.pipeline/` → `review.md`).
-- Affiche `.pipeline/review.md` intégralement au chef de projet.
-- **Cette étape n'est pas facultative et ne dépend pas de `/ship`** : `/land` refuse d'atterrir sans `review.md` frais (voir `tools/land-guard.js`). Un incrément lancé par « exécute le prompt » doit déléguer la revue au `reviewer` avant d'écrire `READY`.
+- Délègue au subagent `reviewer` (lire `CLAUDE.md` + les 3 fichiers `.pipeline/` → `review.json`).
+- Affiche au chef de projet le `verdict` et la liste des `reservations` de `.pipeline/review.json` (pilier, gravité, fichier, ligne, constat), **tels quels, sans les reformuler**.
+- **Cette étape n'est pas facultative et ne dépend pas de `/ship`** : `/land` refuse d'atterrir sans `review.json` frais et conforme au contrat de `tools/land-guard.js`. Un incrément lancé par « exécute le prompt » doit déléguer la revue au `reviewer` avant d'écrire `READY`.
 
 ## RAPPORT FINAL
 - Résume : feature, branche, verdict, score sécurité.
