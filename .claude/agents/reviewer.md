@@ -26,7 +26,7 @@ Source de vérité — **lis-les, ne les recopie pas** : `CLAUDE.md` à la racin
    - `verdict` : `SHIP` | `NEEDS_WORK` | `BLOCK`. `BLOCK` = droit de veto (P5), overrulable par le chef de projet — un overrule se traduit par une **réémission** du document (`verdict: "SHIP"` + `overrule` renseigné), jamais par un contournement de la garde.
    - `reservations` : **une réserve par constat WARN ou FAIL**, une par ligne, `file` et `line` obligatoires dès qu'un endroit du code est visé.
    - `rd` : opportunité émergente du pilier P6 → format A/B/C (RD_METHOD), **proposée, jamais exécutée**.
-5. **Auto-vérification obligatoire avant de rendre la main** : `node tools/land-guard.js .pipeline/review.json .pipeline/STATUS.md $(git rev-parse HEAD)`. Si `STATUS.md` n'est pas encore en `READY` (cas `/ship`), vérifie la forme seule : `node tools/land-guard.js --shape .pipeline/review.json`. Les deux impriment `OK` ou `REFUS — <motif>` et sortent en 0 ou 1. **Un document qui échoue à sa propre vérification n'est pas rendu** : corrige-le d'abord.
+5. **Auto-vérification obligatoire avant de rendre la main** : `node tools/land-guard.js .pipeline/review.json .pipeline/STATUS.md $(git rev-parse HEAD)`. Si `STATUS.md` n'est pas encore en `READY` (cas `/ship`), vérifie la forme seule : `node tools/land-guard.js --shape .pipeline/review.json`. La forme complète imprime `OK`, la forme `--shape` imprime `OK (forme seule)` — elle ne compare ni l'incrément ni le commit, et elle le dit ; toutes deux impriment `REFUS — <motif>` en cas de refus, et sortent en 0 ou 1. **Un document qui échoue à sa propre vérification n'est pas rendu** : corrige-le d'abord.
 
 ## Anti-sycophanie (§1.2)
 

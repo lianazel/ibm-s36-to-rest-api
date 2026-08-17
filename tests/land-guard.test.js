@@ -250,6 +250,25 @@ const CAS = [
     motif: /réserve n°1/,
   },
   {
+    fait: "réserve — un `file` en `~` s'étend en chemin absolu dès qu'un shell le touche",
+    run: () => validateReviewShape(doc({ reservations: [reservation({ file: "~/.ssh/id_rsa" })] })),
+    ok: false,
+    motif: /réserve n°1/,
+  },
+  {
+    // 2ᵉ passe de revue : la couture de D7 avait rendu la fonction **partielle**
+    // — un contrat privé de `reservations` faisait jeter un TypeError au lieu de
+    // refuser. Une garde qui jette ne refuse pas : elle casse l'appelant.
+    fait: "contrat — un contrat amputé fait REFUSER, jamais jeter : la fonction reste totale",
+    run: () =>
+      validateReviewShape(
+        { contract: "twaim.review/1", verdict: "SHIP" },
+        { ...REVIEW_CONTRACT, fields: { contract: REVIEW_CONTRACT.fields.contract, verdict: REVIEW_CONTRACT.fields.verdict } },
+      ),
+    ok: false,
+    motif: /champ reservations hors contrat/,
+  },
+  {
     // Témoin du `default` de `checkField` : sans le contrat en paramètre, ce
     // chemin serait improuvable, `REVIEW_CONTRACT` étant gelé.
     fait: "contrat — un `kind` que personne ne sait vérifier échoue FERMÉ, il ne laisse pas passer",

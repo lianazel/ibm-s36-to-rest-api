@@ -222,11 +222,20 @@ function checkField(value, spec) {
       if (!Number.isInteger(value) || value < 1) return "attendu un entier ≥ 1 ou null";
       return null;
     case "repo-path":
-      // « chemin relatif au dépôt » était décrit et non contrôlé : une réserve
-      // pointant `/etc/passwd` passait. Une réserve désigne un fichier du dépôt.
+      // Une réserve désigne un fichier **du dépôt** : « chemin relatif au dépôt »
+      // était décrit et non contrôlé, une réserve pointant `/etc/passwd` passait.
+      //
+      // Ce qui est vérifié, exactement : chaîne non vide, ne commençant ni par un
+      // séparateur, ni par `~`, ni par une lettre de lecteur, et ne contenant
+      // aucun segment `..`. Rien de plus : `file` n'est **jamais ouvert** par la
+      // garde, il sert à un lecteur humain. Conséquence assumée (2ᵉ passe de
+      // revue) : un constat portant sur l'étude technique, hors dépôt par
+      // conception, ne peut pas se poser dans `file` — il se pose sur le fichier
+      // du dépôt qui s'en écarte, ou avec `line: null` et l'étude citée dans
+      // `finding`.
       if (typeof value !== "string") return "attendu une chaîne";
       if (value.trim() === "") return "chaîne vide";
-      if (/^([/\\]|[A-Za-z]:)/.test(value)) return "attendu un chemin relatif au dépôt, pas absolu";
+      if (/^([/\\~]|[A-Za-z]:)/.test(value)) return "attendu un chemin relatif au dépôt, pas absolu";
       if (value.split(/[/\\]/).includes("..")) return "attendu un chemin dans le dépôt, sans remontée";
       return null;
     default:
@@ -300,6 +309,17 @@ export function validateReviewShape(review, contract = REVIEW_CONTRACT) {
     if (wrong) {
       return { ok: false, reason: `champ ${name} hors contrat : ${wrong}` };
     }
+  }
+
+  // La fonction reste **totale** quel que soit le contrat injecté : la couture
+  // ajoutée pour la testabilité (D7) ne doit pas transformer un refus en
+  // exception. Mesuré à la 2ᵉ passe de revue — un contrat privé de `reservations`
+  // faisait jeter un TypeError au lieu de refuser.
+  if (!Array.isArray(review.reservations)) {
+    return { ok: false, reason: "champ reservations hors contrat : attendu un tableau" };
+  }
+  if (!Array.isArray(review.rd)) {
+    return { ok: false, reason: "champ rd hors contrat : attendu un tableau" };
   }
 
   for (const [index, reservation] of review.reservations.entries()) {

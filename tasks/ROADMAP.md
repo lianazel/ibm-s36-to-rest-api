@@ -33,7 +33,13 @@
   le contrat `twaim.review/1` portant le champ `commit` que la garde compare au SHA de la pointe
   atterrie — un commit ajouté après un `SHIP` fait refuser et impose une relecture. La moitié
   **provenance** reste **ouverte, telle quelle** : rien n'établit que c'est le `reviewer` qui a écrit
-  `review.json` plutôt que l'agent qui a produit le code. Énoncé d'origine conservé ci-dessous.
+  `review.json` plutôt que l'agent qui a produit le code. **Conséquence mesurée le 17 août 2026** : un
+  `overrule` est **déclaré, jamais attesté** — le contrat contraint son signataire au littéral « chef de
+  projet », ce qui interdit de signer *autre chose* mais pas de signer *à la place*. Piste proposée par
+  le `reviewer` (P6, non exécutée) : un champ `diff_sha` dans un futur `twaim.review/2`, empreinte de
+  `git diff main...HEAD` calculée à la revue — seule voie vue qui rendrait la provenance mesurable, et
+  un `overrule` attestable, sans archivage ni coût d'anonymisation récurrent. Énoncé d'origine conservé
+  ci-dessous.
   La pré-garde de revue mesure une **forme**, pas une **provenance** ni une **fraîcheur**.
   Rien n'établit que `.pipeline/review.md` vienne du `reviewer` plutôt que de l'agent qui a écrit le
   code, ni qu'il porte sur le commit qu'on fait atterrir : une revue rendue avant trois commits de plus
