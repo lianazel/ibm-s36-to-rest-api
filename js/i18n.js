@@ -65,7 +65,7 @@ export const dict = {
     },
     section2: {
       title: "Le problème",
-      intro: "La suite de ce chapitre arrive.",
+      intro: "Le défi consiste à exposer en JSON un format de table hérité de l'ère de l'IBM System/36. Ces tables ont, pour celles qui sont encore en activité, des noms de colonnes de six caractères. Aucune description. C'est l'application qui connaît la valeur métier de telle ou telle colonne.",
     },
     section3: {
       title: "La solution",
@@ -151,7 +151,7 @@ export const dict = {
     },
     section2: {
       title: "The problem",
-      intro: "This chapter is coming soon.",
+      intro: "The challenge is to expose in JSON a table format inherited from the IBM System/36 era. These tables, those still in service, have six-character column names. No description. The application is what knows the business meaning of each column.",
     },
     section3: {
       title: "The solution",
