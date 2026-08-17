@@ -2,6 +2,60 @@
 
 > Une leçon = une erreur commise ici, datée, avec la règle qui l'empêche de revenir.
 
+## 17 août 2026 — Coder ou dire, pas d'adverbe entre les deux
+
+**Type** : Erreur
+**Contexte** : CHORE `revue-structuree` (branche `chore/revue-structuree`, merge `38dcd34`). Trois passes
+de revue sur un module dont la thèse est qu'**un contrat ne doit pas décrire plus qu'il ne contrôle**.
+**Erreur** : à chaque passe, le `reviewer` a trouvé un **adverbe absolu plus large que le code**, dans le
+commentaire, jamais dans la logique. 1ʳᵉ passe : le contrat décrivait `file` (« chemin relatif au dépôt »)
+et `overrule.by` (littéral « chef de projet ») sans les contrôler — une réserve pointant `/etc/passwd` et
+un `overrule` signé « le reviewer lui-même » passaient. 2ᵉ passe : le commentaire disait `file`
+**« contrôlé »** alors que `~/.ssh/id_rsa` passait. 3ᵉ passe : il disait la fonction **« totale quel que
+soit** le contrat injecté » alors que trois formes jettent encore. Le code était chaque fois plus faible
+que sa description, et **c'est la description qui rassurait**.
+**Correction** : un mot comme *contrôlé*, *toujours*, *quel que soit*, *jamais* est une **assertion
+vérifiable** : soit on la mesure et on la code, soit on écrit ce que le code fait vraiment — jamais un
+adverbe entre les deux. Le remède est mécanique, pas une vigilance : quand la classe de défaut est
+fermable en une ligne, on la ferme ; sinon on **énumère** ce qui passe (`....//x`, `%2e%2e/etc`) plutôt
+que de le taire. Corollaire de conception : une **couture ajoutée pour la testabilité** élargit la surface
+publique, donc les obligations — c'est ainsi que « totale » est devenue fausse.
+**Portée du dégât** : aucune en production (la CLI n'injecte jamais de contrat) ; les deux premières ont
+été trouvées et fermées avant le merge, la troisième est inscrite en **[W17]** par arbitrage.
+**Applicable globalement ?** : à arbitrer par le chef de projet.
+
+## 16 août 2026 — « Reconnu largement » n'est pas une règle, c'est une intention
+
+**Type** : Erreur
+**Contexte** : CHORE `garde-revue-land` (session 8, merge `bfacccb`), 3ᵉ passe de revue.
+**Erreur** : j'avais écrit l'étiquette d'incrément `incrément[^:]*:` en la commentant « reconnue
+largement ». Elle reconnaissait **tout** — `**Incrément précédent** : <le nôtre>` compris. Une revue
+d'un **autre** incrément, verdict `SHIP` bien réel, faisait donc atterrir le nôtre : le défaut fondateur
+du projet, revenu par la porte qui venait de le fermer.
+**Correction** : une intention formulée en langue (« largement », « souple », « tolérant ») devient, en
+expression régulière, **« n'importe quoi »**. Une classe d'acceptation s'écrit **close et énumérée**
+(`Incrément`, `Incréments`, `Incrément revu`), jamais ouverte. Et le commentaire doit nommer ce que la
+classe **exclut**, pas seulement ce qu'elle admet.
+**Applicable globalement ?** : à arbitrer par le chef de projet.
+
+## 16 août 2026 — Une affirmation réfutée se retire de tous ses domiciles
+
+**Type** : Erreur
+**Contexte** : CHORE `garde-revue-land` (session 8), puis vérifiée deux fois de plus dans CHORE
+`revue-structuree` (17 août).
+**Erreur** : j'avais écrit qu'un bloc de code non refermé donnait « un refus du bon côté ». Mesure
+contraire : un `SHIP` de synthèse lu avant la rupture faisait atterrir la revue qui le refusait. J'ai
+corrigé la phrase **en tête** du fichier et l'ai laissée **en pied**, dans la section « Non couvert » —
+celle qu'on lit précisément pour savoir ce qui n'est pas couvert. Récidive à la passe suivante : la
+phrase corrigée (« la limite a disparu ») était encore trop large. Et troisième occurrence, autre
+fichier : un tableau annoncé « mesuré par fichier, pas déduit » portait 12/12/12 pour des fichiers qui
+valent 10/13/13 — **les trois erreurs se compensaient**, donc la somme et le total tenaient.
+**Correction** : une affirmation réfutée se retire de **tous** ses domiciles — un artefact se relit en
+entier, `grep` à la main sur la formulation fautive, pas seulement à l'endroit où la réfutation est
+arrivée. Et **une somme juste ne prouve pas des termes justes** : un total qui tombe rond n'atteste rien
+si chaque terme n'a pas été mesuré séparément.
+**Applicable globalement ?** : à arbitrer par le chef de projet.
+
 ## 15 août 2026 — Lire l'attribut n'est pas mesurer le pixel
 
 **Type** : Erreur

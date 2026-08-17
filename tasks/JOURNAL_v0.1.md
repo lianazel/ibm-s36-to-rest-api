@@ -347,3 +347,82 @@
 | Le précédent de la session 7 (atterrir sur un `NEEDS WORK` traité après coup) survit-il ? | **Non, il est révoqué** | Le prompt le tranche (« un verdict `NEEDS WORK` ou `BLOCK` n'atterrit jamais ») et la garde l'applique. Coût mesuré sur cet incrément même : quatre passes, chacune écrasant `review.md`. Inscrit en « À arbitrer » pour confirmation du chef de projet | précédent |
 | Inscrire les deux leçons candidates sans validation explicite ? | **Non** | Mode 2 de la boucle d'auto-amélioration : le chef de projet valide. Le précédent de la session 7 est suivi — le journal dit « aucune inscrite, deux candidates non arbitrées ». « Aucune » est une information | précédent |
 | Niveau de bump | **Patch** 0.1.5 → 0.1.6 | Jalon 1 toujours inachevé ; le passage minor marque sa clôture — règle inscrite cinq fois à ce journal | précédent |
+
+## Session 9 — 17 août 2026 — CHORE `revue-structuree` (merge `38dcd34`, 0.1.6 → 0.1.7)
+
+**Prompt** : `prompts/v0.1/CHORE_revue-structuree_v2.md` · **Branche** : `chore/revue-structuree`
+(4 commits) · **Suite** : 113/113 → **134/134, rc 0** · **Revue** : 3 passes du `reviewer`, **3 `SHIP`**
+(9 puis 7 puis 1 réserve, toutes `WARN`, aucun `FAIL` ; sécurité 7/8 puis **8/8**).
+
+- **La garde ne lit plus de prose.** Le `reviewer` émet `.pipeline/review.json` conforme au contrat
+  `twaim.review/1`, écrit **à un seul endroit** (`tools/land-guard.js`, commentaire `CONTRAT` +
+  `REVIEW_CONTRACT` que le validateur **lit** au lieu de le recopier) ; `/land` en lit **trois champs** —
+  `increment`, `commit`, `verdict` — par une **commande** (`node tools/land-guard.js …` → `OK` / `REFUS`,
+  sortie 0/1) et non plus par une règle à interpréter. Le compte rendu humain n'est plus le rôle du
+  `reviewer` : c'est celui du Tech Lead. Deux porteurs pour une même décision, c'est la garantie qu'un
+  des deux mente un jour.
+- **Le prompt v1 avait des prémisses fausses, et c'est le premier fait de la session.** Quatre de ses
+  cinq prérequis décrivaient un dépôt où `garde-revue-land` aurait été **suspendu** ; il avait atterri et
+  été poussé (session 8, v0.1.6). Signalé avant d'agir, avec la contradiction interne du critère 3
+  (`fix.md` hors périmètre mais visé par la preuve 5). Le chef de projet a demandé une **v2** plutôt
+  qu'une exécution adaptée — la v2 a corrigé les cinq points et élargi le périmètre. *Une instruction
+  qui suppose un état ne le fait pas advenir* : la règle a servi, et elle a évité d'exécuter un contrat
+  faux avec zèle.
+- **Retrait de code livré, chiffré et daté** : 176 lignes et 38 cas de test supprimés d'un module
+  **poussé en production deux jours plus tôt** (`stripDecoration`, `normalize`, `fenceMask`,
+  `fencesBalanced`, `verdictLines`, `declaredIncrement`, `reviewIsFreshFor`). Motif : une garde qui lit
+  de la prose ne peut pas être finie, seulement rapiécée. Conservé inchangé, **byte à byte** :
+  `incrementFromStatus`.
+- **[W15] est fermée à moitié, et c'est la moitié qui manquait.** Le champ `commit` donne la
+  **fraîcheur** : un commit ajouté après un `SHIP` fait refuser. Mesuré trois fois pendant la session —
+  chacun de mes correctifs a invalidé la revue qui le précédait. C'est exactement le trou que j'avais dû
+  boucher **à la main** en fin de session 8, en refusant de corriger deux réserves pour ne pas livrer du
+  code qu'aucune revue n'avait vu. La porte le sait maintenant toute seule. **[W16] est fermée** (piste A,
+  celle qu'elle annonçait). La moitié **provenance** de [W15] reste ouverte : rien n'établit qui a écrit
+  `review.json`, et un `overrule` y est **déclaré, jamais attesté**.
+- **Quatre défauts exploitables trouvés par la 1ʳᵉ passe, tous reproduits avant correction.** Le plus
+  instructif : des séquences ANSI dans un champ cité faisaient **effacer la ligne de refus et afficher
+  « OK »** à sa place (`^[[2K^[[GOK` → `·[2K·[GOK` après correction). Le code de sortie disait vrai, la
+  ligne imprimée mentait — et c'est elle que `land.md` fait citer. Puis : `--shape` imprimait le même
+  `OK` nu pour un document `NEEDS_WORK` visant un autre incrément et un autre commit ; un `overrule`
+  signé « le reviewer lui-même » passait, alors que c'est **la seule échappatoire du veto P5** ; une
+  réserve pointant `/etc/passwd` passait.
+- **Trois réserves visaient mes propres écrits, et elles étaient justes.** Ma justification D1 (« `quote`
+  ne sert qu'à citer une ligne de `STATUS.md` ») était fausse — et c'était **exactement le raisonnement
+  qui m'a caché le défaut ANSI**. J'avais déclaré une limite avec un motif faux (`runCli` ne « sort pas
+  du processus », elle n'était pas exportée). Et un tableau annoncé « mesuré par fichier, pas déduit »
+  portait 12/12/12 pour des fichiers valant **10/13/13** : les trois erreurs se **compensaient**, donc le
+  total tombait juste.
+- **Ma propre régression, de la classe de la dette que je venais de fermer** : en corrigeant `--shape`,
+  j'ai laissé `reviewer.md` promettre `OK`. C'est la forme exacte de **[W16]**, déclarée fermée sur la foi
+  de cet alignement. Un `/land` ne peut pas laisser une dette committée comme close reposer sur une
+  phrase fausse.
+- **La couture de testabilité a cassé la totalité de la fonction** : `validateReviewShape(review,
+  contract)`, ajoutée pour rendre prouvable un chemin `fail-closed`, **jetait** un `TypeError` au lieu de
+  refuser sur un contrat amputé. Corrigé sur deux formes, **trois autres restent** → **[W17]**.
+- **Preuves** : **dix mutations**, une par règle, jamais enchaînées, restaurations vérifiées par `cmp`,
+  aucun résidu. Test à blanc par la CLI : la porte refuse `review.json` absent, et refuse la **4ᵉ passe
+  de revue de l'incrément précédent** (la prose qui avait rendu `SHIP`) — elle ne reconnaît aucune revue
+  du passé. Preuve 3(c) : sur les artefacts réels, `OK` sortie 0 ; le même document sur `HEAD~1` → refus.
+  **Le critère 5 est atteint sur pièce** : la porte autorise son propre atterrissage. Site intact,
+  `grep review.md` vide sur `.claude`, `CLAUDE.md`, `tools`, `tests` (`/fix` compris).
+- **Aveu de méthode consigné** : une mutation a d'abord désarmé **tout** le contrôle de chemin absolu au
+  lieu du seul tilde (3 rouges au lieu d'un), parce qu'elle commentait le `return` de la même ligne.
+  Rejouée pour isoler la règle annoncée. Une morsure qu'on n'a pas isolée ne prouve pas ce qu'on annonce.
+- **Trois leçons inscrites** à `tasks/lessons.md`, sur arbitrage du chef de projet — la première née de
+  cette session, les deux autres de la session 8. Applicabilité globale non tranchée, mention laissée
+  telle quelle.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| Le prompt v1 décrit un dépôt où l'incrément précédent aurait été suspendu ; il est mergé et poussé | **Arrêt et demande d'une v2**, aucun geste sur le dépôt | Quatre prérequis sur cinq étaient faux et le prompt ordonnait lui-même l'arrêt. La cible étant inchangée, une exécution « adaptée » était possible — mais elle aurait fait porter à l'agent une décision (retirer du code livré) que seul le chef de projet peut prendre. Un aller-retour a coûté moins qu'un contrat faux exécuté avec zèle | précédent |
+| Un verdict `NEEDS_WORK` peut-il atterrir si les réserves ont été traitées après la revue ? | **Non, jamais.** Le `reviewer` est relancé sur le nouveau commit | Révoque le précédent de la session 7. Depuis ce contrat, la règle n'est plus une consigne : le champ `commit` la rend **obligatoire par construction**. Inscrit en « Décisions actées » | précédent |
+| La réserve `WARN` de la 3ᵉ passe (« totale quel que soit », trois contrats jettent encore) | **Non corrigée, inscrite en [W17]**, à rembourser au prochain incrément d'outillage | Toute correction produisait un commit, invalidant la revue `SHIP` qui autorisait l'atterrissage — et le prompt n'accordait que trois passes, faites. Aucun chemin de production n'est touché : la CLI n'injecte jamais de contrat | cas d'espèce |
+| Un constat portant sur l'étude technique, hors dépôt par conception, peut-il se poser dans `file` ? | **Non** : `file` désigne un fichier **du dépôt** ; le constat se pose sur le fichier qui s'en écarte, ou avec `line: null` et l'étude citée dans `finding` | Élargir `repo-path` pour laisser entrer une remontée rouvrirait la porte fermée à la 1ʳᵉ passe, pour un besoin qui a déjà deux réponses. Écrit dans le commentaire `CONTRAT`, là où l'agent lit ses règles | précédent |
+| `--shape` doit-il imprimer le même `OK` que la forme complète, comme le prescrit le prompt ? | **Non** : `OK (forme seule)` | Mesuré : un document `NEEDS_WORK` visant un autre incrément et un autre commit imprimait le même `OK` que celui qui autorise. `/land` n'utilise jamais `--shape`, donc aucune décision n'est touchée — mais un mode qui ne vérifie ni l'incrément ni le commit doit le dire. Écart au prompt assumé | précédent |
+| Le signataire d'un `overrule` doit-il être contraint ? | **Oui, au littéral**, et **dire ce que ça ne prouve pas** | C'est la seule échappatoire du veto P5. Le littéral interdit de signer *autre chose*, jamais de signer *à la place* : un `overrule` reste **déclaré, pas attesté** — rattaché à la provenance de [W15] | précédent |
+| Faut-il un témoin pour un chemin qu'un objet gelé rend inatteignable ? | **Oui — la ressource devient un paramètre** (`validateReviewShape(review, contract)`) | Sans couture, l'affirmation « échoue fermé » n'était pas mesurable (leçon du 10 août). Conséquence assumée et payée : la couture a élargi la surface publique, et c'est ainsi que « totale » est devenue fausse ([W17]) | précédent |
+| Supprimer `.pipeline/review.md`, non demandé par le prompt | **Oui** | Plus aucun lecteur n'existe ; laissé en place, il ne servait plus que de leurre à côté de `review.json`. Geste dans un dossier gitignoré, sans effet sur le livré | cas d'espèce |
+| Niveau de bump | **Patch** 0.1.6 → 0.1.7 | Jalon 1 toujours inachevé ; le passage minor marque sa clôture — règle inscrite six fois à ce journal | précédent |

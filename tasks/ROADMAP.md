@@ -78,17 +78,26 @@
   (`fencesBalanced` avant `declaredIncrement`) le corrigerait, volontairement **non fait** après le
   verdict `SHIP` pour ne pas livrer du code que la revue n'a pas vu.
 
-## À arbitrer par le chef de projet
-
-- **Un précédent de la session 7 est révoqué par la garde de revue** (15 août 2026). Le journal acte
-  « Atterrir sur un verdict `NEEDS WORK` affiché → **Oui**, les trois points ayant été traités après la
-  revue » (portée *précédent*, `tasks/JOURNAL_v0.1.md`). La garde interdit désormais ce chemin, comme
-  le prescrit le prompt (« un verdict `NEEDS WORK` ou `BLOCK` n'atterrit jamais »). **Coût** : après
-  correction des points d'une revue, il faut une **seconde passe du `reviewer`**, qui écrase la
-  précédente — la revue qui autorise l'atterrissage n'est archivée nulle part (cf. [W15], piste B).
-  Inscrit ici parce que `.pipeline/` est gitignoré : sans cela, la révocation d'un précédent committé
-  ne vivrait que dans un artefact effacé au merge.
+- **[W17]** Le commentaire de `tools/land-guard.js` affirme que `validateReviewShape` « reste totale
+  **quel que soit** le contrat injecté ». **Faux, mesuré le 17 août 2026** (3ᵉ passe de revue) : les deux
+  gardes livrées ferment les formes alors connues, mais `checkShape` jette encore sur trois autres —
+  contrat privé de sa table `reservation`, contrat `{}`, contrat `null` (`TypeError`). **Aucun chemin de
+  production touché** : la CLI n'injecte jamais de contrat, la surface n'existe que par la couture de
+  testabilité. **Non corrigée par arbitrage du chef de projet du 17 août 2026** : toute correction
+  produisait un commit, invalidant la revue `SHIP` qui autorisait l'atterrissage (champ `commit`), et le
+  prompt n'accordait que trois passes — les trois étaient faites. **À rembourser au prochain incrément
+  d'outillage** : une ligne dans `checkShape` refusant une table non-objet ferme la classe entière ;
+  sinon la phrase se ramène à « totale pour tout contrat déclarant ses tables ». Motif de fond, relevé
+  par le `reviewer` sur trois passes : le défaut ne s'est pas caché dans le code mais dans **l'adverbe
+  du commentaire** (`file` « contrôlé », puis « totale quel que soit ») — cf. `tasks/lessons.md`.
 
 ## Décisions actées
+- **Un verdict `NEEDS_WORK` n'atterrit jamais** — arbitrage du chef de projet du **17 août 2026**,
+  portée **précédent**. Il **révoque** celui de la session 7 (« atterrir sur un `NEEDS WORK` affiché,
+  les points ayant été traités après la revue »). Après correction des réserves, le `reviewer` est
+  **relancé sur le nouveau commit** ; depuis CHORE `revue-structuree`, le champ `commit` du contrat
+  `twaim.review/1` rend cette relance **obligatoire par construction** — un commit ajouté après un
+  `SHIP` fait refuser la garde. Coût assumé : une passe de lecture par tour de correction (trois pour
+  l'incrément du 17 août), et la revue qui autorise n'est archivée nulle part (cf. [W15]).
 - Dépôt public `ibm-s36-to-rest-api`, site sur `https://lianazel.github.io/ibm-s36-to-rest-api/`.
 - Traces du harnais publiques (précédent : portfolio) ; référentiel TWAIM et PDF du POC privés.
