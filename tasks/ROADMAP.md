@@ -29,7 +29,18 @@
   dans l'ÉTAPE 0 — elle mesurerait la présence de la consigne, pas son exécution ; l'écart doit être
   dit s'il est pris.
 
-- **[W15]** La pré-garde de revue mesure une **forme**, pas une **provenance** ni une **fraîcheur**.
+- **[W15]** — **moitié fermée le 17 août 2026** (CHORE `revue-structuree`) : la **fraîcheur** est acquise,
+  le contrat `twaim.review/1` portant le champ `commit` que la garde compare au SHA de la pointe
+  atterrie — un commit ajouté après un `SHIP` fait refuser et impose une relecture. La moitié
+  **provenance** reste **ouverte, telle quelle** : rien n'établit que c'est le `reviewer` qui a écrit
+  `review.json` plutôt que l'agent qui a produit le code. **Conséquence mesurée le 17 août 2026** : un
+  `overrule` est **déclaré, jamais attesté** — le contrat contraint son signataire au littéral « chef de
+  projet », ce qui interdit de signer *autre chose* mais pas de signer *à la place*. Piste proposée par
+  le `reviewer` (P6, non exécutée) : un champ `diff_sha` dans un futur `twaim.review/2`, empreinte de
+  `git diff main...HEAD` calculée à la revue — seule voie vue qui rendrait la provenance mesurable, et
+  un `overrule` attestable, sans archivage ni coût d'anonymisation récurrent. Énoncé d'origine conservé
+  ci-dessous.
+  La pré-garde de revue mesure une **forme**, pas une **provenance** ni une **fraîcheur**.
   Rien n'établit que `.pipeline/review.md` vienne du `reviewer` plutôt que de l'agent qui a écrit le
   code, ni qu'il porte sur le commit qu'on fait atterrir : une revue rendue avant trois commits de plus
   passe la garde à l'identique. Or `CLAUDE.md` promet une revue « indépendante » et `land.md` une revue
@@ -38,7 +49,12 @@
   compare alors deux hashes, pas deux libellés) ; **B** — archiver chaque revue dans `tasks/revues/`
   (coût d'anonymisation récurrent, à vouloir explicitement) ; **C** — écrire la dette sans coder.
 
-- **[W16]** Le contrat de l'agent (`.claude/agents/reviewer.md`) et la garde de `/land` ne sont pas
+- **[W16]** — **FERMÉE le 17 août 2026** par CHORE `revue-structuree` (piste **A**, celle que cette
+  dette annonçait) : le `reviewer` émet `.pipeline/review.json` conforme au contrat `twaim.review/1`,
+  écrit **à un seul endroit** (`tools/land-guard.js`) et **lu** par l'agent au lieu d'être recopié ;
+  l'agent s'auto-vérifie par la même commande que `/land`. Les trois résidus lexicaux qui suivent sont
+  **sans objet** : la garde ne lit plus de prose. Énoncé d'origine conservé ci-dessous.
+  Le contrat de l'agent (`.claude/agents/reviewer.md`) et la garde de `/land` n'étaient pas
   alignés. La garde exige désormais une ligne étiquetée `Incrément : <nom>` dans les 10 premières
   lignes et un verdict sur sa propre ligne ; le contrat ne prescrit que le second, et **donne le
   verdict en exemple sous forme de puce** — forme que la garde a refusée en silence pendant une passe

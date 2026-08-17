@@ -5,14 +5,14 @@ argument-hint: "<branche> [bump=patch|minor|major] [note de cadrage]"
 
 Atterris l'incrément revué SHIP pour : $ARGUMENTS
 
-Commande **autonome et auto-gardée**. Préconditions : `review.md` frais du `reviewer` avec verdict SHIP pour cet incrément (vérifié en pré-garde), **quel que soit le mode de lancement de l'incrément**, tests verts, `.pipeline/STATUS.md = READY`, branche `feat/<slug>`, accord du chef de projet donné. Lis `CLAUDE.md` (source de vérité) avant d'agir. **Ne pousse jamais.**
+Commande **autonome et auto-gardée**. Préconditions : `review.json` frais du `reviewer` avec verdict SHIP pour cet incrément (vérifié en pré-garde), **quel que soit le mode de lancement de l'incrément**, tests verts, `.pipeline/STATUS.md = READY`, branche `feat/<slug>`, accord du chef de projet donné. Lis `CLAUDE.md` (source de vérité) avant d'agir. **Ne pousse jamais.**
 
 ## ÉTAPE 0 — PRÉ-GARDES (refus propre si une garde casse)
 - `main` à jour avec `origin/main` : `git rev-list --count origin/main..main` DOIT valoir 0. Sinon REFUS : « clôture précédente non poussée — pousse d'abord ».
 - Lis `.pipeline/STATUS.md` PAR LE CONTENU (jamais le mtime). Doit valoir `READY` pour cet incrément.
   - Si `LANDING` → un /land a été coupé : bascule en MODE REPRISE (voir /session-start), n'enchaîne pas à l'aveugle.
   - Sinon (pas READY) → REFUS + message clair, aucun effet de bord.
-- **Revue fraîche** : lis `.pipeline/review.md` PAR LE CONTENU et applique la règle de `tools/land-guard.js` — `incrementFromStatus(<STATUS.md>)` donne le nom d'incrément, puis `reviewIsFreshFor(<review.md>, <nom>)` DOIT rendre `ok` vrai. Sinon → REFUS + le `reason` retourné, aucun effet de bord. Un verdict `NEEDS WORK` ou `BLOCK` n'atterrit jamais ; un `BLOCK` overrulé par le chef de projet se traduit par un `review.md` **mis à jour par le `reviewer`** avec le motif d'overrule, jamais par un contournement de la garde.
+- **Revue fraîche** : `node tools/land-guard.js .pipeline/review.json .pipeline/STATUS.md $(git rev-parse <branche>)` DOIT imprimer `OK` et sortir en 0. Sinon → REFUS, en citant la ligne `REFUS — …` imprimée, aucun effet de bord. Un verdict `NEEDS_WORK` ou `BLOCK` n'atterrit jamais ; un `BLOCK` overrulé par le chef de projet se traduit par un `review.json` **réémis par le `reviewer`** avec `verdict: "SHIP"` et `overrule` renseigné, jamais par un contournement de la garde. Un commit ajouté à la branche après la revue fait refuser (champ `commit`) : relance le `reviewer`.
 - `git status --porcelain` : aucun fichier SUIVI modifié/indexé en attente. Sinon REFUS.
 - `<branche>` existe et `main` est mergeable (pas de conflit). Sinon REFUS + message.
 
