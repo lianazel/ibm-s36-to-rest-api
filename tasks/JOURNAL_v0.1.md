@@ -566,3 +566,91 @@ Les trois écarts ci-dessous sont les seuls actes de l'incrément dont la porté
 | Les trois chiffres corrigés par le `reviewer` (16 colonnes, 3 occurrences, 3 chapitres) | **Re-mesurés par moi avant d'être écrits ici** | Leçon globale du 11 août : un nombre **reçu** n'est pas plus mesuré qu'un nombre écrit, la source ne change pas son statut. La vérification a d'ailleurs révélé la cause racine — un motif aveugle aux noms portant un chiffre | précédent |
 | « Aucune description » contre l'arbitrage 7 des notes v3 (réserve `ARCHI`) | **Non tranché**, consigné à ce journal comme écart n° 3 | Le livrable est gelé et la contradiction n'est pas visible tant que la section se limite à son énoncé. Elle le deviendra aux blocs 1 à 4 : la décision doit être prise **avant** leur écriture, pas après | cas d'espèce |
 | Niveau de bump | **Patch** 0.1.8 → 0.1.9, par `bump=patch` du chef de projet | Jalon 1 toujours inachevé ; le passage minor est réservé à sa clôture. Huitième inscription de cette règle à ce journal | précédent |
+
+## Session 12 — 18 août 2026 — EVOL `section-la-solution` (merge `82a64d0`, 0.1.9 → 0.1.10)
+
+**Prompt** : `prompts/v0.1/EVOL_section-la-solution_v1.md` · **Branche** : `feat/section-la-solution`
+(2 commits) · **Suite** : **134/134, rc 0**, inchangée · **Revue** : **1 passe**, verdict **`SHIP`**,
+**4 réserves `WARN`**, **aucun `FAIL`**, 2 propositions R&D (format B).
+
+`section3` porte le cheminement de recherche en quatre temps — `modele`, `mur`, `renversement`,
+`etape` — soit 12 valeurs par langue, 24 au total, et 11 balises dans `index.html` (4 `h3` + 7 `p`,
+motif de la section 1). `numstat` `40/2` et `15/0`. Texte d'attente : 6 occurrences avant, 4 après.
+Troisième contenu du jalon 1 ; les sections 4 et 5 restent provisoires.
+
+### La session a duré sept heures pour trois heures de travail : une panne d'infrastructure au milieu
+
+Un incident Anthropic — **« Degraded performance for multiple models »**, impact de **16:11 à
+18:23 UTC**, resserré en cours de route sur **Opus 5** seul, le modèle du `reviewer`, **résolu et
+publié comme tel à 19:01 UTC** — a tué **quatre** exécutions de la revue par `529 Overloaded`, toutes
+**avant qu'elles n'écrivent quoi que ce soit**. Une **cinquième** a été arrêtée par moi au moment du
+parking : deux causes distinctes, à ne pas confondre dans le décompte (j'ai d'abord écrit « cinq
+tentatives tuées », c'était faux). Revue relancée à **21:01 UTC**, rendue à **21:20 UTC**.
+
+**Ce que la panne a mis à l'épreuve, et qui a tenu.**
+
+1. **Le piège de la session 8 était armé pour de vrai.** Pendant toute la panne, `.pipeline/review.json`
+   contenait le `SHIP` d'un **autre** incrément — celui de la session 11 (`EVOL section-le-probleme`,
+   `commit a344019`). C'est le défaut fondateur du projet : une revue valide qui fait atterrir le mauvais
+   incrément. La garde compare `increment` **et** `commit` : elle aurait refusé. Démonstration en
+   conditions réelles de ce que la session 8 n'avait pu prouver que par témoins committés.
+2. **Aucun demi-document.** Les sous-agents sont morts avant d'écrire, jamais pendant. Le `review.json`
+   tronqué mais syntaxiquement valide — le scénario redouté — ne s'est pas matérialisé.
+3. **`.pipeline/` n'est pas un journal.** Un artefact gitignoré ne survit ni au merge ni au `/ship`
+   suivant. Le contexte de reprise a dû être porté hors dépôt pendant le parking, faute de pouvoir
+   écrire dans `tasks/` sans un commit qui aurait périmé la revue à venir.
+
+**Ce qui n'a pas été fait, et ne devait pas l'être** : aucun `READY` sans revue ; aucun `review.json`
+rédigé par l'exécutant — ce document juge mon propre travail, l'écrire m'aurait fait juge et partie, et
+une panne le rend plus coûteux à honorer, jamais facultatif.
+
+### La revue : première session sur cinq sans un seul chiffre à redresser
+
+Les neuf séries de nombres de mes artefacts ont été **recomptées par le `reviewer` et toutes trouvées
+exactes** — après quatre sessions consécutives où le code était juste et sa description fausse. La
+conformité des 24 valeurs est confirmée **par son propre chemin** (parsing du prompt depuis son blob,
+import de `js/i18n.js` depuis le blob du commit, égalité stricte), et il a **éprouvé son comparateur
+avant de le croire** : un double espace et une apostrophe U+2019 substituée sont tous deux attrapés,
+position exacte. Il a également **démoli deux de ses propres soupçons avant de les écrire** — la
+section 3 n'est pas la plus dense du site (3 320 caractères contre 3 642 pour la section 1) — et déposé
+**zéro réserve UX**, en disant qu'en inventer une aurait été du remplissage.
+
+**La réserve n° 3 me vise, et elle a raison.** J'ai caractérisé mes trois écarts contre les notes de la
+**section 2** sans jamais chercher celles de la section que j'écrivais :
+`NOTES_CONTENU_la-solution_v10.md`, déposées à 17:54, soit **avant** le commit du prompt à 18:30.
+Conséquence mesurable : j'ai présenté « six caractères » comme une imprécision **du prompt**, alors que
+le temps 1 de ces notes porte déjà la même formulation — l'écart existe, mais je l'ai attribué au
+mauvais endroit faute d'avoir ouvert le bon fichier. Leçon inscrite au registre local.
+
+**Défaut hors dépôt, signalé par le `reviewer`** : `NOTES_CONTENU_la-solution_v10.md` §8.3 écrit
+« six occurrences ramenées à **cinq** » là où l'arithmétique, le prompt et le livré disent **quatre**.
+La note est fausse, pas le livrable — à corriger avant qu'elle n'empoisonne l'incrément suivant.
+
+### Les trois écarts de l'incrément, aucun corrigé (prose gelée par le prompt)
+
+1. **La preuve 2 du prompt est infalsifiable à la lettre.** Elle exige « deux fichiers » à
+   `git diff main...HEAD --stat`, qui en compte **trois** : la règle §4.1 impose le commit du prompt sur
+   la même branche. Rendue sous **trois formes**, aucune cachée. Le `reviewer` confirme que l'arbitrage
+   ne masque rien. Même famille que l'écart n° 1 de la session 11.
+2. **« celui de six caractères », sans « au plus »** — récidive de l'écart n° 2 de la session 11, et
+   **deuxième occurrence dans le produit** après `section2.intro`. La source est **en amont**, dans les
+   notes de contenu : elle reviendra à l'incrément du bloc de code si rien ne la fixe dans un fichier
+   du dépôt.
+3. **« Si le fichier ne dit rien de lui-même »** — l'écart n° 3 de la session 11, **toujours non
+   tranché**, s'étend à une deuxième section et en devient la **prémisse d'ouverture**. Le `reviewer`
+   corrige mon appréciation : la contradiction est **plus proche** que je ne l'écrivais, puisque
+   « rien de lui-même » et « le nom physique de la colonne » cohabitent dans le **même paragraphe** ;
+   mon « invisible tant qu'aucun tableau n'est montré » est optimiste. **À trancher avant les blocs de
+   la section 2**, et l'arbitrage devra porter aussi sur `section3.modele.p1`.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| Poursuivre ou parquer, après quatre revues tuées par la panne | **Parquer l'incrément** à `4d85362`, décision du chef de projet | La revue était le seul geste manquant, tout le reste committé et mesuré : le parking ne coûtait rien et l'attente était bornée par un incident déclaré. Reprise le soir même, incident clos | cas d'espèce |
+| Rétrograder le `reviewer` sur Sonnet 5 pour contourner la panne | **Refusé** par le chef de projet | Le modèle du `reviewer` est déclaré dans sa définition et il est le dernier filtre avant la validation humaine : le rétrograder échangerait la qualité du juge contre de la vitesse. Techniquement plausible au moment du refus (l'incident s'était resserré sur Opus 5) — écarté sur le fond, pas faute d'opportunité | **précédent** |
+| Inventer une phase `PARKED` dans `.pipeline/STATUS.md` | **Non** — `STATUS` laissé en `CLOSED — session 11` | Le cycle n'en connaît que trois, et la garde les lit comme un contrat. Une quatrième valeur non vérifiée aurait fabriqué une convention de plus pour décrire un état que `git log` dit déjà mieux. Le `CLOSED` restait d'ailleurs vrai : rien n'avait atterri depuis | **précédent** |
+| Inscrire l'incident au journal pendant le parking | **Différé au `/land`**, rédigé hors dépôt dans l'intervalle | Écrire dans `tasks/` exigeait un commit qui aurait périmé la revue à venir, et `.pipeline/changes.md` était sous les yeux du `reviewer`. Troisième occurrence de **[W17]** | précédent |
+| Le `review.json` périmé de la session 11 | **Supprimé**, sur demande du chef de projet, après copie hors dépôt | Il n'était dans aucun commit (`.pipeline/` gitignoré) : l'effacer supprimait le seul exemplaire, d'où la sauvegarde préalable. Bénéfice : l'absence de `review.json` est un **état franc** — la revue n'a jamais eu lieu — là où un document répondant à côté oblige la garde à le réfuter | cas d'espèce |
+| Les quatre réserves `WARN` d'un verdict `SHIP` | **Non corrigées**, affichées telles quelles | Consigne explicite du prompt. Même remarque qu'aux sessions 10 et 11 : corriger un artefact de `.pipeline/` n'aurait pas invalidé la revue, ces fichiers n'étant pas commités. La retenue vient de la consigne | cas d'espèce |
+| Niveau de bump | **Patch** 0.1.9 → 0.1.10, sur arbitrage explicite du chef de projet | La commande n'avait reçu aucun `bump=` et son défaut pour `feat/*` vaut **minor** — soit 0.2.0, l'étiquette du **jalon 2** dans la ROADMAP, alors que le jalon 1 est inachevé. Question posée avant le marqueur `LANDING`, un numéro de version étant difficile à défaire une fois publié. **Neuvième** inscription de cette règle | précédent |

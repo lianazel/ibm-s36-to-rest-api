@@ -2,6 +2,64 @@
 
 > Une leçon = une erreur commise ici, datée, avec la règle qui l'empêche de revenir.
 
+## 18 août 2026 — Un écart se caractérise contre sa propre source, pas contre celle d'à côté
+
+**Type** : Erreur
+**Contexte** : EVOL `section-la-solution` (merge `82a64d0`). J'ai déclaré trois écarts dans
+`changes.md` et les ai caractérisés avec soin — contre les notes de contenu de la **section 2**
+(`le-probleme v3`), les seules que je connaissais parce que la session précédente les avait ouvertes.
+**Erreur** : la section que j'écrivais avait **ses propres notes**,
+`NOTES_CONTENU_la-solution_v10.md`, déposées à 17:54 — soit **avant** le commit du prompt à 18:30.
+Je ne les ai pas cherchées. Conséquence mesurable, relevée par le `reviewer` : j'ai présenté « six
+caractères » comme une imprécision **du prompt**, alors que le temps 1 de ces notes porte déjà la même
+formulation ; et j'ai déclaré ouverte une question — les illustrations que la prose appelle — que leur
+§4 avait **close et gelée** le jour même. L'écart existait, mais son origine était ailleurs, et un
+écart mal attribué envoie la correction au mauvais endroit.
+**Correction** : avant de qualifier un écart, **chercher la source propre du livrable** — pour un
+contenu, les notes de **sa** section, pas celles de la section voisine. Règle mécanique : à l'ÉTAPE 0,
+lister les documents source du périmètre exact et vérifier leur **date de dépôt** par rapport au
+prompt ; une note antérieure au prompt fait partie du dossier, une note postérieure ne peut pas être
+opposée à l'exécutant. Corollaire : « je n'ai pas trouvé de notes » et « je n'en ai pas cherché » sont
+deux états différents, et seul le premier s'écrit.
+**Parenté** : cinquième session consécutive sur la famille « le code est juste, sa description ne l'est
+pas », mais le déplacement continue : après les chiffres faux (16 et 17 août) et le motif trop étroit
+(17 août), c'est ici le **corpus de référence** qui était incomplet. La mesure était bonne, la
+description exacte — et pourtant l'attribution fausse, parce que le dossier n'était pas entier.
+**Portée du dégât** : aucune sur le livré — quatre réserves `WARN`, verdict `SHIP`, artefacts
+gitignorés. Les neuf séries de chiffres de mes artefacts ont d'ailleurs été recomptées et trouvées
+**toutes exactes**, première fois en cinq sessions.
+**Applicable globalement ?** : à arbitrer par le chef de projet. À mon sens **oui** : « confronter une
+affirmation à la source du périmètre exact, après avoir vérifié qu'on les a toutes » vaut pour tout
+audit, toute stack. Voisine de « un nombre reçu n'est pas plus mesuré qu'un nombre écrit » (11 août)
+sans se confondre : là c'était le **statut** d'une donnée, ici l'**exhaustivité du corpus**.
+
+## 18 août 2026 — Un sous-agent tué en vol ne laisse rien : sous coupure, l'artefact s'écrit tôt et s'enrichit ensuite
+
+**Type** : Erreur
+**Contexte** : incident Anthropic du 18 août 2026 (« Degraded performance for multiple models »,
+impact 16:11 → 18:23 UTC, resserré sur Opus 5, le modèle du `reviewer`). **Quatre** exécutions de la
+revue indépendante tuées par `529 Overloaded`, chacune ayant mené une part réelle du travail — dont il
+ne reste **rien**.
+**Erreur** : j'ai délégué en supposant l'exécution atomique. Ma consigne demandait de lire, mesurer,
+puis écrire `review.json` **en fin de parcours** : tout arrêt avant la dernière ligne annulait
+l'intégralité du travail. Le coût n'est pas la panne — elle ne se commande pas — c'est **l'ordre** que
+j'avais imposé, et je ne l'ai corrigé qu'à la quatrième tentative.
+**Correction** : quand un sous-agent produit un artefact au terme d'un travail long, lui demander de
+**l'écrire dès qu'il est fondé, puis de l'enrichir** par réécritures. Un document incomplet mais
+honnête sur ses limites survit à une coupure ; un document parfait jamais écrit ne vaut rien. Deux
+corollaires : (1) l'artefact partiel doit **nommer ce qu'il n'a pas vérifié**, sinon il ment par
+omission là où il rassure ; (2) sa vérification de forme doit tolérer l'état partiel, sinon la
+précaution fabrique un refus de garde.
+**Ce qui a tenu pendant la panne, et mérite d'être noté** : les sous-agents sont morts **avant**
+d'écrire, jamais pendant — le `review.json` tronqué mais syntaxiquement valide ne s'est pas
+matérialisé. Et le `SHIP` d'un **autre** incrément (session 11) est resté dans `.pipeline/` pendant
+toute la panne : la garde de `/land`, qui compare `increment` **et** `commit`, l'aurait refusé. Le
+défaut fondateur du projet, armé en conditions réelles, n'a pas mordu.
+**Portée du dégât** : nulle sur le livré. Coût réel : quatre exécutions de sous-agent perdues et une
+session étalée sur sept heures pour trois heures de travail.
+**Applicable globalement ?** : à arbitrer par le chef de projet. À mon sens **oui** — vaut pour toute
+délégation à un agent, toute stack, et je ne lui trouve pas d'équivalent au registre global.
+
 ## 17 août 2026 — Réparer la preuve n'immunise pas ce qui l'entoure, et un filtre qui exclut ne prévient pas
 
 **Type** : Erreur
