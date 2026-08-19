@@ -2,6 +2,42 @@
 
 > Une leçon = une erreur commise ici, datée, avec la règle qui l'empêche de revenir.
 
+## 19 août 2026 — Un défaut déclaré une fois se cherche partout où il peut être : déclarer, c'est balayer
+
+**Type** : Erreur
+**Contexte** : EVOL `extraits-de-code` (merge `ceadf36`), trois extraits de code C# recréés. À la
+lecture des valeurs, j'ai repéré et **déclaré** dans `changes.md` un point de vigilance sur `code2` :
+`dictionnaire[propriete.Name.ToUpper()] = attribut?.Nom` inscrit `null` si une propriété ne porte pas
+l'attribut. Déclaration soignée, motivée, avec son motif de non-correction (code gelé par le prompt).
+**Erreur** : le **même défaut vivait dans `code3`**, du même incrément, dans les deux langues :
+`colonne.Value.GetType()` déréférence sans garde — et une colonne à NULL est le cas **ordinaire** d'un
+fichier plat S/36, donc plus probable là que dans `code2`. Même famille encore à la ligne suivante
+(`modele.GetProperty(colonne.Key)` peut rendre `null`). J'ai déclaré le premier et je n'ai pas cherché
+les autres : une fois le constat écrit, je l'ai traité comme réglé. Trouvé par le `reviewer`.
+**Correction** : **déclarer un défaut n'est pas un geste ponctuel, c'est l'ouverture d'un balayage.**
+Dès qu'un point de vigilance est formulé, en extraire le **motif** (« un déréférencement sans garde »,
+« une valeur qui peut être nulle »), puis le chercher dans **tout le périmètre livré** — les six
+valeurs, pas celle où l'œil s'est posé — avant d'écrire la déclaration. Règle mécanique : un point de
+vigilance s'écrit avec la **liste des endroits examinés**, pas seulement celui qui l'a déclenché ;
+« vérifié sur les six valeurs, présent sur deux » et « remarqué sur une » sont deux états différents,
+et seul le premier atteste quelque chose.
+**Parenté** : famille de « une affirmation réfutée se retire de tous ses domiciles » (16 août) et de
+son extension du 19 août (le remboursement balaie le dépôt, pas le produit) — mais **inversée**. Là il
+s'agissait de retirer une affirmation fausse de partout où elle était écrite ; ici, de porter un
+constat vrai partout où il **s'applique**. Le balayage n'est plus celui d'un texte, c'est celui d'un
+motif. C'est la quatrième session d'affilée sur la même racine : le code est juste, ce que j'en dis
+est incomplet.
+**Portée du dégât** : nulle sur le livré — six réserves `WARN`, verdict `SHIP`, et le défaut est dans
+du code d'illustration que le site n'exécute pas. Deux autres remarques du `reviewer` relèvent de
+leçons **déjà écrites** et n'en appellent donc pas de nouvelles : un chiffre affirmé sans mesure dans
+ma spec (104 annoncés, 101 réels — « un chiffre porte son état », 17 août), et une preuve
+d'accessibilité qui mesurait l'atteignabilité au clavier sans voir que la région n'a **ni rôle ni nom
+accessible** (« lire l'attribut n'est pas mesurer le pixel », 15 août — ici j'ai bien mesuré le rendu,
+mais j'ai mesuré la bonne chose sur une question incomplète).
+**Applicable globalement ?** : à arbitrer par le chef de projet. À mon sens **oui** : vaut pour toute
+revue, tout audit, toute stack. Un défaut trouvé est un **échantillon**, jamais un inventaire — et le
+réflexe de le déclarer proprement donne l'illusion du travail fini.
+
 ## 19 août 2026 — Rembourser une dette n'atteint pas les textes qui décrivent l'avenir, et la recommandation portait le défaut qu'elle corrigeait
 
 **Type** : Erreur

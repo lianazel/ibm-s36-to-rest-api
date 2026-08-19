@@ -728,3 +728,108 @@ précisément ce paragraphe qui devient le plus long du pied de page (réserve 5
 | Inscrire l'arbitrage 7 à la feuille de route | **Oui, comme arbitrage en attente**, trois voies exposées, la troisième étiquetée recommandation | Il n'existait que dans ce journal, qui regarde en arrière, alors qu'il engage un incrément futur. Mesuré : 3 occurrences au journal, 0 dans `ROADMAP.md` et `CLAUDE.md` | cas d'espèce |
 | Niveau de bump | **Patch** 0.1.10 → 0.1.11, **sans redemander au chef de projet** | La session 12 a inscrit cette règle en portée **`précédent`** : c'est ce que ce mot engage. Redemander aurait été rejouer une décision déjà prise. Jalon 1 toujours inachevé. **Dixième** inscription | précédent |
 | Les cinq réserves `WARN` d'un verdict `SHIP` | **Non corrigées**, affichées telles quelles | Consigne du prompt. La réserve 2 vise `tasks/ROADMAP.md`, document du chef de projet : la corriger de moi-même aurait été trancher l'arbitrage 7 par la bande | cas d'espèce |
+
+## Session 14 — 19 août 2026 — EVOL `extraits-de-code` (merge `ceadf36`, 0.1.11 → 0.1.12)
+
+**Prompt** : `prompts/v0.1/EVOL_extraits-de-code_v1.md` · **Branche** : `feat/extraits-de-code`
+(2 commits) · **Suite** : **134/134, rc 0**, inchangée · **Revue** : **1 passe**, verdict **`SHIP`**,
+**6 réserves `WARN`**, **aucun `FAIL`**, 3 propositions R&D (deux format B, une format C).
+
+Trois extraits de code C# recréés, **visibles**, chacun sous le paragraphe qu'il illustre : l'attribut
+maison et les deux classes du cas fictif, puis le dictionnaire par réflexion sous le temps 1 ; la
+construction du modèle dynamique sous le temps 3. **195 insertions, 0 suppression** sur les trois
+fichiers du livrable — c'est cette seconde moitié qui prouve que rien d'existant n'a bougé, là où un
+comptage de clés serait satisfait par une réécriture à nombre constant. 56 → 62 clés par côté, parité
+stricte.
+
+### Ce que ce prompt éteint, et qui n'était pas dans son objet
+
+**L'écart récurrent des sessions 11, 12 et 13 est mort** : la preuve 2 compte les fichiers avec
+`-- . ':!prompts'`. Trois incréments d'affilée avaient déclaré le même écart — une preuve comptant sur
+`main...HEAD` sans exclure le prompt que la règle §4.1 impose pourtant sur la branche. La correction
+est venue de la **rédaction du prompt**, jamais d'un arbitrage à l'exécution. C'est la démonstration
+que le défaut était bien là où les trois journaux le disaient.
+
+### La garde de fraîcheur a mordu pour de vrai, sur un cas qu'elle n'avait jamais rencontré
+
+Premier `/land` **refusé** par la pré-garde de revue depuis que le champ `commit` existe (CHORE
+`revue-structuree`, 17 août, moitié « fraîcheur » de [W15]) :
+
+```
+REFUS — review.json ne relit pas le commit à atterrir :
+7aec46d… vs b994cee…
+```
+
+Le chef de projet avait commité `b994cee` (« le fil, une ligne par incrément ») **sur la branche**, à
+17:04, deux heures après la revue. Le commit ne touchait que `tasks/ROADMAP.md` — aucun fichier du
+livrable. La garde a refusé quand même, et c'est **exactement** ce qu'on lui demande : elle compare
+deux empreintes, pas deux périmètres. Une garde qui saurait distinguer « commit inoffensif » de
+« commit qui invalide » serait une garde qu'on peut convaincre.
+
+Jusqu'ici, [W15] était fermée **par construction et jamais éprouvée en production** : on savait que le
+champ `commit` existait, on ne l'avait jamais vu arrêter un atterrissage réel. C'est fait. La dette
+[W14] — le **câblage** de la pré-garde n'est gardé par aucune porte — reste entière et se lit
+différemment maintenant : la règle a prouvé qu'elle mord, son site d'appel n'a toujours rien qui
+l'oblige.
+
+### La revue : mes onze séries de chiffres tiennent, deux trouvailles sont à elle
+
+**Troisième session consécutive** où le `reviewer` recompte tout par son propre chemin — il a réécrit
+son parseur du prompt et son comparateur plutôt que d'emprunter les miens — et trouve mes mesures
+exactes, contrastes recalculés au centième compris. Il a dit franchement ce qu'il ne pouvait pas
+rejouer faute de navigateur (le `scrollLeft`, les rangs de tabulation, le `:focus-visible` réel) au
+lieu de le valider par défaut, et il a estimé les débordements par calcul typographique : 662/805/880
+contre mes 664/807/883 mesurés. Trois pixels d'écart sur un constat qui tient tout seul.
+
+Ce qu'il a trouvé et que je n'avais pas vu :
+
+**1. Le jumeau non déclaré (réserve 3).** J'ai déclaré dans `changes.md` que `attribut?.Nom` inscrit
+`null` pour une propriété sans attribut (`code2`) — et j'ai laissé passer **le même défaut, dans le
+même incrément** : `colonne.Value.GetType()` déréférence sans garde dans `code3`, où une colonne à NULL
+est le cas ordinaire d'un fichier plat S/36. Un point de vigilance déclaré, son jumeau muet. Leçon
+inscrite au registre local.
+
+**2. L'accessibilité que ma preuve 9 n'atteignait pas (réserve 1).** J'ai mesuré au navigateur que les
+trois `pre` sont atteints au Tab, que `:focus-visible` matche réellement et que la flèche droite fait
+défiler — tout cela est vrai, et à côté de la question : une région de défilement focalisable **sans
+rôle ni nom accessible** prend le focus sur un élément générique et n'annonce rien. Le dépôt nomme
+pourtant ses autres régions (`aria-label` sur `nav-panel` et `site-nav`). Le prompt interdisait tout
+attribut supplémentaire — l'écart n'était pas corrigible ici ; il n'était pas non plus déclaré.
+
+**3. Un chiffre faux dans ma spec (réserve 6).** J'y annonçais la signature de `code3` à 104
+caractères ; elle en fait **101**. Chiffre affirmé sans être mesuré, dans un artefact dont toute la
+valeur est d'être mesuré. La leçon existe depuis le 17 août (« un chiffre porte son état ») ; elle n'a
+pas besoin d'être réécrite, elle a besoin d'être tenue.
+
+### Ce que j'ai fait de mon propre chef, et qui a servi
+
+- **Prouver l'égalité des douze valeurs par machine** plutôt qu'à l'œil : 5 312 caractères de code
+  recopiés, comparés au prompt caractère par caractère, 0 écart — et le comparateur **éprouvé avant
+  d'être cru** (espace surnuméraire, apostrophe U+2019, saut de ligne final : 3/3 attrapés).
+- **Renforcer la preuve 5 de moi-même** : le prompt demandait `grep -c`, qui compte les **lignes**. Un
+  cadratin ajouté sur une ligne qui en porte déjà un serait resté invisible. Recompté en occurrences,
+  `css/styles.css` en porte **8** et non 7 — l'écart attendu, une ligne en portant deux. Les deux
+  mesures sont stables avant/après ; la seconde est celle qui prouve.
+- **Mesurer avant d'écrire** que « 134/134 inchangé » était tenable : aucune porte n'engendre de cas
+  par clé, les deux portes i18n itèrent dans un `it` fixe. Le compte ne *pouvait* pas bouger.
+- **Vérifier les cinq jetons CSS** avant d'écrire la règle : la famille `.extrait` ne pouvait pas
+  devenir un crochet inerte, défaut exact de [W18] inscrit le matin même.
+
+### Les deux écarts de l'incrément
+
+1. **Le jumeau non déclaré de `code3`** (ci-dessus). Non corrigé : le prompt gèle le code, et la
+   consigne interdit de toucher aux réserves `WARN` d'un `SHIP`.
+2. **Les régions de défilement sans nom accessible.** Non corrigeable dans ce périmètre, à traiter
+   **avant** l'incrément de la boîte à outils, qui multipliera ces blocs.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| Prérequis 1 du prompt en écart à l'ouverture (`origin/main..main` = 1, commit ROADMAP du chef de projet non poussé) | **Arrêt et signalement** avant tout `checkout -b` ; le chef de projet pousse, puis reprise | Le prompt dit « sinon ARRÊTE-TOI ». L'écart était bénin — c'était le commit qui rendait la ROADMAP cohérente avec le prompt — mais le doute ne s'arbitre pas dans l'instant, et le push est un geste du chef de projet | cas d'espèce |
+| Un commit du chef de projet posé **sur la branche** après la revue, faisant refuser la garde de fraîcheur | **Déplacé sur `main`** (cherry-pick `ead1bcf`, puis `reset --hard` de la branche sur `7aec46d`), plutôt que relancer le `reviewer` | La ROADMAP est un document de `main`, pas du livrable : c'est le précédent de session 13, appliqué à un commit arrivé **après** le branchement. Relancer la revue aurait fait relire 41 lignes de feuille de route par un agent dont ce n'est pas le rôle, et fait atterrir la ROADMAP dans le merge de l'incrément. Identité du contenu vérifiée **avant** le reset (même blob `ea0ebc6`), commit préservé sur `main` et au reflog | **précédent** |
+| Le `reset --hard` sur une branche, geste destructif | **Exécuté après accord explicite du chef de projet**, jamais de moi-même, et seulement une fois le contenu prouvé préservé ailleurs | Réécrire l'historique d'une branche n'est pas dans l'inventaire fermé des gestes autonomes. La question a été posée avec ses trois voies et sa recommandation | **précédent** |
+| Un commentaire technique ajouté dans `js/i18n.js`, puis retiré | **Retiré** avant tout commit | Le prompt borne le périmètre à « douze valeurs, six clés » : un commentaire n'est ni l'un ni l'autre. L'information est allée dans `changes.md`, à l'endroit que le prompt désigne, et le remède est proposé en R&D | cas d'espèce |
+| Emplacement de `code3` dans le dictionnaire | **Fin du groupe `renversement`** (après `p3`), alors qu'il s'affiche entre `p2` et `p3` | Le prompt fixe l'emplacement HTML, pas l'ordre des clés. Homogénéité avec `modele`, où les codes suivent le dernier paragraphe. Aucun effet : `applyI18n` résout par chemin, pas par rang | cas d'espèce |
+| Niveau de bump | **Patch** 0.1.11 → 0.1.12, **sans redemander au chef de projet** | Règle inscrite en portée `précédent` depuis la session 12. Le défaut `feat/*` vaut minor, soit 0.2.0 — l'étiquette du jalon 2, alors que le fil de la ROADMAP compte encore six incréments avant la fin du jalon 1. **Onzième** inscription | précédent |
+| Les six réserves `WARN` d'un verdict `SHIP` | **Non corrigées**, affichées telles quelles | Consigne du prompt. Les réserves 1, 3 et 4 visent du code et du HTML que le prompt gèle explicitement ; la 4 est un arbitrage qui appartient au chef de projet | cas d'espèce |
