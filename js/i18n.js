@@ -26,6 +26,7 @@ export const dict = {
       solution: "La solution",
       minilangage: "Le mini-langage",
       methode: "La méthode",
+      annexe: "Annexe",
     },
     menu: {
       // Nom accessible du panneau : un role="dialog" sans nom n'en a pas.
@@ -65,14 +66,16 @@ export const dict = {
     },
     section2: {
       title: "Le problème",
-      intro: "Le défi consiste à exposer en JSON un format de table hérité de l'ère de l'IBM System/36. Ces tables ont, pour celles qui sont encore en activité, des noms de colonnes d'au plus six caractères. Aucune description. C'est l'application qui connaît la valeur métier de telle ou telle colonne.",
+      intro: "Le défi consiste à exposer en JSON un format de table hérité de l'ère de l'IBM System/36. Ces tables, pour celles qui sont encore en activité, font leur travail : elles enregistrent et restituent sans faillir. Mais demandez-leur ce qu'elles contiennent, elles ne savent pas répondre. Le fichier donne des positions et des noms d'au plus six caractères, jamais ce qu'ils veulent dire. C'est l'application qui connaît la valeur métier de telle ou telle colonne.",
+      renvoi: "Pour voir un fichier S/36 de près, ses positions, ses noms abrégés, ses décimales cachées :",
+      renvoiLien: "l'annexe, en fin de page.",
     },
     section3: {
       title: "La solution",
       intro: "Mon métier, c'est l'IBM i. J'ai découvert C# et .Net au travers d'opportunités professionnelles. Ce qui suit n'est pas une recette. C'est un cheminement, en quatre temps, tel qu'il s'est passé.",
       modele: {
         title: "Un modèle de données écrit à la main, pour tester une idée",
-        p1: "L'idée tient en une phrase. Si le fichier ne dit rien de lui-même, alors quelqu'un doit le dire à sa place, une fois, à un seul endroit. Ce quelqu'un est une classe écrite à la main. Chaque propriété y porte le nom que les gens emploient, et une étiquette posée au-dessus d'elle porte le nom physique de la colonne, celui d'au plus six caractères. Le programme relit ses propres étiquettes pendant qu'il tourne, ce qu'on appelle la réflexion, et il en tire un dictionnaire.",
+        p1: "L'idée tient en une phrase. Si le fichier ne dit pas ce que ses colonnes veulent dire, alors quelqu'un doit le dire à sa place, une fois, à un seul endroit. Ce quelqu'un est une classe écrite à la main. Chaque propriété y porte le nom que les gens emploient, et une étiquette posée au-dessus d'elle porte le nom physique de la colonne, celui d'au plus six caractères. Le programme relit ses propres étiquettes pendant qu'il tourne, ce qu'on appelle la réflexion, et il en tire un dictionnaire.",
         p2: "Ce dictionnaire travaille dans les deux sens. Il nomme ce qui sort, puisque le flux JSON renvoyé porte les noms métier. Il traduit ce qui entre, puisqu'un filtre écrit avec un nom métier devient un nom de colonne dans la requête. Une même donnée peut s'appeler autrement d'un fichier à l'autre et retomber pourtant sur un seul nom. C'est là que le fichier commence à parler.",
         code1: {
           legende: "Extrait recréé : l'attribut maison et les deux classes du cas fictif.",
@@ -176,6 +179,12 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
       title: "La méthode",
       intro: "La suite de ce chapitre arrive.",
     },
+    annexe: {
+      title: "Annexe : un fichier S/36 de près",
+      intro: "Ce chapitre est un détour technique, un petit voyage dans les contraintes de l'époque. Il n'est pas nécessaire pour suivre la suite.",
+      attente: "La suite de ce chapitre arrive.",
+      retour: "Retour au problème",
+    },
     about: {
       title: "À propos",
       name: "Des fichiers S/36 à l'API REST",
@@ -210,6 +219,7 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
       solution: "The solution",
       minilangage: "The mini-language",
       methode: "The method",
+      annexe: "Appendix",
     },
     menu: {
       title: "Menu",
@@ -248,14 +258,16 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
     },
     section2: {
       title: "The problem",
-      intro: "The challenge is to expose in JSON a table format inherited from the IBM System/36 era. These tables, those still in service, have column names of at most six characters. No description. The application is what knows the business meaning of each column.",
+      intro: "The challenge is to expose in JSON a table format inherited from the IBM System/36 era. These tables, those still in service, do their job: they record and return data without fail. But ask them what they hold, and they cannot answer. The file gives positions and names of six characters or fewer, never what those names mean. The application is what knows the business meaning of each column.",
+      renvoi: "To see an S/36 file up close, its positions, its abbreviated names, its hidden decimals:",
+      renvoiLien: "the appendix, at the end of the page.",
     },
     section3: {
       title: "The solution",
       intro: "My trade is IBM i. C# and .Net came to me through the work I was given. What follows is not a recipe. It is a path, in four steps, the way it actually happened.",
       modele: {
         title: "A data model written by hand, to test an idea",
-        p1: "The idea fits in one sentence. If the file says nothing about itself, then someone has to say it instead, once, in a single place. That someone is a class written by hand. Each property carries the name people actually use, and a tag placed above it carries the physical column name, at most six characters long. The program reads its own tags back while it runs, which is called reflection, and builds a dictionary from them.",
+        p1: "The idea fits in one sentence. If the file does not say what its columns mean, then someone has to say it instead, once, in a single place. That someone is a class written by hand. Each property carries the name people actually use, and a tag placed above it carries the physical column name, at most six characters long. The program reads its own tags back while it runs, which is called reflection, and builds a dictionary from them.",
         p2: "That dictionary works both ways. It names what goes out, since the JSON returned carries the business names. It translates what comes in, since a filter written with a business name becomes a column name in the query. The same piece of data may go by another name in another file and still land on a single name. That is where the file starts to speak.",
         code1: {
           legende: "Recreated extract: the house attribute and the two classes of the fictional case.",
@@ -358,6 +370,12 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
     section5: {
       title: "The method",
       intro: "This chapter is coming soon.",
+    },
+    annexe: {
+      title: "Appendix: an S/36 file up close",
+      intro: "This chapter is a technical detour, a short trip into the constraints of the day. It is not needed to follow what comes next.",
+      attente: "This chapter is coming soon.",
+      retour: "Back to the problem",
     },
     about: {
       title: "About",
