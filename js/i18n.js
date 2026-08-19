@@ -65,14 +65,14 @@ export const dict = {
     },
     section2: {
       title: "Le problème",
-      intro: "Le défi consiste à exposer en JSON un format de table hérité de l'ère de l'IBM System/36. Ces tables ont, pour celles qui sont encore en activité, des noms de colonnes de six caractères. Aucune description. C'est l'application qui connaît la valeur métier de telle ou telle colonne.",
+      intro: "Le défi consiste à exposer en JSON un format de table hérité de l'ère de l'IBM System/36. Ces tables ont, pour celles qui sont encore en activité, des noms de colonnes d'au plus six caractères. Aucune description. C'est l'application qui connaît la valeur métier de telle ou telle colonne.",
     },
     section3: {
       title: "La solution",
       intro: "Mon métier, c'est l'IBM i. J'ai découvert C# et .Net au travers d'opportunités professionnelles. Ce qui suit n'est pas une recette. C'est un cheminement, en quatre temps, tel qu'il s'est passé.",
       modele: {
         title: "Un modèle de données écrit à la main, pour tester une idée",
-        p1: "L'idée tient en une phrase. Si le fichier ne dit rien de lui-même, alors quelqu'un doit le dire à sa place, une fois, à un seul endroit. Ce quelqu'un est une classe écrite à la main. Chaque propriété y porte le nom que les gens emploient, et une étiquette posée au-dessus d'elle porte le nom physique de la colonne, celui de six caractères. Le programme relit ses propres étiquettes pendant qu'il tourne, ce qu'on appelle la réflexion, et il en tire un dictionnaire.",
+        p1: "L'idée tient en une phrase. Si le fichier ne dit rien de lui-même, alors quelqu'un doit le dire à sa place, une fois, à un seul endroit. Ce quelqu'un est une classe écrite à la main. Chaque propriété y porte le nom que les gens emploient, et une étiquette posée au-dessus d'elle porte le nom physique de la colonne, celui d'au plus six caractères. Le programme relit ses propres étiquettes pendant qu'il tourne, ce qu'on appelle la réflexion, et il en tire un dictionnaire.",
         p2: "Ce dictionnaire travaille dans les deux sens. Il nomme ce qui sort, puisque le flux JSON renvoyé porte les noms métier. Il traduit ce qui entre, puisqu'un filtre écrit avec un nom métier devient un nom de colonne dans la requête. Une même donnée peut s'appeler autrement d'un fichier à l'autre et retomber pourtant sur un seul nom. C'est là que le fichier commence à parler.",
       },
       mur: {
@@ -110,7 +110,7 @@ export const dict = {
       notice:
         "© 2026 Jean-Christophe Cherid. Code sous licence MIT ; textes et visuels réservés.",
       disclaimer:
-        "IBM, IBM i et System/36 sont des marques d'International Business Machines Corporation. Site indépendant, non affilié à IBM.",
+        "IBM, IBM i et System/36 sont des marques d'International Business Machines Corporation. Les autres noms de produits et de sociétés cités sont la propriété de leurs détenteurs respectifs. Site indépendant, non affilié à IBM.",
       portfolio: "Retour au portfolio",
     },
     lang: {
@@ -170,14 +170,14 @@ export const dict = {
     },
     section2: {
       title: "The problem",
-      intro: "The challenge is to expose in JSON a table format inherited from the IBM System/36 era. These tables, those still in service, have six-character column names. No description. The application is what knows the business meaning of each column.",
+      intro: "The challenge is to expose in JSON a table format inherited from the IBM System/36 era. These tables, those still in service, have column names of at most six characters. No description. The application is what knows the business meaning of each column.",
     },
     section3: {
       title: "The solution",
       intro: "My trade is IBM i. C# and .Net came to me through the work I was given. What follows is not a recipe. It is a path, in four steps, the way it actually happened.",
       modele: {
         title: "A data model written by hand, to test an idea",
-        p1: "The idea fits in one sentence. If the file says nothing about itself, then someone has to say it instead, once, in a single place. That someone is a class written by hand. Each property carries the name people actually use, and a tag placed above it carries the physical column name, the six-character one. The program reads its own tags back while it runs, which is called reflection, and builds a dictionary from them.",
+        p1: "The idea fits in one sentence. If the file says nothing about itself, then someone has to say it instead, once, in a single place. That someone is a class written by hand. Each property carries the name people actually use, and a tag placed above it carries the physical column name, at most six characters long. The program reads its own tags back while it runs, which is called reflection, and builds a dictionary from them.",
         p2: "That dictionary works both ways. It names what goes out, since the JSON returned carries the business names. It translates what comes in, since a filter written with a business name becomes a column name in the query. The same piece of data may go by another name in another file and still land on a single name. That is where the file starts to speak.",
       },
       mur: {
@@ -215,7 +215,7 @@ export const dict = {
       notice:
         "© 2026 Jean-Christophe Cherid. Code under MIT license; texts and visuals all rights reserved.",
       disclaimer:
-        "IBM, IBM i and System/36 are trademarks of International Business Machines Corporation. Independent site, not affiliated with IBM.",
+        "IBM, IBM i and System/36 are trademarks of International Business Machines Corporation. All other product and company names mentioned are the property of their respective owners. Independent site, not affiliated with IBM.",
       portfolio: "Back to the portfolio",
     },
     lang: {
