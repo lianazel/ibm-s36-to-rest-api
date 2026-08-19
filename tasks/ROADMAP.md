@@ -9,12 +9,13 @@ l'ordre où ils passent ; l'état se met à jour à chaque atterrissage. Quand o
 |---|---|---|---|---|
 | 1 | EVOL vocabulaire-et-marques | `EVOL_vocabulaire-et-marques_v1` | **atterri**, 0.1.11 (session 13) | « au plus six caractères » aux sections 2 et 3 ; phrase générique de marques |
 | 2 | EVOL extraits-de-code | `EVOL_extraits-de-code_v1` | **atterri**, 0.1.12 (session 14) | trois extraits recréés, visibles, sous les temps 1 et 3 ; motif du cadre de code |
-| 3 | EVOL probleme-renvoi-et-annexe | `EVOL_probleme-renvoi-et-annexe_v1` | **gelé** le 19 août 2026, prêt à exécuter | « aucune description » tranché (troisième voie), intro de la section 2 réécrite, phrase de renvoi, section « Annexe » amorcée (titre, détour technique, texte d'attente, retour, menu) |
-| 4 | EVOL boîte à outils | à rédiger | à venir | tableau ordonné des neuf classes, dans un bloc dépliable ; **établit le motif de dépliement** |
-| 5 | EVOL annexe-s36 | à rédiger, **après** notes `le-probleme` v6 (matière des dessins case par case) | à venir | remplit l'Annexe : **feuille I redessinée et remplie avec `CDEMST`** (où vit la description du fichier), **feuille C** à trois lignes (`MULT` avec longueur et décimales, `CHAIN` avec l'indicateur 51 en colonne High, `EXSR` conditionné par 51), les trois tableaux, le témoignage au « je », le GAP nommé côté français ; SVG registre « plan technique », **établit le motif du dessin** |
-| 6 | Mise en scène | à rédiger | à venir | les deux dessins SVG de la section 3, Plex Mono des commandes, dettes W5, W8, W12, W13, W18 |
-| 7 | Outillage | à rédiger | à venir | dette W17, exception de langue des clés dans `CLAUDE.md`, porte de non-régression lexicale (proposition du `reviewer`, session 13), porte de forme des deux versions du code |
-| 8 | Fin de jalon 1 | — | à venir | relecture d'anonymisation page par page, bump 0.2.0 |
+| 3 | EVOL probleme-renvoi-et-annexe | `EVOL_probleme-renvoi-et-annexe_v1` | **atterri**, 0.1.13 (session 15) | « aucune description » tranché (troisième voie), intro de la section 2 réécrite, phrase de renvoi, section « Annexe » amorcée (titre, détour technique, texte d'attente, retour, menu) |
+| 4 | EVOL dessins-section-3 | `DRAFT_EVOL_dessins-section-3_v1` | **brouillon déposé**, à geler (pré-conditions : 0.1.13, session 15 — conformes) | les deux dessins en HTML et CSS (choix arbitré le 19 août : bilingues par le dictionnaire, empilables, texte lisible ; le contrat disait « SVG de préférence », l'autre voie est meilleure ici), dessin 1 en fin de temps 2, dessin 2 au temps 3 avant le code |
+| 5 | EVOL boîte à outils | à rédiger | à venir | tableau ordonné des neuf classes, dans un bloc dépliable ; **établit le motif de dépliement** |
+| 6 | EVOL annexe-s36 | à rédiger, **après** notes `le-probleme` v6 (matière des dessins case par case) | à venir | remplit l'Annexe : **feuille I redessinée et remplie avec `CDEMST`** (où vit la description du fichier), **feuille C** à trois lignes (`MULT` avec longueur et décimales, `CHAIN` avec l'indicateur 51 en colonne High, `EXSR` conditionné par 51), les trois tableaux, le témoignage au « je », le GAP nommé côté français ; SVG registre « plan technique », **établit le motif du dessin** |
+| 7 | Mise en scène | à rédiger | à venir | Plex Mono des commandes en ligne, indice de défilement des cadres de code (W23), dettes W5, W8, W12, W13, W18, W19 |
+| 8 | Outillage | à rédiger | à venir | dette W17, exception de langue des clés dans `CLAUDE.md`, porte de résolution des ancres internes (W22), porte de duplication du dictionnaire (W25), le fil que `/land` ne met pas à jour (W24), porte de non-régression lexicale (proposition du `reviewer`, session 13), porte de forme des deux versions du code |
+| 9 | Fin de jalon 1 | — | à venir | relecture d'anonymisation page par page, bump 0.2.0 |
 
 Décisions qui gouvernent ce fil, toutes du 19 août 2026 : le code montré est **recréé**, jamais le code réel ;
 les images sont **redessinées**, jamais des scans ; le lecteur **choisit** d'aller au technique (section Annexe
@@ -117,7 +118,70 @@ avant de compter.
   réserve n° 5) : crochet inerte depuis sa pose. À rembourser avec la mise en scène : donner une règle
   à la classe, ou la retirer.
 
+- **[W19]** Les trois `pre[tabindex="0"]` des extraits (et les sections de `main`) n'ont ni rôle ni nom
+  accessible : un lecteur d'écran prend le focus sur un élément générique et n'annonce rien (revue de
+  session 14, réserve 1 ; sections : réserve 3 de la session 15). Remède : `role="region"` +
+  `aria-labelledby` vers la légende, à poser au prochain incrément qui rouvre le HTML des extraits, au
+  plus tard la boîte à outils.
+
+- **[W20]** L'extrait du temps 3 déréférence `colonne.Value.GetType()` sans garde : une valeur nulle en
+  première ligne lèverait une exception, et le site ne le dit nulle part (revue de session 14, réserve 3 ;
+  choix du prototype assumé dans les notes v15, pas dans le produit). Remède : une phrase de légende
+  « la gestion des valeurs absentes est hors extrait », quand les extraits seront rouverts.
+
+- **[W21]** Les six valeurs `source` de `js/i18n.js` sont des gabarits dont le contenu commence à la
+  colonne 1 : toute réindentation entre dans la valeur et s'affiche, et rien ne le dit ni ne le garde
+  (revue de session 14, réserve 5). Remède : un commentaire d'une ligne au-dessus du premier gabarit
+  (chore), ou une porte de forme.
+
+- **[W22]** Aucune porte ne vérifie que les ancres internes (`href="#…"`) résolvent vers un `id`
+  existant : renommer `id="annexe"` casserait deux liens, suite verte (revue de session 15, réserve 1).
+  Remède : petite porte de résolution des ancres, incrément d'outillage.
+
+- **[W23]** Sur téléphone, rien n'indique visuellement qu'un cadre de code défile : pas d'ombre de bord,
+  pas de barre visible au repos sur iOS (observation de CC, 19 août 2026, hors périmètre de l'incrément).
+  Remède : indice de défilement (ombre de bord CSS), incrément de mise en scène.
+
+- **[W24]** **Le fil promet un état que rien ne met à jour.** Il écrit « l'état se met à jour à chaque
+  atterrissage » ; or `/land` ne touche **jamais** `tasks/ROADMAP.md` — sa liste de staging est fermée
+  (`package.json`, `CLAUDE.md`, `tasks/JOURNAL_*.md`, `tasks/lessons.md`). **Mesuré deux fois le
+  19 août 2026** : à l'ouverture de la session 15, le fil disait l'incrément n° 2 « en cours chez CC »
+  alors qu'il était atterri la veille, et portait l'arbitrage « Aucune description » comme tranché
+  ligne 139 et non tranché ligne 193 ; à la clôture de la même session, la mise à jour du n° 3 a dû
+  être faite à la main par le chef de projet, hors du geste d'atterrissage. **Même famille que [W14]**
+  (et que [W8], [W13]) : la règle est écrite, son site d'appel n'est gardé par rien — ici la règle est
+  même écrite dans le document qu'elle décrit. Remèdes possibles : (a) ajouter `tasks/ROADMAP.md` à la
+  liste de staging de `/land`, avec une étape qui recale la ligne de l'incrément atterri — le fil
+  devient alors un livrable du geste ; (b) l'assumer comme geste manuel du chef de projet et **retirer
+  la promesse** de la ligne 6, une promesse non tenue coûtant plus qu'une absence de promesse.
+  Incrément d'outillage.
+
+- **[W25]** **Aucune porte ne surveille la duplication littérale dans le dictionnaire.** Balayage du
+  `reviewer`, session 15, réserve 4 : **huit** valeurs dupliquées par langue — `site.title ==
+  about.name`, les **cinq** paires `nav.X == sectionN.title`, `about.portfolio == footer.portfolio`, et
+  le texte d'attente en **trois** exemplaires (`section4.intro`, `section5.intro`, `annexe.attente`).
+  La parité FR/EN est testée, l'identité de ces valeurs ne l'est pas : un renommage de titre fait
+  diverger sa paire de menu **en silence, suite verte**. Les paires nav/titre portent l'invariant que
+  l'entrée « Annexe » casse délibérément (arbitrage de session 15) — raison de plus pour que l'écart
+  soit **déclaré** plutôt que subi. Remède, proposition R&D du `reviewer` (format B) : comparer
+  l'ensemble des valeurs littéralement dupliquées à une **liste déclarée**, toute duplication neuve
+  devant être inscrite pour passer. Incrément d'outillage.
+
+- **Points de vigilance recopiés de `.pipeline/` avant qu'il ne s'écrase** (sessions 14 et 15) :
+  `attribut?.Nom` rend une valeur nulle pour une propriété sans attribut, comportement du prototype
+  reproduit à dessein ; le point final de la phrase de renvoi vit dans le lien souligné (cosmétique,
+  valeur gelée par le prompt).
+
 ## Décisions actées
+- **L'entrée de menu « Annexe » / « Appendix » reste nue, sans article** — arbitrage du chef de projet du
+  **19 août 2026** (option « assumer l'écart », réserve 2 de la revue de session 15). Deux motifs :
+  l'annexe n'est pas un chapitre du récit, sa distinction au menu est voulue ; et l'égalité entre entrée
+  de menu et titre de section était structurellement impossible ici, le titre étant en deux temps
+  (« Annexe : un fichier S/36 de près », argument de CC, vérifié).
+- **Arbitrage en attente — la casse des propriétés C# des extraits** : minuscule initiale (noms JSON repris
+  tels quels, décision des notes du 18 août) contre le PascalCase attendu d'un lecteur .Net (revue de
+  session 14, réserve 4). Recommandation du Tech Lead : une ligne de légende qui assume la minuscule,
+  à prendre quand les extraits seront rouverts.
 - **Un verdict `NEEDS_WORK` n'atterrit jamais** — arbitrage du chef de projet du **17 août 2026**,
   portée **précédent**. Il **révoque** celui de la session 7 (« atterrir sur un `NEEDS WORK` affiché,
   les points ayant été traités après la revue »). Après correction des réserves, le `reviewer` est

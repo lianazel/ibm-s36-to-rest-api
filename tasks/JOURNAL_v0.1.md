@@ -863,10 +863,10 @@ un document que rien n'oblige. **Même famille que [W14]** : la règle est écri
 n'est gardé par rien. Et le défaut se reproduit **à l'instant même** — cette entrée-ci atterrit, et la
 ligne n° 3 du fil dit encore « gelé, prêt à exécuter ».
 
-**À inscrire en dette [W19]**, et ce n'est pas fait par ce `/land` : sa liste de staging est fermée
+Inscrit en dette **[W24]** — et **pas par ce `/land`** : sa liste de staging est fermée
 (`package.json`, `CLAUDE.md`, `tasks/JOURNAL_*.md`, `tasks/lessons.md`) et **ne contient pas
-`tasks/ROADMAP.md`** — la démonstration du défaut par lui-même. Geste de feuille de route à poser sur
-`main`, signalé au chef de projet à la porte de push.
+`tasks/ROADMAP.md`**, la démonstration du défaut par lui-même. Posé juste après la clôture, sur `main`,
+dans le geste de feuille de route décrit plus bas.
 
 ### Le `reviewer` tué en vol, et l'artefact qui a survécu
 
@@ -902,8 +902,9 @@ porte. J'ai cité la leçon dans le document même où je l'enfreignais. Inscrit
 **3. Une dette que mes quatre points de vigilance ont manquée (réserve 1).** Aucune porte ne surveille
 la résolution des ancres internes — « l'incrément n'existe que pour que le renvoi ne pointe jamais
 dans le vide, et cette propriété-là est la seule de l'incrément qu'aucun test ne garde ». Un renommage
-d'`id="annexe"` à l'incrément n° 5 casserait deux liens **en silence, suite verte**. **À inscrire en
-dette [W20]**, même geste de feuille de route que [W19].
+d'`id="annexe"` à l'incrément n° 5 casserait deux liens **en silence, suite verte**. Inscrite en dette
+**[W22]** par le chef de projet, avec **[W23]** — l'absence d'indice de défilement des cadres de code
+sur téléphone, observation que j'avais faite hors périmètre en lisant ses captures.
 
 Il a par ailleurs **confirmé** mon point V2 (« balayage vérifié complet et exact par mon propre
 chemin ») et **validé** ma retenue sur le prompt gelé (réserve 6, pilier P4).
@@ -943,11 +944,11 @@ oubliée. Le `reviewer` ne l'avait pas formulé ; la capture l'a montré.
 ### Les écarts de l'incrément
 
 **Aucun écart de conformité au prompt** : 18 valeurs, 11 éléments, 8 preuves, 4 critères
-d'acceptation, tous satisfaits et mesurés. Trois constats hors périmètre, dont **deux dettes restant
-à inscrire** dans `tasks/ROADMAP.md`, hors de portée de ce `/land` : **[W19]** le fil que rien ne met
-à jour, **[W20]** les ancres internes que rien ne garde. Le troisième — la duplication littérale du
-dictionnaire (réserve 4) — rejoint [W20] : les deux propositions R&D du `reviewer` les ferment d'un
-même geste d'outillage.
+d'acceptation, tous satisfaits et mesurés. Trois constats hors périmètre, tous portés en dette dans
+`tasks/ROADMAP.md` juste après la clôture, ce `/land` n'y touchant pas : **[W22]** les ancres internes
+que rien ne garde, **[W24]** le fil que rien ne met à jour, **[W25]** la duplication littérale du
+dictionnaire. Les deux propositions R&D du `reviewer` ferment [W22] et [W25] d'un même geste
+d'outillage. S'y ajoute **[W23]**, née de la validation visuelle.
 
 **Signalement conservé** : le prompt gelé, publié dans un dépôt public, renvoie à un chapitre de
 `tasks/ROADMAP.md` qui n'existe pas sous ce nom (« Section Le problème — reste à faire »). Rien n'a
