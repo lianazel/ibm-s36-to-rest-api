@@ -74,6 +74,48 @@ export const dict = {
         title: "Un modèle de données écrit à la main, pour tester une idée",
         p1: "L'idée tient en une phrase. Si le fichier ne dit rien de lui-même, alors quelqu'un doit le dire à sa place, une fois, à un seul endroit. Ce quelqu'un est une classe écrite à la main. Chaque propriété y porte le nom que les gens emploient, et une étiquette posée au-dessus d'elle porte le nom physique de la colonne, celui d'au plus six caractères. Le programme relit ses propres étiquettes pendant qu'il tourne, ce qu'on appelle la réflexion, et il en tire un dictionnaire.",
         p2: "Ce dictionnaire travaille dans les deux sens. Il nomme ce qui sort, puisque le flux JSON renvoyé porte les noms métier. Il traduit ce qui entre, puisqu'un filtre écrit avec un nom métier devient un nom de colonne dans la requête. Une même donnée peut s'appeler autrement d'un fichier à l'autre et retomber pourtant sur un seul nom. C'est là que le fichier commence à parler.",
+        code1: {
+          legende: "Extrait recréé : l'attribut maison et les deux classes du cas fictif.",
+          source: `// L'attribut maison, déclaré une fois pour toutes
+[AttributeUsage(AttributeTargets.Property)]
+public sealed class ColonneS36Attribute : Attribute
+{
+    public string Nom { get; }
+    public ColonneS36Attribute(string nom) { Nom = nom; }
+}
+
+// Fichier CMLIV : le mode de livraison choisi par un client
+public class ModeLivraisonClient
+{
+    [ColonneS36("NOMCLI")] public string nomClient { get; set; }
+    [ColonneS36("PRECLI")] public string prenomClient { get; set; }
+    [ColonneS36("LIZEPO")] public string codeModeLivraison { get; set; }
+}
+
+// Fichier MODLIV : le référentiel des modes de livraison
+public class ModeLivraison
+{
+    [ColonneS36("CODLIV")] public string codeModeLivraison { get; set; }
+    [ColonneS36("LIBZLV")] public string libelleModeLivraison { get; set; }
+    [ColonneS36("DELJRG")] public int    delaiLivraisonJours { get; set; }
+}`,
+        },
+        code2: {
+          legende: "Extrait recréé : le dictionnaire « nom métier vers nom physique », rempli pendant que le programme tourne.",
+          source: `// Le dictionnaire « nom métier -> nom physique », construit pendant que le programme tourne
+public Dictionary<string, string> ChargerDictionnaire(Type modele)
+{
+    var dictionnaire = new Dictionary<string, string>();
+
+    foreach (var propriete in modele.GetProperties())
+    {
+        var attribut = propriete.GetCustomAttribute<ColonneS36Attribute>();
+        dictionnaire[propriete.Name.ToUpper()] = attribut?.Nom;
+    }
+
+    return dictionnaire;
+}`,
+        },
       },
       mur: {
         title: "L'idée fonctionne. La réalité me rattrape",
@@ -84,6 +126,42 @@ export const dict = {
         p1: "Les modèles dynamiques, en revanche, je ne les connaissais pas avant ce projet. Alors j'ai renversé le problème. Si le travail consiste à décrire des colonnes une par une, ce n'est pas un travail d'humain. C'est la requête qui porte les noms métier, en renommant ses colonnes au passage, et c'est la machine qui fabrique la classe correspondante.",
         p2: "Le mécanisme tient en quelques gestes. La requête n'est pas connue du code avant l'appel. Le programme regarde les colonnes qu'elle renvoie, relève leur nom et leur type, et construit une classe pendant qu'il tourne, une seule fois. Puis il parcourt les lignes et verse chaque valeur dans une instance de cette classe. Le modèle est un moule : fabriqué une fois, chaque ligne y est coulée. Le moule est jeté quand l'appel se termine, et rien n'en est conservé. Une autre requête au prochain appel donne un autre moule, sans qu'une ligne de code ait changé.",
         p3: "À ce stade, je cherchais une seule réponse : est-ce que l'idée tient. Ce qu'un appelant a le droit de demander est une question de produit, pas de prototype, et elle vient juste après.",
+        code3: {
+          legende: "Extrait recréé : les lignes relevées, la classe fabriquée une fois, chaque ligne versée ensuite. La fabrication elle-même est appelée, pas montrée.",
+          source: `// La requête vient d'être exécutée ; elle était inconnue du code jusqu'à l'appel.
+// Deux temps : relever les lignes et, sur la première, le nom et le type des colonnes ;
+// puis fabriquer la classe, une seule fois, et y verser chaque ligne.
+public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<string, object>> resultat)
+{
+    // > Une ligne = un dictionnaire (nom de colonne, valeur) <
+    var lignes = new List<IDictionary<string, object>>();
+    // > Le type de chaque colonne, relevé sur la première ligne seulement <
+    var typesColonnes = new Dictionary<string, Type>();
+
+    foreach (var ligne in resultat)
+    {
+        if (typesColonnes.Count == 0)
+            foreach (var colonne in ligne)
+                typesColonnes[colonne.Key] = colonne.Value.GetType();
+        lignes.Add(ligne);
+    }
+
+    // > Fabrication de la classe d'après les noms et les types : une seule fois <
+    Type modele = FabriquerModele(typesColonnes);
+
+    // > Chaque ligne versée dans une instance du moule <
+    var instances = new List<object>();
+    foreach (var ligne in lignes)
+    {
+        var instance = Activator.CreateInstance(modele);
+        foreach (var colonne in ligne)
+            modele.GetProperty(colonne.Key).SetValue(instance, colonne.Value);
+        instances.Add(instance);
+    }
+
+    return instances; // la liste part ensuite en JSON, avec la version et le nombre d'éléments
+}`,
+        },
       },
       etape: {
         title: "Le noyau tourne. Il restait une étape",
@@ -179,6 +257,48 @@ export const dict = {
         title: "A data model written by hand, to test an idea",
         p1: "The idea fits in one sentence. If the file says nothing about itself, then someone has to say it instead, once, in a single place. That someone is a class written by hand. Each property carries the name people actually use, and a tag placed above it carries the physical column name, at most six characters long. The program reads its own tags back while it runs, which is called reflection, and builds a dictionary from them.",
         p2: "That dictionary works both ways. It names what goes out, since the JSON returned carries the business names. It translates what comes in, since a filter written with a business name becomes a column name in the query. The same piece of data may go by another name in another file and still land on a single name. That is where the file starts to speak.",
+        code1: {
+          legende: "Recreated extract: the house attribute and the two classes of the fictional case.",
+          source: `// The house attribute, declared once and for all
+[AttributeUsage(AttributeTargets.Property)]
+public sealed class S36ColumnAttribute : Attribute
+{
+    public string Name { get; }
+    public S36ColumnAttribute(string name) { Name = name; }
+}
+
+// File CMLIV: the delivery mode chosen by a customer
+public class CustomerDeliveryMode
+{
+    [S36Column("NOMCLI")] public string customerLastName { get; set; }
+    [S36Column("PRECLI")] public string customerFirstName { get; set; }
+    [S36Column("LIZEPO")] public string deliveryModeCode { get; set; }
+}
+
+// File MODLIV: the delivery mode reference table
+public class DeliveryMode
+{
+    [S36Column("CODLIV")] public string deliveryModeCode { get; set; }
+    [S36Column("LIBZLV")] public string deliveryModeLabel { get; set; }
+    [S36Column("DELJRG")] public int    deliveryLeadTimeDays { get; set; }
+}`,
+        },
+        code2: {
+          legende: "Recreated extract: the business-name-to-physical-name dictionary, filled while the program runs.",
+          source: `// The "business name -> physical name" dictionary, built while the program runs
+public Dictionary<string, string> LoadDictionary(Type model)
+{
+    var dictionary = new Dictionary<string, string>();
+
+    foreach (var property in model.GetProperties())
+    {
+        var attribute = property.GetCustomAttribute<S36ColumnAttribute>();
+        dictionary[property.Name.ToUpper()] = attribute?.Name;
+    }
+
+    return dictionary;
+}`,
+        },
       },
       mur: {
         title: "The idea works. Reality catches up with me",
@@ -189,6 +309,42 @@ export const dict = {
         p1: "Dynamic models, though, were new to me when I started this. So I turned the problem around. If the work consists of describing columns one by one, it is not work for a human. The query carries the business names, renaming its columns as it goes, and the machine builds the matching class.",
         p2: "The mechanism comes down to a few moves. The query is unknown to the code until the call. The program looks at the columns it returns, notes their name and their type, and builds a class while it runs, once only. Then it walks the rows and pours each value into an instance of that class. The model is a mould: cast once, every row is poured into it. The mould is thrown away when the call ends, and nothing is kept. Another query on the next call gives another mould, without a single line of code having changed.",
         p3: "At that stage I was after one answer: does the idea hold. What a caller is allowed to ask for is a product question, not a prototype one, and it comes right after.",
+        code3: {
+          legende: "Recreated extract: the rows collected, the class built once, every row poured afterwards. The building itself is called, not shown.",
+          source: `// The query has just been run; it was unknown to the code until the call.
+// Two passes: collect the rows and, on the first one, the name and the type of each column;
+// then build the class, once only, and pour every row into it.
+public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>> result)
+{
+    // > One row = one dictionary (column name, value) <
+    var rows = new List<IDictionary<string, object>>();
+    // > The type of each column, read on the first row only <
+    var columnTypes = new Dictionary<string, Type>();
+
+    foreach (var row in result)
+    {
+        if (columnTypes.Count == 0)
+            foreach (var column in row)
+                columnTypes[column.Key] = column.Value.GetType();
+        rows.Add(row);
+    }
+
+    // > Building the class from the names and the types: once only <
+    Type model = BuildModel(columnTypes);
+
+    // > Every row poured into an instance of the mould <
+    var instances = new List<object>();
+    foreach (var row in rows)
+    {
+        var instance = Activator.CreateInstance(model);
+        foreach (var column in row)
+            model.GetProperty(column.Key).SetValue(instance, column.Value);
+        instances.Add(instance);
+    }
+
+    return instances; // the list then goes out as JSON, with the version and the item count
+}`,
+        },
       },
       etape: {
         title: "The core runs. One step was left",
