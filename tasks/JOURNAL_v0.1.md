@@ -833,3 +833,137 @@ pas besoin d'être réécrite, elle a besoin d'être tenue.
 | Emplacement de `code3` dans le dictionnaire | **Fin du groupe `renversement`** (après `p3`), alors qu'il s'affiche entre `p2` et `p3` | Le prompt fixe l'emplacement HTML, pas l'ordre des clés. Homogénéité avec `modele`, où les codes suivent le dernier paragraphe. Aucun effet : `applyI18n` résout par chemin, pas par rang | cas d'espèce |
 | Niveau de bump | **Patch** 0.1.11 → 0.1.12, **sans redemander au chef de projet** | Règle inscrite en portée `précédent` depuis la session 12. Le défaut `feat/*` vaut minor, soit 0.2.0 — l'étiquette du jalon 2, alors que le fil de la ROADMAP compte encore six incréments avant la fin du jalon 1. **Onzième** inscription | précédent |
 | Les six réserves `WARN` d'un verdict `SHIP` | **Non corrigées**, affichées telles quelles | Consigne du prompt. Les réserves 1, 3 et 4 visent du code et du HTML que le prompt gèle explicitement ; la 4 est un arbitrage qui appartient au chef de projet | cas d'espèce |
+
+## Session 15 — 19 août 2026 — EVOL `probleme-renvoi-et-annexe` (merge `dfbacad`, 0.1.12 → 0.1.13)
+
+**Prompt** : `prompts/v0.1/EVOL_probleme-renvoi-et-annexe_v1.md` · **Branche** :
+`feat/probleme-renvoi-et-annexe` (2 commits) · **Suite** : **134/134, rc 0**, inchangée · **Revue** :
+**1 passe**, verdict **`SHIP`**, **6 réserves `WARN`**, **aucun `FAIL`**, 2 propositions R&D (format B).
+
+**L'arbitrage « Aucune description » est mort.** Ouvert à la session 11, porté sans être tranché aux
+sessions 12 et 13, il est décidé le 19 août par le chef de projet — **troisième voie** — et livré le
+même jour. Le site cessait de dire ce qui manque *globalement* pour le dire *précisément* : le fichier
+donne des positions et des noms d'au plus six caractères, jamais ce qu'ils veulent dire.
+`section2.intro` et `section3.modele.p1` réécrites **ensemble**, dans les deux langues, parce que les
+traiter séparément aurait recréé l'écart d'une section à l'autre — la raison même pour laquelle cet
+arbitrage était resté ouvert trois sessions. S'y ajoutent la phrase de renvoi et la section
+« Annexe » amorcée : 62 → 69 clés par côté, parité stricte, **+7 des deux côtés, −0**.
+
+### Le fil de la feuille de route ment à chaque atterrissage, et rien ne le corrige
+
+Découverte d'ouverture de session, corrigée avant de brancher (`b499619`) : le fil disait l'incrément
+n° 2 **« en cours chez CC »** alors qu'il était atterri en 0.1.12 la veille, et l'arbitrage
+« Aucune description » y était **déclaré tranché ligne 139 et non tranché ligne 193**, dans le même
+document.
+
+La cause n'est pas l'inattention. Le fil promet en toutes lettres que « l'état se met à jour à chaque
+atterrissage » — et **aucun geste ne le met à jour** : `/land` écrit le manifeste, le pied de
+`CLAUDE.md`, le journal, la leçon et le statut, jamais `tasks/ROADMAP.md`. La promesse est portée par
+un document que rien n'oblige. **Même famille que [W14]** : la règle est écrite, son site d'appel
+n'est gardé par rien. Et le défaut se reproduit **à l'instant même** — cette entrée-ci atterrit, et la
+ligne n° 3 du fil dit encore « gelé, prêt à exécuter ».
+
+**À inscrire en dette [W19]**, et ce n'est pas fait par ce `/land` : sa liste de staging est fermée
+(`package.json`, `CLAUDE.md`, `tasks/JOURNAL_*.md`, `tasks/lessons.md`) et **ne contient pas
+`tasks/ROADMAP.md`** — la démonstration du défaut par lui-même. Geste de feuille de route à poser sur
+`main`, signalé au chef de projet à la porte de push.
+
+### Le `reviewer` tué en vol, et l'artefact qui a survécu
+
+Premier `reviewer` **tué par le watchdog** (600 s sans progression), sur son dernier signal : *« All
+checks reproduced. Now I write the review document. »* Il avait **déjà écrit** `review.json` :
+contrat `twaim.review/1`, base et commit exacts, `SHIP`, 6 réserves, 2 propositions R&D — fichier
+complet, `--shape` au vert, pré-garde de `/land` au vert. Ce qui est perdu est son compte rendu
+narratif, pas sa revue.
+
+C'est la leçon du 18 août (« sous coupure, l'artefact s'écrit tôt et s'enrichit ensuite ») qui a payé,
+et sa **première vérification en production**. La circonstance a été signalée au chef de projet avant
+le verdict, pour qu'il pondère lui-même la confiance : un artefact conforme écrit par un agent mort
+juste après reste un artefact dont personne n'a entendu l'auteur conclure.
+
+### La revue : mes chiffres tiennent, mes balayages non
+
+Le `reviewer` a tout recompté par son propre chemin et n'a **redressé aucun de mes nombres**. Ce qu'il
+a trouvé porte, pour la quatrième session d'affilée, sur ce que je **déduis** de mes mesures.
+
+**1. Un invariant tenu 5 fois sur 5, cassé sans que personne l'ait vu (réserve 2).** `nav.X` égale
+`sectionN.title` pour les cinq sections, et les cinq portent un article défini ; `nav.annexe` vaut
+« Annexe » quand `annexe.title` vaut « Annexe : un fichier S/36 de près ». Je n'avais pas mesuré cet
+invariant, donc je ne pouvais pas voir que je le cassais. « Ce n'est pas un défaut d'exécution, c'est
+un arbitrage éditorial pris par la bande, jamais soumis. »
+
+**2. Mon point de vigilance nommait le bon motif au mauvais périmètre (réserve 4).** J'avais déclaré
+la duplication du texte d'attente — 3 exemplaires par langue, balayage juste **sur son objet** — en
+citant explicitement dans `changes.md` la leçon du 19 août. Le `reviewer` a balayé **le motif** :
+huit valeurs littéralement dupliquées par langue (`site.title==about.name`, les cinq paires
+nav/titre, `about.portfolio==footer.portfolio`, plus l'attente en triple), aucune surveillée par une
+porte. J'ai cité la leçon dans le document même où je l'enfreignais. Inscrite au registre local.
+
+**3. Une dette que mes quatre points de vigilance ont manquée (réserve 1).** Aucune porte ne surveille
+la résolution des ancres internes — « l'incrément n'existe que pour que le renvoi ne pointe jamais
+dans le vide, et cette propriété-là est la seule de l'incrément qu'aucun test ne garde ». Un renommage
+d'`id="annexe"` à l'incrément n° 5 casserait deux liens **en silence, suite verte**. **À inscrire en
+dette [W20]**, même geste de feuille de route que [W19].
+
+Il a par ailleurs **confirmé** mon point V2 (« balayage vérifié complet et exact par mon propre
+chemin ») et **validé** ma retenue sur le prompt gelé (réserve 6, pilier P4).
+
+### La validation visuelle a tranché ce que la revue ne pouvait pas atteindre
+
+Aperçu par tunnel éphémère, iPhone 14 réel, onze captures du chef de projet. **La réserve 5 est
+levée** : le panneau à six entrées tient sans défilement dans les deux langues, le bloc « À propos »
+reste entièrement visible. Le bilingue est vérifié de bout en bout sur les sept clés ajoutées, et
+l'anneau de `:focus-visible` se voit à l'ouverture du panneau.
+
+Et l'écran a rendu la **réserve 2** décidable : cinq entrées à article défini, puis « Annexe » nu.
+C'est en la regardant que l'argument manquant est apparu — `annexe.title` est le **premier titre de
+section à deux temps** du site, avec un sous-titre après le deux-points ; aucune entrée de menu ne
+pouvait le reprendre en entier. L'égalité menu = titre était **structurellement impossible**, pas
+oubliée. Le `reviewer` ne l'avait pas formulé ; la capture l'a montré.
+
+### Ce que j'ai fait de mon propre chef
+
+- **Prouver l'égalité des valeurs par machine** : prompt parsé, **16 valeurs, 1 523 caractères,
+  0 écart** — comparateur **éprouvé 3/3 avant d'être cru** (espace surnuméraire, apostrophe
+  typographique, caractère manquant).
+- **Refaire la preuve 8 sans motif codé en dur**, par préfixe et suffixe communs : **une seule zone
+  contiguë diffère** par langue, reconstruction exacte. Ma première version codait l'apostrophe
+  U+2019 quand le fichier emploie U+0027 — elle échouait en français et passait en anglais, qui n'en
+  porte aucune. C'était **l'instrument** qui était faux.
+- **Reprendre une preuve dont la légende mentait** : la preuve 6 affichait `rc=$?` en le présentant
+  comme le code de `grep`, c'était celui de `head`, qui réussit toujours. Reprise avant d'être écrite.
+- **Mesurer l'état « avant » sans rien écrire hors du dépôt**, en important la version de `main`
+  depuis une URI `data:` — le prompt écartait `AGENT_SCOPE_METHOD` en affirmant que rien n'est écrit
+  hors du dépôt, et cette affirmation devait rester vraie.
+- **Compter les cadratins en occurrences et pas seulement en lignes** : `grep -c` seul aurait manqué
+  un cadratin ajouté sur une ligne qui en porte déjà un. Même renfort qu'à la session 14.
+- **Vérifier que la section neuve ne pose aucun crochet inerte** — `#annexe` ne porte aucune classe,
+  donc aucune règle CSS promise puis absente : le défaut exact de [W18].
+
+### Les écarts de l'incrément
+
+**Aucun écart de conformité au prompt** : 18 valeurs, 11 éléments, 8 preuves, 4 critères
+d'acceptation, tous satisfaits et mesurés. Trois constats hors périmètre, dont **deux dettes restant
+à inscrire** dans `tasks/ROADMAP.md`, hors de portée de ce `/land` : **[W19]** le fil que rien ne met
+à jour, **[W20]** les ancres internes que rien ne garde. Le troisième — la duplication littérale du
+dictionnaire (réserve 4) — rejoint [W20] : les deux propositions R&D du `reviewer` les ferment d'un
+même geste d'outillage.
+
+**Signalement conservé** : le prompt gelé, publié dans un dépôt public, renvoie à un chapitre de
+`tasks/ROADMAP.md` qui n'existe pas sous ce nom (« Section Le problème — reste à faire »). Rien n'a
+été modifié — un prompt gelé ne se corrige pas en cours d'exécution.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| Ordre entre le gel du prompt, la correction de la ROADMAP et l'ouverture de la branche | **ROADMAP d'abord, commitée sur `main`** (`b499619`), puis gel, puis branche — choix du chef de projet parmi trois voies exposées | La ROADMAP est un document de `main`, précédent de la session 14. Corrigée après le branchement, elle aurait atterri dans le merge de l'incrément ; arrivée après la revue, elle l'aurait fait refuser par la garde de fraîcheur — ce qui a coûté un `cherry-pick` et un `reset --hard` la veille | cas d'espèce |
+| Prérequis 1 du prompt en écart, `origin/main..main` = 1, du fait de mon propre commit de ROADMAP | **Arrêt et signalement** avant tout `checkout -b` ; le chef de projet pousse, puis reprise | Le prompt dit « sinon ARRÊTE-TOI », et le push est un geste du chef de projet. L'écart était produit mécaniquement par l'ordre retenu : c'est le prix de la propreté qu'il achetait, pas un défaut | cas d'espèce |
+| Le `mv` de gel refusé une première fois par le chef de projet | **Non rejoué de moi-même** ; question posée, puis exécuté une fois l'ordre choisi | Un geste refusé ne se rejoue pas à l'identique. La demande suivante nommait le prompt sous sa forme gelée, et l'ÉTAPE 1 rend le gel mécaniquement obligatoire — mais cela s'établit, cela ne se suppose pas | **précédent** |
+| Emplacement du groupe `annexe` dans le dictionnaire | **Après `section5`, avant `about`** | Le prompt dit « après `section5` et avant `footer` » : `about` vit entre les deux, **deux** positions satisfont la consigne. `annexe` est une section de `main`, `about` est le panneau — l'ordre du dictionnaire suit celui du document. Aucun effet : `applyI18n` résout par chemin | cas d'espèce |
+| Réserve 2 — l'entrée de menu « Annexe » / « Appendix » nue face à cinq entrées à article défini | **Écart assumé et inscrit**, décision du chef de projet sur pièce visuelle | L'annexe n'est pas un chapitre du récit : `CLAUDE.md` dit « cinq sections, dans l'ordre du récit », elle est la sixième, hors récit, et le séparateur qui la suit la place déjà à part. L'égalité menu = titre était de toute façon impossible, `annexe.title` étant le premier titre à deux temps du site | **précédent** |
+| Niveau de bump | **Patch** 0.1.12 → 0.1.13, **sans redemander** | Règle en portée `précédent` depuis la session 12. Le défaut `feat/*` vaut minor, soit 0.2.0 — l'étiquette du jalon 2, alors que le fil compte encore cinq incréments avant la fin du jalon 1. **Douzième** inscription | précédent |
+| Les six réserves `WARN` d'un verdict `SHIP` | **Non corrigées**, affichées telles quelles | Consigne du prompt. Les réserves 1, 3 et 4 visent du code, du HTML et des portes que le prompt gèle ; la 2 et la 6 appartiennent au chef de projet | cas d'espèce |
+| Le `reviewer` mort au watchdog après avoir écrit son `review.json` | **Revue retenue**, circonstance signalée au chef de projet **avant** le verdict | Le fichier est complet, conforme au contrat, et porte le SHA exact de la pointe. Le relancer aurait jeté une revue valide ; la taire aurait privé le chef de projet d'un élément pour pondérer sa confiance | **précédent** |
+| Le trailer `Co-Authored-By` porté par `b499619`, seul commit du dépôt à en avoir un | **Non corrigé**, signalé | Le commit est **déjà poussé** : le reprendre réécrirait de l'historique public, geste destructif hors de l'inventaire fermé. Les commits suivants s'en tiennent à la forme du dépôt | cas d'espèce |
+| Le brouillon `DRAFT_EVOL_dessins-section-3_v1.md`, apparu en cours de session | **Laissé intact et non suivi**, jamais ouvert, non inscrit au fil | Le fil est le document de décision du chef de projet, et rien ne disait où ranger cet incrément. L'inscrire aurait été décider de l'ordre des travaux à sa place | cas d'espèce |

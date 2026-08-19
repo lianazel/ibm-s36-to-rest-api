@@ -2,6 +2,40 @@
 
 > Une leçon = une erreur commise ici, datée, avec la règle qui l'empêche de revenir.
 
+## 19 août 2026 — Citer une leçon n'est pas la tenir : le balayage porte sur le motif, jamais sur l'objet qui l'a révélé
+
+**Type** : Erreur
+**Contexte** : EVOL `probleme-renvoi-et-annexe` (merge `dfbacad`). La veille, la session 14 avait
+inscrit « déclarer, c'est balayer ». Je l'ai appliquée : j'ai repéré que `annexe.attente` reprend mot
+pour mot `section4.intro` et `section5.intro`, j'ai balayé le fichier entier, trouvé les **six**
+occurrences (trois par langue), donné leurs numéros de ligne, et **cité la leçon en exergue** du point
+de vigilance dans `changes.md`.
+**Erreur** : le balayage portait sur **l'objet** — le texte d'attente — et non sur le **motif** que je
+venais moi-même de nommer : « une duplication littérale de valeur qu'aucune porte ne surveille ». Le
+`reviewer` a balayé le motif et trouvé **huit** valeurs dupliquées par langue là où j'en déclarais
+une : `site.title == about.name`, les **cinq** paires `nav.X == sectionN.title`,
+`about.portfolio == footer.portfolio`, plus l'attente en triple. Les paires nav/titre étaient les plus
+coûteuses — elles portaient l'invariant que le même incrément cassait sans le voir (réserve 2). J'ai
+donc enfreint la leçon **dans le paragraphe même où je la citais**.
+**Correction** : un point de vigilance se rédige en **deux temps séparés**, et le premier n'est pas
+celui qu'on croit. (1) **Nommer le motif** en une phrase qui ne contient **aucun nom propre** : pas
+« le texte d'attente est en triple », mais « une valeur littéralement dupliquée n'est surveillée par
+rien ». (2) **Chercher cette phrase**, pas l'exemple qui l'a fait naître. Règle mécanique : si
+l'énoncé du balayage contient le nom de l'objet qui a déclenché le constat, le balayage n'a pas
+commencé — il s'est arrêté à son point de départ. Et **citer une leçon n'est pas un gage** : c'est
+même le moment où la vigilance retombe, parce que la citation donne le sentiment du travail fait.
+**Parenté** : c'est la **suite immédiate** de « déclarer, c'est balayer » (19 août), et sa correction.
+Là, j'avais déclaré sans balayer ; ici, j'ai balayé, mais le mauvais ensemble. Quatrième session
+consécutive sur la même racine : le code est juste, mes mesures sont exactes — c'est le **périmètre**
+de ce que j'affirme qui est trop étroit. La famille compte aussi « une affirmation réfutée se retire
+de tous ses domiciles » (16 août) et « le remboursement balaie le dépôt, pas le produit » (19 août).
+**Portée du dégât** : nulle sur le livré — six réserves `WARN`, verdict `SHIP`, aucune mesure fausse.
+Le dégât est ailleurs : une dette a été énoncée à un huitième de sa taille réelle, et une dette
+sous-évaluée se rembourse mal.
+**Applicable globalement ?** : à arbitrer par le chef de projet. À mon sens **oui** : vaut pour toute
+revue, tout audit, toute stack, et vise un réflexe précis — écrire le motif avant l'exemple, et se
+relire en cherchant si l'exemple a repris la place du motif.
+
 ## 19 août 2026 — Un défaut déclaré une fois se cherche partout où il peut être : déclarer, c'est balayer
 
 **Type** : Erreur
