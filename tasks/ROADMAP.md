@@ -167,10 +167,11 @@ frontale dès la première capture SQL.
 2. **Adopter la formule de l'arbitrage 7** — exact, mais affaiblit l'argument central : c'est parce que
    le fichier est muet que le modèle à attributs existe. Impose de réécrire les deux sections.
 3. **Recommandation du Tech Lead — dire ce qui manque *précisément* plutôt que globalement.** Le
-   fichier ne porte **aucun sens** : il donne des positions et des noms de six caractères, jamais ce
-   qu'ils veulent dire. L'argument du modèle à attributs tient entier, et aucune capture SQL ne peut le
-   démentir — la requête montre exactement cela, des noms opaques sans leur sens. C'est aussi la seule
-   voie compatible avec les deux sections déjà livrées sans en renverser le propos.
+   fichier ne porte **aucun sens** : il donne des positions et des noms d'au plus six caractères,
+   jamais ce qu'ils veulent dire. L'argument du modèle à attributs tient entier, et aucune capture
+   SQL ne peut le démentir — la requête montre exactement cela, des noms opaques sans leur sens.
+   C'est aussi la seule voie compatible avec les deux sections déjà livrées sans en renverser le
+   propos.
 
 Quelle que soit la voie retenue, l'arbitrage porte sur **`section2.intro` et `section3.modele.p1`
 ensemble** : les traiter séparément recréerait l'écart d'une section à l'autre.
