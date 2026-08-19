@@ -654,3 +654,77 @@ La note est fausse, pas le livrable — à corriger avant qu'elle n'empoisonne l
 | Le `review.json` périmé de la session 11 | **Supprimé**, sur demande du chef de projet, après copie hors dépôt | Il n'était dans aucun commit (`.pipeline/` gitignoré) : l'effacer supprimait le seul exemplaire, d'où la sauvegarde préalable. Bénéfice : l'absence de `review.json` est un **état franc** — la revue n'a jamais eu lieu — là où un document répondant à côté oblige la garde à le réfuter | cas d'espèce |
 | Les quatre réserves `WARN` d'un verdict `SHIP` | **Non corrigées**, affichées telles quelles | Consigne explicite du prompt. Même remarque qu'aux sessions 10 et 11 : corriger un artefact de `.pipeline/` n'aurait pas invalidé la revue, ces fichiers n'étant pas commités. La retenue vient de la consigne | cas d'espèce |
 | Niveau de bump | **Patch** 0.1.9 → 0.1.10, sur arbitrage explicite du chef de projet | La commande n'avait reçu aucun `bump=` et son défaut pour `feat/*` vaut **minor** — soit 0.2.0, l'étiquette du **jalon 2** dans la ROADMAP, alors que le jalon 1 est inachevé. Question posée avant le marqueur `LANDING`, un numéro de version étant difficile à défaire une fois publié. **Neuvième** inscription de cette règle | précédent |
+
+## Session 13 — 19 août 2026 — EVOL `vocabulaire-et-marques` (merge `c791bbf`, 0.1.10 → 0.1.11)
+
+**Prompt** : `prompts/v0.1/EVOL_vocabulaire-et-marques_v1.md` · **Branche** : `feat/vocabulaire-et-marques`
+(2 commits) · **Suite** : **134/134, rc 0**, inchangée · **Revue** : **1 passe**, verdict **`SHIP`**,
+**5 réserves `WARN`**, **aucun `FAIL`**, 2 propositions R&D (format B).
+
+Six valeurs, trois clés, deux langues, **6 lignes ajoutées et 6 retirées** dans `js/i18n.js` — seul
+fichier de code touché. Aucune clé ajoutée, retirée ni renommée : **56 clés pointées de chaque côté**,
+avant comme après. `index.html` intact.
+
+Deux corrections de même nature. **La dette de la réserve n° 1 de la session 12 est éteinte** :
+« des noms de colonnes **de** six caractères » devient « **d'au plus** six caractères », aux **deux**
+endroits du produit et dans les deux langues — la corriger dans une seule section aurait recréé
+l'écart d'une section à l'autre. Le `reviewer` a vérifié qu'aucune autre affirmation à longueur fixe
+ne subsiste dans le code livré. Et le pied de page gagne la mention générique des marques, qui couvre
+Unibol, `.Net` et Power, tous cités au dictionnaire et jusqu'ici découverts.
+
+### Deux commits documentaires sur `main` avant l'incrément
+
+`9e18f88` (chef de projet) ouvre un chapitre de feuille de route pour la suite de « La solution ».
+`7dd019d` (moi, sur sa décision) y inscrit **l'arbitrage 7 comme arbitrage en attente**, avec ses trois
+voies. Motif : l'arbitrage n'existait **que** dans ce journal — trois occurrences ici, zéro dans
+`ROADMAP.md` et `CLAUDE.md` — c'est-à-dire dans le document qu'on lit en regardant en arrière, alors
+qu'il engage un incrément à venir. Mesuré avant de l'affirmer.
+
+### La revue : zéro chiffre à redresser, et deux corrections qui portent sur mon raisonnement
+
+Deuxième session consécutive où les **onze séries de nombres** de mes artefacts sont recomptées par le
+`reviewer` et **toutes trouvées exactes**. Les 6 valeurs sont confirmées à 0 écart par son propre
+chemin. Ce qu'il a trouvé ne porte plus sur mes mesures mais sur ce que j'en déduis.
+
+**1. Ma recommandation portait le défaut qu'elle corrigeait (réserve 2).** La **troisième voie** de
+l'arbitrage 7, que j'ai rédigée la veille dans `ROADMAP.md` l. 170, dit « il donne des positions et des
+noms **de six caractères** » — exactement la formulation à longueur fixe que cet incrément vient
+d'éteindre. J'avais signalé dans `changes.md` que ces deux valeurs seraient réécrites si la voie 3
+était retenue ; je n'avais pas vu que **le texte de la réécriture proposée portait déjà la
+régression**. La dette remboursée aujourd'hui serait revenue par la porte de la recommandation.
+Leçon inscrite au registre local.
+
+**2. « Écrit à l'identique » était plus fort que ma mesure (réserve 3).** J'avais qualifié de motif le
+critère « un seul fichier » des sessions 11, 12 et 13, en écrivant qu'il était « écrit à l'identique ».
+Le `reviewer` a ouvert les trois prompts : « un fichier », « deux fichiers », « un seul fichier ». Le
+motif tient — 3 occurrences sur 3 — mais il porte sur la **méthode de comptage** (`main...HEAD --stat`,
+structurellement incompatible avec §4.1), pas sur le libellé. **La leçon existait déjà** (« coder ou
+dire, pas d'adverbe entre les deux », 17 août) et je l'ai enfreinte quand même, sur un adverbe qui
+surexposait un constat par ailleurs juste. Consigné ici sans nouvelle entrée au registre : une leçon
+enfreinte n'a pas besoin d'être réécrite, elle a besoin d'être tenue.
+
+**3. Le `reviewer` a de nouveau refusé d'inventer une réserve UX**, mesures à l'appui (`p` en flux,
+`max-width` 42rem, aucune hauteur fixe ni contrainte d'`overflow`) — mais en vérifiant il a trouvé
+autre chose : `index.html:132` porte `class="disclaimer"` et **aucune règle `.disclaimer` n'existe dans
+`css/styles.css`**. Crochet inerte depuis sa pose, antérieur à cet incrément — sauf que c'est
+précisément ce paragraphe qui devient le plus long du pied de page (réserve 5).
+
+### Les deux écarts de l'incrément
+
+1. **La preuve 2 compte les fichiers sur `main...HEAD`** — donc deux, la règle §4.1 imposant le commit
+   du prompt sur la branche. **Troisième incrément consécutif** dans ce cas. Rendue sous trois formes.
+   La correction appartient à la rédaction des prompts : compter sur le **commit livrable**, ou écrire
+   « N fichiers **plus le prompt** ». Proposée en R&D par le `reviewer` (format B).
+2. **L'incrément rouvre les deux valeurs sous arbitrage 7 sans le trancher** : il ne touche que le
+   membre « six caractères » et laisse intacts « Aucune description » et « Si le fichier ne dit rien de
+   lui-même ». Ne tranche rien, n'aggrave rien — mais si la voie 3 est retenue, « d'au plus six
+   caractères » devra survivre à la réécriture.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| `tasks/ROADMAP.md` modifiée et non commitée au moment de brancher | **Commitée sur `main`** (`7dd019d`) avant l'incrément, sur décision du chef de projet | Elle aurait suivi sur la branche et sali la revue. Je l'avais laissée non commitée parce que la ROADMAP est le document de décision du chef de projet — d'où la question plutôt que le geste | cas d'espèce |
+| Inscrire l'arbitrage 7 à la feuille de route | **Oui, comme arbitrage en attente**, trois voies exposées, la troisième étiquetée recommandation | Il n'existait que dans ce journal, qui regarde en arrière, alors qu'il engage un incrément futur. Mesuré : 3 occurrences au journal, 0 dans `ROADMAP.md` et `CLAUDE.md` | cas d'espèce |
+| Niveau de bump | **Patch** 0.1.10 → 0.1.11, **sans redemander au chef de projet** | La session 12 a inscrit cette règle en portée **`précédent`** : c'est ce que ce mot engage. Redemander aurait été rejouer une décision déjà prise. Jalon 1 toujours inachevé. **Dixième** inscription | précédent |
+| Les cinq réserves `WARN` d'un verdict `SHIP` | **Non corrigées**, affichées telles quelles | Consigne du prompt. La réserve 2 vise `tasks/ROADMAP.md`, document du chef de projet : la corriger de moi-même aurait été trancher l'arbitrage 7 par la bande | cas d'espèce |

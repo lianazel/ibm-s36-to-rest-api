@@ -2,6 +2,42 @@
 
 > Une leçon = une erreur commise ici, datée, avec la règle qui l'empêche de revenir.
 
+## 19 août 2026 — Rembourser une dette n'atteint pas les textes qui décrivent l'avenir, et la recommandation portait le défaut qu'elle corrigeait
+
+**Type** : Erreur
+**Contexte** : EVOL `vocabulaire-et-marques` (merge `c791bbf`), incrément dont **tout l'objet** était
+d'éteindre une dette de vocabulaire : « des noms de colonnes **de** six caractères » → « **d'au plus**
+six caractères », aux deux endroits du produit et dans les deux langues. Balayage vérifié : plus
+aucune affirmation à longueur fixe dans le code livré.
+**Erreur** : la veille, j'avais rédigé dans `tasks/ROADMAP.md` la **troisième voie** de l'arbitrage 7 —
+ma propre recommandation pour la réécriture future de ces deux mêmes valeurs — et elle dit « il donne
+des positions et des noms **de six caractères** ». La formulation exacte que l'incrément du lendemain
+allait éteindre. J'ai même **signalé dans `changes.md`** que ces deux valeurs seraient réécrites si la
+voie 3 était retenue, sans voir que **le texte de cette réécriture portait déjà la régression**. Un
+remboursement qui serait revenu par la porte de la recommandation, avec ma signature dessus. Trouvé
+par le `reviewer`, pas par moi.
+**Correction** : le périmètre d'un remboursement de dette **n'est pas le produit, c'est le dépôt**.
+Quand une formulation est déclarée fautive, la balayer dans les **quatre familles** de textes, pas
+seulement la première : (1) le code livré ; (2) les documents de décision qui décrivent l'avenir —
+feuille de route, recommandations, prompts non encore exécutés ; (3) les artefacts de l'incrément en
+cours ; (4) ses propres écrits du jour. Règle mécanique : après avoir corrigé la formulation fautive,
+relancer le `grep` **sur tout le dépôt** et regarder chaque occurrence restante en se demandant « ce
+texte va-t-il être recopié quelque part ? ». Une occurrence dans un texte **prescriptif** est pire
+qu'une occurrence dans le produit : le produit se corrige une fois, la prescription se réinjecte.
+**Parenté** : même famille que « une affirmation réfutée se retire de **tous ses domiciles** »
+(16 août), et c'est sa **troisième** occurrence. Ce qu'elle ajoute : les domiciles ne sont pas
+seulement les endroits où l'affirmation a **été** écrite, mais ceux où elle sera **recopiée** — un
+texte tourné vers l'avenir est un domicile qui n'existe pas encore, et c'est le seul que le balayage
+du présent ne trouve pas.
+**Portée du dégât** : nulle sur le livré — cinq réserves `WARN`, verdict `SHIP`. Les onze séries de
+chiffres de mes artefacts ont été recomptées et trouvées **toutes exactes**, deuxième session
+consécutive : le défaut ne porte plus sur mes mesures, il porte sur ce que j'en déduis et sur ce que
+j'écris pour plus tard.
+**Applicable globalement ?** : à arbitrer par le chef de projet. À mon sens **oui**, comme extension
+de la leçon du 16 août : tout remboursement de dette (renommage, dépréciation, correction de
+terminologie, changement d'API) doit balayer la documentation **prescriptive** avant de se déclarer
+fini, sans quoi il se réintroduit à la première reprise du texte.
+
 ## 18 août 2026 — Un écart se caractérise contre sa propre source, pas contre celle d'à côté
 
 **Type** : Erreur
