@@ -1,5 +1,26 @@
 # ROADMAP — IBMiAPI
 
+## Le fil — ordre des incréments, état au 19 août 2026 au soir
+
+**Ce tableau est le fil. Le reste du document en est la pièce justificative.** Une ligne par incrément, dans
+l'ordre où ils passent ; l'état se met à jour à chaque atterrissage. Quand on se perd, on revient ici.
+
+| # | Incrément | Prompt | État | Ce qu'il porte, en une ligne |
+|---|---|---|---|---|
+| 1 | EVOL vocabulaire-et-marques | `EVOL_vocabulaire-et-marques_v1` | **atterri**, 0.1.11 (session 13) | « au plus six caractères » aux sections 2 et 3 ; phrase générique de marques |
+| 2 | EVOL extraits-de-code | `EVOL_extraits-de-code_v1` | **en cours chez CC** (branche `feat/extraits-de-code`) | trois extraits recréés, visibles, sous les temps 1 et 3 ; motif du cadre de code |
+| 3 | EVOL probleme-renvoi-et-annexe | `DRAFT_EVOL_probleme-renvoi-et-annexe_v1` | **brouillon déposé**, à geler après l'atterrissage du n° 2 | « aucune description » tranché (troisième voie), intro de la section 2 réécrite, phrase de renvoi, section « Annexe » amorcée (titre, détour technique, texte d'attente, retour, menu) |
+| 4 | EVOL boîte à outils | à rédiger | à venir | tableau ordonné des neuf classes, dans un bloc dépliable ; **établit le motif de dépliement** |
+| 5 | EVOL annexe-s36 | à rédiger, **après** notes `le-probleme` v6 (matière des dessins case par case) | à venir | remplit l'Annexe : **feuille I redessinée et remplie avec `CDEMST`** (où vit la description du fichier), **feuille C** à trois lignes (`MULT` avec longueur et décimales, `CHAIN` avec l'indicateur 51 en colonne High, `EXSR` conditionné par 51), les trois tableaux, le témoignage au « je », le GAP nommé côté français ; SVG registre « plan technique », **établit le motif du dessin** |
+| 6 | Mise en scène | à rédiger | à venir | les deux dessins SVG de la section 3, Plex Mono des commandes, dettes W5, W8, W12, W13, W18 |
+| 7 | Outillage | à rédiger | à venir | dette W17, exception de langue des clés dans `CLAUDE.md`, porte de non-régression lexicale (proposition du `reviewer`, session 13), porte de forme des deux versions du code |
+| 8 | Fin de jalon 1 | — | à venir | relecture d'anonymisation page par page, bump 0.2.0 |
+
+Décisions qui gouvernent ce fil, toutes du 19 août 2026 : le code montré est **recréé**, jamais le code réel ;
+les images sont **redessinées**, jamais des scans ; le lecteur **choisit** d'aller au technique (section Annexe
+nommée, au menu, avec retour), il n'y tombe pas ; une décision qui engage un incrément **s'inscrit ici**
+avant de compter.
+
 ## Jalon 1 (v0.1) — Le site raconte
 - Socle du site : structure des pages, style « trois âges » (cf. CLAUDE.md, Style du produit), bilingue FR/EN.
 - Les cinq sections : le décor, le problème, la solution, le mini-langage, la méthode.
@@ -106,6 +127,26 @@
   l'incrément du 17 août), et la revue qui autorise n'est archivée nulle part (cf. [W15]).
 - Dépôt public `ibm-s36-to-rest-api`, site sur `https://lianazel.github.io/ibm-s36-to-rest-api/`.
 - Traces du harnais publiques (précédent : portfolio) ; référentiel TWAIM et PDF du POC privés.
+
+## Section « Le problème » et section « Annexe » — décidé le 19 août 2026, session 14
+
+La charpente technique de la section 2 était écrite depuis le 17 août dans `Etude_Technique/NOTES_CONTENU_le-probleme_v3.md`
+sans jamais avoir été inscrite ici ; rappelée par le chef de projet le 19 août (« des tableaux qui racontent pourquoi
+ces structures de table sont muettes »), puis **redéployée** : la section 2 reste courte, le technique va dans une
+**section « Annexe : un fichier S/36 de près »**, nommée, bilingue, en bas de page, au menu, avec un lien de retour.
+Ni bloc dépliable (le lecteur choisit d'y aller), ni page séparée (tout l'outillage est construit pour une page).
+
+- **Prompt A** (n° 3 du fil) : intro de la section 2 réécrite par la **troisième voie** de l'arbitrage « aucune
+  description », désormais **tranché** ; membre de phrase de `section3.modele.p1` aligné ; phrase de renvoi ;
+  Annexe amorcée. Source : notes `le-probleme` v5.
+- **Prompt B** (n° 5 du fil) : le contenu de l'Annexe. Matière : notes v5 (prose des quatre blocs, trois tableaux,
+  vérification des faits contre le manuel IBM SC41-4730, le manuel RPG II SC09-1818, une page GAP II et un article
+  de référence sur le décimal zoné) **plus** les explications du chef de projet du 19 août sur les feuilles de
+  codage, à consigner en v6 : feuille I (positions de/à, décimales colonne 52, nom de zone colonnes 53-58) remplie
+  avec `CDEMST` ; feuille C, trois lignes (`ZPRX MULT QTE → TFACT`, longueur et décimales ; `CLECLI CHAIN CLIMST`
+  avec 51 en **High**, vérifié : l'indicateur s'allume si l'enregistrement n'est pas trouvé ; `51 EXSR CRECLI`,
+  sous-routine de six caractères). Le cycle GAP est **hors sujet**, décision du chef de projet. Dessins en SVG,
+  registre plan technique, **jamais le scan** du formulaire IBM.
 
 ## Section « La solution » — reste à faire (décidé le 18 août 2026, session 12)
 
