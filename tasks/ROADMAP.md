@@ -138,6 +138,44 @@ Le produit est cohérent ; c'est la convention qui n'a pas d'exception écrite. 
 Lead : **écrire l'exception dans le `CLAUDE.md`** plutôt que renommer une section en ligne. À faire
 avant les sections 4 et 5, qui rouvriraient la question. *(Réserve n° 4 de la revue de session 12.)*
 
+**Arbitrage en attente — « Aucune description » contre l'arbitrage 7 des notes `le-probleme` v3.**
+Ouvert depuis la session 11, **non tranché**, et désormais présent dans **deux** sections du produit.
+Échéance : **avant** les blocs 1 à 4 de la section 2, qui montreront le tableau de `CDEMST` et les
+colonnes vues en SQL. Décider après serait décider sous la contrainte de ce qui est déjà écrit.
+
+*Ce que dit l'arbitrage 7* (corrigé par le chef de projet le 17 août) : pas de DDS, pas de description
+externe ; les fichiers sont décrits par programme. La requête SQL nomme pourtant des colonnes de six
+caractères — le manuel IBM explique comment (p. 8-2, `IDDULINK`). Mécanisme du POC non confirmé et sans
+importance pour le site : **« la prose dit seulement *ces fichiers avaient reçu une description : le
+SQL voyait des colonnes*, sans "externe" ni "DDS" »**.
+
+*Ce que dit le produit* : `section2.intro` — « **Aucune description.** » — et `section3.modele.p1` —
+« **Si le fichier ne dit rien de lui-même**, alors quelqu'un doit le dire à sa place ». La prémisse
+d'ouverture du cheminement en quatre temps repose donc sur l'énoncé que l'arbitrage 7 écarte.
+
+*Le point de fond* : les deux énoncés ne sont pas faux, ils ne portent pas sur le même objet.
+« Aucune description » est vrai de l'**objet fichier** (*program-described*, manuel p. 7-33 : aucune
+information de niveau champ dans le fichier). « Ils avaient reçu une description » est vrai de la **vue
+interrogeable** (lien vers une définition de dictionnaire, qui fait apparaître des colonnes nommées à
+SQL). La contradiction est de **formulation**, pas de fait — ce qui la rend invisible en prose seule et
+frontale dès la première capture SQL.
+
+*Les trois voies* :
+
+1. **Maintenir « aucune description »** — vrai du fichier, mais le tableau de `CDEMST` et la requête
+   SQL le démentiront à l'écran, devant le lecteur IBM i que ce site vise en premier.
+2. **Adopter la formule de l'arbitrage 7** — exact, mais affaiblit l'argument central : c'est parce que
+   le fichier est muet que le modèle à attributs existe. Impose de réécrire les deux sections.
+3. **Recommandation du Tech Lead — dire ce qui manque *précisément* plutôt que globalement.** Le
+   fichier ne porte **aucun sens** : il donne des positions et des noms de six caractères, jamais ce
+   qu'ils veulent dire. L'argument du modèle à attributs tient entier, et aucune capture SQL ne peut le
+   démentir — la requête montre exactement cela, des noms opaques sans leur sens. C'est aussi la seule
+   voie compatible avec les deux sections déjà livrées sans en renverser le propos.
+
+Quelle que soit la voie retenue, l'arbitrage porte sur **`section2.intro` et `section3.modele.p1`
+ensemble** : les traiter séparément recréerait l'écart d'une section à l'autre.
+*(Écart n° 3 des sessions 11 et 12 ; réserve n° 2 de la revue de session 12.)*
+
 **Pourquoi ce chapitre existe.** `/land` écrit le journal, la leçon, le statut et la version : tout
 ce qui regarde en arrière. Rien n'écrit ce qui a été **décidé et pas encore fait**, et la feuille de
 route n'est possédée par aucun geste. Une décision qui engage un incrément futur vit donc **ici**,
