@@ -91,6 +91,11 @@
   par le `reviewer` sur trois passes : le défaut ne s'est pas caché dans le code mais dans **l'adverbe
   du commentaire** (`file` « contrôlé », puis « totale quel que soit ») — cf. `tasks/lessons.md`.
 
+- **[W18]** `index.html` porte `class="disclaimer"` sur le paragraphe de marques du pied de page et
+  `css/styles.css` ne contient aucune règle `.disclaimer` (mesuré le 19 août 2026, revue de session 13,
+  réserve n° 5) : crochet inerte depuis sa pose. À rembourser avec la mise en scène : donner une règle
+  à la classe, ou la retirer.
+
 ## Décisions actées
 - **Un verdict `NEEDS_WORK` n'atterrit jamais** — arbitrage du chef de projet du **17 août 2026**,
   portée **précédent**. Il **révoque** celui de la session 7 (« atterrir sur un `NEEDS WORK` affiché,
@@ -104,9 +109,11 @@
 
 ## Section « La solution » — reste à faire (décidé le 18 août 2026, session 12)
 
-Contenu entièrement arrêté dans `Etude_Technique/NOTES_CONTENU_la-solution_v11.md` (§2 pour les
-extraits de code, §4 pour les deux images, décrites case par case). **Ne rien redécider : rédiger
-le contrat.** Chaque prompt se rédige au moment où son tour arrive, ses pré-conditions citant la
+Contenu arrêté **pièce par pièce** dans `Etude_Technique/NOTES_CONTENU_la-solution_v14.md` : §2, les
+quatre blocs de code écrits dans les deux langues et prouvés à l'exécution (M-8, M-11, M-12) ; §4, les
+deux images décrites case par case. *(La v11 disait « entièrement arrêté » alors que deux blocs sur
+quatre n'étaient écrits nulle part, mesuré le 19 août 2026 : un adjectif ne décrit pas un état.)*
+**Ne rien redécider : rédiger le contrat.** Chaque prompt se rédige au moment où son tour arrive, ses pré-conditions citant la
 version au manifeste et la ligne de `STATUS.md`, qui changent à chaque atterrissage.
 
 1. **EVOL corrections de vocabulaire et mentions de marques** (minuscule, six valeurs de
@@ -117,13 +124,17 @@ version au manifeste et la ligne de `STATUS.md`, qui changent à chaque atterris
    - Phrase générique de marques au pied de page : « les autres noms de produits cités appartiennent
      à leurs détenteurs respectifs ». La mention actuelle ne couvre qu'IBM, IBM i et System/36, ni
      Unibol, ni `.Net`, ni Power, tous trois présents dans le dictionnaire.
-2. **EVOL extraits de code**, dans un bloc dépliable natif (`details`/`summary`, aucun JavaScript,
-   aucune dépendance) : les deux classes avec l'attribut maison, le dictionnaire construit par
-   réflexion, l'extrait recréé du temps 3. Plus les clés bilingues du bloc et son passage au
-   contrôle d'accessibilité. **Cet incrément établit le motif de dépliement.**
+2. **EVOL extraits de code** : trois extraits recréés et **visibles**, chacun sous le paragraphe
+   qu'il illustre (décision du chef de projet, 19 août 2026, qui remplace le bloc dépliable du 18) :
+   l'attribut maison et les deux classes, puis le dictionnaire par réflexion, sous le temps 1 ; la
+   construction du modèle dynamique dans la structure du prototype, sous le temps 3. Clés bilingues,
+   légende « extrait recréé » sur chaque bloc, défilement dans le cadre. **Aucun bloc dépliable dans
+   cet incrément.** Source : notes v14, §2 et M-12. Prompt : `prompts/v0.1/EVOL_extraits-de-code_v1.md`.
 3. **EVOL boîte à outils** : tableau ordonné des neuf classes de fabrication du modèle dynamique,
-   dans son propre bloc dépliable, avec son traitement en écran étroit (trois colonnes à 320 px).
-   Son prompt cite le motif de dépliement en **pré-condition vérifiable** (« le motif existe dans
+   dans un bloc dépliable natif (`details`/`summary`, aucun JavaScript, aucune dépendance), replié
+   par défaut, avec son traitement en écran étroit (trois colonnes à 320 px). **Cet incrément établit
+   le motif de dépliement**, ses clés bilingues et son contrôle d'accessibilité. Son prompt cite
+   l'incrément 2 en **pré-condition vérifiable** (« les trois `figure.extrait` existent dans
    `index.html`, vérifie, sinon ARRÊTE-TOI »), jamais en ordre de passage.
 4. **Mise en scène** : les deux dessins SVG, Plex Mono des noms de commandes en ligne, et les dettes
    [W5], [W8], [W12], [W13].
