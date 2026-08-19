@@ -101,3 +101,45 @@
   l'incrément du 17 août), et la revue qui autorise n'est archivée nulle part (cf. [W15]).
 - Dépôt public `ibm-s36-to-rest-api`, site sur `https://lianazel.github.io/ibm-s36-to-rest-api/`.
 - Traces du harnais publiques (précédent : portfolio) ; référentiel TWAIM et PDF du POC privés.
+
+## Section « La solution » — reste à faire (décidé le 18 août 2026, session 12)
+
+Contenu entièrement arrêté dans `Etude_Technique/NOTES_CONTENU_la-solution_v11.md` (§2 pour les
+extraits de code, §4 pour les deux images, décrites case par case). **Ne rien redécider : rédiger
+le contrat.** Chaque prompt se rédige au moment où son tour arrive, ses pré-conditions citant la
+version au manifeste et la ligne de `STATUS.md`, qui changent à chaque atterrissage.
+
+1. **EVOL corrections de vocabulaire et mentions de marques** (minuscule, six valeurs de
+   dictionnaire, aucune structure). Deux gestes homogènes réunis :
+   - « six caractères » → « **au plus** six caractères » aux sections 2 et 3. L'étude v2 §3.1 et le
+     `CLAUDE.md` disent un **maximum** ; le produit affirme une longueur fixe, à deux endroits
+     désormais. Dette née de la réserve n° 1 de la revue de session 12.
+   - Phrase générique de marques au pied de page : « les autres noms de produits cités appartiennent
+     à leurs détenteurs respectifs ». La mention actuelle ne couvre qu'IBM, IBM i et System/36, ni
+     Unibol, ni `.Net`, ni Power, tous trois présents dans le dictionnaire.
+2. **EVOL extraits de code**, dans un bloc dépliable natif (`details`/`summary`, aucun JavaScript,
+   aucune dépendance) : les deux classes avec l'attribut maison, le dictionnaire construit par
+   réflexion, l'extrait recréé du temps 3. Plus les clés bilingues du bloc et son passage au
+   contrôle d'accessibilité. **Cet incrément établit le motif de dépliement.**
+3. **EVOL boîte à outils** : tableau ordonné des neuf classes de fabrication du modèle dynamique,
+   dans son propre bloc dépliable, avec son traitement en écran étroit (trois colonnes à 320 px).
+   Son prompt cite le motif de dépliement en **pré-condition vérifiable** (« le motif existe dans
+   `index.html`, vérifie, sinon ARRÊTE-TOI »), jamais en ordre de passage.
+4. **Mise en scène** : les deux dessins SVG, Plex Mono des noms de commandes en ligne, et les dettes
+   [W5], [W8], [W12], [W13].
+5. **Outillage**, dû après trois incréments de contenu : dette [W17], et l'exception de langue
+   ci-dessous à écrire dans le `CLAUDE.md`.
+6. Fin de jalon 1 : relecture d'anonymisation page par page, puis bump **minor 0.2.0**.
+
+**Arbitrage en attente — l'exception de langue des clés de dictionnaire.** Les clés de groupe
+ajoutées sont en français (`modele`, `mur`, `renversement`, `etape`), comme celles de la section 1
+déjà livrée (`lignees`, `pont`, `noms`, `preuve`), alors que `CLAUDE.md` dit « Code en **anglais** ».
+Le produit est cohérent ; c'est la convention qui n'a pas d'exception écrite. Recommandation du Tech
+Lead : **écrire l'exception dans le `CLAUDE.md`** plutôt que renommer une section en ligne. À faire
+avant les sections 4 et 5, qui rouvriraient la question. *(Réserve n° 4 de la revue de session 12.)*
+
+**Pourquoi ce chapitre existe.** `/land` écrit le journal, la leçon, le statut et la version : tout
+ce qui regarde en arrière. Rien n'écrit ce qui a été **décidé et pas encore fait**, et la feuille de
+route n'est possédée par aucun geste. Une décision qui engage un incrément futur vit donc **ici**,
+dans le dépôt, parce que c'est le seul document que Cowork et Claude Code lisent tous les deux.
+*(Référentiel : RD-056.)*
