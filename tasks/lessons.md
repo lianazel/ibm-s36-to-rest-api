@@ -2,6 +2,33 @@
 
 > Une leçon = une erreur commise ici, datée, avec la règle qui l'empêche de revenir.
 
+## 21 août 2026 — Un prompt lu à l'ouverture n'est pas le prompt qu'on exécute : il se relit juste avant d'agir
+
+**Type** : Erreur
+**Contexte** : EVOL `boite-a-outils` (merge `ad46ad0`, session 17). Lu au `/session-start` de 22:23 :
+240 lignes, tableau à huit lignes, seize clés par langue. Réécrit sur place à **23:12:35** — même nom,
+même « Révision : v1 », **sans préfixe `DRAFT_`**, donc gelé au sens des conventions du dépôt : 284
+lignes, neuf lignes de tableau, `Activator` en neuvième, dix-sept clés par langue.
+**Erreur** : j'ai **committé** la version de 284 lignes — celle qui était sur le disque au moment du
+commit — et **implémenté** celle de 240, de mémoire. Le commit annonçait « 284 insertions » là où ma
+lecture en montrait 240 : le signal était sous mes yeux, dans la sortie de `git commit`, et je ne l'ai
+pas relevé. Quarante minutes de travail sur une version morte.
+**Ce qui l'a rattrapé** : pas une relecture — le **contrôle de conformité des valeurs au caractère
+près**, qui a rendu dix-sept écarts sans raison d'être. Aucune relecture n'aurait produit ce signal :
+je relisais mon livrable contre **ma mémoire du prompt**, et les deux concordaient parfaitement.
+**Correction** : avant d'écrire la première ligne d'un livrable, **relire depuis le disque** le fichier
+de consigne, même lu la même session — et comparer son empreinte ou son nombre de lignes à celle de la
+lecture d'ouverture. Une consigne n'est pas un état stable parce qu'elle est committée ou gelée : elle
+est un fichier, et un fichier change. Corollaire déjà payé ici : **un nombre imprimé par une commande
+que je viens de lancer est une mesure** — « 284 insertions » contredisait ma lecture, et je l'ai lu
+sans le voir.
+**Portée du dégât** : aucune — l'écart est mort sur la branche, avant le merge, trouvé par un contrôle
+que le prompt lui-même exigeait. Ce qui a coûté, c'est le temps, pas la qualité.
+**Applicable globalement ?** : **oui, à mon sens**. Variante temporelle de la leçon globale du 5 août
+(« une consigne s'exécute depuis le disque, pas depuis la mémoire de la conversation ») : ici le disque
+avait raison et c'est **ma mémoire du disque** qui avait tort — la lecture était juste au moment où
+elle a été faite. À arbitrer par le chef de projet ; promotion = geste dédié (entrée A-1).
+
 ## 20 août 2026 — Vérifier une liste ne fonde pas une conclusion sur la famille : la conclusion doit nommer ce qu'elle a mesuré
 
 **Type** : Erreur

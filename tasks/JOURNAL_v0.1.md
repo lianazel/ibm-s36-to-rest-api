@@ -1105,3 +1105,135 @@ porte que la v2, celle qui a été exécutée.
 | Le fichier plat dans ou hors du cadre `[HttpGet]` | **Dehors**, sur décision du chef de projet | Le fichier n'appartient pas au contrôleur, il est la source que la méthode interroge. Le constat est né de la lecture du rendu, pas du code — je l'ai soulevé comme question de lecture, jamais tranché seul, le cadre étant une décision du 20 août | cas d'espèce |
 | `prompts/v0.1/EVOL_dessins-section-3_v1.md`, gelé, jamais transmis, non suivi | **Laissé intact et non suivi**, signalé à chaque étape ; **retiré par le chef de projet** avant la clôture | La v2 interdit de l'exécuter, ce qui règle son usage, pas son sort. Le supprimer ou le committer sont deux décisions du chef de projet ; l'exécutant n'en prend aucune, et n'a pas eu à en prendre | **précédent** |
 | Les mesures de rendu faites au navigateur | **Consignées hors de la suite**, explicitement non rejouables | Les inscrire comme tests aurait promis une garde qui n'existe pas. Elles disent où sont les éléments à un instant, jamais que le dessin est bon : c'est ce que la validation humaine juge | **précédent** |
+
+## Session 17 — 21 août 2026 — EVOL `boite-a-outils` (merge `ad46ad0`, 0.1.14 → 0.1.15)
+
+**Prompt** : `prompts/v0.1/EVOL_boite-a-outils_v1.md` · **Branche** : `feat/boite-a-outils`
+(2 commits) · **Suite** : **134/134, rc 0**, inchangée · **Revue** : **1 passe**, verdict **`SHIP`**,
+**6 réserves `WARN`**, **aucun `FAIL`**, 2 propositions R&D (format B).
+
+La boîte à outils de fabrication du modèle dynamique : dix-sept clés par langue, trente-quatre
+valeurs, un `details`/`summary` natif replié par défaut, un tableau de neuf classes numérotées
+d'`AssemblyName` à `Activator`, et les deux collections `Dictionary<>` et `List<>` en prose sous le
+tableau, hors chaîne. Aucun script : le motif de dépliement du site est un élément natif. Au passage,
+la dette **[W19]** est remboursée — rôle et nom accessibles des trois extraits et des sept sections —
+et le site reçoit sa **première requête de largeur** (22 rem, calage des cellules).
+
+**La séquence de la session tient en une phrase** : le prompt a changé sous moi entre son analyse
+d'ouverture et son exécution, j'ai livré la version périmée avant de m'en apercevoir, et ce n'est pas
+une relecture qui l'a vu — c'est un contrôle de conformité au caractère près.
+
+### Le prompt a été réécrit sur place, et j'ai travaillé quarante minutes sur une version morte
+
+Lu à 22:23 au `/session-start` : **240 lignes**, tableau à **huit** lignes, seize clés par langue, et
+un arbitrage explicite intitulé « Huit lignes dans le tableau ». Réécrit à **23:12:35**, sans changer
+de nom, sans changer de numéro de révision, sans préfixe `DRAFT_` : **284 lignes**, tableau à **neuf**
+lignes, `Activator` en neuvième, dix-sept clés par langue, une requête de média ajoutée au livrable D.
+J'ai committé la version de 284 lignes — celle qui était sur le disque au moment du commit — tout en
+implémentant, de mémoire, celle de 240.
+
+**Ce qui l'a rattrapé** : le contrôle de conformité des valeurs au caractère près, exigé par le
+critère 1. Il a rendu **dix-sept écarts** qui n'avaient aucune raison d'exister. Aucune de mes
+relectures n'aurait produit ce signal : je relisais mon livrable contre ma mémoire du prompt, et les
+deux concordaient parfaitement.
+
+**Ce qui a établi que la version de 284 lignes était la bonne**, et non un fichier en cours
+d'écriture : elle est postérieure ; elle **cite** l'arbitrage qu'elle remplace (« second arbitrage du
+même jour, et il ne rétablit pas celle qu'on vient de retirer ») ; et elle **anticipe nommément** les
+deux pièges de comptage que je venais de rencontrer sur l'ancienne — `<thead>` capté par le motif
+`<th`, occurrences contre lignes. Un brouillon ne corrige pas des mesures qu'il n'a pas encore faites.
+Les trois livrables ont été repris sur la version committée, seule à faire autorité.
+
+**Ce que je n'ai pas tranché**, et qui n'est pas à moi : pourquoi un prompt sans préfixe `DRAFT_` —
+donc gelé au sens des conventions du dépôt — a changé après avoir été gelé.
+
+### Les deux résidus de la révision, écartés en connaissance de cause
+
+La réécriture a laissé dans le prompt committé deux phrases de la version à huit lignes. Le prompt est
+committé et **ne se réécrit pas** : c'est au journal de porter leur arbitrage.
+
+**Un** : le point 4 de l'ÉTAPE 6 exigeait `grep -c 'ligne9' js/i18n.js` = **0**, alors que quatre
+autres passages du même fichier prescrivent `ligne9` — l'ÉTAPE 2 (clés `ligne1` à `ligne9`), le bloc
+HTML de l'ÉTAPE 3, le tableau de comptages (`data-i18n="section3.boite` = 17) et le critère
+d'acceptation 1 (dix-sept valeurs par langue). Mesuré au livré : **2**, une par langue. Quatre
+passages contre un ; `ligne9` est livrée.
+
+**Deux** : le littéral du message de commit disait « **huit** classes en chaîne » là où le livrable en
+porte neuf. Écrit avec « **neuf** ». Un message de commit est un compte rendu de ce qui a été fait, le
+dépôt est public, et l'historique est immuable.
+
+**Le `reviewer` a confirmé les deux arbitrages, mesure en main** — et il a redressé le second : mon
+argumentaire ne citait que des passages du prompt, alors que deux fichiers **committés** tranchaient
+déjà, `tasks/ROADMAP.md` l. 14 et l. 262, qui écrivent l'un et l'autre « les neuf classes ». Le
+littéral de l'ÉTAPE 7 était le passage isolé face à six autres, dont deux qui survivent au merge.
+Verdict : ne pas amender.
+
+Ces deux clauses sont des **fautes de rédaction du Tech Lead**, même famille que le titre périmé du
+même prompt : une révision qui change le fond sans repasser sur les contrôles qui en dépendent.
+
+### La revue : mes chiffres tiennent, une trouvaille est à elle
+
+Les treize comptages de l'ÉTAPE 6.3, les points 4 à 9, la conformité au caractère près des
+trente-quatre valeurs, l'identité à l'octet près des blocs HTML et CSS : tous refaits par le
+`reviewer`, tous confirmés. La non-modification des valeurs existantes, il l'a prouvée autrement que
+moi — par le `numstat` : `js/i18n.js` = **38 insertions, 0 suppression**.
+
+**Ce que je n'avais pas déclaré** (réserve 4, pilier P4) : l'ÉTAPE 4 titre « Les sept sections de
+`main` », or `main` n'en contient que **six** — la septième, `section.about`, vit dans
+`div#nav-panel`. J'ai suivi l'énumération des sept `id` plutôt que la prose, ce qu'il confirme comme
+le bon choix, et il a vérifié avant de conclure que `panel.inert` écarte le point de repère fantôme.
+Mais l'écart avait été résolu **en silence** dans un incrément où trois autres sont déclarés avec
+soin. La formule imprécise venait de l'entrée [W19] elle-même : elle est corrigée en la remboursant.
+
+Deux réserves UX portent sur ce que l'œil ne tranche pas et sont devenues **[W29]** et **[W30]** :
+le conteneur qui répète le nom de son `summary`, et le passage de zéro à onze points de repère nommés.
+Deux propositions R&D (format B) attendent leur prompt : une porte de résolution des références ARIA —
+qui refermerait **[W22]** du même geste — et une porte de fidélité aux blocs de code des prompts
+committés, née de ma propre mesure fautive.
+
+### La validation visuelle, et ce qu'elle n'a pas couvert
+
+Tunnel éphémère, iPhone 14 réel, six captures du chef de projet, **FR et EN**. Le bloc est bien replié
+par défaut dans les deux langues, les neuf lignes sont là, `Activator` en neuvième avec
+`CreateInstance` en texte courant, les chevrons rendent `Dictionary<>` et `List<>`, et le montage
+sujet-en-dur se lit comme une phrase. **Aucun défaut trouvé** — première fois depuis la session 13.
+
+**Ce que cette validation ne couvre pas, et qui est dit plutôt que passé sous silence** : l'iPhone 14 fait **390 px**,
+où la requête `@media (min-width: 22rem)` est active et le calage déjà au large. La mesure fine du
+prompt portait sur **320 px**, cinq pixels de reste, `CreateInstance` étant insécable. Valider une
+largeur ne fonde pas une conclusion sur la famille des largeurs — c'est la leçon globale du 20 août,
+appliquée à mes propres captures.
+
+### Ce que j'ai fait de mon propre chef
+
+- **Reprendre les trois livrables** sur la version committée du prompt plutôt que m'arrêter : la
+  version de 284 lignes était seule à exister au dépôt, et stopper aurait rendu zéro sur une réécriture
+  manifestement voulue.
+- **Déclarer ma propre mesure fautive** — le premier contrôle de conformité bornait le bloc français
+  sur `\n## `, avalait la liste anglaise et écrasait les valeurs françaises. Le défaut était dans la
+  mesure, pas dans le livrable ; le dire a nourri la seconde proposition R&D du `reviewer`.
+- **Servir une copie du site seul** pour l'aperçu, puis vérifier l'absence du harnais **en interrogeant
+  le serveur** (`CLAUDE.md`, `prompts/`, `tasks/lessons.md` → 404), pas en regardant le dossier.
+- **Dire que je n'avais pas pu confirmer l'URL du tunnel moi-même** : la résolution DNS de
+  `*.trycloudflare.com` échoue depuis mon shell. Le contrôle de bout en bout était celui de l'outil.
+
+### Les écarts de l'incrément
+
+**Conformité au prompt committé : entière.** Trente-quatre valeurs au caractère près, blocs HTML et
+CSS à l'octet près, treize comptages sur treize, emplacements conformes. Les deux seuls écarts sont
+les résidus décrits plus haut, tous deux confirmés par la revue.
+
+Trois constats hors périmètre portés en dette **pendant cette clôture** : **[W29]**, **[W30]**, et la
+correction d'énoncé de **[W20]** après spike C#. **[W19]** est fermée, et son entrée réécrite pour
+dire sur quoi elle a été payée — six sections dans `main` plus « À propos » dans le panneau.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| Le prompt a changé entre sa lecture d'ouverture et son exécution | **La version committée fait autorité**, les livrables sont repris dessus | Elle est postérieure, elle cite l'arbitrage qu'elle remplace, et elle anticipe des mesures que je venais de faire. S'arrêter aurait rendu zéro sur une réécriture voulue ; implémenter la version morte aurait livré un tableau à huit lignes | **précédent** |
+| Une clause du prompt committé contredite par quatre autres passages du même fichier | **Le corps cohérent l'emporte**, la clause isolée est un résidu | Livrer `ligne9` n'invente rien : le bloc HTML, les clés, le comptage et le critère d'acceptation l'exigent tous. Suivre la clause isolée aurait exigé de retirer une ligne que quatre passages prescrivent | **précédent** |
+| Le message de commit prescrit dit « huit », le livrable en porte neuf | **« neuf »**, écart déclaré | Un message de commit est un compte rendu factuel et l'historique public est immuable. Confirmé par le `reviewer`, qui a produit deux fichiers committés que je n'avais pas invoqués | **précédent** |
+| Ma propre mesure de conformité rendait dix-sept écarts inexistants | **Corriger la mesure, jamais le livrable**, et consigner l'incident | Un contrôle dont toute la valeur est l'exactitude doit dire quand il s'est trompé. La tentation inverse — ajuster le livrable jusqu'à ce que le contrôle passe — aurait détruit la conformité qu'il mesurait | **précédent** |
+| Niveau de bump | **Patch** 0.1.14 → 0.1.15, sur consigne explicite du chef de projet | Le défaut `feat/*` vaut minor ; la cible de fin de jalon étant 1.0.0 depuis le 20 août, consommer 0.2.0 ici n'aurait pas de sens. **Quatorzième** inscription | précédent |
+| La validation sur iPhone 14 couvre-t-elle la mesure à 320 px | **Non**, et c'est dit dans l'entrée | L'appareil fait 390 px, où la requête de largeur est active. Compter cette validation comme une preuve du cas serré aurait fabriqué une garantie inexistante | **précédent** |

@@ -11,9 +11,9 @@ l'ordre où ils passent ; l'état se met à jour à chaque atterrissage. Quand o
 | 2 | EVOL extraits-de-code | `EVOL_extraits-de-code_v1` | **atterri**, 0.1.12 (session 14) | trois extraits recréés, visibles, sous les temps 1 et 3 ; motif du cadre de code |
 | 3 | EVOL probleme-renvoi-et-annexe | `EVOL_probleme-renvoi-et-annexe_v1` | **atterri**, 0.1.13 (session 15) | « aucune description » tranché (troisième voie), intro de la section 2 réécrite, phrase de renvoi, section « Annexe » amorcée (titre, détour technique, texte d'attente, retour, menu) |
 | 4 | EVOL dessins-section-3 | `EVOL_dessins-section-3_v2` | **atterri**, 0.1.14 (session 16) | les deux dessins en HTML et CSS (choix arbitré le 19 août : bilingues par le dictionnaire, empilables, texte lisible ; le contrat disait « SVG de préférence », l'autre voie est meilleure ici), dessin 1 en fin de temps 2, dessin 2 au temps 3 avant le code ; **corrigé le 20 août après validation sur iPhone 14** — flèches entre les boîtes, sorties de cadre muettes, fichier plat hors du cadre `[HttpGet]` |
-| 5 | EVOL boîte à outils | à rédiger | à venir | tableau ordonné des neuf classes, dans un bloc dépliable ; **établit le motif de dépliement** |
+| 5 | EVOL boîte à outils | `EVOL_boite-a-outils_v1` | **atterri**, 0.1.15 (session 17) | neuf classes en chaîne dans un bloc dépliable natif (`details`/`summary`, aucun JavaScript) : les huit constructeurs **plus `Activator`** ; `Dictionary<>` et `List<>` en prose sous le tableau, hors chaîne ; **établit le motif de dépliement** ; **première requête de largeur du site** (22 rem, calage de cellule) ; **[W19] remboursée** |
 | 6 | EVOL annexe-s36 | à rédiger, **après** notes `le-probleme` v6 (matière des dessins case par case) | à venir | remplit l'Annexe : **feuille I redessinée et remplie avec `CDEMST`** (où vit la description du fichier), **feuille C** à trois lignes (`MULT` avec longueur et décimales, `CHAIN` avec l'indicateur 51 en colonne High, `EXSR` conditionné par 51), les trois tableaux, le témoignage au « je », le GAP nommé côté français ; SVG registre « plan technique », **établit le motif du dessin** |
-| 7 | Mise en scène | à rédiger | à venir | Plex Mono des commandes en ligne, indice de défilement des cadres de code (W23), dettes W5, W8, W12, W13, W18, W19 |
+| 7 | Mise en scène | à rédiger | à venir | Plex Mono des commandes en ligne, indice de défilement des cadres de code (W23), dettes W5, W8, W12, W13, W18, W29, W30 |
 | 8 | Outillage | à rédiger | à venir | dette W17, exception de langue des clés dans `CLAUDE.md`, porte de résolution des ancres internes (W22), porte de duplication du dictionnaire (W25), le fil que `/land` ne met pas à jour (W24), porte de non-régression lexicale (proposition du `reviewer`, session 13), porte de forme des deux versions du code |
 | 9 | Fin de jalon 1 | — | à venir | **bump 1.0.0** (décision du chef de projet du 20 août 2026, en remplacement de 0.2.0) ; **condition d'entrée : la relecture d'anonymisation page par page** — elle ne clôt pas le jalon, elle en ouvre la porte |
 
@@ -118,15 +118,21 @@ avant de compter.
   réserve n° 5) : crochet inerte depuis sa pose. À rembourser avec la mise en scène : donner une règle
   à la classe, ou la retirer.
 
-- **[W19]** Les trois `pre[tabindex="0"]` des extraits (et les sections de `main`) n'ont ni rôle ni nom
-  accessible : un lecteur d'écran prend le focus sur un élément générique et n'annonce rien (revue de
-  session 14, réserve 1 ; sections : réserve 3 de la session 15). Remède : `role="region"` +
-  `aria-labelledby` vers la légende, à poser au prochain incrément qui rouvre le HTML des extraits, au
-  plus tard la boîte à outils.
+- **[W19]** **Remboursée le 20 août 2026 par l'incrément 5.** `role="region"` + `aria-labelledby` sur les
+  trois `pre` des extraits ; `aria-labelledby` sur les **six** `section` de `main` **et sur**
+  `section.about`, qui vit dans `div#nav-panel` et non dans `main`. La formule « les sections de `main` »
+  de cette entrée était imprécise : l'exécutant a suivi l'énumération, pas la prose, et il a eu raison.
+  Mesuré au livré : `role="region"` 0 → 4, `aria-labelledby` 0 → 11, 21 `id` tous distincts.
 
-- **[W20]** L'extrait du temps 3 déréférence `colonne.Value.GetType()` sans garde : une valeur nulle en
-  première ligne lèverait une exception, et le site ne le dit nulle part (revue de session 14, réserve 3 ;
-  choix du prototype assumé dans les notes v15, pas dans le produit). Remède : une phrase de légende
+- **[W20]** L'extrait du temps 3 déréférence `colonne.Value.GetType()` sans garde, et le site ne le dit
+  nulle part (revue de session 14, réserve 3 ; choix du prototype assumé dans les notes v15, pas dans le
+  produit). **Énoncé corrigé le 20 août 2026 après spike C#** : l'entrée disait qu'une valeur nulle
+  « lèverait une exception », ce qui ne décrit qu'un tiers du comportement réel, et pas le pire.
+  **Sur la première ligne** — la seule que le relevé des types parcourt — `null` lève bien une
+  `NullReferenceException`, mais `DBNull` **passe** et type la colonne en `DBNull`. **Sur une ligne
+  suivante**, et donc pour une colonne entière restée vide au relevé, **rien n'est levé** : la valeur
+  devient `0` en silence. C'est ce dernier cas, **muet**, qui est le plus dangereux — un défaut qui crie
+  se corrige, un défaut qui rend zéro se publie. Remède inchangé : une phrase de légende
   « la gestion des valeurs absentes est hors extrait », quand les extraits seront rouverts.
 
 - **[W21]** Les six valeurs `source` de `js/i18n.js` sont des gabarits dont le contenu commence à la
@@ -190,6 +196,17 @@ avant de compter.
   est la cible primaire — et le HTML avait été préféré au SVG précisément pour que le texte soit
   **annoncé dans l'ordre**. Remède : poser `role="list"` sur les six `ol`, et **poser la même question
   à `.site-nav ul`** (`css/styles.css`, seul autre `list-style: none` du site), où l'enjeu est moindre.
+
+- **[W29]** Le conteneur de défilement de la boîte à outils tire son nom accessible du `summary`
+  (`aria-labelledby="boite-titre"`) : sous VoiceOver, deux arrêts de tabulation consécutifs annoncent la
+  même phrase de 84 caractères (revue de session 17, réserve 5). Remède : un `aria-label` propre au
+  conteneur, par le mécanisme `data-i18n-attr` déjà en place, avec une clé courte
+  (« La chaîne de fabrication » / « The build chain »). Même passe VoiceOver que [W28].
+
+- **[W30]** L'incrément 5 fait passer la page de zéro à **onze** points de repère nommés. Les quatre
+  régions explicites sont justifiées ; les sept noms de section sont la lettre de [W19]. À **vérifier au
+  rotor** pendant la passe VoiceOver de [W28], avec la liberté de retirer le nom des sections si la
+  navigation devient bavarde (revue de session 17, réserve 6).
 
 - **Points de vigilance recopiés de `.pipeline/` avant qu'il ne s'écrase** (sessions 14 et 15) :
   `attribut?.Nom` rend une valeur nulle pour une propriété sans attribut, comportement du prototype
