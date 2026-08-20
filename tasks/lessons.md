@@ -24,10 +24,12 @@ que je viens de lancer est une mesure** — « 284 insertions » contredisait ma
 sans le voir.
 **Portée du dégât** : aucune — l'écart est mort sur la branche, avant le merge, trouvé par un contrôle
 que le prompt lui-même exigeait. Ce qui a coûté, c'est le temps, pas la qualité.
-**Applicable globalement ?** : **oui, à mon sens**. Variante temporelle de la leçon globale du 5 août
+**Applicable globalement ?** : **oui**. Variante temporelle de la leçon globale du 5 août
 (« une consigne s'exécute depuis le disque, pas depuis la mémoire de la conversation ») : ici le disque
 avait raison et c'est **ma mémoire du disque** qui avait tort — la lecture était juste au moment où
-elle a été faite. À arbitrer par le chef de projet ; promotion = geste dédié (entrée A-1).
+elle a été faite.
+**Promue en global le 21 août 2026 (validation du chef de projet)**, sous le titre « Un fichier de
+consigne lu n'est pas un état, c'est un instantané : il se relit depuis le disque juste avant d'agir ».
 
 ## 20 août 2026 — Vérifier une liste ne fonde pas une conclusion sur la famille : la conclusion doit nommer ce qu'elle a mesuré
 
