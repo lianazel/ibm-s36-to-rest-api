@@ -406,7 +406,21 @@ section {
    de données vit avec une requête figée, l'ensemble correspond à une route HttpGet. */
 .chaine {
   display: grid;
-  gap: calc(var(--space) / 2);
+}
+
+/* L'espace entre les boîtes est celui où vit la flèche : il ne peut pas être
+   réduit sans la coller au trait. Les échos gardent le leur, ils n'ont pas de
+   flèche. (Arbitrage du chef de projet, 20 août 2026, après validation sur
+   téléphone : la flèche était dessinée à l'intérieur des cases.) */
+.chaine:not(.echo) {
+  gap: var(--space);
+}
+
+/* Le fichier plat vit hors du cadre de la méthode : il n'appartient pas au
+   contrôleur, il est la source que la méthode interroge. */
+.dessin-chaine .source {
+  max-width: 25rem;
+  margin: 0 auto var(--space);
 }
 
 .dessin-chaine .methode {
@@ -428,11 +442,23 @@ section {
   font-family: var(--font-mono);
 }
 
-/* Une flèche décorative redonne le sens de lecture entre les cases. */
-.chaine:not(.echo) > .case:not(:last-child)::after {
+/* Les boîtes qui portent une flèche la portent hors d'elles-mêmes : le repère
+   de positionnement, c'est la boîte ; la flèche se pose dans l'espace d'après. */
+.chaine:not(.echo) > .case,
+.machine .etape,
+.dessin-chaine .source {
+  position: relative;
+}
+
+/* Une flèche décorative redonne le sens de lecture entre les cases : centrée
+   dans l'espace qui les sépare, jamais à l'intérieur du trait. */
+.chaine:not(.echo) > .case:not(:last-child)::after,
+.dessin-chaine .source::after {
   content: "\2193";
-  display: block;
-  margin-top: calc(var(--space) / 4);
+  position: absolute;
+  top: calc(100% + var(--space) / 2);
+  left: 50%;
+  transform: translate(-50%, -50%);
   color: var(--color-ink-soft);
   font-size: 0.875rem;
   line-height: 1;
@@ -453,6 +479,7 @@ section {
 .dessin-chaine .echo {
   /* Les échos : un petit cadre de méthode chacun, cinq cases vides en rangée.
      Ils suggèrent la répétition, autant d'autres méthodes ; ils ne se lisent pas. */
+  gap: calc(var(--space) / 2);
   grid-template-columns: repeat(5, 1fr);
   max-width: 25rem;
   margin: calc(var(--space) / 2) auto 0;
@@ -484,7 +511,7 @@ section {
 .machine,
 .machine ol {
   display: grid;
-  gap: calc(var(--space) / 2);
+  gap: var(--space);
 }
 
 .machine > li,
@@ -498,17 +525,23 @@ section {
   border-style: dashed;
 }
 
-/* Une flèche sous chaque étape, sauf la dernière du parcours. */
+/* Une flèche entre les étapes, centrée dans l'espace qui les sépare. */
 .machine .etape::after {
   content: "\2193";
-  display: block;
-  margin-top: calc(var(--space) / 4);
+  position: absolute;
+  top: calc(100% + var(--space) / 2);
+  left: 50%;
+  transform: translate(-50%, -50%);
   color: var(--color-ink-soft);
   font-size: 0.875rem;
   line-height: 1;
 }
 
-.machine > li:last-child::after {
+/* Aucune flèche à une fin de parcours, et il y en a trois : la fin du dessin,
+   et la sortie de chacun des deux cadres de répétition. Une flèche posée là
+   pointerait sur un trait de cadre, pas sur une étape suivante. */
+.machine > li:last-child::after,
+.machine ol > li:last-child::after {
   content: none;
 }
 
