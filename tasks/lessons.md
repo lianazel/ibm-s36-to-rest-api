@@ -29,8 +29,10 @@ domiciles » (16 août). Cinquième session consécutive : le code est juste, le
 c'est **le périmètre de ce que j'affirme** qui déborde.
 **Portée du dégât** : nulle sur le livré — `SHIP` aux deux passes, aucune mesure fausse dans le code.
 Le dégât est qu'une dette réelle a failli être **certifiée absente** par la phrase censée la chercher.
-**Applicable globalement ?** : à arbitrer par le chef de projet. À mon sens **oui** — vaut pour toute
-revue, tout audit, toute stack, et se vérifie mécaniquement à la relecture.
+**Applicable globalement ?** : **oui**. **Promue en global le 2026-08-20 (validation du chef de
+projet)** — entrée `## 2026-08-20 — Vérifier une liste ne fonde pas une conclusion sur la famille :
+la conclusion doit nommer ce qu'elle a mesuré` dans `~/.claude/lessons.md`, ajoutée en ajout seul,
+avec la provenance et l'empreinte `5edd506` de cette jumelle locale.
 
 ## 20 août 2026 — Un décor de liaison posé en `::after` appartient à la boîte, pas à l'intervalle
 
