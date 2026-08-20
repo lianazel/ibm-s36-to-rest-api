@@ -10,12 +10,12 @@ l'ordre où ils passent ; l'état se met à jour à chaque atterrissage. Quand o
 | 1 | EVOL vocabulaire-et-marques | `EVOL_vocabulaire-et-marques_v1` | **atterri**, 0.1.11 (session 13) | « au plus six caractères » aux sections 2 et 3 ; phrase générique de marques |
 | 2 | EVOL extraits-de-code | `EVOL_extraits-de-code_v1` | **atterri**, 0.1.12 (session 14) | trois extraits recréés, visibles, sous les temps 1 et 3 ; motif du cadre de code |
 | 3 | EVOL probleme-renvoi-et-annexe | `EVOL_probleme-renvoi-et-annexe_v1` | **atterri**, 0.1.13 (session 15) | « aucune description » tranché (troisième voie), intro de la section 2 réécrite, phrase de renvoi, section « Annexe » amorcée (titre, détour technique, texte d'attente, retour, menu) |
-| 4 | EVOL dessins-section-3 | `DRAFT_EVOL_dessins-section-3_v1` | **brouillon déposé**, à geler (pré-conditions : 0.1.13, session 15 — conformes) | les deux dessins en HTML et CSS (choix arbitré le 19 août : bilingues par le dictionnaire, empilables, texte lisible ; le contrat disait « SVG de préférence », l'autre voie est meilleure ici), dessin 1 en fin de temps 2, dessin 2 au temps 3 avant le code |
+| 4 | EVOL dessins-section-3 | `EVOL_dessins-section-3_v2` | **atterri**, 0.1.14 (session 16) | les deux dessins en HTML et CSS (choix arbitré le 19 août : bilingues par le dictionnaire, empilables, texte lisible ; le contrat disait « SVG de préférence », l'autre voie est meilleure ici), dessin 1 en fin de temps 2, dessin 2 au temps 3 avant le code ; **corrigé le 20 août après validation sur iPhone 14** — flèches entre les boîtes, sorties de cadre muettes, fichier plat hors du cadre `[HttpGet]` |
 | 5 | EVOL boîte à outils | à rédiger | à venir | tableau ordonné des neuf classes, dans un bloc dépliable ; **établit le motif de dépliement** |
 | 6 | EVOL annexe-s36 | à rédiger, **après** notes `le-probleme` v6 (matière des dessins case par case) | à venir | remplit l'Annexe : **feuille I redessinée et remplie avec `CDEMST`** (où vit la description du fichier), **feuille C** à trois lignes (`MULT` avec longueur et décimales, `CHAIN` avec l'indicateur 51 en colonne High, `EXSR` conditionné par 51), les trois tableaux, le témoignage au « je », le GAP nommé côté français ; SVG registre « plan technique », **établit le motif du dessin** |
 | 7 | Mise en scène | à rédiger | à venir | Plex Mono des commandes en ligne, indice de défilement des cadres de code (W23), dettes W5, W8, W12, W13, W18, W19 |
 | 8 | Outillage | à rédiger | à venir | dette W17, exception de langue des clés dans `CLAUDE.md`, porte de résolution des ancres internes (W22), porte de duplication du dictionnaire (W25), le fil que `/land` ne met pas à jour (W24), porte de non-régression lexicale (proposition du `reviewer`, session 13), porte de forme des deux versions du code |
-| 9 | Fin de jalon 1 | — | à venir | relecture d'anonymisation page par page, bump 0.2.0 |
+| 9 | Fin de jalon 1 | — | à venir | **bump 1.0.0** (décision du chef de projet du 20 août 2026, en remplacement de 0.2.0) ; **condition d'entrée : la relecture d'anonymisation page par page** — elle ne clôt pas le jalon, elle en ouvre la porte |
 
 Décisions qui gouvernent ce fil, toutes du 19 août 2026 : le code montré est **recréé**, jamais le code réel ;
 les images sont **redessinées**, jamais des scans ; le lecteur **choisit** d'aller au technique (section Annexe
@@ -166,6 +166,30 @@ avant de compter.
   soit **déclaré** plutôt que subi. Remède, proposition R&D du `reviewer` (format B) : comparer
   l'ensemble des valeurs littéralement dupliquées à une **liste déclarée**, toute duplication neuve
   devant être inscrite pour passer. Incrément d'outillage.
+
+- **[W26]** **Les deux rangées d'écho du dessin 1 se lisent comme des champs de saisie sur téléphone.**
+  Validation visuelle du chef de projet, iPhone 14, **20 août 2026** : dix petits rectangles arrondis,
+  vides, alignés par cinq, évoquent un formulaire plutôt que « autant d'autres méthodes ». Le point de
+  suspension qui les suit aide, mais il arrive après. Aucune porte ne pouvait le voir : le HTML est
+  conforme, c'est la **ressemblance** qui trompe. **Arbitrage assumé du chef de projet — écarté du
+  correctif du 20 août**, qui a traité les flèches et le cadre : mise en scène à reprendre, pas défaut
+  à corriger. Rendez-vous à l'incrément « Mise en scène » (n° 7 du fil).
+
+- **[W27]** **La classe `api` est portée par 18 éléments des dessins et n'est la cible d'aucune règle
+  CSS.** Réserve 1 du `reviewer`, sessions 16 (deux passes) : `grep '\.api\b' css/styles.css` rend 0.
+  La couleur du registre vient de `.dessin .case, .dessin .etape`, que `.s36` surcharge — `api` ne
+  change rien au rendu. **Famille de [W18]** : un crochet promis par le HTML que le CSS ne tient pas.
+  Le défaut a survécu à deux passes de revue **et à une vérification qui le visait nommément** — j'ai
+  vérifié les six propriétés personnalisées et conclu « aucun crochet inerte », sans vérifier les
+  classes. À trancher à la mise en scène : **lui donner une règle qui porte réellement le registre**
+  (et rendre `.case`/`.etape` neutres), **ou la retirer**. Ne pas la laisser muette.
+
+- **[W28]** **`.dessin ol { list-style: none }` retire le rôle de liste sous Safari/VoiceOver** pour
+  les **six** listes des deux dessins. Réserve 3 du `reviewer`, sessions 16 : la liste n'est plus
+  annoncée comme telle, son nombre d'éléments disparaît. Le site est validé sur iPhone, donc Safari
+  est la cible primaire — et le HTML avait été préféré au SVG précisément pour que le texte soit
+  **annoncé dans l'ordre**. Remède : poser `role="list"` sur les six `ol`, et **poser la même question
+  à `.site-nav ul`** (`css/styles.css`, seul autre `list-style: none` du site), où l'enjeu est moindre.
 
 - **Points de vigilance recopiés de `.pipeline/` avant qu'il ne s'écrase** (sessions 14 et 15) :
   `attribut?.Nom` rend une valeur nulle pour une propriété sans attribut, comportement du prototype
