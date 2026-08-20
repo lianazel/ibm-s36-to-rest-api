@@ -170,6 +170,64 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
         title: "Le noyau tourne. Il restait une étape",
         p1: "Le noyau tourne, et je ne suis pas allé plus loin. Il restait une étape. Une requête mise au point pour l'API mériterait d'être enregistrée plutôt que ressaisie : l'appelant la désignerait alors par son nom, et non par son texte. C'est cette étape qui en aurait fait un produit. Pas parfait, mais intéressant. Restreindre ce qu'une requête a le droit de faire appartient au même chantier, celui d'après.",
       },
+      dessin1: {
+        legende: "Écrit à la main : tout est figé d'avance, et tout est à maintenir.",
+        case1: {
+          titre: "un fichier plat",
+          sous: "hérité d'une architecture IBM S/36",
+        },
+        case2: {
+          titre: "une requête figée",
+          sous: "écrite dans le code, colonnes fixes",
+        },
+        case3: {
+          titre: "une classe C#",
+          sous: "écrite à la main. Correspond aux colonnes renvoyées par l'exécution de la requête SQL",
+        },
+        case4: {
+          titre: "un dictionnaire de noms",
+          sous: "nom métier vers nom physique, construit par le mécanisme de la réflexion C#",
+        },
+        case5: {
+          titre: "JSON",
+          sous: "aux noms métier",
+        },
+        methode: "une méthode du contrôleur par question posée",
+        note1: "l'appelant ne choisit que son filtre ; ni la requête, ni les colonnes, ni leur nom ; une autre question veut une autre requête, donc une autre méthode et une autre classe",
+        note2: "elle porte les noms de colonnes d'au plus six caractères ; hors de l'application ils ne veulent rien dire ; le programme relit ses propres attributs pendant qu'il tourne et en tire un dictionnaire",
+        conclusion1: "Des centaines de tables. Autant de méthodes, de requêtes et de classes.",
+        conclusion2: "Le coût n'est pas de les écrire une fois. Il est de les maintenir toutes, ensuite : solution intenable.",
+      },
+      dessin2: {
+        legende: "Ce que la machine fait à la place.",
+        etape1: {
+          titre: "une requête SELECT",
+          sous: "avec ou sans jointures, inconnue du code jusqu'à l'appel",
+        },
+        etape2: {
+          titre: "le modèle est construit à la volée",
+          sous: "d'après le nom et le type de chaque colonne renvoyée, une seule fois",
+        },
+        cadre1: "pour chaque ligne renvoyée",
+        cadre2: "pour chaque colonne de la ligne",
+        etape3: {
+          titre: "lire la valeur de la colonne",
+        },
+        etape4: {
+          titre: "la verser dans le modèle",
+          sous: "une instance par ligne",
+        },
+        etape5: {
+          titre: "ajouter l'instance à la liste",
+          sous: "une liste d'objets",
+        },
+        etape6: {
+          titre: "convertir la liste en flux JSON",
+          sous: "avec la version et le nombre d'éléments",
+        },
+        conclusion1: "Une requête différente à chaque appel. Le même code, aucune classe à écrire.",
+        conclusion2: "Le modèle est un moule : fabriqué une fois, chaque ligne y est coulée.",
+      },
     },
     section4: {
       title: "Le mini-langage",
@@ -361,6 +419,64 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
       etape: {
         title: "The core runs. One step was left",
         p1: "The core runs, and I did not take it further. One step was left. A query tuned for the API would deserve to be stored rather than retyped: the caller would then name it, instead of sending its text. That step is what would have made it a product. Not a perfect one, but an interesting one. Restricting what a query is allowed to do belongs to the same job, the next one.",
+      },
+      dessin1: {
+        legende: "Written by hand: everything is fixed in advance, and everything has to be maintained.",
+        case1: {
+          titre: "a flat file",
+          sous: "inherited from an IBM S/36 architecture",
+        },
+        case2: {
+          titre: "a fixed query",
+          sous: "written in the code, fixed columns",
+        },
+        case3: {
+          titre: "a C# class",
+          sous: "written by hand. Matches the columns returned when the SQL query runs",
+        },
+        case4: {
+          titre: "a name dictionary",
+          sous: "business name to physical name, built by the C# reflection mechanism",
+        },
+        case5: {
+          titre: "JSON",
+          sous: "with business names",
+        },
+        methode: "one controller method per question asked",
+        note1: "the caller only chooses the filter; not the query, not the columns, not their names; another question needs another query, hence another method and another class",
+        note2: "it carries the column names of six characters or fewer; outside the application they mean nothing; the program reads its own attributes back while it runs and builds a dictionary from them",
+        conclusion1: "Hundreds of tables. As many methods, queries and classes.",
+        conclusion2: "The cost is not writing them once. It is maintaining all of them afterwards: untenable.",
+      },
+      dessin2: {
+        legende: "What the machine does instead.",
+        etape1: {
+          titre: "a SELECT query",
+          sous: "with or without joins, unknown to the code until the call",
+        },
+        etape2: {
+          titre: "the model is built on the fly",
+          sous: "from the name and the type of each column returned, once only",
+        },
+        cadre1: "for each row returned",
+        cadre2: "for each column of the row",
+        etape3: {
+          titre: "read the column's value",
+        },
+        etape4: {
+          titre: "pour it into the model",
+          sous: "one instance per row",
+        },
+        etape5: {
+          titre: "add the instance to the list",
+          sous: "a list of objects",
+        },
+        etape6: {
+          titre: "turn the list into a JSON feed",
+          sous: "with the version and the item count",
+        },
+        conclusion1: "A different query on every call. The same code, no class to write.",
+        conclusion2: "The model is a mould: cast once, every row is poured into it.",
       },
     },
     section4: {

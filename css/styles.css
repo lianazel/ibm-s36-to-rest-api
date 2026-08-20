@@ -344,6 +344,221 @@ section {
   line-height: 1.5;
 }
 
+/* ---- Dessins (registre API : cases, filets, vert ; le fichier S/36 en bleu).
+   Dessins en HTML : texte bilingue par le dictionnaire, empilement en écran étroit,
+   aucune image. Les listes sont ordonnées parce que l'ordre porte le sens. */
+.dessin {
+  margin: calc(var(--space) * 1.5) 0;
+}
+
+.dessin figcaption {
+  margin-bottom: calc(var(--space) / 2);
+  color: var(--color-ink-soft);
+  font-size: 0.875rem;
+}
+
+.dessin ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dessin .case,
+.dessin .etape {
+  padding: calc(var(--space) / 2) var(--space);
+  border: 1.5px solid var(--color-api);
+  border-radius: 3px;
+  background: var(--color-bg);
+  text-align: center;
+}
+
+.dessin .s36 {
+  border-color: var(--color-s36);
+}
+
+.dessin .case strong,
+.dessin .etape strong {
+  display: block;
+  font-weight: 500;
+}
+
+.dessin .case small,
+.dessin .etape small {
+  display: block;
+  color: var(--color-ink-soft);
+  font-size: 0.8125rem;
+}
+
+.dessin .conclusion {
+  margin: calc(var(--space) / 2) 0 0;
+  text-align: center;
+  font-size: 0.9375rem;
+}
+
+.dessin .sobre {
+  color: var(--color-ink-soft);
+}
+
+/* Dessin 1 : la chaîne. En colonne à toute largeur (décision du chef de projet,
+   20 août 2026 : la rangée de cinq cases devenait illisible en largeur de lecture).
+   Même gabarit que le dessin 2 : cases de 24rem au plus, centrées. La chaîne vit
+   dans un cadre au trait continu qui figure la méthode du contrôleur : un modèle
+   de données vit avec une requête figée, l'ensemble correspond à une route HttpGet. */
+.chaine {
+  display: grid;
+}
+
+/* L'espace entre les boîtes est celui où vit la flèche : il ne peut pas être
+   réduit sans la coller au trait. Les échos gardent le leur, ils n'ont pas de
+   flèche. (Arbitrage du chef de projet, 20 août 2026, après validation sur
+   téléphone : la flèche était dessinée à l'intérieur des cases.) */
+.chaine:not(.echo) {
+  gap: var(--space);
+}
+
+/* Le fichier plat vit hors du cadre de la méthode : il n'appartient pas au
+   contrôleur, il est la source que la méthode interroge. */
+.dessin-chaine .source {
+  max-width: 25rem;
+  margin: 0 auto var(--space);
+}
+
+.dessin-chaine .methode {
+  max-width: 25rem;
+  margin: 0 auto;
+  padding: calc(var(--space) / 2);
+  border: 1px solid var(--color-api);
+  border-radius: 4px;
+}
+
+.dessin-chaine .methode-titre {
+  margin: 0 0 calc(var(--space) / 2);
+  color: var(--color-ink-soft);
+  font-size: 0.8125rem;
+  text-align: center;
+}
+
+.dessin-chaine .methode-titre code {
+  font-family: var(--font-mono);
+}
+
+/* Les boîtes qui portent une flèche la portent hors d'elles-mêmes : le repère
+   de positionnement, c'est la boîte ; la flèche se pose dans l'espace d'après. */
+.chaine:not(.echo) > .case,
+.machine .etape,
+.dessin-chaine .source {
+  position: relative;
+}
+
+/* Une flèche décorative redonne le sens de lecture entre les cases : centrée
+   dans l'espace qui les sépare, jamais à l'intérieur du trait. */
+.chaine:not(.echo) > .case:not(:last-child)::after,
+.dessin-chaine .source::after {
+  content: "\2193";
+  position: absolute;
+  top: calc(100% + var(--space) / 2);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--color-ink-soft);
+  font-size: 0.875rem;
+  line-height: 1;
+}
+
+.dessin-chaine .notes {
+  display: grid;
+  gap: calc(var(--space) / 2);
+  margin: calc(var(--space) / 2) 0;
+}
+
+.dessin-chaine .note {
+  margin: 0;
+  color: var(--color-ink-soft);
+  font-size: 0.8125rem;
+}
+
+.dessin-chaine .echo {
+  /* Les échos : un petit cadre de méthode chacun, cinq cases vides en rangée.
+     Ils suggèrent la répétition, autant d'autres méthodes ; ils ne se lisent pas. */
+  gap: calc(var(--space) / 2);
+  grid-template-columns: repeat(5, 1fr);
+  max-width: 25rem;
+  margin: calc(var(--space) / 2) auto 0;
+  padding: calc(var(--space) / 4);
+  border: 1px solid var(--color-api);
+  border-radius: 4px;
+  opacity: 0.55;
+}
+
+.dessin-chaine .echo .case {
+  padding: calc(var(--space) / 4) var(--space);
+  min-height: 1.5rem;
+}
+
+.dessin-chaine .echo-2 {
+  opacity: 0.3;
+}
+
+.dessin-chaine .points {
+  margin: calc(var(--space) / 4) 0 0;
+  text-align: center;
+  color: var(--color-ink-soft);
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+/* Dessin 2 : la machine. Vertical partout ; pointillés réservés au modèle fabriqué
+   à l'exécution et aux cadres de répétition. */
+.machine,
+.machine ol {
+  display: grid;
+  gap: var(--space);
+}
+
+.machine > li,
+.machine ol > li {
+  max-width: 24rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.machine .pointille {
+  border-style: dashed;
+}
+
+/* Une flèche entre les étapes, centrée dans l'espace qui les sépare. */
+.machine .etape::after {
+  content: "\2193";
+  position: absolute;
+  top: calc(100% + var(--space) / 2);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--color-ink-soft);
+  font-size: 0.875rem;
+  line-height: 1;
+}
+
+/* Aucune flèche à une fin de parcours, et il y en a trois : la fin du dessin,
+   et la sortie de chacun des deux cadres de répétition. Une flèche posée là
+   pointerait sur un trait de cadre, pas sur une étape suivante. */
+.machine > li:last-child::after,
+.machine ol > li:last-child::after {
+  content: none;
+}
+
+.machine .cadre {
+  max-width: none;
+  padding: calc(var(--space) / 2);
+  border: 1px dashed var(--color-ink-soft);
+  border-radius: 4px;
+}
+
+.machine .cadre-titre {
+  display: block;
+  margin-bottom: calc(var(--space) / 2);
+  color: var(--color-ink-soft);
+  font-size: 0.8125rem;
+}
+
 /* ---- Pied de page. */
 .site-footer {
   max-width: var(--measure);
