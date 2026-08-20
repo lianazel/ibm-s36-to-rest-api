@@ -2,6 +2,64 @@
 
 > Une leçon = une erreur commise ici, datée, avec la règle qui l'empêche de revenir.
 
+## 20 août 2026 — Vérifier une liste ne fonde pas une conclusion sur la famille : la conclusion doit nommer ce qu'elle a mesuré
+
+**Type** : Erreur
+**Contexte** : EVOL `dessins-section-3` (merge `950c99a`). Le bloc CSS livré appelle six propriétés
+personnalisées (`--space`, `--color-api`, `--color-s36`, `--color-ink-soft`, `--color-bg`,
+`--font-mono`). Je les ai toutes vérifiées **avant écriture** — geste juste, dette [W18] en tête —
+puis j'ai écrit dans `changes.md` : « vérifié avant écriture, **aucun crochet inerte** — le défaut
+exact de [W18] ».
+**Erreur** : la conclusion couvre **tous** les crochets ; la mesure ne couvrait que les **jetons**.
+Les **classes** n'avaient pas été vérifiées, et c'est exactement là qu'était le crochet : la classe
+`api`, portée par **18 éléments**, n'est la cible d'aucune règle. Le `reviewer` l'a relevé à la
+première passe (réserve 2), et le défaut a **survécu à deux passes de revue** avant d'être inscrit en
+dette [W27]. Un lecteur pressé aurait lu « W18 vérifié » et serait passé.
+**Correction** : une conclusion se rédige **avec le périmètre de sa mesure dans la phrase**. Pas
+« aucun crochet inerte », mais « les six jetons appelés existent ; les classes n'ont pas été
+vérifiées ». Règle mécanique, applicable à la relecture : **si la conclusion est plus courte que
+l'énumération de ce qui a été mesuré, elle est trop large.** Le cas particulier CSS a sa propre
+question, à poser dans les deux sens : *toute classe du HTML a-t-elle une règle ? toute règle
+ajoutée a-t-elle une cible ?* — c'est la proposition R&D du `reviewer`, format B.
+**Parenté** : **deuxième occurrence en deux jours** de la même racine que « citer une leçon n'est pas
+la tenir » (19 août). Là, le balayage s'arrêtait à l'objet qui l'avait déclenché ; ici, la mesure
+s'arrête à la liste que le prompt nommait, et la conclusion, elle, part sur la famille. Même famille
+que « un chiffre porte son état » (17 août) et « une affirmation réfutée se retire de tous ses
+domiciles » (16 août). Cinquième session consécutive : le code est juste, les mesures sont exactes,
+c'est **le périmètre de ce que j'affirme** qui déborde.
+**Portée du dégât** : nulle sur le livré — `SHIP` aux deux passes, aucune mesure fausse dans le code.
+Le dégât est qu'une dette réelle a failli être **certifiée absente** par la phrase censée la chercher.
+**Applicable globalement ?** : à arbitrer par le chef de projet. À mon sens **oui** — vaut pour toute
+revue, tout audit, toute stack, et se vérifie mécaniquement à la relecture.
+
+## 20 août 2026 — Un décor de liaison posé en `::after` appartient à la boîte, pas à l'intervalle
+
+**Type** : Erreur
+**Contexte** : même incrément. Les flèches de sens de lecture des deux dessins étaient posées ainsi :
+`.case:not(:last-child)::after { content: "↓"; display: block; margin-top: … }`, sur des `li` qui
+portent une **bordure**. Structure conforme au prompt, 134 tests verts, verdict `SHIP` à la première
+passe. Sur iPhone 14, la flèche se dessinait **à l'intérieur du cadre**, sous le sous-titre, comme si
+elle appartenait à la case — quand le commentaire du prompt annonçait « entre les cases ».
+**Erreur** : avoir lu `::after` comme « après l'élément ». Un `::after` est le **dernier enfant** de
+son élément : en flux, il se pose **dans** la boîte, donc dans la bordure. Pour vivre dans
+l'intervalle, il lui faut sortir du flux — `position: absolute` sur un parent en `position: relative`,
+et un espacement entre boîtes assez large pour l'accueillir.
+**Correction** : trois questions avant d'écrire un décor de liaison. (1) *Où est la bordure ?* Si
+l'élément en porte une, un enfant en flux tombe dedans. (2) *Le décor lie-t-il deux boîtes, ou
+appartient-il à l'une ?* Un lien vit dans l'intervalle, jamais dans un des deux termes. (3) *L'espace
+qui l'accueille est-il dimensionné pour lui ?* Sinon il touchera un trait. Et la règle qui la couvre
+toutes : **un lien entre deux éléments ne se pose pas sur l'un des deux.**
+**Parenté** : c'est la vérification en production de « lire l'attribut n'est pas mesurer le pixel »
+(15 août). Le CSS était **exactement** celui du prompt, le HTML **exactement** celui du prompt, les
+comptages tous justes — et le rendu, faux. Trois défauts sont sortis de la **première capture
+d'écran** : celui-ci, les flèches pointant sur un bord de cadre, et le fichier plat enfermé à tort.
+Deux des trois n'étaient dans aucune réserve du `reviewer`.
+**Portée du dégât** : trois défauts **livrés** en revue, corrigés avant le land par directive du chef
+de projet. Aucun n'a atteint `main` sans correctif.
+**Applicable globalement ?** : à arbitrer. La règle générale — un lien ne se pose pas sur un de ses
+termes — vaut partout ; le détail `::after` vaut pour toute stack qui produit du CSS, donc au moins
+WebDev et les projets web.
+
 ## 19 août 2026 — Citer une leçon n'est pas la tenir : le balayage porte sur le motif, jamais sur l'objet qui l'a révélé
 
 **Type** : Erreur

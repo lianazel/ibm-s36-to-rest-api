@@ -968,3 +968,140 @@ d'outillage. S'y ajoute **[W23]**, née de la validation visuelle.
 | Le `reviewer` mort au watchdog après avoir écrit son `review.json` | **Revue retenue**, circonstance signalée au chef de projet **avant** le verdict | Le fichier est complet, conforme au contrat, et porte le SHA exact de la pointe. Le relancer aurait jeté une revue valide ; la taire aurait privé le chef de projet d'un élément pour pondérer sa confiance | **précédent** |
 | Le trailer `Co-Authored-By` porté par `b499619`, seul commit du dépôt à en avoir un | **Non corrigé**, signalé | Le commit est **déjà poussé** : le reprendre réécrirait de l'historique public, geste destructif hors de l'inventaire fermé. Les commits suivants s'en tiennent à la forme du dépôt | cas d'espèce |
 | Le brouillon `DRAFT_EVOL_dessins-section-3_v1.md`, apparu en cours de session | **Laissé intact et non suivi**, jamais ouvert, non inscrit au fil | Le fil est le document de décision du chef de projet, et rien ne disait où ranger cet incrément. L'inscrire aurait été décider de l'ordre des travaux à sa place | cas d'espèce |
+
+## Session 16 — 20 août 2026 — EVOL `dessins-section-3` (merge `950c99a`, 0.1.13 → 0.1.14)
+
+**Prompt** : `prompts/v0.1/EVOL_dessins-section-3_v2.md` · **Branche** : `feat/dessins-section-3`
+(3 commits) · **Suite** : **134/134, rc 0**, inchangée · **Revue** : **2 passes**, verdict **`SHIP`**
+aux deux, **9 réserves `WARN`** à la seconde, **aucun `FAIL`**, 2 propositions R&D (format B).
+
+Les deux dessins de « La solution », en HTML et CSS et non en SVG : 32 clés par langue, 64 valeurs,
+deux `figure.dessin`, une famille de règles. Le dessin 1 montre le mur — cinq boîtes, une chaîne
+écrite à la main, enfermée dans un cadre `[HttpGet]` qui figure la méthode du contrôleur. Le dessin 2
+montre le renversement — sept étapes, deux cadres de répétition imbriqués, le pointillé réservé au
+modèle fabriqué à l'exécution.
+
+**La séquence de la session tient en une phrase** : livré conforme au prompt, revu `SHIP`, puis
+**regardé sur un téléphone** — et l'écran a montré trois défauts que ni les 134 tests ni la première
+passe de revue n'avaient pu voir, parce qu'aucun des trois n'était mesurable au `grep`.
+
+### Les deux écarts entre le prompt committé et le livrable
+
+Le prompt est committé (`e7e94a8`) et **ne se réécrit pas**. C'est donc au journal de porter ce qui
+s'en écarte, sans quoi un lecteur comparant l'un à l'autre conclurait à une non-conformité.
+
+**1. La preuve n° 9 du prompt est un résidu de la v1.** Elle demande une validation « en colonne sur
+téléphone et **en rangée sur grand écran** », quand la décision datée du 20 août — portée par le
+§ révision, le § contexte et le commentaire du CSS fourni — dit **la colonne à toute largeur**, la
+rangée de cinq cases devenant illisible en largeur de lecture. La révision v2 n'a pas nettoyé cette
+phrase. **Décision retenue : la colonne partout**, et le CSS livré ne contient **aucun `@media` pour
+la chaîne**. C'est le seul arbitrage qui n'invente pas de code : exécuter la rangée aurait exigé
+d'écrire un point de rupture absent du bloc fourni, donc de violer « exactement comme fournies ».
+Le `reviewer` a confirmé la lecture aux deux passes.
+
+**2. La directive de correctif du chef de projet du 20 août, postérieure au prompt.** Émise après
+validation visuelle sur iPhone 14, elle vaut pour le CSS à la place du prompt et porte le bloc de 182
+à **215 lignes** (33 de plus). Trois gestes :
+
+- **Les flèches passent en absolu, entre les boîtes.** Elles se dessinaient **dans** le trait : un
+  `::after` est un enfant de son élément, et l'élément porte la bordure, donc un décor en flux se pose
+  à l'intérieur du cadre. Elles sont désormais posées dans l'espace qui sépare deux boîtes, lequel
+  passe de `calc(var(--space) / 2)` à `var(--space)` — c'est là qu'elles vivent, il ne peut plus être
+  réduit sans les recoller au trait.
+- **Les sorties de cadre deviennent muettes.** Le dessin 2 a **trois** fins de parcours — la fin du
+  dessin et la sortie de chacun des deux cadres — et la règle livrée n'en couvrait qu'une : deux
+  flèches pointaient sur un trait de pointillé. `.machine ol > li:last-child::after { content: none }`
+  éteint les deux autres ; sa spécificité (0,2,3) l'emporte sur `.machine .etape::after` (0,2,1),
+  calculée **puis** mesurée dans un navigateur.
+- **Le fichier plat sort du cadre `[HttpGet]`.** Constat de lecture soulevé à la validation visuelle
+  et retenu par le chef de projet : le fichier **n'appartient pas au contrôleur**, il est la source
+  que la méthode interroge. Enfermé dans le cadre, le dessin affirmait plus que le texte. `case1`
+  devient un `div.case.s36.source` avant le `div.methode` ; l'`ol.chaine` garde quatre `li`. Aucune
+  clé, aucune valeur n'a bougé : les deux `data-i18n` ont suivi l'élément.
+
+### La revue : deux passes, et ce qu'elle a redressé chez moi
+
+Première passe (`07d16e1`) : `SHIP`, 7 réserves. Seconde (`2379e05`) : `SHIP`, 9 réserves — deux
+tombent, quatre tiennent, une s'élargit, trois sont neuves.
+
+**Le `reviewer` a redressé deux de mes nombres**, ce que les sessions précédentes n'avaient jamais eu
+à faire :
+
+1. **Une conclusion plus large que sa mesure (réserve 2 de la 1ʳᵉ passe).** J'écrivais « aucun crochet
+   inerte — le défaut exact de [W18] » en n'ayant vérifié que les six propriétés personnalisées. Les
+   **classes** n'étaient pas vérifiées, et c'est exactement là qu'était le crochet : la classe `api`
+   est portée par 18 éléments et n'est la cible d'aucune règle. J'ai cité W18 dans le document même où
+   je l'enfreignais — **exactement le motif de la leçon du 19 août**, deuxième occurrence en deux
+   sessions. Inscrit en dette **[W27]**.
+2. **Un `216` qui ne se refermait pas (réserve 5 de la 2ᵈᵉ passe).** Mon `awk` comptait sa borne de
+   fin ; le bloc court de la ligne 347 à 561, soit **215**, et 215 − 182 = 33. Le premier nombre qu'un
+   relecteur recalcule était faux.
+3. **Une valeur unique pour quatre flèches (réserve 6).** `top: 70,39 px` ne peut pas décrire quatre
+   boîtes de hauteurs différentes, puisque `top: calc(100% + var(--space) / 2)` se résout contre la
+   hauteur de **chaque** boîte. La preuve est refaite sur l'**invariant** — `top` > hauteur de la
+   boîte, tenu par le `calc` — et les onze boîtes porteuses sont mesurées une par une.
+
+Les deux dernières ont été corrigées **après** son verdict, sans toucher au code ; la correction est
+datée en tête de `test-results.md` pour que nul ne croie qu'il a lu le texte corrigé.
+
+### La validation visuelle, deux fois, et ce qu'elle seule pouvait voir
+
+Deux tunnels éphémères, iPhone 14 réel, quinze captures du chef de projet — cinq avant le correctif,
+dix après, **FR et EN**. C'est la première fois que les dessins sont vus dans les deux langues : le
+seul vrai test du choix HTML plutôt que SVG, puisqu'un SVG aurait demandé un second dessin.
+
+L'écran a produit **trois constats qu'aucune porte ne pouvait produire** : les flèches dans le trait,
+les flèches pointant sur un bord de cadre, et le fichier plat enfermé à tort. Le premier et le
+troisième n'étaient dans **aucune** réserve du `reviewer` ; le deuxième était sa réserve 7, qu'il
+avait déduite du CSS sans pouvoir en juger la laideur. **Confirmation de la leçon du 15 août** :
+lire l'attribut n'est pas mesurer le pixel — et cette fois le prix en était trois défauts livrés.
+
+Les échos du dessin 1, eux, se lisent toujours comme des champs de saisie : constat de la même
+validation, **écarté du correctif par le chef de projet**, inscrit en dette [W26]. Dette assumée, pas
+défaut caché.
+
+### Ce que j'ai fait de mon propre chef
+
+- **Mesurer le rendu dans un navigateur** avant de rendre la main : serveur local `127.0.0.1`, fenêtre
+  390 × 844, onze boîtes porteuses relevées une par une, débordement horizontal vérifié. Aucune de ces
+  mesures n'a été ajoutée à la suite : elles sont datées, non rejouables, et dites comme telles.
+- **Vérifier moi-même les deux constats du `reviewer` qui portaient sur du code** — la classe `api`
+  inerte et les flèches des sorties de cadre — plutôt que de les reprendre sur parole.
+- **Servir le site par une copie du site seul** pour l'aperçu : l'outil de tunnel refuse une racine de
+  dépôt, et la mise en scène ne devait emporter ni `prompts/`, ni `tasks/`, ni `.claude/`.
+- **Supprimer ma propre capture égarée** à la racine du dépôt avant de committer — artefact à moi, pas
+  fichier du dépôt.
+
+### Les écarts de l'incrément
+
+**Conformité au prompt v2 : entière au commit `07d16e1`** — 64 valeurs au caractère près, 16 clés par
+groupe et par langue, les deux blocs HTML et les 182 lignes de CSS à l'octet près, vérifié par
+comparaison stricte du `reviewer`. **Puis écart assumé au commit `2379e05`**, sur directive écrite,
+détaillé plus haut.
+
+Trois constats hors périmètre portés en dette dans `tasks/ROADMAP.md` **pendant cette clôture** et non
+après : **[W26]** la mise en scène des échos, **[W27]** la classe `api` inerte, **[W28]** le rôle de
+liste retiré par `list-style: none` sous Safari/VoiceOver. C'est la première clôture à inscrire ses
+dettes elle-même — [W24] disait que rien ne mettait le fil à jour ; ici, la consigne du chef de projet
+l'a mis à jour.
+
+**Le sort de la v1, réglé par son auteur.** `prompts/v0.1/EVOL_dessins-section-3_v1.md` — gelée,
+jamais transmise, que la v2 interdit explicitement d'exécuter — a été signalée **non suivie** à
+l'ouverture, à chaque handoff et aux deux passes de revue (réserve 6 puis 9). Elle n'a été ni
+committée ni supprimée de ma main : un fichier du chef de projet ne s'efface pas sans sa parole. Elle
+**n'est plus dans l'arbre à la clôture** — présente à 19:33, absente à 20:06, retirée par le chef de
+projet. La réserve tombe donc sans qu'aucune décision ait été prise à sa place. Le dépôt public ne
+porte que la v2, celle qui a été exécutée.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| Le prompt v2 se contredit sur la largeur : décision datée contre preuve n° 9 | **La décision datée**, colonne à toute largeur | Le CSS fourni ne contient aucun `@media` pour la chaîne : exécuter la rangée aurait exigé d'écrire du code absent du prompt, donc de violer « exactement comme fournies ». Seul arbitrage qui n'invente rien | **précédent** |
+| Une directive du chef de projet postérieure au prompt committé | **La directive prime**, l'écart est porté au journal | Le prompt a été écrit avant que le rendu ne soit vu ; la directive est postérieure et fondée sur une pièce que le prompt ne pouvait pas avoir. Le prompt committé ne se réécrit pas, c'est au journal de porter l'écart | **précédent** |
+| Les réserves `WARN` d'un verdict `SHIP`, première passe | **Non corrigées**, affichées telles quelles | Consigne du prompt. Elles ont servi de matière à la validation visuelle, qui en a levé une et confirmé une autre | cas d'espèce |
+| Deux erreurs de mesure dans mes artefacts, relevées par le `reviewer` après son verdict | **Corrigées après coup**, correction datée en tête de l'artefact | Un artefact dont toute la valeur est l'exactitude ne se livre pas avec un nombre faux. Mais le commit revu n'a pas bougé, et la correction est signalée pour que nul ne croie le `reviewer` auteur de sa relecture | **précédent** |
+| Niveau de bump | **Patch** 0.1.13 → 0.1.14, **sans redemander** | Règle en portée `précédent` depuis la session 12. Le défaut `feat/*` vaut minor, soit 0.2.0 — et la cible de fin de jalon devient précisément **1.0.0** par décision de ce jour : consommer 0.2.0 ici n'aurait plus aucun sens. **Treizième** inscription | précédent |
+| Le fichier plat dans ou hors du cadre `[HttpGet]` | **Dehors**, sur décision du chef de projet | Le fichier n'appartient pas au contrôleur, il est la source que la méthode interroge. Le constat est né de la lecture du rendu, pas du code — je l'ai soulevé comme question de lecture, jamais tranché seul, le cadre étant une décision du 20 août | cas d'espèce |
+| `prompts/v0.1/EVOL_dessins-section-3_v1.md`, gelé, jamais transmis, non suivi | **Laissé intact et non suivi**, signalé à chaque étape ; **retiré par le chef de projet** avant la clôture | La v2 interdit de l'exécuter, ce qui règle son usage, pas son sort. Le supprimer ou le committer sont deux décisions du chef de projet ; l'exécutant n'en prend aucune, et n'a pas eu à en prendre | **précédent** |
+| Les mesures de rendu faites au navigateur | **Consignées hors de la suite**, explicitement non rejouables | Les inscrire comme tests aurait promis une garde qui n'existe pas. Elles disent où sont les éléments à un instant, jamais que le dessin est bon : c'est ce que la validation humaine juge | **précédent** |
