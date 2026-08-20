@@ -559,6 +559,75 @@ section {
   font-size: 0.8125rem;
 }
 
+/* ---- Boîte à outils (registre API : bloc dépliable natif, aucun script).
+   Repliée par défaut ; le tableau défile dans son conteneur si l'écran est
+   plus étroit que lui, jamais la page (CLAUDE.md, UX). */
+.boite {
+  margin: var(--space) 0;
+  border: 1px solid var(--color-line);
+  border-left: 3px solid var(--color-api);
+}
+
+.boite summary {
+  padding: var(--space);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.boite p {
+  margin: 0;
+  padding: 0 var(--space);
+  color: var(--color-ink-soft);
+  font-size: 0.875rem;
+}
+
+.boite p + p {
+  margin-top: calc(var(--space) / 2);
+}
+
+.boite p:last-child {
+  padding-bottom: var(--space);
+}
+
+.boite .defile {
+  overflow-x: auto;
+  padding: var(--space);
+}
+
+.boite table {
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.boite th,
+.boite td {
+  padding: calc(var(--space) / 6);
+  border: 1px solid var(--color-line);
+  text-align: left;
+  vertical-align: top;
+}
+
+/* L'aisance de calage est un enrichissement, comme le veut la feuille : la base
+   sert la plus petite largeur visée. Mesuré le 20 août 2026 sur le tableau des
+   neuf lignes : au calage de --space/2 il déborde de 3 px à 320 px, assez peu
+   pour se lire comme un défaut d'affichage et non comme un défilement ; au calage
+   de --space/6 il rentre avec 5 px de reste. Dès 360 px il tient au large dans les
+   deux cas, d'où la rupture placée juste au-dessus de 320 px. La marge est mince :
+   le mot « CreateInstance » de la neuvième description est insécable et fixe à lui
+   seul la largeur minimale de la troisième colonne. Le conteneur reste en
+   overflow-x: auto, filet si une police de repli mesure plus large. */
+@media (min-width: 22rem) {
+  .boite th,
+  .boite td {
+    padding: calc(var(--space) / 2);
+  }
+}
+
+.boite code {
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
 /* ---- Pied de page. */
 .site-footer {
   max-width: var(--measure);

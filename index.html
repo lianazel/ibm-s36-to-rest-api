@@ -52,8 +52,8 @@
       </ul>
     </nav>
 
-    <section class="about">
-      <h2 data-i18n="about.title"></h2>
+    <section class="about" aria-labelledby="about-titre">
+      <h2 id="about-titre" data-i18n="about.title"></h2>
       <p class="about-name" data-i18n="about.name"></p>
       <p data-i18n="about.license"></p>
       <p>
@@ -69,9 +69,9 @@
   </div>
 
   <main>
-    <section id="decor">
+    <section id="decor" aria-labelledby="decor-titre">
       <p class="tagline" data-i18n="hero.tagline"></p>
-      <h2 data-i18n="section1.title"></h2>
+      <h2 id="decor-titre" data-i18n="section1.title"></h2>
       <p data-i18n="section1.intro"></p>
 
       <h3 data-i18n="section1.lignees.title"></h3>
@@ -92,14 +92,14 @@
       <p data-i18n="section1.preuve.p3"></p>
     </section>
 
-    <section id="probleme">
-      <h2 data-i18n="section2.title"></h2>
+    <section id="probleme" aria-labelledby="probleme-titre">
+      <h2 id="probleme-titre" data-i18n="section2.title"></h2>
       <p data-i18n="section2.intro"></p>
       <p><span data-i18n="section2.renvoi"></span> <a href="#annexe" data-i18n="section2.renvoiLien"></a></p>
     </section>
 
-    <section id="solution">
-      <h2 data-i18n="section3.title"></h2>
+    <section id="solution" aria-labelledby="solution-titre">
+      <h2 id="solution-titre" data-i18n="section3.title"></h2>
       <p data-i18n="section3.intro"></p>
 
       <h3 data-i18n="section3.modele.title"></h3>
@@ -107,13 +107,13 @@
       <p data-i18n="section3.modele.p2"></p>
 
       <figure class="extrait">
-        <figcaption data-i18n="section3.modele.code1.legende"></figcaption>
-        <pre tabindex="0"><code data-i18n="section3.modele.code1.source"></code></pre>
+        <figcaption id="code1-legende" data-i18n="section3.modele.code1.legende"></figcaption>
+        <pre tabindex="0" role="region" aria-labelledby="code1-legende"><code data-i18n="section3.modele.code1.source"></code></pre>
       </figure>
 
       <figure class="extrait">
-        <figcaption data-i18n="section3.modele.code2.legende"></figcaption>
-        <pre tabindex="0"><code data-i18n="section3.modele.code2.source"></code></pre>
+        <figcaption id="code2-legende" data-i18n="section3.modele.code2.legende"></figcaption>
+        <pre tabindex="0" role="region" aria-labelledby="code2-legende"><code data-i18n="section3.modele.code2.source"></code></pre>
       </figure>
 
       <h3 data-i18n="section3.mur.title"></h3>
@@ -175,9 +175,39 @@
       </figure>
 
       <figure class="extrait">
-        <figcaption data-i18n="section3.renversement.code3.legende"></figcaption>
-        <pre tabindex="0"><code data-i18n="section3.renversement.code3.source"></code></pre>
+        <figcaption id="code3-legende" data-i18n="section3.renversement.code3.legende"></figcaption>
+        <pre tabindex="0" role="region" aria-labelledby="code3-legende"><code data-i18n="section3.renversement.code3.source"></code></pre>
       </figure>
+
+      <details class="boite">
+        <summary id="boite-titre" data-i18n="section3.boite.resume"></summary>
+        <p data-i18n="section3.boite.intro"></p>
+        <div class="defile" tabindex="0" role="region" aria-labelledby="boite-titre">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col" data-i18n="section3.boite.colonne1"></th>
+                <th scope="col" data-i18n="section3.boite.colonne2"></th>
+                <th scope="col" data-i18n="section3.boite.colonne3"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td><code>AssemblyName</code></td><td data-i18n="section3.boite.ligne1"></td></tr>
+              <tr><td>2</td><td><code>AssemblyBuilder</code></td><td data-i18n="section3.boite.ligne2"></td></tr>
+              <tr><td>3</td><td><code>ModuleBuilder</code></td><td data-i18n="section3.boite.ligne3"></td></tr>
+              <tr><td>4</td><td><code>TypeBuilder</code></td><td data-i18n="section3.boite.ligne4"></td></tr>
+              <tr><td>5</td><td><code>FieldBuilder</code></td><td data-i18n="section3.boite.ligne5"></td></tr>
+              <tr><td>6</td><td><code>PropertyBuilder</code></td><td data-i18n="section3.boite.ligne6"></td></tr>
+              <tr><td>7</td><td><code>MethodBuilder</code></td><td data-i18n="section3.boite.ligne7"></td></tr>
+              <tr><td>8</td><td><code>ILGenerator</code></td><td data-i18n="section3.boite.ligne8"></td></tr>
+              <tr><td>9</td><td><code>Activator</code></td><td data-i18n="section3.boite.ligne9"></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p data-i18n="section3.boite.hors"></p>
+        <p><code>Dictionary&lt;&gt;</code> <span data-i18n="section3.boite.hors1"></span></p>
+        <p><code>List&lt;&gt;</code> <span data-i18n="section3.boite.hors2"></span></p>
+      </details>
 
       <p data-i18n="section3.renversement.p3"></p>
 
@@ -185,18 +215,18 @@
       <p data-i18n="section3.etape.p1"></p>
     </section>
 
-    <section id="mini-langage">
-      <h2 data-i18n="section4.title"></h2>
+    <section id="mini-langage" aria-labelledby="mini-langage-titre">
+      <h2 id="mini-langage-titre" data-i18n="section4.title"></h2>
       <p data-i18n="section4.intro"></p>
     </section>
 
-    <section id="methode">
-      <h2 data-i18n="section5.title"></h2>
+    <section id="methode" aria-labelledby="methode-titre">
+      <h2 id="methode-titre" data-i18n="section5.title"></h2>
       <p data-i18n="section5.intro"></p>
     </section>
 
-    <section id="annexe">
-      <h2 data-i18n="annexe.title"></h2>
+    <section id="annexe" aria-labelledby="annexe-titre">
+      <h2 id="annexe-titre" data-i18n="annexe.title"></h2>
       <p data-i18n="annexe.intro"></p>
       <p data-i18n="annexe.attente"></p>
       <p><a href="#probleme" data-i18n="annexe.retour"></a></p>
