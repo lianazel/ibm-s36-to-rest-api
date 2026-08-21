@@ -1,6 +1,6 @@
 # ROADMAP — IBMiAPI
 
-## Le fil — ordre des incréments, état au 19 août 2026 au soir
+## Le fil — ordre des incréments, état au 21 août 2026 au soir
 
 **Ce tableau est le fil. Le reste du document en est la pièce justificative.** Une ligne par incrément, dans
 l'ordre où ils passent ; l'état se met à jour à chaque atterrissage. Quand on se perd, on revient ici.
@@ -12,10 +12,25 @@ l'ordre où ils passent ; l'état se met à jour à chaque atterrissage. Quand o
 | 3 | EVOL probleme-renvoi-et-annexe | `EVOL_probleme-renvoi-et-annexe_v1` | **atterri**, 0.1.13 (session 15) | « aucune description » tranché (troisième voie), intro de la section 2 réécrite, phrase de renvoi, section « Annexe » amorcée (titre, détour technique, texte d'attente, retour, menu) |
 | 4 | EVOL dessins-section-3 | `EVOL_dessins-section-3_v2` | **atterri**, 0.1.14 (session 16) | les deux dessins en HTML et CSS (choix arbitré le 19 août : bilingues par le dictionnaire, empilables, texte lisible ; le contrat disait « SVG de préférence », l'autre voie est meilleure ici), dessin 1 en fin de temps 2, dessin 2 au temps 3 avant le code ; **corrigé le 20 août après validation sur iPhone 14** — flèches entre les boîtes, sorties de cadre muettes, fichier plat hors du cadre `[HttpGet]` |
 | 5 | EVOL boîte à outils | `EVOL_boite-a-outils_v1` | **atterri**, 0.1.15 (session 17) | neuf classes en chaîne dans un bloc dépliable natif (`details`/`summary`, aucun JavaScript) : les huit constructeurs **plus `Activator`** ; `Dictionary<>` et `List<>` en prose sous le tableau, hors chaîne ; **établit le motif de dépliement** ; **première requête de largeur du site** (22 rem, calage de cellule) ; **[W19] remboursée** |
-| 6 | EVOL annexe-s36 | à rédiger, **après** notes `le-probleme` v6 (matière des dessins case par case) | à venir | remplit l'Annexe : **feuille I redessinée et remplie avec `CDEMST`** (où vit la description du fichier), **feuille C** à trois lignes (`MULT` avec longueur et décimales, `CHAIN` avec l'indicateur 51 en colonne High, `EXSR` conditionné par 51), les trois tableaux, le témoignage au « je », le GAP nommé côté français ; SVG registre « plan technique », **établit le motif du dessin** |
-| 7 | Mise en scène | à rédiger | à venir | Plex Mono des commandes en ligne, indice de défilement des cadres de code (W23), dettes W5, W8, W12, W13, W18, W29, W30 |
-| 8 | Outillage | à rédiger | à venir | dette W17, exception de langue des clés dans `CLAUDE.md`, porte de résolution des ancres internes (W22), porte de duplication du dictionnaire (W25), le fil que `/land` ne met pas à jour (W24), porte de non-régression lexicale (proposition du `reviewer`, session 13), porte de forme des deux versions du code |
-| 9 | Fin de jalon 1 | — | à venir | **bump 1.0.0** (décision du chef de projet du 20 août 2026, en remplacement de 0.2.0) ; **condition d'entrée : la relecture d'anonymisation page par page** — elle ne clôt pas le jalon, elle en ouvre la porte |
+| 6 | EVOL mini-langage, refus et classe | `DRAFT_EVOL_mini-langage-refus-et-classe_v1` (**brouillon**, non gelé) | à venir | remplit la section 4, aujourd'hui texte d'attente : les trois paragraphes d'ouverture (registre « idée exploratoire », arbitrage du 21 août), les trois arguments contre un `where` ouvert, le décor en **quatre fichiers** (18 commandes, 18 clients, 18 modes par client, 6 modes au référentiel, les trois derniers repliés), la **jointure par les valeurs** sur nom plus prénom, le **reconnaisseur** à six opérateurs et ses six refus, et **la classe qui se réécrit** quand le lecteur coche une colonne. Module neuf `js/minilangage.js` + suite neuve. **Se suffit à lui-même** : livré seul, il tient la promesse du troisième paragraphe |
+| 7 | EVOL mini-langage, JSON et édition | `DRAFT_EVOL_mini-langage-json-et-edition_v1` (**brouillon**, non gelé) | à venir | le JSON renvoyé (plafonné en hauteur), la **requête paramétrée** et son vis-à-vis naïf quand la valeur porte une apostrophe, l'**édition des commandes après un bouton** avec le message de jointure brisée. Le motif du bouton est pédagogique et tracé (`NOTES_CONTENU_mini-langage_v5.md` §0 sexies) : il fabrique une intention, on n'apprend pas d'un accident |
+| 8 | EVOL annexe-s36 | à rédiger, notes `le-probleme` v6 **présentes** | à venir | remplit l'Annexe : **feuille I redessinée et remplie avec `CDEMST`** (où vit la description du fichier), **feuille C** à trois lignes (`MULT` avec longueur et décimales, `CHAIN` avec l'indicateur 51 en colonne High, `EXSR` conditionné par 51), les trois tableaux, le témoignage au « je », le GAP nommé côté français ; SVG registre « plan technique », **établit le motif du dessin** |
+| 9 | Mise en scène | à rédiger | à venir | Plex Mono des commandes en ligne, indice de défilement des cadres de code (W23), dettes W5, W8, W12, W13, W18, W29, W30 |
+| 10 | Remboursement des dettes d'outillage | à rédiger | à venir | dette W17, exception de langue des clés dans `CLAUDE.md`, porte de résolution des ancres internes (W22), porte de duplication du dictionnaire (W25), le fil que `/land` ne met pas à jour (W24), porte de non-régression lexicale (proposition du `reviewer`, session 13), porte de forme des deux versions du code |
+| 11 | Fin de jalon 1 | — | à venir | **bump 1.0.0** (décision du chef de projet du 20 août 2026, en remplacement de 0.2.0) ; **condition d'entrée : la relecture d'anonymisation page par page** — elle ne clôt pas le jalon, elle en ouvre la porte |
+
+**Décision du 21 août 2026, chef de projet : le mini-langage passe en tête.** Il occupe les lignes 6 et 7,
+et tout le reste décale d'un cran. Deux motifs. Le premier : le jalon 1 promet « les cinq sections » et la
+section 4 est encore un texte d'attente ; son texte n'est donc pas du travail d'avance, c'est du jalon 1 que
+ce fil avait oublié. Le second : la maquette a été validée le jour même, les cinq questions de forme sont
+tranchées, et les pré-conditions chiffrées des deux prompts sont vraies **maintenant**. La coupe en deux
+sous-incréments est du même jour, et suit la réserve inscrite aux notes v4 : « même coupé, B reste gros ;
+s'il résiste à la rédaction, il se recoupe en deux, à dire au moment de la rédaction, pas après ».
+
+**Deux trous connus de ce fil, à ne pas perdre de vue.** La **section 5, « La méthode »**, est un texte
+d'attente et **aucune ligne ne la couvre** : le jalon 1 ne peut pas se fermer sans elle. Et le titre du
+chapitre « Jalon 2 (v0.2) » est resté en arrière depuis que le jalon 1 vise 1.0.0. Relevés le 21 août 2026,
+non traités, délibérément.
 
 Décisions qui gouvernent ce fil, toutes du 19 août 2026 : le code montré est **recréé**, jamais le code réel ;
 les images sont **redessinées**, jamais des scans ; le lecteur **choisit** d'aller au technique (section Annexe
