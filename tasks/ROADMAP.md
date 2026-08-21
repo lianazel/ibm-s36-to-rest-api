@@ -286,7 +286,8 @@ version au manifeste et la ligne de `STATUS.md`, qui changent à chaque atterris
    [W5], [W8], [W12], [W13].
 5. **Outillage**, dû après trois incréments de contenu : dette [W17], et l'exception de langue
    ci-dessous à écrire dans le `CLAUDE.md`.
-6. Fin de jalon 1 : relecture d'anonymisation page par page, puis bump **minor 0.2.0**.
+6. Fin de jalon 1 : relecture d'anonymisation page par page, puis bump **1.0.0** (décision du chef de
+   projet du 20 août 2026, en remplacement de 0.2.0 — cf. le fil, ligne 9 du tableau).
 
 **Arbitrage en attente — l'exception de langue des clés de dictionnaire.** Les clés de groupe
 ajoutées sont en français (`modele`, `mur`, `renversement`, `etape`), comme celles de la section 1
