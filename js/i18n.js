@@ -8,7 +8,13 @@
  *
  * Le module s'amorce lui-même dans le navigateur ; l'amorçage est gardé pour
  * que l'import sous Vitest (environnement node, sans DOM) reste inoffensif.
+ *
+ * C'est aussi lui qui monte le simulateur du mini-langage : la page ne porte
+ * que deux balises `<script>` et n'en gagnera pas une troisième. Le sens de
+ * l'import va d'ici vers `minilangage.js`, jamais l'inverse : ce module-là
+ * ignore la langue et ne connaît pas ce dictionnaire, il le reçoit.
  */
+import { mountMiniLanguage } from "./minilangage.js";
 
 export const dict = {
   fr: {
@@ -250,7 +256,175 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
     },
     section4: {
       title: "Le mini-langage",
-      intro: "La suite de ce chapitre arrive.",
+      ouverture: {
+        titre: "Une idée, pas une pièce du système",
+        p1: "Ce chapitre n'est pas comme les autres. Tout ce que le site raconte jusqu'ici existe et tourne. Ce qui suit est une idée que j'ai eu envie d'essayer, ici, sur ce site, et nulle part ailleurs.",
+        p2: "Elle part d'une question simple : qu'est-ce qu'un appelant a le droit de demander ? Lui laisser écrire lui-même son filtre, c'est lui donner les clés du bâtiment. Il pourrait lire une colonne que je ne lui montre pas, ouvrir un fichier dont je ne lui ai jamais parlé. Alors j'ai imaginé l'inverse : il ne rédige rien, il choisit. Une colonne dans la liste que j'expose, un test dans une liste de six, et une valeur. Trois listes, et rien en dehors.",
+        p3: "Est-ce que ça tient debout ? C'est exactement ce que la suite de cette page permet d'essayer.",
+      },
+      pourquoi: {
+        a1: "Un where ouvert, c'est donner les clés de la maison : l'appelant peut demander n'importe quelle colonne, n'importe quel fichier, n'importe quelle sous-requête.",
+        a2: "Un where ouvert parle le langage du fichier, avec ses noms d'au plus six caractères. Celui-ci parle le langage du métier.",
+        a3: "Un where ouvert ne se borne pas. On ne peut ni interdire une négation qui ramènerait tout, ni exiger deux caractères sur un « contient ». Avec trois listes closes, on le peut.",
+      },
+      decor: {
+        titre: "Le décor : les fichiers du grossiste",
+        intro: "Quatre fichiers, aucune clé technique. Et pourquoi aucun numéro de client ? Ces machines n'en fabriquaient pas : un identifiant se gérait soi-même, un champ de plus dans des enregistrements à longueur fixe où chaque octet comptait. On joignait donc par les valeurs du métier.",
+        cdemst: "CDEMST : les commandes",
+        climst: "CLIMST : les clients",
+        cmliv: "CMLIV : le mode de livraison par client",
+        modliv: "MODLIV : le référentiel des modes",
+      },
+      modes: {
+        exp: "Express 24 h",
+        std: "Standard 72 h",
+        ret: "Retrait entrepôt",
+        mes: "Messagerie",
+        rel: "Point relais",
+        pal: "Palette affrétée",
+      },
+      legende: {
+        titre: "Deux sortes de liens, et le fichier n'en déclare aucun.",
+        valeurs: "C'est ainsi qu'on reconnaît le même client d'un fichier à l'autre : par son nom et son prénom. Il n'existe aucun numéro de client, et deux DURAND ne se séparent que par le prénom.",
+        code: "Un code qui renvoie à un autre fichier. Les deux portent la même donnée sous deux noms. C'est ce qu'on appellerait aujourd'hui une clé étrangère, à ceci près que rien ici ne la déclare : seuls les programmes le savent.",
+        modifier: "Les cellules teintées portent les liens : ce sont elles qu'un programme doit maintenir. Les autres ne tiennent rien.",
+      },
+      refus: {
+        forme: {
+          quoi: "Forme non reconnue",
+          pourquoi:
+            "une séquence s'écrit <colonne:opérateur:valeur/>, dans cet ordre et sans rien autour. Par exemple <nomClient:=]:UR/> : d'abord la colonne, puis le test, puis la valeur. L'opérateur va au milieu, jamais à la fin.",
+        },
+        colonne: {
+          quoi: "Colonne « {nom} » hors de la liste exposée",
+          pourquoi:
+            "l'appelant ne choisit pas ce qu'il interroge. Seules les propriétés du modèle sont acceptées, et elles sont toutes listées plus bas.",
+        },
+        operateur: {
+          quoi: "Opérateur « {op} » hors liste",
+          pourquoi:
+            "six opérateurs, pas un de plus. == égal · [= commence par · =] finit par · [] contient · >< compris entre · => supérieur ou égal. Par exemple <{colonne}:[=:DUR/>.",
+        },
+        interdit: {
+          quoi: "Opérateur « {op} » connu et interdit",
+          pourquoi: "une négation sur une colonne texte ramènerait la totalité des lignes.",
+        },
+        type: {
+          quoi: "« {operateur} » ne s'applique pas à {colonne}",
+          pourquoi: "cette propriété est de type {type} ; l'opérateur attend {types}.",
+        },
+        valeurVide: {
+          quoi: "Valeur absente",
+          pourquoi: "un test sans valeur ne teste rien.",
+        },
+        tropCourt: {
+          quoi: "Valeur trop courte pour « {operateur} »",
+          pourquoi: "au moins deux caractères, sinon la recherche balaie tout le fichier.",
+        },
+        bornes: {
+          quoi: "« compris entre » attend deux bornes",
+          pourquoi: "on les sépare par un point-virgule : <{colonne}:><:borne1;borne2/>",
+        },
+        liaison: {
+          quoi: "Mélange de ET et de OU",
+          pourquoi:
+            "une expression porte une seule sorte de liaison : ET, ou OU, jamais les deux à la fois.",
+        },
+      },
+      zone1: { titre: "Ce que l'appelant demande" },
+      zone2: { titre: "La classe que la machine vient de fabriquer" },
+      champ: { filtre: "Filtre" },
+      colonnes: { titre: "Colonnes voulues" },
+      exemples: {
+        note: "Des exemples à cliquer : chacun remplit le champ « Filtre » à votre place. Les gris passent ; les rouges tentent une demande interdite, et c'est leur refus qu'ils servent à montrer.",
+        repos: "Survolez un exemple, ou touchez-le, pour lire ce qu'il démontre.",
+      },
+      morale: "Aucune de ces classes n'existe dans le code.",
+      compte: {
+        une: "1 ligne trouvée sur {total}.",
+        plusieurs: "{n} lignes trouvées sur {total}.",
+        aucune: "Aucune ligne trouvée sur {total}.",
+      },
+      classe: {
+        commentaire: "Type fabriqué à l'exécution, puis oublié",
+        vide: "aucune colonne choisie : il n'y a rien à fabriquer",
+        // Le nom de la classe se traduit comme le reste du code, seul son
+        // empreinte reste stable d'une langue à l'autre.
+        prefixe: "Commande",
+      },
+      // Les noms de propriétés exposés par le modèle. Le site traduit son code ;
+      // seul le nom physique de la colonne, à gauche, ne bouge jamais.
+      modele: {
+        NOMCLI: "nomClient",
+        PRECLI: "prenomClient",
+        LIZEPO: "codeModeLivraison",
+        LIBLIV: "libelleModeLivraison",
+        NUMCDE: "numeroCommande",
+        DATCDE: "dateCommande",
+        MTTCDE_BRUT: "montantBrut",
+        MTTCDE: "montantCommande",
+        VILCLI: "villeClient",
+      },
+      types: {
+        texte: "texte",
+        entier: "entier",
+        date: "date",
+        décimal: "décimal",
+      },
+      ex: {
+        commencePar: {
+          nom: "commence par",
+          aide: "Les noms qui commencent par DUR : 3 commandes sur 18. Il n'y a que deux clients DURAND, mais CLAIRE en a passé deux, et c'est ce qu'une jointure par les valeurs produit tout le temps. Modifiez la valeur : MAR en trouve 3 aussi.",
+        },
+        finitPar: {
+          nom: "finit par",
+          aide: "Les noms qui finissent par IER : FOURNIER, MERCIER, GARNIER, soit 3 commandes. Essayez la même chose avec une seule lettre, T : elle passe, et rend LAMBERT et PETIT.",
+        },
+        contient: {
+          nom: "contient",
+          aide: "Les noms qui contiennent AR n'importe où : 5 commandes. Deux caractères au minimum, sinon la demande est refusée.",
+        },
+        deuxConditions: {
+          nom: "deux conditions",
+          aide: "Un ET entre deux tests : DURAND, et livré en express. 2 commandes, toutes deux de CLAIRE. Le mode vient de CMLIV, joint aux commandes sur nom plus prénom. Remplacez EXP par STD : c'est MARC qui apparaît, seul.",
+        },
+        jointure: {
+          nom: "ville du client (jointure)",
+          aide: "villeClient vient du fichier des clients, CLIMST : il se joint aux commandes sur NOMCLI plus PRECLI, sans aucun identifiant. 2 commandes ici, toutes deux de CLAIRE qui habite Lyon. Essayez PARIS : 1 commande, celle de l'autre DURAND.",
+        },
+        comprisEntre: {
+          nom: "compris entre",
+          aide: "Le montant entre 1000 et 4000 : 5 commandes. Les deux bornes se séparent par un point-virgule, et elles se modifient : 125;126 n'en garde qu'une.",
+        },
+        depuisDate: {
+          nom: "depuis une date",
+          aide: "Les commandes à partir du 1er juillet 2026 : 5 sur 18. Reculez la date, 20260301 en ramène 14.",
+        },
+        colonneInconnue: {
+          nom: "colonne inconnue",
+          aide: "Demande une colonne qui n'est pas dans la liste exposée. L'appelant ne choisit pas ce qu'il interroge : refus.",
+        },
+        operateurInconnu: {
+          nom: "opérateur inconnu",
+          aide: "Le signe tapé n'est pas un des six opérateurs admis. La liste des tests est close : refus.",
+        },
+        valeurCourte: {
+          nom: "valeur trop courte",
+          aide: "Un « contient » d'une seule lettre balaierait tout le fichier. Règle métier : au moins deux caractères, sinon refus.",
+        },
+        negation: {
+          nom: "négation interdite",
+          aide: "La négation est connue, et interdite exprès : sur une colonne texte elle ramènerait presque tout le fichier.",
+        },
+        etOu: {
+          nom: "ET mêlé à OU",
+          aide: "Une expression porte une seule sorte de liaison. Mélanger les deux est refusé, au lieu de perdre la fin de la demande en silence.",
+        },
+        injection: {
+          nom: "tentative d'injection",
+          aide: "Le grand classique, et il ne doit PAS marcher. La valeur a été comparée, pas assemblée : elle n'a jamais eu la moindre chance de devenir une instruction. Elle est cherchée comme un nom de client, qui n'existe pas.",
+        },
+      },
     },
     section5: {
       title: "La méthode",
@@ -519,7 +693,170 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
     },
     section4: {
       title: "The mini-language",
-      intro: "This chapter is coming soon.",
+      ouverture: {
+        titre: "An idea, not a working part",
+        p1: "This chapter is not like the others. Everything the site has shown you so far exists and runs. What follows is an idea I felt like trying, here, on this site, and nowhere else.",
+        p2: "It starts with a simple question: what is a caller entitled to ask for? Let them write their own filter and you have handed over the keys to the building. They could read a column you never showed them, open a file you never mentioned. So I imagined the opposite: they write nothing, they choose. A column from the list I expose, a test from a list of six, and a value. Three lists, and nothing outside them.",
+        p3: "Does it hold up? That is exactly what the rest of this page lets you try.",
+      },
+      pourquoi: {
+        a1: "An open where clause hands over the keys to the house: the caller can ask for any column, any file, any subquery.",
+        a2: "An open where clause speaks the file's language, with its names of six characters at most. This one speaks the language of the business.",
+        a3: "An open where clause cannot be bounded. You cannot forbid a negation that would bring back everything, nor require two characters on a contains. With three closed lists, you can.",
+      },
+      decor: {
+        titre: "The setting: the wholesaler's files",
+        intro: "Four files, not a single technical key. And why no customer number? These machines did not produce one: an identifier was yours to manage, one more field in fixed length records where every byte was counted. So you joined on the values the business already used.",
+        cdemst: "CDEMST: orders",
+        climst: "CLIMST: customers",
+        cmliv: "CMLIV: delivery mode per customer",
+        modliv: "MODLIV: the delivery mode reference file",
+      },
+      modes: {
+        exp: "Express, 24 h",
+        std: "Standard, 72 h",
+        ret: "Warehouse pickup",
+        mes: "Parcel carrier",
+        rel: "Collection point",
+        pal: "Chartered pallet",
+      },
+      legende: {
+        titre: "Two kinds of link, and the file declares neither.",
+        valeurs: "This is how the same customer is recognised from one file to the next: by last name and first name. There is no customer number, and the two DURAND are told apart by the first name alone.",
+        code: "A code that points to another file. Both carry the same data under two names. Today you would call it a foreign key, except that nothing here declares it: only the programs know.",
+        modifier: "The tinted cells carry the links: they are the ones a program has to keep in step. The others hold nothing together.",
+      },
+      refus: {
+        forme: {
+          quoi: "Shape not recognised",
+          pourquoi:
+            "a sequence is written <column:operator:value/>, in that order and with nothing around it. For example <customerLastName:=]:UR/>: the column first, then the test, then the value. The operator sits in the middle, never at the end.",
+        },
+        colonne: {
+          quoi: "Column \"{nom}\" is not in the exposed list",
+          pourquoi:
+            "the caller does not choose what to query. Only the model's properties are accepted, and every one of them is listed below.",
+        },
+        operateur: {
+          quoi: "Operator \"{op}\" is not in the list",
+          pourquoi:
+            "six operators, not one more. == equals · [= starts with · =] ends with · [] contains · >< between · => greater than or equal. For example <{colonne}:[=:DUR/>.",
+        },
+        interdit: {
+          quoi: "Operator \"{op}\" is known and forbidden",
+          pourquoi: "a negation on a text column would bring back every row in the file.",
+        },
+        type: {
+          quoi: "\"{operateur}\" does not apply to {colonne}",
+          pourquoi: "this property is of type {type}; the operator expects {types}.",
+        },
+        valeurVide: {
+          quoi: "Value missing",
+          pourquoi: "a test with no value tests nothing.",
+        },
+        tropCourt: {
+          quoi: "Value too short for \"{operateur}\"",
+          pourquoi: "two characters at least, otherwise the search sweeps the whole file.",
+        },
+        bornes: {
+          quoi: "\"between\" expects two bounds",
+          pourquoi: "separate them with a semicolon: <{colonne}:><:bound1;bound2/>",
+        },
+        liaison: {
+          quoi: "AND and OR mixed",
+          pourquoi: "one expression carries one kind of link: AND, or OR, never both at once.",
+        },
+      },
+      zone1: { titre: "What the caller asks for" },
+      zone2: { titre: "The class the machine has just built" },
+      champ: { filtre: "Filter" },
+      colonnes: { titre: "Columns wanted" },
+      exemples: {
+        note: "Examples to click: each one fills the Filter field for you. The grey ones go through; the red ones attempt a forbidden request, and it is their refusal they are there to show.",
+        repos: "Hover over an example, or tap it, to read what it demonstrates.",
+      },
+      morale: "None of these classes exists in the code.",
+      compte: {
+        une: "1 row found out of {total}.",
+        plusieurs: "{n} rows found out of {total}.",
+        aucune: "No row found out of {total}.",
+      },
+      classe: {
+        commentaire: "Type built at runtime, then forgotten",
+        vide: "no column chosen: there is nothing to build",
+        prefixe: "Order",
+      },
+      modele: {
+        NOMCLI: "customerLastName",
+        PRECLI: "customerFirstName",
+        LIZEPO: "deliveryModeCode",
+        LIBLIV: "deliveryModeLabel",
+        NUMCDE: "orderNumber",
+        DATCDE: "orderDate",
+        MTTCDE_BRUT: "rawAmount",
+        MTTCDE: "orderAmount",
+        VILCLI: "customerCity",
+      },
+      types: {
+        texte: "text",
+        entier: "integer",
+        date: "date",
+        décimal: "decimal",
+      },
+      ex: {
+        commencePar: {
+          nom: "starts with",
+          aide: "Names starting with DUR: 3 orders out of 18. There are only two DURAND customers, but CLAIRE placed two orders, and that is what a join on values produces all the time. Change the value: MAR finds 3 as well.",
+        },
+        finitPar: {
+          nom: "ends with",
+          aide: "Names ending in IER: FOURNIER, MERCIER, GARNIER, so 3 orders. Try the same thing with a single letter, T: it goes through, and finds LAMBERT and PETIT.",
+        },
+        contient: {
+          nom: "contains",
+          aide: "Names containing AR anywhere: 5 orders. Two characters minimum, otherwise the request is refused.",
+        },
+        deuxConditions: {
+          nom: "two conditions",
+          aide: "An AND between two tests: DURAND, and shipped express. 2 orders, both CLAIRE's. The mode comes from CMLIV, joined to the orders on last name plus first name. Replace EXP with STD: MARC appears, on his own.",
+        },
+        jointure: {
+          nom: "customer city (join)",
+          aide: "customerCity comes from the customer file, CLIMST: it joins to the orders on NOMCLI plus PRECLI, with no identifier at all. 2 orders here, both CLAIRE's, who lives in Lyon. Try PARIS: 1 order, the other DURAND's.",
+        },
+        comprisEntre: {
+          nom: "between",
+          aide: "Amounts between 1000 and 4000: 5 orders. The two bounds are separated by a semicolon, and they can be changed: 125;126 leaves only one.",
+        },
+        depuisDate: {
+          nom: "since a date",
+          aide: "Orders from 1 July 2026 onwards: 5 out of 18. Move the date back and 20260301 brings 14.",
+        },
+        colonneInconnue: {
+          nom: "unknown column",
+          aide: "Asks for a column that is not in the exposed list. The caller does not choose what to query: refused.",
+        },
+        operateurInconnu: {
+          nom: "unknown operator",
+          aide: "The sign typed is not one of the six accepted operators. The list of tests is closed: refused.",
+        },
+        valeurCourte: {
+          nom: "value too short",
+          aide: "A one letter contains would sweep the whole file. Business rule: two characters at least, otherwise refused.",
+        },
+        negation: {
+          nom: "forbidden negation",
+          aide: "The negation is known, and forbidden on purpose: on a text column it would bring back nearly the whole file.",
+        },
+        etOu: {
+          nom: "AND mixed with OR",
+          aide: "One expression carries one kind of link. Mixing the two is refused, rather than losing the end of the request in silence.",
+        },
+        injection: {
+          nom: "injection attempt",
+          aide: "The great classic, and it must NOT work. The value was compared, not assembled: it never had the slightest chance of becoming an instruction. It is looked up as a customer name, which does not exist.",
+        },
+      },
     },
     section5: {
       title: "The method",
@@ -753,4 +1090,9 @@ if (typeof document !== "undefined") {
     }
     applyI18n(next);
   });
+
+  // Monté après le premier `applyI18n` : le simulateur lit la langue déjà
+  // posée sur `<html lang>`, et se refait ensuite sur chaque `i18n:applied`.
+  // Il rend la main sans rien faire si la page ne porte pas la section.
+  mountMiniLanguage({ dict, root: document });
 }

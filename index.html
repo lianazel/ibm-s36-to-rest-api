@@ -217,7 +217,119 @@
 
     <section id="mini-langage" aria-labelledby="mini-langage-titre">
       <h2 id="mini-langage-titre" data-i18n="section4.title"></h2>
-      <p data-i18n="section4.intro"></p>
+
+      <h3 data-i18n="section4.ouverture.titre"></h3>
+      <p data-i18n="section4.ouverture.p1"></p>
+      <p data-i18n="section4.ouverture.p2"></p>
+      <p data-i18n="section4.ouverture.p3"></p>
+
+      <ul class="arguments" role="list">
+        <li data-i18n="section4.pourquoi.a1"></li>
+        <li data-i18n="section4.pourquoi.a2"></li>
+        <li data-i18n="section4.pourquoi.a3"></li>
+      </ul>
+
+      <h3 data-i18n="section4.decor.titre"></h3>
+      <p data-i18n="section4.decor.intro"></p>
+
+      <!-- La légende est posée une seule fois, juste avant les premières
+           cellules teintées : répétée sous chaque fichier, elle se lit comme
+           du bruit dès que tout est déplié (relevé du 21 août 2026). -->
+      <div class="legende">
+        <p class="legende-titre" data-i18n="section4.legende.titre"></p>
+        <p><span class="pastille lien-valeurs" aria-hidden="true"></span><span data-i18n="section4.legende.valeurs"></span></p>
+        <p><span class="pastille lien-code" aria-hidden="true"></span><span data-i18n="section4.legende.code"></span></p>
+        <p class="legende-note" data-i18n="section4.legende.modifier"></p>
+      </div>
+
+      <figure class="fichier">
+        <figcaption id="fichier-cdemst" data-i18n="section4.decor.cdemst"></figcaption>
+        <div class="defile" tabindex="0" role="region" aria-labelledby="fichier-cdemst">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col" class="lien-valeurs">NOMCLI</th>
+                <th scope="col" class="lien-valeurs">PRECLI</th>
+                <th scope="col">NUMCDE</th>
+                <th scope="col">DATCDE</th>
+                <th scope="col">MTTCDE</th>
+              </tr>
+            </thead>
+            <tbody id="mini-cdemst"></tbody>
+          </table>
+        </div>
+      </figure>
+
+      <details class="fichier">
+        <summary id="fichier-climst" data-i18n="section4.decor.climst"></summary>
+        <div class="defile" tabindex="0" role="region" aria-labelledby="fichier-climst">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col" class="lien-valeurs">NOMCLI</th>
+                <th scope="col" class="lien-valeurs">PRECLI</th>
+                <th scope="col">VILCLI</th>
+              </tr>
+            </thead>
+            <tbody id="mini-climst"></tbody>
+          </table>
+        </div>
+      </details>
+
+      <details class="fichier">
+        <summary id="fichier-cmliv" data-i18n="section4.decor.cmliv"></summary>
+        <div class="defile" tabindex="0" role="region" aria-labelledby="fichier-cmliv">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col" class="lien-valeurs">NOMCLI</th>
+                <th scope="col" class="lien-valeurs">PRECLI</th>
+                <th scope="col" class="lien-code">LIZEPO</th>
+              </tr>
+            </thead>
+            <tbody id="mini-cmliv"></tbody>
+          </table>
+        </div>
+      </details>
+
+      <details class="fichier">
+        <summary id="fichier-modliv" data-i18n="section4.decor.modliv"></summary>
+        <div class="defile" tabindex="0" role="region" aria-labelledby="fichier-modliv">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col" class="lien-code">CODLIV</th>
+                <th scope="col">LIBLIV</th>
+              </tr>
+            </thead>
+            <tbody id="mini-modliv"></tbody>
+          </table>
+        </div>
+      </details>
+
+      <div id="mini-simulateur" class="simulateur">
+        <h3 data-i18n="section4.zone1.titre"></h3>
+
+        <p class="champ">
+          <label for="mini-filtre" data-i18n="section4.champ.filtre"></label>
+          <input type="text" id="mini-filtre" autocomplete="off" autocapitalize="off"
+                 autocorrect="off" spellcheck="false">
+        </p>
+        <p id="mini-statut" class="statut" aria-live="polite"></p>
+
+        <p class="exemples-note" data-i18n="section4.exemples.note"></p>
+        <ul id="mini-exemples" class="exemples" role="list"></ul>
+        <p id="mini-aide" class="aide" aria-live="polite"></p>
+
+        <h4 data-i18n="section4.colonnes.titre"></h4>
+        <ul id="mini-colonnes" class="colonnes" role="list"></ul>
+
+        <h3 data-i18n="section4.zone2.titre"></h3>
+        <figure class="extrait">
+          <figcaption id="mini-classe-legende" data-i18n="section4.morale"></figcaption>
+          <pre tabindex="0" role="region" aria-labelledby="mini-classe-legende"><code id="mini-classe"></code></pre>
+        </figure>
+      </div>
     </section>
 
     <section id="methode" aria-labelledby="methode-titre">

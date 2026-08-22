@@ -628,6 +628,277 @@ section {
   white-space: nowrap;
 }
 
+/* ---- Le mini-langage : le décor, les deux teintes de lien, le simulateur.
+   Registre du plan technique pour les fichiers (Plex Mono, règle de colonnes,
+   en-têtes visibles) ; registre API pour la classe fabriquée, qui réemploie le
+   cadre `.extrait` déjà livré. Aucune image, aucune animation. */
+
+.arguments {
+  margin: var(--space) 0;
+  padding-left: calc(var(--space) * 1.25);
+}
+
+.arguments li + li {
+  margin-top: calc(var(--space) / 2);
+}
+
+/* La légende des teintes : posée une seule fois, avant le premier tableau. */
+.legende {
+  margin: var(--space) 0;
+  padding: var(--space);
+  border: 1px solid var(--color-line);
+  font-size: 0.875rem;
+}
+
+.legende p {
+  margin: 0;
+}
+
+.legende p + p {
+  margin-top: calc(var(--space) / 2);
+}
+
+.legende-titre {
+  font-weight: 600;
+}
+
+.legende-note {
+  color: var(--color-ink-soft);
+}
+
+/* Le carré de couleur n'a aucun texte : il est décoratif et masqué à la
+   lecture d'écran, la phrase qui suit dit tout ce qu'il montre. */
+.pastille {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-right: calc(var(--space) / 2);
+  border: 1px solid var(--color-line);
+  vertical-align: baseline;
+}
+
+/* ---- Les quatre fichiers du décor.
+   CDEMST reste ouvert (figure), les trois autres sont repliés (details) :
+   dépliés d'office ils poussaient le simulateur 600 px plus bas, mesuré le
+   21 août 2026. Le motif de dépliement est celui de la boîte à outils. */
+.fichier {
+  margin: var(--space) 0;
+  border: 1px solid var(--color-line);
+  border-left: 3px solid var(--color-s36);
+}
+
+.fichier > figcaption,
+.fichier > summary {
+  padding: var(--space);
+  font-weight: 600;
+}
+
+.fichier > summary {
+  cursor: pointer;
+}
+
+.fichier .defile {
+  overflow-x: auto;
+  padding: 0 var(--space) var(--space);
+}
+
+.fichier table {
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+}
+
+.fichier th,
+.fichier td {
+  padding: calc(var(--space) / 6);
+  border: 1px solid var(--color-line);
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* L'en-tête est le nom physique de la colonne : il se lit comme une étiquette,
+   pas comme une donnée. Encre douce, mesurée AA sur les deux teintes. */
+.fichier th {
+  color: var(--color-ink-soft);
+  font-weight: 600;
+}
+
+/* Le calage à l'aise est un enrichissement, comme partout dans cette feuille :
+   la base sert la plus petite largeur visée, et les cinq colonnes de CDEMST
+   défilent dans leur conteneur en deçà. */
+@media (min-width: 22rem) {
+  .fichier th,
+  .fichier td {
+    padding: calc(var(--space) / 3) calc(var(--space) / 2);
+  }
+}
+
+/* ---- Les deux teintes de lien.
+   Elles distinguent des RÔLES dans un tableau, pas des époques : elles ne
+   concurrencent donc pas les trois registres du contrat de design.
+   Contrastes remesurés au navigateur contre le fond réellement peint, encre
+   #161616 sur les cellules et encre douce #525252 sur les en-têtes : 16,79:1 et
+   15,64:1 sur les cellules, 6,83:1 et 5,82:1 sur les en-têtes. Le contrat exige
+   4,5:1. Les en-têtes ne tiennent ces nombres qu'avec l'encre douce : leur
+   donner l'encre pleine changerait la mesure. */
+.fichier td.lien-valeurs {
+  background: #fff6de;
+}
+
+.fichier th.lien-valeurs {
+  background: #fdefc8;
+}
+
+.fichier td.lien-code {
+  background: #f2ecfa;
+}
+
+.fichier th.lien-code {
+  background: #e5daf2;
+}
+
+.pastille.lien-valeurs {
+  background: #fdefc8;
+}
+
+.pastille.lien-code {
+  background: #e5daf2;
+}
+
+/* ---- Le simulateur. */
+.simulateur {
+  margin: calc(var(--space) * 1.5) 0 0;
+}
+
+.champ {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space) / 4);
+}
+
+.champ label {
+  font-weight: 600;
+}
+
+/* `box-sizing` explicite : le champ occupe la largeur disponible sans que son
+   cadre ne la dépasse, ce qui ferait déborder la page en écran étroit. */
+#mini-filtre {
+  box-sizing: border-box;
+  width: 100%;
+  padding: calc(var(--space) / 2);
+  border: 1px solid var(--color-ink-soft);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+}
+
+/* Le statut vit sous le champ, là où le lecteur vient de taper. Une seule
+   région pour les deux états : une demande est refusée, ou elle est servie. */
+.statut {
+  margin: calc(var(--space) / 2) 0 var(--space);
+  padding: calc(var(--space) / 2) 0 calc(var(--space) / 2) var(--space);
+  border-left: 3px solid var(--color-api);
+  font-size: 0.875rem;
+}
+
+.statut.refuse {
+  border-left-color: #a2191f;
+}
+
+.statut strong {
+  display: block;
+}
+
+.statut span {
+  color: var(--color-ink-soft);
+}
+
+.exemples-note {
+  font-size: 0.875rem;
+  color: var(--color-ink-soft);
+}
+
+.exemples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--space) / 2);
+  margin: var(--space) 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Le plancher de 44 px est celui que le site s'impose déjà au bouton de menu
+   (l. 142-143), aux entrées de navigation (l. 268) et au lien « À propos »
+   (l. 302). Ces treize boutons sont les commandes les plus sollicitées de la
+   page : ils ne peuvent pas être les seules à en être privées. */
+.exemples button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: calc(var(--space) / 3) calc(var(--space) / 2);
+  border: 1px solid var(--color-ink-soft);
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+/* Rouge : la demande tente ce que le langage n'accorde pas. La couleur ne porte
+   pas seule l'information, l'explication sous la liste la dit en toutes lettres.
+   #a2191f sur fond blanc : 7,79:1 mesuré, au delà du AA exigé. */
+.exemples button.rouge {
+  border-color: #a2191f;
+  color: #a2191f;
+}
+
+@media (hover: hover) {
+  .exemples button:hover {
+    border-color: var(--color-ink);
+  }
+}
+
+/* Une seule surface d'explication, toujours présente : elle porte un texte
+   d'invitation au repos plutôt que d'apparaître et disparaître, ce qui ferait
+   sauter la page à chaque survol. */
+.aide {
+  min-height: 3rem;
+  margin: 0 0 var(--space);
+  padding: calc(var(--space) / 2) var(--space);
+  border-left: 3px solid var(--color-line);
+  font-size: 0.875rem;
+}
+
+.colonnes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--space) / 2) var(--space);
+  margin: var(--space) 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* La cible, c'est l'étiquette entière, pas la seule case : neuf cases de 20 px
+   sont neuf occasions de manquer. Même plancher que les boutons d'exemple. */
+.colonnes label {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  gap: calc(var(--space) / 4);
+  cursor: pointer;
+}
+
+/* La case elle-même est agrandie : à sa taille native elle reste le point de
+   mire du doigt, même quand l'étiquette autour est cliquable. */
+.colonnes input {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.colonnes code {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+}
+
 /* ---- Pied de page. */
 .site-footer {
   max-width: var(--measure);
