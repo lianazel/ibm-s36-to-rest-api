@@ -11,6 +11,13 @@
 >
 > **Il remplace `DRAFT_EVOL_mini-langage_v1.md`**, archivé le 21 août dans `Prompts_Non_Suivis`.
 > Le second sous-incrément (`json-et-edition`) n'est **pas** gelé : ne l'ouvre pas.
+>
+> ### Avenant 1 — 22 août 2026, arbitrage du chef de projet
+> La règle des chevrons, telle que gelée, était **fausse pour le dictionnaire**. Elle exigeait des
+> entités là où `textContent` les afficherait littéralement. Arrêt de Claude Code à l'étape 0, mesuré
+> et fondé : la contradiction était réelle. La règle corrigée figure ci-dessous à sa place, dans la
+> section « Les chevrons ». **C'est la version corrigée qui fait foi.** Le reste du prompt est
+> inchangé, et reste non négociable.
 
 ## Satellites consultés
 
@@ -89,8 +96,20 @@ dans `changes.md` et n'y touche pas.
 **Langue des clés du dictionnaire** : en français, comme les groupes existants (arbitrage en attente,
 `tasks/ROADMAP.md`). Les identifiants HTML suivent les existants. Ne renomme rien.
 
-**Les chevrons du langage s'écrivent en entités**, jamais en clair : `&lt;` et `&gt;`. Un chevron en
-clair dans `index.html` ou dans une valeur du dictionnaire → ARRÊTE-TOI et signale.
+**Les chevrons : la règle dépend du fichier.** *(Corrigée par l'avenant 1, voir en tête.)*
+
+| Où | Ce qui s'écrit | Motif, mesuré au dépôt |
+|---|---|---|
+| `index.html` | **entités** `&lt;` `&gt;` | le navigateur y lit du balisage. Convention déjà en vigueur, l. 208-209 |
+| valeur du dictionnaire (`js/i18n.js`) | **chevrons nus** | `applyI18n` pose les textes par `textContent` (`js/i18n.js:682`). `textContent` **n'interprète pas** les entités : une entité s'afficherait littéralement à l'écran. Convention déjà en vigueur, extraits C# l. 109, 137, 378, 406 |
+
+Une **entité** dans une valeur du dictionnaire → ARRÊTE-TOI et signale.
+Un **chevron nu** dans `index.html` → ARRÊTE-TOI et signale.
+
+**Ce qui protège de l'injection n'est pas l'encodage, c'est `textContent`.** Aucune valeur du
+dictionnaire ne se pose par `innerHTML` ni par `insertAdjacentHTML`, dans aucun fichier que tu écris.
+Cette propriété est vérifiable et **tu la vérifies** : `grep -rn "innerHTML\|insertAdjacentHTML" js/`
+ne doit rien rendre hors commentaire. Écris la mesure dans `changes.md`.
 
 ---
 
