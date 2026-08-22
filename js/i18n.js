@@ -287,7 +287,7 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
         titre: "Deux sortes de liens, et le fichier n'en déclare aucun.",
         valeurs: "C'est ainsi qu'on reconnaît le même client d'un fichier à l'autre : par son nom et son prénom. Il n'existe aucun numéro de client, et deux DURAND ne se séparent que par le prénom.",
         code: "Un code qui renvoie à un autre fichier. Les deux portent la même donnée sous deux noms. C'est ce qu'on appellerait aujourd'hui une clé étrangère, à ceci près que rien ici ne la déclare : seuls les programmes le savent.",
-        modifier: "Modifier une cellule teintée casse un lien. Modifier une autre ne change rien au lien.",
+        modifier: "Les cellules teintées portent les liens : ce sont elles qu'un programme doit maintenir. Les autres ne tiennent rien.",
       },
       refus: {
         forme: {
@@ -343,8 +343,7 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
       compte: {
         une: "1 ligne trouvée sur {total}.",
         plusieurs: "{n} lignes trouvées sur {total}.",
-        aucune:
-          "Aucune ligne trouvée sur {total}. La valeur a été comparée, pas assemblée : elle n'a jamais eu la moindre chance de devenir une instruction.",
+        aucune: "Aucune ligne trouvée sur {total}.",
       },
       classe: {
         commentaire: "Type fabriqué à l'exécution, puis oublié",
@@ -379,7 +378,7 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
         },
         finitPar: {
           nom: "finit par",
-          aide: "Les noms qui finissent par IER : FOURNIER, MERCIER, GARNIER, soit 3 commandes. Essayez AND, ou T.",
+          aide: "Les noms qui finissent par IER : FOURNIER, MERCIER, GARNIER, soit 3 commandes. Essayez la même chose avec une seule lettre, T : elle passe, et rend LAMBERT et PETIT.",
         },
         contient: {
           nom: "contient",
@@ -423,7 +422,7 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
         },
         injection: {
           nom: "tentative d'injection",
-          aide: "Le grand classique, et il ne doit PAS marcher. Ici la valeur est comparée comme un simple nom de client, qui n'existe pas : aucune ligne trouvée.",
+          aide: "Le grand classique, et il ne doit PAS marcher. La valeur a été comparée, pas assemblée : elle n'a jamais eu la moindre chance de devenir une instruction. Elle est cherchée comme un nom de client, qui n'existe pas.",
         },
       },
     },
@@ -725,7 +724,7 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
         titre: "Two kinds of link, and the file declares neither.",
         valeurs: "This is how the same customer is recognised from one file to the next: by last name and first name. There is no customer number, and the two DURAND are told apart by the first name alone.",
         code: "A code that points to another file. Both carry the same data under two names. Today you would call it a foreign key, except that nothing here declares it: only the programs know.",
-        modifier: "Changing a tinted cell breaks a link. Changing any other changes nothing about the links.",
+        modifier: "The tinted cells carry the links: they are the ones a program has to keep in step. The others hold nothing together.",
       },
       refus: {
         forme: {
@@ -780,8 +779,7 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
       compte: {
         une: "1 row found out of {total}.",
         plusieurs: "{n} rows found out of {total}.",
-        aucune:
-          "No row found out of {total}. The value was compared, not assembled: it never had the slightest chance of becoming an instruction.",
+        aucune: "No row found out of {total}.",
       },
       classe: {
         commentaire: "Type built at runtime, then forgotten",
@@ -812,7 +810,7 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
         },
         finitPar: {
           nom: "ends with",
-          aide: "Names ending in IER: FOURNIER, MERCIER, GARNIER, so 3 orders. Try AND, or T.",
+          aide: "Names ending in IER: FOURNIER, MERCIER, GARNIER, so 3 orders. Try the same thing with a single letter, T: it goes through, and finds LAMBERT and PETIT.",
         },
         contient: {
           nom: "contains",
@@ -856,7 +854,7 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
         },
         injection: {
           nom: "injection attempt",
-          aide: "The great classic, and it must NOT work. Here the value is compared as a plain customer name, which does not exist: no row found.",
+          aide: "The great classic, and it must NOT work. The value was compared, not assembled: it never had the slightest chance of becoming an instruction. It is looked up as a customer name, which does not exist.",
         },
       },
     },

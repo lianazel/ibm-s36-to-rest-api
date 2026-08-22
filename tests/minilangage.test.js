@@ -21,6 +21,7 @@ import {
   EXAMPLES,
   exampleExpression,
   filterRows,
+  initialSelection,
   joinFiles,
   MODLIV_CODES,
   OPERATORS,
@@ -207,10 +208,10 @@ describe("les sept comptes du prompt, rejoués un par un", () => {
     ["PARIS ne laisse que l'autre DURAND", "<nomClient:[=:DUR/> && <villeClient:==:PARIS/>", 1],
     ["125;126 n'en garde qu'une", "<montantCommande:><:125;126/>", 1],
     ["20260301 en ramène 14", "<dateCommande:=>:20260301/>", 14],
-    // PETIT et LAMBERT : « ou T » est une invitation à une seule lettre, et
-    // c'est elle qui prouve que le minimum de deux caractères ne porte QUE sur
-    // « contient ». L'étendre à « finit par » ferait refuser une invitation
-    // écrite dans une valeur gelée du prompt.
+    // Le minimum de deux caractères ne porte QUE sur « contient », parce que
+    // « contient » balaie : une lettre sur « finit par » rend une tranche, pas
+    // le fichier. C'est la mesure que l'explication de l'exemple annonce au
+    // lecteur, nommément (avenant 2, A2-4).
     ["finit par T", "<nomClient:=]:T/>", 2],
   ])("les variantes écrites dans les explications tiennent : %s", (_titre, expression, attendu) => {
     expect(count(expression)).toBe(attendu);
@@ -468,6 +469,117 @@ describe("toute forme imprimée dans la page est une forme que le langage reconn
   it("le gabarit des bornes, rempli, est accepté sur une colonne numérique", () => {
     const gabarit = dict.fr.section4.refus.bornes.pourquoi.match(SEQUENCE_IMPRIMEE)[0];
     expect(recognise(gabarit.replace("{colonne}", FR[7].property), FR).ok).toBe(true);
+  });
+});
+
+describe("avenant 2 : ce que la page affirme doit être vrai", () => {
+  it("A2-1 la sélection de départ est dans l'ordre du modèle, pas dans celui du contrat", () => {
+    const depart = initialSelection();
+    expect(depart).toEqual([...depart].sort((left, right) => left - right));
+    // Les mêmes quatre colonnes, sans exception : le tri range, il n'ajoute ni
+    // ne retire rien.
+    expect([...depart].sort()).toEqual([...DEFAULT_SELECTION].sort());
+  });
+
+  it("A2-1 le nom de la classe ne dépend pas du chemin parcouru", () => {
+    for (const [model, prefixe] of [[FR, "Commande"], [EN, "Order"]]) {
+      const auChargement = className(prefixe, initialSelection().map((i) => model[i]));
+      // Le lecteur coche une cinquième colonne, puis la décoche : le
+      // gestionnaire de case trie, donc il revient à la sélection triée.
+      const apresAllerRetour = className(
+        prefixe,
+        [...new Set([...initialSelection(), 8])]
+          .filter((index) => index !== 8)
+          .sort((left, right) => left - right)
+          .map((index) => model[index]),
+      );
+      expect(auChargement, prefixe).toBe(apresAllerRetour);
+    }
+  });
+
+  it.each(["fr", "en"])("A2-3 le compte de zéro ligne ne fait plus la leçon (%s)", (lang) => {
+    const aucune = dict[lang].section4.compte.aucune;
+    expect(aucune).not.toMatch(/instruction/i);
+    expect(aucune).not.toMatch(/assembl/i);
+    expect(aucune).toMatch(/\{total\}/);
+  });
+
+  it.each(["fr", "en"])("A2-3 la phrase vit désormais où elle mord (%s)", (lang) => {
+    const aide = dict[lang].section4.ex.injection.aide;
+    expect(aide).toMatch(/instruction/i);
+    expect(aide).toMatch(lang === "fr" ? /assemblée/i : /assembled/i);
+  });
+
+  it.each(["fr", "en"])("A2-2 la légende ne demande aucun geste au lecteur (%s)", (lang) => {
+    // Rien n'est modifiable dans cet incrément : une légende qui invite à
+    // modifier promet une page qui n'existe pas.
+    const gestes = [
+      "Modifier", "Modifiez", "Changing", "Change ", "Cliquez", "Click",
+      "Essayez", "Try ", "Survolez", "Hover", "Touchez", "Tap ",
+    ];
+    for (const [cle, valeur] of Object.entries(dict[lang].section4.legende)) {
+      for (const geste of gestes) {
+        expect(valeur, `legende.${cle} demande « ${geste} »`).not.toContain(geste);
+      }
+    }
+  });
+
+  it("A2-5 un champ qui ne correspond plus à l'exemple cliqué le lâche", () => {
+    // La règle porte sur l'égalité entre le champ et l'expression de l'exemple
+    // dans la langue courante : c'est cette comparaison que le rendu applique.
+    const exemple = EXAMPLES.find((candidat) => candidat.key === "commencePar");
+    expect("<nomClient:[=:/>").not.toBe(exampleExpression(exemple, FR));
+    expect("<nomClient:[=:DUR/>").toBe(exampleExpression(exemple, FR));
+  });
+
+  it("A2-5 un basculement de langue ne lâche pas l'exemple toujours affiché", () => {
+    // Le piège nommé par l'avenant : le champ est réécrit par la bascule, donc
+    // comparer à la chaîne mémorisée au clic effacerait l'explication d'un
+    // exemple qui est pourtant toujours celui affiché. Vérifié sur les treize.
+    for (const exemple of EXAMPLES) {
+      const enFrancais = exampleExpression(exemple, FR);
+      expect(translateExpression(enFrancais, FR, EN), exemple.key)
+        .toBe(exampleExpression(exemple, EN));
+      const enAnglais = exampleExpression(exemple, EN);
+      expect(translateExpression(enAnglais, EN, FR), exemple.key).toBe(enFrancais);
+    }
+  });
+
+  it.each([["fr", "nomClient"], ["en", "customerLastName"]])(
+    "A2-4 l'explication nomme les deux clients que la mesure rend vraiment (%s)",
+    (lang, propriete) => {
+      // La valeur ne dit plus « pour voir le refus » mais nomme LAMBERT et
+      // PETIT : une affirmation nommée se vérifie, une affirmation vague se
+      // croit. Cette porte est ce qui rend la nouvelle rédaction contrôlable.
+      const model = modelOf(lang);
+      const rows = joinFiles(dict[lang].section4.modes);
+      const resultat = filterRows(`<${propriete}:=]:T/>`, model, rows);
+      expect(resultat.ok).toBe(true);
+      expect(resultat.rows.map((ligne) => ligne.NOMCLI).sort()).toEqual(["LAMBERT", "PETIT"]);
+
+      const aide = dict[lang].section4.ex.finitPar.aide;
+      expect(aide).toContain("LAMBERT");
+      expect(aide).toContain("PETIT");
+      // Et surtout : elle ne promet plus un refus qui n'arrive pas.
+      expect(aide).not.toMatch(lang === "fr" ? /refus/i : /refusal/i);
+    },
+  );
+
+  it("la parité de section4 vaut toujours 94 clés de chaque côté", () => {
+    const cles = (node, prefixe = "") => {
+      const out = [];
+      for (const [nom, valeur] of Object.entries(node)) {
+        const chemin = prefixe === "" ? nom : `${prefixe}.${nom}`;
+        if (typeof valeur === "object" && valeur !== null) out.push(...cles(valeur, chemin));
+        else out.push(chemin);
+      }
+      return out.sort();
+    };
+    const fr = cles(dict.fr.section4);
+    const en = cles(dict.en.section4);
+    expect(fr).toHaveLength(94);
+    expect(en).toHaveLength(94);
+    expect(fr).toEqual(en);
   });
 });
 

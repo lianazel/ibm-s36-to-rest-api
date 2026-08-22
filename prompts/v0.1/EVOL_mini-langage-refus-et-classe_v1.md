@@ -18,6 +18,135 @@
 > et fondé : la contradiction était réelle. La règle corrigée figure ci-dessous à sa place, dans la
 > section « Les chevrons ». **C'est la version corrigée qui fait foi.** Le reste du prompt est
 > inchangé, et reste non négociable.
+>
+> ### Avenant 2 — 22 août 2026, après validation sur iPhone 14
+> **Cinq corrections, un commit, un quatrième tour, puis `/land`.** Elles sont décrites dans la section
+> **« Avenant 2 »** juste sous ce bandeau. Elles s'ajoutent au prompt, elles n'en retirent rien.
+> Trois enrichissements d'usage identifiés le même soir en sont **explicitement exclus** : ils auront
+> leur propre incrément.
+
+## Avenant 2 — cinq corrections, arbitrage du 22 août 2026
+
+> ### Avenant 2 — 22 août 2026, arbitrage du chef de projet, après validation sur iPhone 14
+>
+> Cinq **corrections**, un commit, un quatrième tour de revue, puis `/land`. Elles portent toutes sur
+> des choses que la page **affirme** et qui sont fausses, contradictoires ou illisibles. Trois d'entre
+> elles ont été trouvées par l'œil du chef de projet sur appareil réel, là où aucune porte ne regardait.
+>
+> **Périmètre strict : ces cinq points et rien d'autre.** Trois enrichissements d'usage ont été
+> identifiés le même soir (marquer le dernier exemple utilisé, fermer la séquence par un bouton,
+> teinter le bloc de refus). Ils **ne sont pas dans cet avenant** : ils forment un ensemble cohérent
+> qui aura son propre incrément et son propre contrat. **[W23]** reste dehors. Si l'un d'eux te
+> démange, écris-le dans `changes.md` et n'y touche pas.
+>
+> La parité FR/EN reste à **94 clés de chaque côté**. Aucune clé n'est créée, aucune n'est renommée.
+> La clé `section4.legende.modifier` **garde son nom** : le sous-incrément `json-et-edition` lui rendra
+> son sens.
+
+#### A2-1 — Le nom de la classe se dérive des colonnes, jamais du chemin parcouru
+
+**Mesuré.** `DEFAULT_SELECTION` vaut `[0, 4, 7, 2]`, figé et non trié, recopié tel quel ligne 568.
+Le tri par ordre de modèle est ligne 637, **à l'intérieur du gestionnaire de case à cocher**. Donc :
+
+| Geste du lecteur | Empreinte |
+|---|---|
+| au chargement | `b0ff` |
+| il coche `villeClient` puis le décoche | `4b8e` |
+
+Les **mêmes quatre colonnes** rendent deux noms. La page enseigne que le nom se dérive des colonnes
+choisies ; il se dérive en fait de l'ordre des gestes. C'est l'argument central du chapitre qui se
+contredit sous le doigt du lecteur.
+
+**Correction** : trier la sélection **à l'initialisation**, pour que l'ordre soit celui du modèle dès
+le premier rendu. Ne touche pas au tri de la ligne 637, il est juste.
+
+#### A2-2 — La légende ne promet plus un geste que la page n'offre pas
+
+**Mesuré.** `section4.legende.modifier` dit « Modifier une cellule teintée casse un lien ». Or **rien
+n'est modifiable dans cet incrément** : aucun `contenteditable`, aucun bouton, aucun gestionnaire
+d'édition. Le critère d'acceptation 7 l'interdisait explicitement. Le prompt gelé portait donc
+l'interdiction et la phrase qui la contredit.
+
+**Valeurs exactes :**
+
+- `fr` : `Les cellules teintées portent les liens : ce sont elles qu'un programme doit maintenir. Les autres ne tiennent rien.`
+- `en` : `The tinted cells carry the links: they are the ones a program has to keep in step. The others hold nothing together.`
+
+#### A2-3 — La phrase sur l'injection ne s'affiche plus sur n'importe quel vide
+
+**Mesuré.** `compte.aucune` porte la phrase soudée, et `js/minilangage.js:695` la déclenche dès que le
+compte vaut zéro, quelle qu'en soit la cause. Une date mal tapée, `20261700`, reçoit le discours sur
+l'injection. Le coût n'est pas le bruit : cette phrase est **la chute de la démonstration
+d'injection**, et elle devient du papier peint. Quand le lecteur clique enfin sur l'exemple qui la
+mérite, il l'a déjà lue après une faute de frappe.
+
+**La phrase n'est pas supprimée, elle est déplacée là où elle mord.** Quatre valeurs :
+
+- `compte.aucune` `fr` : `Aucune ligne trouvée sur {total}.`
+- `compte.aucune` `en` : `No row found out of {total}.`
+- `ex.injection.aide` `fr` : `Le grand classique, et il ne doit PAS marcher. La valeur a été comparée, pas assemblée : elle n'a jamais eu la moindre chance de devenir une instruction. Elle est cherchée comme un nom de client, qui n'existe pas.`
+- `ex.injection.aide` `en` : `The great classic, and it must NOT work. The value was compared, not assembled: it never had the slightest chance of becoming an instruction. It is looked up as a customer name, which does not exist.`
+
+#### A2-4 — Une explication d'exemple redevient lisible
+
+**Mesuré.** `ex.finitPar.aide` se termine par « Essayez AND, ou T. », deux invitations comprimées au
+point d'être illisibles. Sur un écran de téléphone, la fin se lit comme une phrase tronquée. Ses
+voisines sont claires : `depuisDate` dit « Reculez la date, 20260301 en ramène 14 ».
+
+**Première rédaction de cet avenant corrigée le 22 août 2026, sur constat de Claude Code.** Elle
+promettait un refus sur « finit par T ». Faux : `MIN_LENGTH_OPERATORS` vaut `["[]"]`, le minimum ne
+porte que sur « contient ». Une lettre sur « finit par » **passe** et rend LAMBERT et PETIT.
+
+**Le minimum n'est pas étendu aux autres opérateurs.** Il existe parce que « contient » **balaie** :
+une lettre sur « commence par » rend 5 lignes sur 18, une tranche, pas un balayage. Étendre le plancher
+rendrait la règle arbitraire au lieu de motivée, et ce serait un changement de comportement hors
+périmètre sur un refus déjà livré et testé.
+
+- `fr` : `Les noms qui finissent par IER : FOURNIER, MERCIER, GARNIER, soit 3 commandes. Essayez la même chose avec une seule lettre, T : elle passe, et rend LAMBERT et PETIT.`
+- `en` : `Names ending in IER: FOURNIER, MERCIER, GARNIER, so 3 orders. Try the same thing with a single letter, T: it goes through, and finds LAMBERT and PETIT.`
+
+#### A2-5 — L'explication ne survit plus à un refus qui la contredit
+
+**Mesuré sur appareil.** Champ `<customerLastName:[=:/>`, la page répond « Value missing », et en bas
+la surface d'explication affiche toujours « Names starting with DUR: 3 orders out of 18 ». Deux
+affirmations contradictoires à l'écran en même temps.
+
+**Règle** : dès que le contenu du champ **ne correspond plus** à la valeur posée par le dernier exemple
+cliqué, la surface d'explication revient à son texte de repos.
+
+**Piège à éviter, et il est réel** : le basculement de langue réécrit le champ par
+`translateExpression`. La comparaison doit donc porter sur la valeur de l'exemple **dans la langue
+courante**, jamais sur la chaîne mémorisée au moment du clic. Sans cette précaution, changer de langue
+effacerait l'explication d'un exemple qui est pourtant toujours celui affiché.
+
+#### Tests, tous nommés, tous dans les deux langues
+
+1. Le nom de la classe **au chargement** est identique au nom obtenu après avoir coché puis décoché
+   n'importe quelle case, à sélection égale. C'est la porte de A2-1, et elle doit **rougir** si on
+   retire le tri d'initialisation : vérifie-le en le retirant, puis remets-le.
+2. `compte.aucune` **ne contient pas** le mot « instruction » ni « assembled ».
+3. `ex.injection.aide` **contient** la phrase déplacée, dans les deux langues.
+4. Aucune valeur de `section4.legende` ne contient « Modifier », « Changing », ni aucun verbe qui
+   demande un geste au lecteur.
+5. Un champ qui ne correspond plus au dernier exemple cliqué rend la surface d'explication à son repos.
+6. Un basculement de langue **ne** rend **pas** la surface à son repos quand l'exemple est toujours
+   celui affiché.
+7. La parité FR/EN de `section4` vaut toujours **94 clés de chaque côté**, divergence nulle dans les
+   deux sens.
+
+#### Preuves à écrire dans `changes.md`
+
+- Les deux empreintes avant correction (`b0ff`, `4b8e`) et l'empreinte unique après.
+- Le balayage qui montre `instruction` et `assembled` absents de `compte`, présents dans `ex.injection`.
+- Le compte de clés par langue, avant et après.
+- La liste des enrichissements **écartés** et leur motif, pour que l'incrément suivant les retrouve.
+
+#### Dernier geste
+
+Un seul commit, staging précis. Revue déléguée au subagent `reviewer`. `.pipeline/STATUS.md` réécrit en
+dernier. **Puis `/land`.**
+
+---
 
 ## Satellites consultés
 

@@ -508,6 +508,21 @@ export function exampleExpression(example, model) {
 export const DEFAULT_SELECTION = Object.freeze([0, 4, 7, 2]);
 
 /**
+ * La sélection de départ, dans l'ordre du modèle.
+ *
+ * `DEFAULT_SELECTION` énumère les quatre colonnes dans l'ordre où le contrat
+ * les nomme, pas dans celui du modèle. Servie telle quelle, elle donnait à la
+ * classe un nom qui dépendait du CHEMIN du lecteur : les mêmes quatre colonnes
+ * rendaient `b0ff` au chargement et `4b8e` après une case cochée puis décochée,
+ * parce que le tri n'entrait en jeu qu'au premier basculement. La page enseigne
+ * que le nom se dérive des colonnes choisies ; il se dérivait de l'ordre des
+ * gestes. Trouvé sur iPhone 14 le 22 août 2026, par l'œil du chef de projet.
+ */
+export function initialSelection() {
+  return [...DEFAULT_SELECTION].sort((left, right) => left - right);
+}
+
+/**
  * Réécrit une expression d'un modèle vers l'autre, propriété par propriété.
  *
  * Sans elle, basculer la langue ferait refuser le filtre déjà tapé : le lecteur
@@ -565,8 +580,14 @@ export function mountMiniLanguage({ dict, root }) {
   };
 
   /** Les cases cochées, par indice de propriété. Seul état de la page. */
-  let selection = [...DEFAULT_SELECTION];
-  /** La dernière explication retenue par un clic : elle survit au survol. */
+  let selection = initialSelection();
+  /**
+   * Le dernier exemple retenu par un clic : il survit au survol.
+   *
+   * L'EXEMPLE est retenu, jamais son texte : c'est ce qui permet de vérifier à
+   * chaque rendu qu'il décrit encore ce que le champ contient, et de retrouver
+   * son explication dans la langue courante après un basculement.
+   */
   let heldExample = null;
 
   const texts = () => dict[root.documentElement.lang]?.section4 ?? dict.fr.section4;
@@ -661,9 +682,9 @@ export function mountMiniLanguage({ dict, root }) {
       button.addEventListener("mouseleave", restoreHelp);
       button.addEventListener("blur", restoreHelp);
       button.addEventListener("click", () => {
-        heldExample = labels[example.key].aide;
+        heldExample = example;
         field.value = exampleExpression(example, model);
-        showHelp(heldExample);
+        showHelp(labels[example.key].aide);
         render();
       });
       item.append(button);
@@ -676,11 +697,26 @@ export function mountMiniLanguage({ dict, root }) {
     help.textContent = text;
   };
   const restoreHelp = () => {
-    help.textContent = heldExample ?? texts().exemples.repos;
+    help.textContent = heldExample === null
+      ? texts().exemples.repos
+      : texts().ex[heldExample.key].aide;
   };
 
   const render = () => {
     const model = currentModel();
+
+    // Une explication ne survit pas à un champ qui la contredit : le lecteur
+    // avait sous les yeux « 3 commandes sur 18 » pendant que la page refusait
+    // sa demande (mesuré sur iPhone 14, 22 août 2026).
+    //
+    // La comparaison porte sur l'expression de l'exemple DANS LA LANGUE
+    // COURANTE, jamais sur la chaîne mémorisée au clic : le basculement de
+    // langue réécrit le champ, et comparer à la chaîne d'origine effacerait
+    // l'explication d'un exemple qui est pourtant toujours celui affiché.
+    if (heldExample !== null && field.value !== exampleExpression(heldExample, model)) {
+      heldExample = null;
+      restoreHelp();
+    }
     const rows = joinFiles(texts().modes);
     const result = filterRows(field.value, model, rows);
 
