@@ -223,6 +223,31 @@ avant de compter.
   rotor** pendant la passe VoiceOver de [W28], avec la liberté de retirer le nom des sections si la
   navigation devient bavarde (revue de session 17, réserve 6).
 
+- **[W31]** **La porte « toute forme imprimée est une forme reconnue » ne garde qu'un rétrécissement
+  de sa propre mesure, jamais un élargissement.** Classe `SEQUENCE_IMPRIMEE`, dans
+  `tests/minilangage.test.js` : `/<[^\s]*?:[^\s]*?:[^\s]*?>/g`. Elle exclut l'espace, donc une
+  séquence imprimée dont la **valeur** en porterait une lui échappe. La couverture par clé qui la
+  double exige de voir exactement les trois clés qui impriment une forme : elle rougit si la mesure
+  se rétrécit, elle reste verte si une valeur neuve sort de ce que la classe sait voir.
+  **Mesuré par le `reviewer`, cinq configurations, second tour de la session 18** : (A) état livré,
+  quatre assertions vertes ; (B) morsure, barre oblique retirée, deux tests rouges nommant la clé et
+  la forme — la porte tient sur ce pour quoi elle a été écrite ; (C) forme invalide **à espace** dans
+  une clé **déjà couverte**, tout vert ; (D) la même dans une clé **neuve**, tout vert ; (E) témoin,
+  forme invalide **sans** espace dans une clé neuve, deux tests rouges.
+  **Aucune valeur livrée n'est dans ce cas au 22 août 2026** ; la dette est ouverte sur ce qui vient.
+  **Ce qui la rend pressante** : la sixième ligne du catalogue des refus, la plus forte, est
+  `<nomClient:==:D' OR '1'='1/>` — **deux espaces** — et c'est le sous-incrément
+  `mini-langage json-et-edition` (n° 7 du fil) qui l'imprimera, le prompt lui confiant la
+  démonstration détaillée de l'injection.
+  **Classe de remplacement déjà mesurée** par le `reviewer`, à ne pas remesurer au remboursement :
+  `/<[^\s:<]*:(?:(?!\/>).)*?\/>/g` — captures **identiques** sur le dictionnaire du 22 août 2026
+  (4 et 4, mêmes chaînes, FR et EN, zéro remaniement), voit les formes à espace, ne tronque plus
+  `<nomClient:==:a>b/>` (que la classe actuelle capture amputée, et fait donc rougir sur une valeur
+  légitime), et ne se déclenche pas sur le `><` en prose de `refus.operateur.pourquoi`.
+  *(Née d'une clause fausse de mon propre commentaire, relevée au second tour de revue : la clause
+  affirmait que la couverture par clé vérifiait la limite. Clause corrigée le 22 août 2026 ; la
+  classe, elle, n'a pas bougé — arbitrage du chef de projet, périmètre borné.)*
+
 - **Points de vigilance recopiés de `.pipeline/` avant qu'il ne s'écrase** (sessions 14 et 15) :
   `attribut?.Nom` rend une valeur nulle pour une propriété sans attribut, comportement du prototype
   reproduit à dessein ; le point final de la phrase de renvoi vit dans le lien souligné (cosmétique,

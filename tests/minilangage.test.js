@@ -400,7 +400,9 @@ describe("toute forme imprimée dans la page est une forme que le langage reconn
    *
    * Limite dite plutôt que masquée : une séquence dont la VALEUR porterait une
    * espace échapperait à ce balayage. Aucune valeur du dictionnaire n'en imprime
-   * aujourd'hui, et la couverture par clé, ci-dessous, le vérifie.
+   * aujourd'hui, et rien ne le garde : la couverture par clé, ci-dessous, garde
+   * contre un rétrécissement de la mesure, jamais contre un élargissement.
+   * Inscrite en [W31].
    */
   const SEQUENCE_IMPRIMEE = /<[^\s]*?:[^\s]*?:[^\s]*?>/g;
 
