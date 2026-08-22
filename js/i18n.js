@@ -293,7 +293,7 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
         forme: {
           quoi: "Forme non reconnue",
           pourquoi:
-            "une séquence s'écrit <colonne:opérateur:valeur>, dans cet ordre et sans rien autour. Par exemple <nomClient:=]:UR/> : d'abord la colonne, puis le test, puis la valeur. L'opérateur va au milieu, jamais à la fin.",
+            "une séquence s'écrit <colonne:opérateur:valeur/>, dans cet ordre et sans rien autour. Par exemple <nomClient:=]:UR/> : d'abord la colonne, puis le test, puis la valeur. L'opérateur va au milieu, jamais à la fin.",
         },
         colonne: {
           quoi: "Colonne « {nom} » hors de la liste exposée",
@@ -731,7 +731,7 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
         forme: {
           quoi: "Shape not recognised",
           pourquoi:
-            "a sequence is written <column:operator:value>, in that order and with nothing around it. For example <customerLastName:=]:UR/>: the column first, then the test, then the value. The operator sits in the middle, never at the end.",
+            "a sequence is written <column:operator:value/>, in that order and with nothing around it. For example <customerLastName:=]:UR/>: the column first, then the test, then the value. The operator sits in the middle, never at the end.",
         },
         colonne: {
           quoi: "Column \"{nom}\" is not in the exposed list",

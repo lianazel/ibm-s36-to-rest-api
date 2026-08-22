@@ -377,6 +377,98 @@ describe("les treize exemples", () => {
   });
 });
 
+describe("toute forme imprimée dans la page est une forme que le langage reconnaît", () => {
+  /**
+   * Cette porte est née d'un défaut livré le 22 août 2026 : la valeur qui
+   * ENSEIGNE la forme du langage avait perdu sa barre oblique en passant des
+   * entités du prompt aux chevrons nus du dictionnaire. Le lecteur qui recopiait
+   * la forme affichée obtenait « Forme non reconnue ». Cent quatre-vingt-dix
+   * tests verts ne l'ont pas vu : aucun ne lisait les messages.
+   *
+   * Elle porte sur la FORME seule. Un gabarit comme <colonne:opérateur:valeur/>
+   * désigne une colonne qui n'existe pas, et doit donc être refusé sur la
+   * colonne. Ce qu'aucune forme imprimée ne peut produire, c'est le refus
+   * « forme » : cela voudrait dire que la page montre une syntaxe invalide.
+   */
+  /**
+   * Une séquence imprimée : deux deux-points, aucune espace, close par un
+   * chevron. Le quantificateur est NON GOURMAND et la classe exclut l'espace,
+   * jamais le chevron : deux des six opérateurs (`><` et `=>`) en portent un,
+   * et une classe qui exclurait le chevron raterait précisément le gabarit des
+   * bornes. Angle mort mesuré le 22 août 2026, sur la première version de cette
+   * porte, qui rendait `null` sur `refus.bornes.pourquoi`.
+   *
+   * Limite dite plutôt que masquée : une séquence dont la VALEUR porterait une
+   * espace échapperait à ce balayage. Aucune valeur du dictionnaire n'en imprime
+   * aujourd'hui, et la couverture par clé, ci-dessous, le vérifie.
+   */
+  const SEQUENCE_IMPRIMEE = /<[^\s]*?:[^\s]*?:[^\s]*?>/g;
+
+  const formesImprimees = (lang) => {
+    const trouvees = [];
+    const parcourir = (node, chemin) => {
+      for (const [cle, valeur] of Object.entries(node)) {
+        const suite = chemin === "" ? cle : `${chemin}.${cle}`;
+        if (typeof valeur === "object" && valeur !== null) {
+          parcourir(valeur, suite);
+        } else if (typeof valeur === "string") {
+          for (const forme of valeur.match(SEQUENCE_IMPRIMEE) ?? []) {
+            trouvees.push({ chemin: suite, forme });
+          }
+        }
+      }
+    };
+    parcourir(dict[lang].section4, "");
+    return trouvees;
+  };
+
+  it("porte non vide : la page imprime bien des formes des deux côtés", () => {
+    // Une porte qui ne trouve aucune forme à vérifier est aveugle.
+    expect(formesImprimees("fr").length).toBeGreaterThanOrEqual(3);
+    expect(formesImprimees("en").length).toBeGreaterThanOrEqual(3);
+  });
+
+  it.each(["fr", "en"])("les trois clés qui impriment une forme sont toutes vues (%s)", (lang) => {
+    // Couverture par clé, et pas seulement par compte : c'est elle qui a
+    // révélé que le gabarit des bornes échappait à la première regex. Sans
+    // elle, une classe de caractères trop étroite réduit la couverture en
+    // silence, et la porte reste verte en ne regardant plus rien.
+    const vues = new Set(formesImprimees(lang).map((f) => f.chemin));
+    expect([...vues].sort()).toEqual([
+      "refus.bornes.pourquoi",
+      "refus.forme.pourquoi",
+      "refus.operateur.pourquoi",
+    ]);
+  });
+
+  it.each(["fr", "en"])("aucune forme imprimée n'est refusée sur la forme (%s)", (lang) => {
+    const model = modelOf(lang);
+    for (const { chemin, forme } of formesImprimees(lang)) {
+      // `{colonne}` est rempli à l'exécution par ce que le lecteur a tapé :
+      // on lui substitue une propriété réelle avant de mesurer.
+      const essai = forme.replace("{colonne}", model[0].property);
+      const lecture = recognise(essai, model);
+      const code = lecture.ok ? null : lecture.refusal.code;
+      expect(code, `${lang}.${chemin} imprime « ${forme} »`).not.toBe("forme");
+    }
+  });
+
+  it("la forme générale enseignée par le message de forme est reconnaissable", () => {
+    // Le cas précis du défaut du 22 août, nommé pour qu'il ne revienne pas.
+    for (const lang of ["fr", "en"]) {
+      const model = modelOf(lang);
+      const [{ forme }] = formesImprimees(lang).filter((f) => f.chemin === "refus.forme.pourquoi");
+      expect(forme.endsWith("/>"), `${lang} : la forme enseignée doit se fermer par /`).toBe(true);
+      expect(recognise(forme, model).refusal.code).toBe("colonne");
+    }
+  });
+
+  it("le gabarit des bornes, rempli, est accepté sur une colonne numérique", () => {
+    const gabarit = dict.fr.section4.refus.bornes.pourquoi.match(SEQUENCE_IMPRIMEE)[0];
+    expect(recognise(gabarit.replace("{colonne}", FR[7].property), FR).ok).toBe(true);
+  });
+});
+
 describe("buildModel : la couture est un contrat, et elle le tient", () => {
   it("exige neuf noms", () => {
     expect(() => buildModel(["un", "deux"])).toThrow(RangeError);

@@ -736,9 +736,11 @@ section {
 /* ---- Les deux teintes de lien.
    Elles distinguent des RÔLES dans un tableau, pas des époques : elles ne
    concurrencent donc pas les trois registres du contrat de design.
-   Contrastes remesurés contre le fond réellement peint, encre #161616 sur les
-   cellules et encre douce #525252 sur les en-têtes : 16,80:1 et 15,65:1 sur
-   les cellules, 6,83:1 et 5,82:1 sur les en-têtes. Le contrat exige 4,5:1. */
+   Contrastes remesurés au navigateur contre le fond réellement peint, encre
+   #161616 sur les cellules et encre douce #525252 sur les en-têtes : 16,79:1 et
+   15,64:1 sur les cellules, 6,83:1 et 5,82:1 sur les en-têtes. Le contrat exige
+   4,5:1. Les en-têtes ne tiennent ces nombres qu'avec l'encre douce : leur
+   donner l'encre pleine changerait la mesure. */
 .fichier td.lien-valeurs {
   background: #fff6de;
 }
@@ -824,7 +826,14 @@ section {
   list-style: none;
 }
 
+/* Le plancher de 44 px est celui que le site s'impose déjà au bouton de menu
+   (l. 142-143), aux entrées de navigation (l. 268) et au lien « À propos »
+   (l. 302). Ces treize boutons sont les commandes les plus sollicitées de la
+   page : ils ne peuvent pas être les seules à en être privées. */
 .exemples button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   padding: calc(var(--space) / 3) calc(var(--space) / 2);
   border: 1px solid var(--color-ink-soft);
   background: var(--color-bg);
@@ -836,7 +845,7 @@ section {
 
 /* Rouge : la demande tente ce que le langage n'accorde pas. La couleur ne porte
    pas seule l'information, l'explication sous la liste la dit en toutes lettres.
-   #a2191f sur fond blanc : 7,77:1, au delà du AA exigé. */
+   #a2191f sur fond blanc : 7,79:1 mesuré, au delà du AA exigé. */
 .exemples button.rouge {
   border-color: #a2191f;
   color: #a2191f;
@@ -868,11 +877,21 @@ section {
   list-style: none;
 }
 
+/* La cible, c'est l'étiquette entière, pas la seule case : neuf cases de 20 px
+   sont neuf occasions de manquer. Même plancher que les boutons d'exemple. */
 .colonnes label {
   display: flex;
   align-items: center;
+  min-height: 44px;
   gap: calc(var(--space) / 4);
   cursor: pointer;
+}
+
+/* La case elle-même est agrandie : à sa taille native elle reste le point de
+   mire du doigt, même quand l'étiquette autour est cliquable. */
+.colonnes input {
+  width: 1.125rem;
+  height: 1.125rem;
 }
 
 .colonnes code {
