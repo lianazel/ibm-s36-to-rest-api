@@ -2,6 +2,56 @@
 
 > Une leçon = une erreur commise ici, datée, avec la règle qui l'empêche de revenir.
 
+## 22 août 2026 — Attribuer sa propre régression à sa source, c'est faire arbitrer une question qui n'existe pas
+
+**Type** : Erreur
+**Contexte** : EVOL `mini-langage-refus-et-classe` (merge `6f3778c`, session 18). L'avenant 1 imposait
+de convertir en chevrons nus six valeurs que le prompt écrivait en entités. Dans
+`refus.forme.pourquoi`, j'ai perdu la barre oblique : `&lt;colonne:opérateur:valeur/&gt;` est devenu
+`<colonne:opérateur:valeur>`. La valeur qui **enseigne** la forme du langage enseignait une forme que
+le reconnaisseur refuse.
+**Erreur** : je n'ai pas seulement introduit le défaut, j'ai **écrit une section entière de
+`changes.md` affirmant que le prompt gelé était fautif**, et j'ai posé la question au chef de projet
+puis au `reviewer` — « dis si mon choix de ne pas toucher à une valeur gelée est le bon ». Je n'avais
+relu ni les octets de la valeur, ni la seconde occurrence de la même chaîne, qui avait gardé sa barre
+oblique et prouvait à elle seule que la conversion n'était pas en cause.
+**Ce qui l'a rattrapé** : le `reviewer` est allé aux octets du prompt (`sed`, `cat -A`, lignes 372 et
+393). Ni ma relecture, ni les 190 tests verts — aucun ne lisait le **contenu** des messages.
+**Correction** : avant d'écrire qu'une source gelée se trompe, **aller aux octets de la source**, et
+vérifier les autres occurrences du même motif dans la même valeur. Une régression attribuée à sa
+source ne se corrige plus : elle **déplace la charge de la preuve** sur autrui, et elle peut faire
+corriger le contrat pour couvrir le code. C'est plus grave que le défaut, parce que le défaut se
+mesure et que le déplacement, lui, se croit.
+**Portée du dégât** : aucune — mort sur la branche. Mais deux tours de revue ont été dépensés sur une
+question fabriquée.
+**Applicable globalement ?** : **oui, à mon sens**. Rien de spécifique à ce projet ni à cette stack :
+c'est la règle qui distingue « j'ai trouvé une contradiction dans la consigne » de « je n'ai pas
+vérifié ma propre transcription ». À arbitrer par le chef de projet ; promotion = geste dédié
+(entrée A-1).
+
+## 22 août 2026 — Une porte écrite contre un défaut peut ne le garder que d'un côté
+
+**Type** : Erreur
+**Contexte** : même incrément. Deux portes écrites **en réaction à un défaut mesuré** se sont
+révélées borgnes, chacune sur la moitié de sa cible.
+**Erreur** : (1) la porte « toute forme imprimée est une forme reconnue » utilisait une classe de
+caractères excluant le chevron — elle ratait donc `refus.bornes.pourquoi`, dont l'opérateur `><` en
+porte un : deux clés sur trois couvertes, **en paraissant exhaustive**. (2) le garde-fou d'A2-4
+interdit à l'explication de promettre un refus, par `/refus/i` en français et `/refusal/i` en anglais :
+le motif français attrape six formes, l'anglais n'attrape que « refusal » et **laisse passer
+« refused »**, mot employé par deux autres valeurs anglaises livrées. Rejoué par le `reviewer` :
+« Try T: it is refused… » **passe**.
+**Correction** : quand une porte naît d'un défaut, la mesurer sur **la classe entière** du défaut, pas
+sur l'exemplaire qui l'a révélée — et, dans un produit bilingue, **vérifier chaque motif dans chaque
+langue séparément** : deux langues sont deux mesures, jamais une seule appliquée deux fois. Une porte
+symétrique en apparence peut être asymétrique en fait, et c'est invisible tant que le cas ne tombe pas
+du bon côté.
+**Ce qui l'a rattrapé** : le `reviewer`, en jouant des configurations que la porte devait refuser, au
+lieu de lire la porte. La première a été trouvée par moi en l'écrivant, la seconde par lui.
+**Applicable globalement ?** : **oui**, pour tout projet multilingue ou multi-format. Voisine de la
+leçon globale du 20 août (« vérifier une liste ne fonde pas une conclusion sur la famille ») : ici la
+famille est celle des langues, et la conclusion a été tirée d'une seule.
+
 ## 21 août 2026 — Un prompt lu à l'ouverture n'est pas le prompt qu'on exécute : il se relit juste avant d'agir
 
 **Type** : Erreur

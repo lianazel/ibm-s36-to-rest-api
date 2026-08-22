@@ -1237,3 +1237,103 @@ dire sur quoi elle a été payée — six sections dans `main` plus « À propos
 | Ma propre mesure de conformité rendait dix-sept écarts inexistants | **Corriger la mesure, jamais le livrable**, et consigner l'incident | Un contrôle dont toute la valeur est l'exactitude doit dire quand il s'est trompé. La tentation inverse — ajuster le livrable jusqu'à ce que le contrôle passe — aurait détruit la conformité qu'il mesurait | **précédent** |
 | Niveau de bump | **Patch** 0.1.14 → 0.1.15, sur consigne explicite du chef de projet | Le défaut `feat/*` vaut minor ; la cible de fin de jalon étant 1.0.0 depuis le 20 août, consommer 0.2.0 ici n'aurait pas de sens. **Quatorzième** inscription | précédent |
 | La validation sur iPhone 14 couvre-t-elle la mesure à 320 px | **Non**, et c'est dit dans l'entrée | L'appareil fait 390 px, où la requête de largeur est active. Compter cette validation comme une preuve du cas serré aurait fabriqué une garantie inexistante | **précédent** |
+
+## Session 18 — 22 août 2026 — EVOL `mini-langage-refus-et-classe` (merge `6f3778c`, 0.1.15 → 0.1.16)
+
+La section 4 n'est plus un texte d'attente. Elle porte le décor de quatre fichiers joints **par les
+valeurs**, un reconnaisseur à six opérateurs et neuf refus, les treize exemples cliquables, et la
+classe qui se réécrit sous le lecteur. Module neuf `js/minilangage.js` (793 l.), suite neuve
+`tests/minilangage.test.js` (610 l.). **Tests 134/134 → 210/210, six fichiers.**
+
+**Deux avenants au prompt gelé, quatre tours de revue, sept commits.** C'est le premier incrément où
+le prompt a été amendé **en cours d'exécution**, deux fois, sur constat mesuré. Les deux fois,
+l'arrêt a produit une règle écrite au lieu d'une adaptation silencieuse.
+
+### Le périmètre, et son sixième fichier
+
+La preuve 2 du prompt exige **cinq** fichiers hors `prompts/`. Le compte en rend **six** : les cinq
+du produit (`index.html`, `js/i18n.js`, `js/minilangage.js`, `css/styles.css`,
+`tests/minilangage.test.js`) **plus `tasks/ROADMAP.md`**, où [W31] a été ouverte dans le même commit
+que la correction qui la crée, sur ordre du chef de projet. **Dit ici parce que `.pipeline/` ne
+survit pas au merge** : un lecteur qui rejouera la preuve après l'atterrissage trouvera six là où le
+prompt écrit cinq, et il doit trouver le motif quelque part.
+
+### Avenant 1 — la règle des chevrons était fausse pour le dictionnaire
+
+Le prompt exigeait des entités (`&lt;`) dans les valeurs du dictionnaire. Or `applyI18n` pose les
+textes par `textContent` (`js/i18n.js:682`), qui ne les interprète pas : la page aurait affiché
+`&lt;colonne:opérateur:valeur&gt;` en toutes lettres, **dans le message même qui enseigne la forme du
+langage**. Arrêt à l'étape 0, mesure produite dans les deux sens — zéro entité dans le dictionnaire,
+neuf valeurs portant déjà des chevrons nus (les extraits C# de la section 3), entités présentes
+uniquement dans `index.html`. Avenant : entités en HTML, chevrons nus dans le dictionnaire.
+
+### Ce que la revue a trouvé, et que je n'avais pas vu
+
+**Premier tour, NEEDS_WORK, trois FAIL.** En convertissant les entités, j'ai perdu la barre oblique
+de `refus.forme.pourquoi`, FR et EN — sur une seule des deux occurrences de la même valeur. Le
+message qui enseigne la forme enseignait une forme que le reconnaisseur refuse.
+
+**Et j'avais écrit dans `changes.md` que le prompt était fautif**, invitant le chef de projet puis le
+`reviewer` à arbitrer une question qui n'existait pas. Le `reviewer` est allé aux octets : la barre
+oblique était dans la valeur gelée. Voir la leçon du jour.
+
+**Deuxième tour, SHIP.** Il trouve qu'une clause de mon commentaire est fausse : la couverture par
+clé ne garde que le **rétrécissement** de la mesure, jamais l'**élargissement**. Cinq configurations
+à l'appui. → **[W31]**, ouverte avec sa classe de remplacement déjà mesurée, pour que le
+remboursement ne refasse pas la mesure.
+
+**Troisième et quatrième tours, SHIP.** Deux réserves neuves inscrites et non corrigées, sur consigne :
+le raccourci du commentaire, et le garde-fou d'A2-4 **borgne du côté anglais** — `/refusal/i` laisse
+passer « refused », qui est le mot employé par deux autres valeurs anglaises livrées.
+
+### Avenant 2 — cinq corrections nées de l'œil du chef de projet
+
+Validation sur iPhone 14, FR puis EN, dix-huit captures. Trois des cinq corrections viennent de là,
+et **aucune porte ne les regardait** :
+
+- **A2-1** — le nom de la classe se dérivait du **chemin du lecteur**, pas des colonnes : `b0ff` au
+  chargement, `4b8e` après une case cochée puis décochée, à sélection égale. L'argument central du
+  chapitre se contredisait sous le doigt. Corrigé par un tri à l'initialisation.
+- **A2-2** — la légende promettait « Modifier une cellule teintée casse un lien » alors que rien
+  n'est modifiable dans cet incrément, le critère 7 l'interdisant.
+- **A2-3** — la chute de la démonstration d'injection se déclenchait sur **tout** compte nul : une
+  date mal tapée recevait le discours sur l'injection. Déplacée là où elle mord.
+- **A2-4** — voir les arbitrages : j'ai fait arrêter l'avenant.
+- **A2-5** — l'explication d'un exemple survivait à un refus qui la contredisait.
+
+### Les preuves
+
+Débordement horizontal **nul** sur 63 états à 320 px et 390 px, mesuré dans tous les états y compris
+après le plancher tactile qui change la mise en page. Contrastes **retrouvés au centième**
+(16,79 · 15,64 · 6,83 · 5,82), au `getComputedStyle`, contre le fond réellement peint. Cibles
+tactiles **44 px**, en boîtes peintes. Parité **94 = 94** sous `section4`. Cadratins 10/1/8 inchangés,
+`innerHTML` 0, `<script` 2 → 2, zéro entité dans le dictionnaire, zéro dépendance.
+
+### Dettes ouvertes
+
+**[W31]** (la porte qui ne garde qu'un rétrécissement de sa mesure), plus deux réserves à y verser :
+le raccourci de son commentaire, et le garde-fou anglais borgne. **[W23]** confirmée sur appareil
+avec un nombre : **106 px cachés sur 445** dans le cadre de la classe, sans indice de défilement.
+
+### Les trois enrichissements écartés
+
+Marquer le dernier exemple utilisé · fermer la séquence par un bouton sous le filtre · teinter le
+bloc de refus. Tous trois nés de l'usage réel, tous trois **hors de l'avenant 2 par décision**. Ils
+portent sur la même zone — la saisie et sa réponse — et méritent leur contrat. **Arbitrage de couleur
+à rendre** : le violet clair demandé pour le refus est déjà la teinte `lien-code` (`#f2ecfa` /
+`#e5daf2`), celle qui marque `LIZEPO` et `CODLIV`.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| Le prompt gelé exige des entités là où `textContent` les afficherait littéralement | **Arrêt et signalement**, puis avenant 1 : entités en HTML, chevrons nus dans le dictionnaire | Le dépôt tranchait déjà dans les deux sens, mesure à l'appui. Adapter seul aurait livré une page illisible ou violé une règle gelée ; l'arrêt a produit une règle écrite | **précédent** |
+| Trois emplacements que le prompt ouvre sans les remplir (`modele`, `types`, `classe.prefixe`) | **Remplis**, déclarés, soumis à la revue | Mécaniquement nécessaires pour que les valeurs gelées s'affichent. S'arrêter une seconde fois aurait bloqué sur ce que l'ÉTAPE 6 exige explicitement. Confirmé par le `reviewer` | **précédent** |
+| `translateExpression`, non demandée par le prompt | **Gardée** | Sans elle, la bascule de langue faisait refuser le filtre déjà tapé. Réparer ce que la spec provoque n'est pas ajouter une fonctionnalité — argument du `reviewer`, retenu | **précédent** |
+| Une clause de mon commentaire, prouvée fausse, contre un `SHIP` déjà acquis | **Corriger**, formulation dictée par le chef de projet, et ouvrir [W31] dans le **même commit** | Un dépôt public ne porte pas une garantie inexistante. [W17] est la cicatrice du choix inverse. Coût assumé : un tour de revue de plus | **précédent** |
+| [W31] ouverte dans le commit du correctif → six fichiers au périmètre au lieu de cinq | **Six**, écart déclaré à l'artefact **et au journal** | La dette et le geste qui la crée sont indissociables. Un compte qui passe de 5 à 6 sans un mot se lit comme un dépassement, même commandé | cas d'espèce |
+| La première rédaction d'A2-4 annonçait un refus sur « finit par T » | **Arrêt avant d'écrire** ; avenant corrigé par le chef de projet, valeur définitive nommant LAMBERT et PETIT | Mesuré : `<nomClient:=]:T/>` est **accepté** et rend deux lignes. Écrire la valeur aurait livré exactement la classe de fausseté que l'avenant 2 existe pour supprimer. Le minimum de deux caractères n'est **pas** étendu : il existe parce que « contient » balaie | **précédent** |
+| Le minimum de deux caractères, sur quels opérateurs | **« contient » seul** | « Contient » balaie le fichier ; une lettre sur « commence par » rend une tranche. Étendre le plancher rendrait la règle arbitraire au lieu de motivée | **précédent** |
+| Points neufs surgis aux tours 3 et 4 | **Inscrits, non corrigés**, sur consigne du chef de projet | Tout commit après un `SHIP` fait refuser la garde de fraîcheur et impose un tour de plus. La spirale se ferme par décision, pas par épuisement | **précédent** |
+| Les trois enrichissements d'usage nés de la validation | **Hors périmètre**, incrément dédié, motifs consignés | Ce ne sont pas des correctifs. Groupés, ils valent un contrat ; dispersés en retouches, ils échapperaient à la revue qui les mérite | **précédent** |
+| Niveau de bump | **Patch** 0.1.15 → 0.1.16, **sans redemander** | Règle en portée `précédent` depuis la session 12. Le défaut `feat/*` vaut minor, soit 0.2.0 ; la cible de fin de jalon est 1.0.0 depuis le 20 août. **Quinzième** inscription | précédent |
