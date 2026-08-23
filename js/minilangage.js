@@ -14,7 +14,7 @@
  * Le câblage DOM, en fin de fichier, est la seule partie qui connaisse la
  * langue ; il est inerte hors navigateur (pas de DOM sous Vitest).
  */
-import { formatImplicitDecimal, parseImplicitDecimal } from "./s36.js";
+import { formatImplicitDecimal, isDigitsOnly, parseImplicitDecimal } from "./s36.js";
 
 /* ------------------------------------------------------------------ MODÈLE */
 
@@ -339,12 +339,19 @@ export function joinFiles(labels = {}, orders = CDEMST) {
     // garde, une lettre dans un montant arrêtait la page entière. Une valeur
     // que le fichier ne pourrait pas stocker rend `null`, comme une jointure
     // qui ne trouve rien : la page ne corrige jamais à la place du lecteur.
-    const amount = /^[0-9]+$/.test(order.MTTCDE) ? parseImplicitDecimal(order.MTTCDE) : null;
-    const number = Number(order.NUMCDE);
+    //
+    // LE MÊME PRÉDICAT pour les deux champs. `Number()` seul était trop
+    // accueillant : il rendait 0 sur une cellule vidée, 1000 sur « 1e3 », 16 sur
+    // « 0x10 » — aucune de ces formes ne tient dans un champ de chiffres, et le
+    // message de rupture aurait nommé « 0 DURAND CLAIRE ». Deux gardes voisines
+    // doivent avoir la même rigueur, sans quoi l'une dément l'autre.
+    const amount = isDigitsOnly(order.MTTCDE)
+      ? parseImplicitDecimal(order.MTTCDE, IMPLICIT_DECIMALS)
+      : null;
     return {
       NOMCLI: order.NOMCLI,
       PRECLI: order.PRECLI,
-      NUMCDE: Number.isNaN(number) ? null : number,
+      NUMCDE: isDigitsOnly(order.NUMCDE) ? Number(order.NUMCDE) : null,
       DATCDE: order.DATCDE,
       MTTCDE_BRUT: order.MTTCDE,
       MTTCDE: amount,
@@ -496,6 +503,9 @@ export function renderJson(rows, entries) {
 /** Toute requête part des commandes. */
 const BASE_FILE = "CDEMST";
 
+/** Les décimales implicites des montants du décor. Même valeur qu'au fichier. */
+const IMPLICIT_DECIMALS = 2;
+
 /**
  * Les jointures, écrites une fois, par les valeurs du métier et rien d'autre.
  *
@@ -592,7 +602,14 @@ function translateBound(entry, value) {
   if (!Number.isFinite(numeric) || numeric < 0) {
     return null;
   }
-  return { avant: value, apres: formatImplicitDecimal(numeric) };
+  // Hors de l'entier sûr, `formatImplicitDecimal` REFUSE plutôt que de rendre
+  // une notation scientifique. Le champ étant libre, le lecteur peut y écrire
+  // 1e21 : la borne passe alors intacte, comme une borne non numérique, plutôt
+  // que d'arrêter la page sur une exception.
+  if (numeric * 10 ** IMPLICIT_DECIMALS > Number.MAX_SAFE_INTEGER) {
+    return null;
+  }
+  return { avant: value, apres: formatImplicitDecimal(numeric, IMPLICIT_DECIMALS) };
 }
 
 /**
@@ -616,7 +633,14 @@ function toParameter(entry, operator, value) {
   };
 }
 
-/** La même valeur, mais COLLÉE dans le texte. C'est tout le défaut, montré. */
+/**
+ * La même valeur, mais COLLÉE dans le texte. C'est tout le défaut, montré.
+ *
+ * ⚠ Cette fonction fabrique une concaténation SQL, délibérément. Elle n'existe
+ * que pour MONTRER la faille, et rien de ce qu'elle rend n'est exécuté nulle
+ * part : ni base, ni pilote, ni réseau dans ce projet. Ne pas la reprendre
+ * ailleurs sans cette phrase.
+ */
 function toLiteral(entry, operator, value) {
   const raw = entry.type === "texte" && operator !== "==" ? likePattern(operator, value) : value;
   if (entry.type === "texte") {
@@ -682,6 +706,14 @@ export function buildParameterisedQuery(read, entries) {
  * Elle n'apparaît QUE si une valeur porte une apostrophe : sur une demande
  * ordinaire, la page reste sobre. Sans colonne cochée il n'y a pas de requête,
  * donc pas de version naïve non plus, apostrophe ou pas.
+ *
+ * ⚠ C'EST LA FONCTION QUI COLLE UNE VALEUR DANS UN TEXTE SQL. Elle est le
+ * contre-exemple du site, jamais un modèle : la chaîne qu'elle rend n'est
+ * ÉMISE ni EXÉCUTÉE nulle part, il n'y a ni base, ni pilote, ni appel réseau
+ * dans ce projet. La règle permanente « zéro concaténation SQL » n'a pas
+ * d'autre garde ici que cet avertissement — il est répété à la fonction plutôt
+ * que laissé en tête de section, parce qu'un copier-coller n'emporte pas
+ * l'en-tête d'un fichier.
  *
  * @returns {string|null}
  */
@@ -799,15 +831,26 @@ export function exampleExpression(example, model) {
   );
 }
 
-/** Les quatre propriétés cochées au départ : nom, numéro, montant, mode. */
-export const DEFAULT_SELECTION = Object.freeze([0, 4, 7, 2]);
+/**
+ * Les six propriétés cochées au départ : nom, numéro, montant, mode, puis la
+ * ville et le libellé du mode.
+ *
+ * Les deux dernières sont entrées le 23 août 2026, et le motif est mesuré : le
+ * message de rupture annonce que LES TROIS propriétés jointes rendent `null`,
+ * or `villeClient` et `libelleModeLivraison` étaient décochées au chargement.
+ * Le lecteur qui cassait une jointure lisait donc une affirmation qu'il ne
+ * pouvait vérifier qu'au tiers, et devait pour le reste cocher deux cases dont
+ * rien ne lui disait qu'elles manquaient. La page MONTRE au lieu de reformuler
+ * sa promesse à la baisse (arbitrage du chef de projet, session 19).
+ */
+export const DEFAULT_SELECTION = Object.freeze([0, 4, 7, 2, 8, 3]);
 
 /**
  * La sélection de départ, dans l'ordre du modèle.
  *
- * `DEFAULT_SELECTION` énumère les quatre colonnes dans l'ordre où le contrat
- * les nomme, pas dans celui du modèle. Servie telle quelle, elle donnait à la
- * classe un nom qui dépendait du CHEMIN du lecteur : les mêmes quatre colonnes
+ * `DEFAULT_SELECTION` énumère les colonnes dans l'ordre où le contrat les
+ * nomme, pas dans celui du modèle. Servie telle quelle, elle donnait à la
+ * classe un nom qui dépendait du CHEMIN du lecteur : les mêmes colonnes
  * rendaient `b0ff` au chargement et `4b8e` après une case cochée puis décochée,
  * parce que le tri n'entrait en jeu qu'au premier basculement. La page enseigne
  * que le nom se dérive des colonnes choisies ; il se dérivait de l'ordre des
@@ -1159,15 +1202,44 @@ export function mountMiniLanguage({ dict, root }) {
 
     // Une demande refusée ne part pas au serveur, et la page le montre au lieu
     // de garder un état périmé.
-    jsonBox.textContent = refused
-      ? texts().refusRien
-      : (renderJson(result.rows, chosen) ?? texts().json.vide);
+    //
+    // Le cadre est fait pour du code, qui ne se replie pas : une PHRASE posée
+    // dedans sortait du champ sur téléphone, et le lecteur lisait « rien ne
+    // part au serv » avant de devoir défiler de côté (relevé sur iPhone 14 le
+    // 23 août 2026). La classe `prose` rend le repli à ce qui est de la prose,
+    // et à elle seule : le JSON et le SQL gardent leur défilement.
+    // `putCode` et non `code` : le cadre de la classe s'appelle déjà `code`
+    // dans cette fonction, et une locale du même nom l'aurait masqué. Le nom
+    // court a coûté une page blanche, verte aux 282 tests, le 23 août 2026.
+    const putMessage = (box, texte) => {
+      box.textContent = texte;
+      box.className = "prose";
+    };
+    const putCode = (box, texte) => {
+      box.textContent = texte;
+      box.className = "";
+    };
+
+    const json = refused ? null : renderJson(result.rows, chosen);
+    if (refused) {
+      putMessage(jsonBox, texts().refusRien);
+    } else if (json === null) {
+      putMessage(jsonBox, texts().json.vide);
+    } else {
+      putCode(jsonBox, json);
+    }
 
     // Sans colonne cochée il n'y a pas de requête : les deux cadres disent la
     // même absence. Ni vis-à-vis ni bloc de valeurs alors — ce bloc accompagne
     // une requête, et aucune valeur ne voyage puisque rien ne part (arbitrage
     // du chef de projet, session 19).
-    sqlBox.textContent = refused ? texts().refusRien : (query.sql ?? texts().json.vide);
+    if (refused) {
+      putMessage(sqlBox, texts().refusRien);
+    } else if (query.sql === null) {
+      putMessage(sqlBox, texts().json.vide);
+    } else {
+      putCode(sqlBox, query.sql);
+    }
 
     naiveBlock.hidden = naive === null;
     parametreePhrase.hidden = naive === null;
@@ -1199,6 +1271,33 @@ export function mountMiniLanguage({ dict, root }) {
     // Information, jamais erreur : casser n'est pas une faute, c'est la
     // démonstration. Le texte entre élément par élément, `textContent` seul.
     const broken = findOrphans(rows, result.ok ? result.rows : rows);
+
+    // L'EXTINCTION DE TEINTE. La cellule teintée dit « ce lien tient » ; quand
+    // il cède, elle s'éteint. C'est l'absence qui parle, jamais le rouge :
+    // casser n'est pas une faute, c'est la démonstration.
+    //
+    // C'est le seul accusé de réception qui arrive LÀ OÙ LE DOIGT TRAVAILLE.
+    // Le message complet vit sous les dix-huit lignes du tableau, soit 618 px
+    // plus bas ; sur un iPhone 14, la cellule éditée et son message ne tiennent
+    // sur AUCUN écran (portée 813 px mesurée le 23 août 2026, bande utile 694 px
+    // au mieux). Sans ce signal, le lecteur fait le geste et ne voit rien.
+    //
+    // La bascule se fait par `className`, sur les cellules et jamais sur la
+    // ligne : le tableau n'est pas reconstruit, donc les champs de saisie
+    // gardent leur curseur au milieu d'une frappe.
+    if (bodies.CDEMST !== null) {
+      const orphans = new Set(broken.orphans);
+      [...bodies.CDEMST.children].forEach((line, index) => {
+        const severed = orphans.has(rows[index]);
+        for (const td of line.children) {
+          if (!td.className.startsWith("lien-valeurs")) {
+            continue;
+          }
+          td.className = severed ? "lien-valeurs lien-eteint" : "lien-valeurs";
+        }
+      });
+    }
+
     joinBox.replaceChildren();
     if (broken.orphans.length > 0) {
       const jointure = texts().edition.jointure;

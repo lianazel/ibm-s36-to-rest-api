@@ -480,20 +480,25 @@ describe("avenant 2 : ce que la page affirme doit être vrai", () => {
   it("A2-1 la sélection de départ est dans l'ordre du modèle, pas dans celui du contrat", () => {
     const depart = initialSelection();
     expect(depart).toEqual([...depart].sort((left, right) => left - right));
-    // Les mêmes quatre colonnes, sans exception : le tri range, il n'ajoute ni
-    // ne retire rien.
+    // Les mêmes colonnes, sans exception : le tri range, il n'ajoute ni ne
+    // retire rien.
     expect([...depart].sort()).toEqual([...DEFAULT_SELECTION].sort());
   });
 
   it("A2-1 le nom de la classe ne dépend pas du chemin parcouru", () => {
     for (const [model, prefixe] of [[FR, "Commande"], [EN, "Order"]]) {
       const auChargement = className(prefixe, initialSelection().map((i) => model[i]));
-      // Le lecteur coche une cinquième colonne, puis la décoche : le
-      // gestionnaire de case trie, donc il revient à la sélection triée.
+      // Le lecteur coche une colonne de plus, puis la décoche : le gestionnaire
+      // de case trie, donc il revient à la sélection triée. Le témoin est
+      // l'indice 1 (`prenomClient`), et il doit rester HORS de la sélection de
+      // départ pour que l'aller-retour en soit un — l'indice 8 (`villeClient`)
+      // servait ici jusqu'au 23 août 2026, date où il est entré au défaut.
+      const temoin = 1;
+      expect(DEFAULT_SELECTION).not.toContain(temoin);
       const apresAllerRetour = className(
         prefixe,
-        [...new Set([...initialSelection(), 8])]
-          .filter((index) => index !== 8)
+        [...new Set([...initialSelection(), temoin])]
+          .filter((index) => index !== temoin)
           .sort((left, right) => left - right)
           .map((index) => model[index]),
       );
@@ -986,5 +991,149 @@ describe("le chemin que la page emprunte vraiment", () => {
     expect(result.ok).toBe(false);
     expect(result.rows).toBeUndefined();
     expect(result.refusal.code).toBe("colonne");
+  });
+});
+
+describe("la rupture doit se voir, session 19", () => {
+  it("la sélection de départ rend les TROIS null observables au JSON", () => {
+    // C'est le motif de la retouche : le message annonce que les trois
+    // propriétés jointes rendent null, et le lecteur doit pouvoir le vérifier
+    // sans deviner quelles cases lui manquent.
+    const rows = withEdit(0, { NOMCLI: "DURANT" });
+    const entries = initialSelection().map((index) => FR[index]);
+    const json = renderJson([rows[0]], entries);
+    expect(json.match(/null/g)).toHaveLength(3);
+  });
+
+  it("les trois propriétés jointes que le message nomme sont cochées au départ", () => {
+    // La porte mord sur le fond, pas sur le compte : si une des trois sortait
+    // du défaut, le message redeviendrait invérifiable.
+    const noms = initialSelection().map((index) => FR[index].property);
+    for (const attendu of ["villeClient", "codeModeLivraison", "libelleModeLivraison"]) {
+      expect(noms, attendu).toContain(attendu);
+    }
+  });
+
+  it("le message nomme exactement les propriétés qui rendent null, dans les deux langues", () => {
+    // Les trois jointes, et ELLES SEULES : une quatrième citée serait fausse.
+    const rows = withEdit(0, { NOMCLI: "DURANT" });
+    const jointes = ["VILCLI", "LIZEPO", "LIBLIV"];
+    for (const cle of jointes) {
+      expect(rows[0][cle], cle).toBeNull();
+    }
+    for (const lang of ["fr", "en"]) {
+      const model = lang === "fr" ? FR : EN;
+      const corps = dict[lang].section4.edition.jointure.corps;
+      for (const cle of jointes) {
+        const propriete = model[PHYSICAL_MODEL.findIndex((e) => e.key === cle)].property;
+        expect(corps, `${lang}.${propriete}`).toContain(propriete);
+      }
+    }
+  });
+
+  it("la note d'édition ne promet plus que ce qui bouge sur une édition de donnée", () => {
+    // Trois des cinq promesses d'origine étaient byte-identiques après une
+    // rupture : la classe se dérive des colonnes, la requête des colonnes et du
+    // filtre, le compte du filtre. Aucune ne dépend de la donnée.
+    const entries = initialSelection().map((index) => FR[index]);
+    const avant = withEdit(0, {});
+    const apres = withEdit(0, { NOMCLI: "DURANT" });
+    const lecture = { link: null, conditions: [] };
+
+    // Ce qui NE bouge pas, et que la note ne doit donc plus promettre.
+    expect(className("Commande", entries)).toBe(className("Commande", entries));
+    expect(buildParameterisedQuery(lecture, entries).sql)
+      .toBe(buildParameterisedQuery(lecture, entries).sql);
+
+    // Ce qui bouge, et que la note promet.
+    expect(renderJson([apres[0]], entries)).not.toBe(renderJson([avant[0]], entries));
+    expect(findOrphans(apres, apres).orphans).toHaveLength(1);
+    expect(findOrphans(avant, avant).orphans).toHaveLength(0);
+
+    for (const lang of ["fr", "en"]) {
+      const note = dict[lang].section4.edition.note;
+      const classe = lang === "fr" ? /la classe/i : /the class/i;
+      const requete = lang === "fr" ? /la requête/i : /the query/i;
+      // Elles peuvent être nommées, mais jamais dans la liste de ce qui se
+      // rejoue : la phrase dit désormais qu'elles NE dépendent PAS des données.
+      const negation = lang === "fr" ? /ne dépendent pas des données/i : /do not depend on the data/i;
+      expect(note, lang).toMatch(negation);
+      expect(note.match(classe), lang).not.toBeNull();
+      expect(note.match(requete), lang).not.toBeNull();
+    }
+  });
+});
+
+describe("les deux gardes de joinFiles ont désormais la même rigueur", () => {
+  it.each([
+    ["cellule vidée", "", null],
+    ["espaces seuls", " ", null],
+    ["notation scientifique", "1e3", null],
+    ["hexadécimal", "0x10", null],
+    ["décimal pointé", "12.5", null],
+    ["signe négatif", "-4", null],
+    ["chiffres et lettres", "12x50", null],
+    ["chiffres seuls", "104207", 104207],
+  ])("le numéro : %s", (_titre, saisi, attendu) => {
+    // `Number()` rendait 0 sur une cellule vidée, et le message de rupture
+    // aurait nommé « 0 DURAND CLAIRE ».
+    const rows = withEdit(0, { NUMCDE: saisi });
+    expect(rows[0].NUMCDE).toBe(attendu);
+  });
+
+  it.each([
+    ["cellule vidée", ""],
+    ["espaces seuls", " "],
+    ["notation scientifique", "1e3"],
+    ["décimal pointé", "12.5"],
+    ["signe négatif", "-4"],
+  ])("le montant refuse la même chose : %s", (_titre, saisi) => {
+    const rows = withEdit(0, { MTTCDE: saisi });
+    expect(rows[0].MTTCDE).toBeNull();
+    expect(rows[0].MTTCDE_BRUT).toBe(saisi);
+  });
+
+  it("un numéro illisible tombe du message au lieu d'y écrire une valeur inventée", () => {
+    const rows = withEdit(0, { NOMCLI: "DURANT", NUMCDE: "" });
+    expect(rows[0].NUMCDE).toBeNull();
+    // Le JSON dit null, jamais 0.
+    const json = renderJson([rows[0]], pick(FR, "numeroCommande"));
+    expect(json).toContain('"numeroCommande": null');
+    expect(json).not.toContain('"numeroCommande": 0');
+  });
+
+  it("une borne hors de l'entier sûr passe intacte au lieu d'arrêter la page", () => {
+    // `formatImplicitDecimal` refuse au delà de l'entier sûr : la borne doit
+    // alors traverser sans traduction, comme une borne non numérique.
+    const lecture = recognise("<montantCommande:=>:1e21/>", FR);
+    expect(lecture.ok).toBe(true);
+    const { params } = buildParameterisedQuery(lecture, pick(FR, "montantCommande"));
+    expect(params[0].translated).toBeNull();
+    expect(params[0].display).toBe("1e21");
+  });
+
+  it("une borne du haut de plage, elle, se traduit encore", () => {
+    const lecture = recognise("<montantCommande:=>:1000000/>", FR);
+    const { params } = buildParameterisedQuery(lecture, pick(FR, "montantCommande"));
+    expect(params[0].translated).toEqual({ avant: "1000000", apres: "100000000" });
+  });
+});
+
+describe("l'avertissement de périmètre vit sur la fonction, pas seulement en tête de fichier", () => {
+  it("buildNaiveQuery et toLiteral portent chacun leur mise en garde", async () => {
+    // Un copier-coller n'emporte pas l'en-tête d'un fichier. La règle
+    // permanente « zéro concaténation SQL » n'a pas d'autre garde ici.
+    const { readFile } = await import("node:fs/promises");
+    const source = await readFile(new URL("../js/minilangage.js", import.meta.url), "utf8");
+    const bloc = (nom) => {
+      const fin = source.indexOf(nom);
+      const debut = source.lastIndexOf("/**", fin);
+      return source.slice(debut, fin);
+    };
+    for (const nom of ["export function buildNaiveQuery", "function toLiteral"]) {
+      const commentaire = bloc(nom);
+      expect(commentaire, nom).toMatch(/exécuté|EXÉCUT/);
+      expect(commentaire, nom).toMatch(/ni base|aucune base|ni pilote/);
+    }
   });
 });

@@ -368,7 +368,7 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
       },
       edition: {
         bouton: "Modifier les données",
-        note: "Les commandes sont ouvertes à l'écriture. Modifiez une cellule : le filtre, la jointure, la classe, le JSON et la requête se rejouent aussitôt.",
+        note: "Les commandes sont ouvertes à l'écriture. Modifiez une cellule : la jointure et le JSON se rejouent aussitôt. La classe et la requête ne dépendent pas des données ; elles se refont quand vous cochez une colonne ou écrivez un filtre.",
         jointure: {
           une: "Une commande ne retrouve plus son client.",
           plusieurs: "{n} commandes ne retrouvent plus leur client.",
@@ -841,7 +841,7 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
       },
       edition: {
         bouton: "Edit the data",
-        note: "The orders are open for writing. Change a cell: the filter, the join, the class, the JSON and the query all replay at once.",
+        note: "The orders are open for writing. Change a cell: the join and the JSON replay at once. The class and the query do not depend on the data; they are rebuilt when you tick a column or write a filter.",
         jointure: {
           une: "One order can no longer find its customer.",
           plusieurs: "{n} orders can no longer find their customer.",

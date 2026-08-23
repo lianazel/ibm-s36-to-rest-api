@@ -6,7 +6,12 @@
  * aucune donnée réelle : tout est construit dans le test.
  */
 import { describe, expect, it } from "vitest";
-import { extractField, formatImplicitDecimal, parseImplicitDecimal } from "../js/s36.js";
+import {
+  extractField,
+  formatImplicitDecimal,
+  isDigitsOnly,
+  parseImplicitDecimal,
+} from "../js/s36.js";
 
 // Enregistrement CLIMST fictif de 140 caractères, construit champ par champ :
 // NOMCLI en 1-30, zone intermédiaire neutre en 31-110, CDPCLI en 111-115,
@@ -135,5 +140,62 @@ describe("formatImplicitDecimal : la borne qui part au fichier", () => {
     // n'est géré ni dans un sens ni dans l'autre.
     expect(() => formatImplicitDecimal(-125)).toThrow(RangeError);
     expect(() => formatImplicitDecimal(125, -1)).toThrow(RangeError);
+  });
+});
+
+describe("isDigitsOnly : la même rigueur pour les deux champs numériques", () => {
+  it("accepte ce qu'un champ de chiffres peut tenir", () => {
+    for (const raw of ["0", "104207", "000012550", "9".repeat(15)]) {
+      expect(isDigitsOnly(raw), raw).toBe(true);
+    }
+  });
+
+  it("refuse tout ce que Number() acceptait en silence", () => {
+    // Chacune de ces formes était lue par `Number()` avant le 23 août 2026 :
+    // "" et " " rendaient 0, "1e3" rendait 1000, "0x10" rendait 16.
+    for (const raw of ["", " ", "  12", "12 ", "1e3", "0x10", "12.5", "-4", "+4", "12x50", "NaN"]) {
+      expect(isDigitsOnly(raw), JSON.stringify(raw)).toBe(false);
+    }
+  });
+
+  it("refuse ce qui n'est pas une chaîne", () => {
+    for (const raw of [12, null, undefined, {}, ["1"], true]) {
+      expect(isDigitsOnly(raw), String(raw)).toBe(false);
+    }
+  });
+
+  it("c'est le prédicat que parseImplicitDecimal applique, pas un second", () => {
+    // Si les deux divergeaient, une valeur passerait la garde et ferait lever
+    // la fonction qu'elle est censée protéger.
+    for (const raw of ["", " ", "1e3", "0x10", "12.5", "-4", "abc"]) {
+      expect(isDigitsOnly(raw), raw).toBe(false);
+      expect(() => parseImplicitDecimal(raw), raw).toThrow();
+    }
+  });
+});
+
+describe("formatImplicitDecimal : hors de l'entier sûr, elle refuse", () => {
+  it("refuse plutôt que de rendre une notation scientifique", () => {
+    // Avant le 23 août 2026 : formatImplicitDecimal(1e21) rendait "1e+23", que
+    // parseImplicitDecimal refuse. La fonction se contredisait sur sa propre
+    // sortie, et la page affirmait « 1e21 devient 1e+23 » au lecteur.
+    expect(() => formatImplicitDecimal(1e21)).toThrow(RangeError);
+    expect(() => formatImplicitDecimal(Number.MAX_SAFE_INTEGER)).toThrow(RangeError);
+  });
+
+  it("le haut de la plage représentable passe, et reste en chiffres", () => {
+    const haut = Math.floor(Number.MAX_SAFE_INTEGER / 100) / 100;
+    const rendu = formatImplicitDecimal(haut);
+    expect(rendu).toMatch(/^[0-9]+$/);
+    expect(rendu).not.toContain("e");
+    expect(parseImplicitDecimal(rendu)).toBe(haut);
+  });
+
+  it("la classe des chiffres tient sur toute la plage, pas seulement sur 125", () => {
+    for (const value of [0, 1, 125.5, 9400, 1234567.89, 999999999.99, 87960930222.08]) {
+      const rendu = formatImplicitDecimal(value);
+      expect(rendu, String(value)).toMatch(/^[0-9]+$/);
+      expect(parseImplicitDecimal(rendu), String(value)).toBe(value);
+    }
   });
 });

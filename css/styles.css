@@ -767,6 +767,15 @@ section {
   background: #e5daf2;
 }
 
+/* La teinte ÉTEINTE : le lien a cédé. La cellule revient au fond de la page,
+   et son filet passe en tirets, parce que la couleur ne doit pas porter seule
+   l'information. Rien de rouge : casser n'est pas une faute, c'est la
+   démonstration que le lecteur vient de provoquer lui-même. */
+.fichier td.lien-valeurs.lien-eteint {
+  background: var(--color-bg);
+  border-style: dashed;
+}
+
 .pastille.lien-valeurs {
   background: #fdefc8;
 }
@@ -973,7 +982,15 @@ section {
 
 /* Les cellules ouvertes à l'écriture. Le champ occupe la cellule sans la faire
    enfler : c'est `size`, posé sur la donnée la plus longue de la colonne, qui
-   fixe sa largeur. */
+   fixe sa largeur.
+
+   1 rem, et non les 0,8125 rem du tableau au repos : sous iOS, un champ de
+   moins de 16 px déclenche le zoom automatique à la mise au point, qui ne se
+   défait pas à la fermeture du clavier. Mesuré le 23 août 2026 : la bande utile
+   tombait alors à 44 % de la hauteur de l'écran, et la cellule éditée elle-même
+   sortait du champ. Le tableau s'élargit en conséquence ; il défile déjà dans
+   son conteneur, et c'est le prix accepté pour que le lecteur voie ce qu'il
+   fait. Même valeur que le champ du filtre, l. 801. */
 .fichier td input {
   box-sizing: content-box;
   padding: 0;
@@ -981,7 +998,7 @@ section {
   background: var(--color-bg);
   color: var(--color-ink);
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: 1rem;
 }
 
 /* Le message de jointure brisée : INFORMATION, jamais erreur. Filet bleu, celui
@@ -1012,6 +1029,16 @@ section {
 .plafond {
   max-height: 24rem;
   overflow-y: auto;
+}
+
+/* Une phrase posée dans un cadre à code : elle se replie, elle ne défile pas.
+   Sans cela, « La demande est refusée : rien ne part au serveur. » sortait du
+   champ sur téléphone et se lisait à moitié (relevé sur iPhone 14, 23 août
+   2026). Le JSON et le SQL, eux, gardent leur défilement : ce sont des textes
+   dont les lignes ont un sens. */
+.extrait pre code.prose {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 /* La phrase qui commente un cadre appartient au cadre : elle le suit, en encre

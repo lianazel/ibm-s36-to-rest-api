@@ -37,6 +37,24 @@ export function extractField(record, start, end) {
 }
 
 /**
+ * Un champ numérique S/36 ne tient que des chiffres, et rien d'autre.
+ *
+ * Écrit UNE FOIS et partagé : le site laisse le lecteur réécrire les
+ * commandes, et deux gardes voisines qui n'auraient pas la même rigueur
+ * laisseraient passer d'un côté ce qu'elles refusent de l'autre. Mesuré le
+ * 23 août 2026 : `Number("")` vaut 0, `Number("1e3")` vaut 1000, `Number("0x10")`
+ * vaut 16, et aucune de ces formes ne tient dans un champ positionnel de
+ * chiffres. C'est le test de `parseImplicitDecimal`, sorti de son ventre pour
+ * que le numéro de commande soit gardé par la même règle que le montant.
+ *
+ * @param {unknown} raw La valeur telle que le lecteur l'a tapée.
+ * @returns {boolean} Vrai si le fichier pourrait la stocker.
+ */
+export function isDigitsOnly(raw) {
+  return typeof raw === "string" && /^[0-9]+$/.test(raw);
+}
+
+/**
  * Interprète un montant S/36 à décimales implicites : "000012550" → 125.5.
  *
  * Les fichiers S/36 stockent les montants sans séparateur décimal ; le nombre
@@ -59,7 +77,7 @@ export function parseImplicitDecimal(raw, decimals = 2) {
   if (raw === "") {
     throw new RangeError("raw must not be empty");
   }
-  if (!/^[0-9]+$/.test(raw)) {
+  if (!isDigitsOnly(raw)) {
     throw new TypeError(`raw must contain only digits (got "${raw}")`);
   }
   return Number(raw) / 10 ** decimals;
@@ -99,5 +117,17 @@ export function formatImplicitDecimal(value, decimals = 2) {
   // Arrondi et non multiplication nue : `1.1 * 100` vaut 110.00000000000001 en
   // flottant binaire. Une borne fausse d'un centième trahirait la démonstration
   // qu'elle sert — la requête affichée ne trouverait pas ce que la page montre.
-  return String(Math.round(value * 10 ** decimals));
+  const scaled = Math.round(value * 10 ** decimals);
+  // Au delà de l'entier sûr, `String` bascule en notation scientifique :
+  // `formatImplicitDecimal(1e21)` rendait "1e+23", que `parseImplicitDecimal`
+  // refuse — la fonction se contredisait sur sa propre sortie, et la page
+  // affichait « 1e21 devient 1e+23, les décimales implicites du fichier »,
+  // affirmation fausse sur le stockage. Mesuré par le `reviewer` le 23 août 2026.
+  // Elle refuse plutôt que de rendre une chaîne qu'elle promet en chiffres.
+  if (scaled > Number.MAX_SAFE_INTEGER) {
+    throw new RangeError(
+      `value scaled by 10^${decimals} exceeds the safe integer range (got ${scaled})`,
+    );
+  }
+  return String(scaled);
 }
