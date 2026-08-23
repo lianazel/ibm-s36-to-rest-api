@@ -64,3 +64,40 @@ export function parseImplicitDecimal(raw, decimals = 2) {
   }
   return Number(raw) / 10 ** decimals;
 }
+
+/**
+ * L'inverse : 125.5 → "12550". Ce que devient une borne avant de partir au
+ * fichier, qui ne connaît pas le séparateur décimal.
+ *
+ * Elle vit ici, contre la règle qu'elle renverse, et nulle part ailleurs : un
+ * second calcul écrit dans le module du langage aurait pu dériver de celui-ci
+ * sans que rien ne le dise.
+ *
+ * Rend une CHAÎNE de chiffres, non bourrée à gauche : c'est la forme que
+ * `parseImplicitDecimal` consomme, ce qui rend l'aller-retour vérifiable au
+ * sens strict. Le bourrage à neuf positions appartient à l'enregistrement, pas
+ * à la valeur.
+ *
+ * @param {number} value    Valeur interprétée (125.5).
+ * @param {number} decimals Nombre de décimales implicites (défaut : 2).
+ * @returns {string} Les chiffres, séparateur retiré.
+ * @throws {TypeError}  Si `value` n'est pas un nombre fini.
+ * @throws {RangeError} Si `decimals < 0` ou si `value` est négative.
+ */
+export function formatImplicitDecimal(value, decimals = 2) {
+  if (decimals < 0) {
+    throw new RangeError(`decimals must be >= 0 (got ${decimals})`);
+  }
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    throw new TypeError(`value must be a finite number (got ${typeof value})`);
+  }
+  // Même périmètre que la fonction inverse : les montants du site sont positifs,
+  // et le signe « overpunch » du S/36 n'est géré ni dans un sens ni dans l'autre.
+  if (value < 0) {
+    throw new RangeError(`value must be >= 0 (got ${value})`);
+  }
+  // Arrondi et non multiplication nue : `1.1 * 100` vaut 110.00000000000001 en
+  // flottant binaire. Une borne fausse d'un centième trahirait la démonstration
+  // qu'elle sert — la requête affichée ne trouverait pas ce que la page montre.
+  return String(Math.round(value * 10 ** decimals));
+}

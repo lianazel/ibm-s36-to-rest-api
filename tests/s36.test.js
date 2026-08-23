@@ -6,7 +6,7 @@
  * aucune donnée réelle : tout est construit dans le test.
  */
 import { describe, expect, it } from "vitest";
-import { extractField, parseImplicitDecimal } from "../js/s36.js";
+import { extractField, formatImplicitDecimal, parseImplicitDecimal } from "../js/s36.js";
 
 // Enregistrement CLIMST fictif de 140 caractères, construit champ par champ :
 // NOMCLI en 1-30, zone intermédiaire neutre en 31-110, CDPCLI en 111-115,
@@ -82,5 +82,58 @@ describe("extractField", () => {
       const field = extractField(CLIMST_RECORD, start, end);
       expect(field.length).toBeLessThanOrEqual(end - start + 1);
     }
+  });
+});
+
+describe("formatImplicitDecimal : la borne qui part au fichier", () => {
+  it("125 devient 12500, la valeur que le fichier stocke vraiment", () => {
+    // Le cas du prompt, mot pour mot : sans cette traduction la requête
+    // affichée chercherait 125 là où le fichier écrit 12500, et la page
+    // mentirait sur son propre mécanisme.
+    expect(formatImplicitDecimal(125)).toBe("12500");
+  });
+
+  it("rend une chaîne de chiffres, jamais un nombre", () => {
+    // C'est la forme que `parseImplicitDecimal` consomme : les deux fonctions
+    // se referment l'une sur l'autre au lieu de se croiser.
+    expect(typeof formatImplicitDecimal(125)).toBe("string");
+    expect(formatImplicitDecimal(125)).toMatch(/^[0-9]+$/);
+  });
+
+  it("l'aller-retour rend la valeur de départ", () => {
+    for (const value of [0, 1, 125.5, 3400, 12507.89, 9400]) {
+      expect(parseImplicitDecimal(formatImplicitDecimal(value))).toBe(value);
+    }
+  });
+
+  it("l'aller-retour dans l'autre sens rend la chaîne de départ, bourrage retiré", () => {
+    // Le bourrage à neuf positions appartient à l'enregistrement, pas à la
+    // valeur : "000012550" et "12550" portent le même montant.
+    for (const raw of ["000012550", "001250000", "000004750"]) {
+      expect(formatImplicitDecimal(parseImplicitDecimal(raw))).toBe(String(Number(raw)));
+    }
+  });
+
+  it("n'accumule pas l'erreur du flottant binaire", () => {
+    // 1.1 * 100 vaut 110.00000000000001 : une multiplication nue aurait rendu
+    // "110.00000000000001", et la borne affichée aurait été fausse.
+    expect(formatImplicitDecimal(1.1)).toBe("110");
+    expect(formatImplicitDecimal(8.29)).toBe("829");
+    expect(formatImplicitDecimal(1671.05)).toBe("167105");
+  });
+
+  it("le nombre de décimales se choisit, comme à l'aller", () => {
+    expect(formatImplicitDecimal(125, 0)).toBe("125");
+    expect(formatImplicitDecimal(125, 3)).toBe("125000");
+  });
+
+  it("refuse ce qu'elle ne sait pas représenter", () => {
+    expect(() => formatImplicitDecimal("125")).toThrow(TypeError);
+    expect(() => formatImplicitDecimal(Number.NaN)).toThrow(TypeError);
+    expect(() => formatImplicitDecimal(Number.POSITIVE_INFINITY)).toThrow(TypeError);
+    // Même périmètre que la fonction inverse : le signe « overpunch » du S/36
+    // n'est géré ni dans un sens ni dans l'autre.
+    expect(() => formatImplicitDecimal(-125)).toThrow(RangeError);
+    expect(() => formatImplicitDecimal(125, -1)).toThrow(RangeError);
   });
 });

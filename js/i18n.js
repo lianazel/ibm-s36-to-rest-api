@@ -78,6 +78,7 @@ export const dict = {
     },
     section3: {
       title: "La solution",
+      sousTitre: "Avec un modèle de données C#",
       intro: "Mon métier, c'est l'IBM i. J'ai découvert C# et .Net au travers d'opportunités professionnelles. Ce qui suit n'est pas une recette. C'est un cheminement, en quatre temps, tel qu'il s'est passé.",
       modele: {
         title: "Un modèle de données écrit à la main, pour tester une idée",
@@ -132,6 +133,7 @@ public Dictionary<string, string> ChargerDictionnaire(Type modele)
       },
       renversement: {
         title: "Je renverse le problème : la machine fera le travail",
+        sousTitre: "Le modèle dynamique arrive",
         p1: "Les modèles dynamiques, en revanche, je ne les connaissais pas avant ce projet. Alors j'ai renversé le problème. Si le travail consiste à décrire des colonnes une par une, ce n'est pas un travail d'humain. C'est la requête qui porte les noms métier, en renommant ses colonnes au passage, et c'est la machine qui fabrique la classe correspondante.",
         p2: "Le mécanisme tient en quelques gestes. La requête n'est pas connue du code avant l'appel. Le programme regarde les colonnes qu'elle renvoie, relève leur nom et leur type, et construit une classe pendant qu'il tourne, une seule fois. Puis il parcourt les lignes et verse chaque valeur dans une instance de cette classe. Le modèle est un moule : fabriqué une fois, chaque ligne y est coulée. Le moule est jeté quand l'appel se termine, et rien n'en est conservé. Une autre requête au prochain appel donne un autre moule, sans qu'une ligne de code ait changé.",
         p3: "À ce stade, je cherchais une seule réponse : est-ce que l'idée tient. Ce qu'un appelant a le droit de demander est une question de produit, pas de prototype, et elle vient juste après.",
@@ -287,7 +289,7 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
         titre: "Deux sortes de liens, et le fichier n'en déclare aucun.",
         valeurs: "C'est ainsi qu'on reconnaît le même client d'un fichier à l'autre : par son nom et son prénom. Il n'existe aucun numéro de client, et deux DURAND ne se séparent que par le prénom.",
         code: "Un code qui renvoie à un autre fichier. Les deux portent la même donnée sous deux noms. C'est ce qu'on appellerait aujourd'hui une clé étrangère, à ceci près que rien ici ne la déclare : seuls les programmes le savent.",
-        modifier: "Les cellules teintées portent les liens : ce sont elles qu'un programme doit maintenir. Les autres ne tiennent rien.",
+        modifier: "Modifier une cellule teintée casse un lien. Modifier une autre ne change rien au lien.",
       },
       refus: {
         forme: {
@@ -334,12 +336,47 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
       zone1: { titre: "Ce que l'appelant demande" },
       zone2: { titre: "La classe que la machine vient de fabriquer" },
       champ: { filtre: "Filtre" },
-      colonnes: { titre: "Colonnes voulues" },
+      colonnes: {
+        titre: "Colonnes voulues",
+        note: "Ces noms sont ceux que le modèle C# expose (voir la sous-section « Avec un modèle de données C# », à la section 3). Le fichier, lui, garde les siens : ils sont rappelés en gris, avec le fichier d'où chacun sort.",
+      },
       exemples: {
         note: "Des exemples à cliquer : chacun remplit le champ « Filtre » à votre place. Les gris passent ; les rouges tentent une demande interdite, et c'est leur refus qu'ils servent à montrer.",
         repos: "Survolez un exemple, ou touchez-le, pour lire ce qu'il démontre.",
       },
       morale: "Aucune de ces classes n'existe dans le code.",
+      json: {
+        titre: "Le JSON que l'API renverrait",
+        intro: "Seules les propriétés cochées, seules les lignes retenues par le filtre. Une jointure qui ne trouve rien s'écrit null, sans guillemets.",
+        vide: "aucune colonne choisie : il n'y a rien à renvoyer",
+      },
+      refusRien: "La demande est refusée : rien ne part au serveur.",
+      requete: {
+        titre: "La requête que le serveur bâtirait",
+        intro: "Jamais exécutée : une illustration. Le cadre ne contient que du SQL ; les valeurs vivent dessous, dans leur propre bloc.",
+        naive: "Ce qu'une API naïve aurait fabriqué",
+        phraseNaive: "L'apostrophe de la valeur referme le texte : la suite devient de la grammaire de requête, et une condition toujours vraie ramènerait le fichier entier.",
+        parametree: "La requête paramétrée",
+        phraseParametree: "La valeur est restée une donnée : un nom de client, et ce client n'existe pas.",
+        parametre: "Un ? est un paramètre : la valeur voyage à côté du texte de la requête, jamais dedans.",
+      },
+      valeurs: {
+        titre: "Valeurs des paramètres",
+        intro: "Dans l'ordre des ? de la requête :",
+        aucune: "Aucun paramètre : la demande ne porte aucune condition.",
+        borne: "borne traduite : {avant} devient {apres}, les décimales implicites du fichier",
+      },
+      edition: {
+        bouton: "Modifier les données",
+        note: "Les commandes sont ouvertes à l'écriture. Modifiez une cellule : le filtre, la jointure, la classe, le JSON et la requête se rejouent aussitôt.",
+        jointure: {
+          une: "Une commande ne retrouve plus son client.",
+          plusieurs: "{n} commandes ne retrouvent plus leur client.",
+          corps: "La jointure par les valeurs ne trouve plus de ligne correspondante dans CLIMST ni CMLIV pour {liste} : les trois propriétés jointes, villeClient, codeModeLivraison et libelleModeLivraison, rendent null. La graphie d'origine reste lisible dans CLIMST : rétablissez-la et le lien se ressoude.",
+          filtreUne: "La commande {liste} ne satisfait plus le filtre en cours : elle a disparu du résultat, et le JSON ne peut pas montrer ses null. Videz ou élargissez le filtre pour les voir.",
+          filtrePlusieurs: "Les commandes {liste} ne satisfont plus le filtre en cours : elles ont disparu du résultat, et le JSON ne peut pas montrer leurs null. Videz ou élargissez le filtre pour les voir.",
+        },
+      },
       compte: {
         une: "1 ligne trouvée sur {total}.",
         plusieurs: "{n} lignes trouvées sur {total}.",
@@ -515,6 +552,7 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
     },
     section3: {
       title: "The solution",
+      sousTitre: "With a C# data model",
       intro: "My trade is IBM i. C# and .Net came to me through the work I was given. What follows is not a recipe. It is a path, in four steps, the way it actually happened.",
       modele: {
         title: "A data model written by hand, to test an idea",
@@ -569,6 +607,7 @@ public Dictionary<string, string> LoadDictionary(Type model)
       },
       renversement: {
         title: "I turn the problem around: the machine will do the work",
+        sousTitre: "The dynamic model arrives",
         p1: "Dynamic models, though, were new to me when I started this. So I turned the problem around. If the work consists of describing columns one by one, it is not work for a human. The query carries the business names, renaming its columns as it goes, and the machine builds the matching class.",
         p2: "The mechanism comes down to a few moves. The query is unknown to the code until the call. The program looks at the columns it returns, notes their name and their type, and builds a class while it runs, once only. Then it walks the rows and pours each value into an instance of that class. The model is a mould: cast once, every row is poured into it. The mould is thrown away when the call ends, and nothing is kept. Another query on the next call gives another mould, without a single line of code having changed.",
         p3: "At that stage I was after one answer: does the idea hold. What a caller is allowed to ask for is a product question, not a prototype one, and it comes right after.",
@@ -724,7 +763,7 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
         titre: "Two kinds of link, and the file declares neither.",
         valeurs: "This is how the same customer is recognised from one file to the next: by last name and first name. There is no customer number, and the two DURAND are told apart by the first name alone.",
         code: "A code that points to another file. Both carry the same data under two names. Today you would call it a foreign key, except that nothing here declares it: only the programs know.",
-        modifier: "The tinted cells carry the links: they are the ones a program has to keep in step. The others hold nothing together.",
+        modifier: "Changing a tinted cell breaks a link. Changing any other changes nothing about the links.",
       },
       refus: {
         forme: {
@@ -770,12 +809,47 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
       zone1: { titre: "What the caller asks for" },
       zone2: { titre: "The class the machine has just built" },
       champ: { filtre: "Filter" },
-      colonnes: { titre: "Columns wanted" },
+      colonnes: {
+        titre: "Columns wanted",
+        note: "These names are the ones the C# model exposes (see the subsection \"With a C# data model\", in section 3). The file keeps its own: they are recalled in grey, with the file each one comes from.",
+      },
       exemples: {
         note: "Examples to click: each one fills the Filter field for you. The grey ones go through; the red ones attempt a forbidden request, and it is their refusal they are there to show.",
         repos: "Hover over an example, or tap it, to read what it demonstrates.",
       },
       morale: "None of these classes exists in the code.",
+      json: {
+        titre: "The JSON the API would return",
+        intro: "Only the ticked properties, only the rows the filter keeps. A join that finds nothing is written null, without quotation marks.",
+        vide: "no column chosen: there is nothing to return",
+      },
+      refusRien: "The request is refused: nothing is sent to the server.",
+      requete: {
+        titre: "The query the server would build",
+        intro: "Never executed: an illustration. The frame holds nothing but SQL; the values live below it, in a block of their own.",
+        naive: "What a naive API would have built",
+        phraseNaive: "The apostrophe in the value closes the text: what follows becomes query grammar, and an always-true condition would bring back the whole file.",
+        parametree: "The parameterised query",
+        phraseParametree: "The value stayed a piece of data: a customer name, and no such customer exists.",
+        parametre: "A ? is a bind parameter: the value travels beside the query text, never inside it.",
+      },
+      valeurs: {
+        titre: "Parameter values",
+        intro: "In the order of the ? marks in the query:",
+        aucune: "No parameter: the request carries no condition.",
+        borne: "bound translated: {avant} becomes {apres}, the file's implicit decimals",
+      },
+      edition: {
+        bouton: "Edit the data",
+        note: "The orders are open for writing. Change a cell: the filter, the join, the class, the JSON and the query all replay at once.",
+        jointure: {
+          une: "One order can no longer find its customer.",
+          plusieurs: "{n} orders can no longer find their customer.",
+          corps: "The join on values no longer finds a matching row in CLIMST or CMLIV for {liste}: the three joined properties, customerCity, deliveryModeCode and deliveryModeLabel, return null. The original spelling is still visible in CLIMST: restore it and the link mends.",
+          filtreUne: "Order {liste} no longer satisfies the current filter: it has left the result, so the JSON cannot show its nulls. Clear or widen the filter to see them.",
+          filtrePlusieurs: "Orders {liste} no longer satisfy the current filter: they have left the result, so the JSON cannot show their nulls. Clear or widen the filter to see them.",
+        },
+      },
       compte: {
         une: "1 row found out of {total}.",
         plusieurs: "{n} rows found out of {total}.",

@@ -13,6 +13,8 @@ import { dict } from "../js/i18n.js";
 import { parseImplicitDecimal } from "../js/s36.js";
 import {
   buildModel,
+  buildNaiveQuery,
+  buildParameterisedQuery,
   CDEMST,
   CLIMST,
   CMLIV,
@@ -21,6 +23,7 @@ import {
   EXAMPLES,
   exampleExpression,
   filterRows,
+  findOrphans,
   initialSelection,
   joinFiles,
   MODLIV_CODES,
@@ -28,6 +31,7 @@ import {
   PHYSICAL_MODEL,
   recognise,
   renderClass,
+  renderJson,
   translateExpression,
 } from "../js/minilangage.js";
 
@@ -510,19 +514,46 @@ describe("avenant 2 : ce que la page affirme doit être vrai", () => {
     expect(aide).toMatch(lang === "fr" ? /assemblée/i : /assembled/i);
   });
 
-  it.each(["fr", "en"])("A2-2 la légende ne demande aucun geste au lecteur (%s)", (lang) => {
-    // Rien n'est modifiable dans cet incrément : une légende qui invite à
-    // modifier promet une page qui n'existe pas.
-    const gestes = [
-      "Modifier", "Modifiez", "Changing", "Change ", "Cliquez", "Click",
-      "Essayez", "Try ", "Survolez", "Hover", "Touchez", "Tap ",
-    ];
-    for (const [cle, valeur] of Object.entries(dict[lang].section4.legende)) {
-      for (const geste of gestes) {
-        expect(valeur, `legende.${cle} demande « ${geste} »`).not.toContain(geste);
+  it.each(["fr", "en"])(
+    "A2-2 les trois lignes descriptives de la légende ne demandent toujours aucun geste (%s)",
+    (lang) => {
+      // La porte d'origine couvrait les QUATRE lignes, parce que rien n'était
+      // alors modifiable. `modifier` sort de son périmètre depuis que le geste
+      // existe (cas suivant) ; les trois autres décrivent des teintes, et une
+      // description n'a aucune raison de réclamer un geste.
+      const gestes = [
+        "Modifier", "Modifiez", "Changing", "Change ", "Cliquez", "Click",
+        "Essayez", "Try ", "Survolez", "Hover", "Touchez", "Tap ",
+      ];
+      for (const cle of ["titre", "valeurs", "code"]) {
+        for (const geste of gestes) {
+          expect(
+            dict[lang].section4.legende[cle],
+            `legende.${cle} demande « ${geste} »`,
+          ).not.toContain(geste);
+        }
       }
-    }
-  });
+    },
+  );
+
+  it.each(["fr", "en"])(
+    "A2-2 levée : la légende promet de nouveau un geste, et ce geste existe (%s)",
+    (lang) => {
+      // L'avenant 2 avait posé un texte de repli parce que la promesse n'était
+      // pas tenable. Elle l'est : les commandes s'ouvrent à l'écriture. La porte
+      // s'inverse donc au lieu de disparaître — ce qu'elle interdisait hier,
+      // elle l'EXIGE aujourd'hui, et elle exige en plus de quoi le tenir.
+      const legende = dict[lang].section4.legende.modifier;
+      expect(legende).toContain(lang === "fr" ? "Modifier" : "Changing");
+      // Deux phrases : la cellule teintée casse un lien, l'autre non.
+      expect(legende.split(".").filter((part) => part.trim() !== "")).toHaveLength(2);
+      // Et le geste promis a son bouton, sa phrase d'appui et son message.
+      const edition = dict[lang].section4.edition;
+      expect(typeof edition.bouton).toBe("string");
+      expect(typeof edition.note).toBe("string");
+      expect(typeof edition.jointure.corps).toBe("string");
+    },
+  );
 
   it("A2-5 un champ qui ne correspond plus à l'exemple cliqué le lâche", () => {
     // La règle porte sur l'égalité entre le champ et l'expression de l'exemple
@@ -565,7 +596,7 @@ describe("avenant 2 : ce que la page affirme doit être vrai", () => {
     },
   );
 
-  it("la parité de section4 vaut toujours 94 clés de chaque côté", () => {
+  it("la parité de section4 vaut toujours 117 clés de chaque côté", () => {
     const cles = (node, prefixe = "") => {
       const out = [];
       for (const [nom, valeur] of Object.entries(node)) {
@@ -577,8 +608,9 @@ describe("avenant 2 : ce que la page affirme doit être vrai", () => {
     };
     const fr = cles(dict.fr.section4);
     const en = cles(dict.en.section4);
-    expect(fr).toHaveLength(94);
-    expect(en).toHaveLength(94);
+    // 94 au sortir de l'incrément 6, plus les 23 clés du second sous-incrément.
+    expect(fr).toHaveLength(117);
+    expect(en).toHaveLength(117);
     expect(fr).toEqual(en);
   });
 });
@@ -606,5 +638,353 @@ describe("buildModel : la couture est un contrat, et elle le tient", () => {
     // La même colonne, deux fois : brute et interprétée. C'est voulu.
     expect(FR[6].column).toBe(FR[7].column);
     expect(FR[6].type).not.toBe(FR[7].type);
+  });
+});
+
+/* ------------------------------------------------------------------------
+   Second sous-incrément : le JSON, la requête, le vis-à-vis, l'édition.
+   Toujours de la logique pure : le câblage de `mountMiniLanguage` reste, lui,
+   inerte sous Vitest (famille [W13]).
+   ------------------------------------------------------------------------ */
+
+/** Les entrées d'un modèle, désignées par leur nom exposé. */
+const pick = (model, ...names) =>
+  names.map((name) => {
+    const entry = model.find((candidate) => candidate.property === name);
+    if (entry === undefined) {
+      throw new Error(`aucune propriété nommée "${name}" dans ce modèle`);
+    }
+    return entry;
+  });
+
+/** Les commandes, avec une modification appliquée à l'une d'elles. */
+const withEdit = (index, change) => {
+  const orders = CDEMST.map((order) => ({ ...order }));
+  orders[index] = { ...orders[index], ...change };
+  return joinFiles(dict.fr.section4.modes, orders);
+};
+
+const read = (text, model = FR) => recognise(text, model);
+
+describe("le JSON que l'API renverrait", () => {
+  it("une jointure qui ne trouve rien s'écrit null, sans guillemets", () => {
+    const rows = withEdit(0, { NOMCLI: "DURANT" });
+    const json = renderJson([rows[0]], pick(FR, "nomClient", "villeClient"));
+    expect(json).toContain('"villeClient": null');
+    expect(json).not.toContain('"villeClient": "null"');
+  });
+
+  it("les textes portent des guillemets, les nombres n'en portent pas", () => {
+    const json = renderJson(
+      [ROWS_FR[0]],
+      pick(FR, "nomClient", "numeroCommande", "montantCommande", "montantBrut"),
+    );
+    expect(json).toContain('"nomClient": "DURAND"');
+    expect(json).toContain('"numeroCommande": 104207');
+    expect(json).toContain('"montantCommande": 125.5');
+    // Le montant brut est du TEXTE dans le fichier : il garde ses guillemets et
+    // ses zéros de tête, et c'est tout l'intérêt de le montrer à côté.
+    expect(json).toContain('"montantBrut": "000012550"');
+  });
+
+  it("aucune virgule après le dernier objet ni après la dernière propriété", () => {
+    const json = renderJson(ROWS_FR.slice(0, 3), pick(FR, "nomClient", "villeClient"));
+    expect(json).not.toMatch(/,\s*\]/);
+    expect(json).not.toMatch(/,\s*\}/);
+    expect(JSON.parse(json)).toHaveLength(3);
+  });
+
+  it("aucune colonne choisie et aucune ligne trouvée ne se disent pas pareil", () => {
+    // Deux vides, deux sens : « il n'y a rien à renvoyer » n'est pas « le filtre
+    // n'a rien retenu ». La page affiche deux textes différents, elle doit donc
+    // recevoir deux valeurs différentes.
+    expect(renderJson(ROWS_FR, [])).toBeNull();
+    expect(renderJson([], pick(FR, "nomClient"))).toBe("[]");
+  });
+
+  it("les noms de propriétés suivent le modèle reçu, dans les deux langues", () => {
+    const fr = renderJson([ROWS_FR[0]], pick(FR, "nomClient", "villeClient"));
+    const en = renderJson([ROWS_EN[0]], pick(EN, "customerLastName", "customerCity"));
+    expect(fr).toContain('"nomClient"');
+    expect(fr).not.toContain('"customerLastName"');
+    expect(en).toContain('"customerLastName"');
+    expect(en).not.toContain('"nomClient"');
+    // Même donnée des deux côtés : seuls les noms changent.
+    expect(JSON.parse(fr)[0].nomClient).toBe(JSON.parse(en)[0].customerLastName);
+  });
+});
+
+describe("la requête que le serveur bâtirait", () => {
+  it("aucune jointure quand aucune colonne n'en exige", () => {
+    const { sql } = buildParameterisedQuery(read(""), pick(FR, "nomClient", "numeroCommande"));
+    expect(sql).not.toContain("join");
+    expect(sql).toContain("from CDEMST");
+  });
+
+  it("une colonne COCHÉE amène sa jointure, et elle seule", () => {
+    const { sql } = buildParameterisedQuery(read(""), pick(FR, "villeClient"));
+    expect(sql).toContain("join CLIMST");
+    expect(sql).not.toContain("join CMLIV");
+    expect(sql).not.toContain("join MODLIV");
+  });
+
+  it("le libellé du mode amène CMLIV ET MODLIV, jamais l'un sans l'autre", () => {
+    // Le code vit chez le client, le libellé au référentiel : c'est la même
+    // donnée sous deux noms, et il faut les deux fichiers pour la remonter.
+    const { sql } = buildParameterisedQuery(read(""), pick(FR, "libelleModeLivraison"));
+    expect(sql).toContain("join CMLIV");
+    expect(sql).toContain("join MODLIV on MODLIV.CODLIV = CMLIV.LIZEPO");
+  });
+
+  it("une colonne FILTRÉE amène sa jointure, même si elle n'est pas cochée", () => {
+    const { sql } = buildParameterisedQuery(
+      read("<villeClient:==:LYON/>"),
+      pick(FR, "nomClient"),
+    );
+    expect(sql).toContain("join CLIMST");
+    expect(sql).toContain("CLIMST.VILCLI = ?");
+  });
+
+  it("un ? par valeur, et deux pour un « compris entre »", () => {
+    const une = buildParameterisedQuery(read("<nomClient:[=:DUR/>"), pick(FR, "nomClient"));
+    expect(une.sql.match(/\?/g)).toHaveLength(1);
+    expect(une.params).toHaveLength(1);
+
+    const deux = buildParameterisedQuery(
+      read("<montantCommande:><:1000;4000/>"),
+      pick(FR, "montantCommande"),
+    );
+    expect(deux.sql.match(/\?/g)).toHaveLength(2);
+    expect(deux.params).toHaveLength(2);
+    expect(deux.sql).toContain("between ? and ?");
+  });
+
+  it("les deux conditions d'une expression donnent deux ?", () => {
+    const { sql, params } = buildParameterisedQuery(
+      read("<nomClient:[=:DUR/> && <codeModeLivraison:==:EXP/>"),
+      pick(FR, "nomClient"),
+    );
+    expect(sql.match(/\?/g)).toHaveLength(2);
+    expect(params).toHaveLength(2);
+  });
+
+  it("une colonne physique n'est lue qu'une fois, mais le JSON garde les deux propriétés", () => {
+    // Décision 11 : `montantBrut` et `montantCommande` sortent tous deux de
+    // CDEMST.MTTCDE. Le doublon a déjà mordu une fois sur la maquette.
+    const entries = pick(FR, "montantBrut", "montantCommande");
+    const { sql } = buildParameterisedQuery(read(""), entries);
+    const select = sql.split("\n")[0];
+    expect(select.match(/CDEMST\.MTTCDE/g)).toHaveLength(1);
+
+    const json = renderJson([ROWS_FR[0]], entries);
+    expect(json).toContain('"montantBrut"');
+    expect(json).toContain('"montantCommande"');
+  });
+
+  it("la borne d'une colonne décimale part traduite, et la traduction est dite", () => {
+    const { params } = buildParameterisedQuery(
+      read("<montantCommande:><:1000;4000/>"),
+      pick(FR, "montantCommande"),
+    );
+    expect(params[0].display).toBe("100000");
+    expect(params[0].translated).toEqual({ avant: "1000", apres: "100000" });
+    expect(params[1].display).toBe("400000");
+  });
+
+  it("une borne texte ou entière part telle quelle, sans traduction", () => {
+    const texte = buildParameterisedQuery(read("<nomClient:==:DURAND/>"), pick(FR, "nomClient"));
+    expect(texte.params[0].display).toBe('"DURAND"');
+    expect(texte.params[0].translated).toBeNull();
+
+    const entier = buildParameterisedQuery(
+      read("<numeroCommande:=>:104300/>"),
+      pick(FR, "numeroCommande"),
+    );
+    expect(entier.params[0].display).toBe("104300");
+    expect(entier.params[0].translated).toBeNull();
+  });
+
+  it("sans colonne cochée, il n'y a pas de requête", () => {
+    // Arbitrage du chef de projet, session 19 : le cadre dit alors la même
+    // absence que le JSON, et ni le vis-à-vis ni les valeurs ne s'affichent.
+    expect(buildParameterisedQuery(read("<nomClient:[=:DUR/>"), []).sql).toBeNull();
+    expect(buildParameterisedQuery(read("<nomClient:[=:DUR/>"), []).params).toHaveLength(0);
+  });
+});
+
+describe("le vis-à-vis : deux textes, et le lecteur conclut", () => {
+  const INJECTION = "<nomClient:==:D' OR '1'='1/>";
+
+  it("le texte naïf porte la valeur COLLÉE, apostrophe comprise", () => {
+    const naive = buildNaiveQuery(read(INJECTION), pick(FR, "nomClient"));
+    expect(naive).toContain("CDEMST.NOMCLI = 'D' OR '1'='1'");
+  });
+
+  it("le texte paramétré porte un ?, et JAMAIS la valeur", () => {
+    // La preuve du chapitre : la valeur ne voyage pas dans le texte.
+    const { sql, params } = buildParameterisedQuery(read(INJECTION), pick(FR, "nomClient"));
+    expect(sql).toContain("CDEMST.NOMCLI = ?");
+    expect(sql).not.toContain("OR '1'='1");
+    expect(sql).not.toContain("D'");
+    // Elle voyage à côté, et là on la voit en entier, guillemets de délimitation
+    // compris : ce sont eux qui rendent l'apostrophe visible.
+    expect(params[0].display).toBe(`"D' OR '1'='1"`);
+  });
+
+  it("aucun cadre naïf tant qu'aucune valeur ne porte d'apostrophe", () => {
+    // Sur une demande ordinaire, la page reste sobre.
+    expect(buildNaiveQuery(read("<nomClient:[=:DUR/>"), pick(FR, "nomClient"))).toBeNull();
+    expect(buildNaiveQuery(read(""), pick(FR, "nomClient"))).toBeNull();
+    expect(
+      buildNaiveQuery(read("<montantCommande:><:1000;4000/>"), pick(FR, "montantCommande")),
+    ).toBeNull();
+  });
+
+  it("une apostrophe dans une borne suffit aussi à le déclencher", () => {
+    const naive = buildNaiveQuery(read("<dateCommande:><:2026';1/>"), pick(FR, "dateCommande"));
+    expect(naive).not.toBeNull();
+  });
+
+  it("sans colonne cochée, pas de cadre naïf même avec une apostrophe", () => {
+    expect(buildNaiveQuery(read(INJECTION), [])).toBeNull();
+  });
+
+  it("les deux textes ne diffèrent QUE par la façon dont la valeur y entre", () => {
+    const entries = pick(FR, "nomClient", "villeClient");
+    const naive = buildNaiveQuery(read(INJECTION), entries);
+    const { sql } = buildParameterisedQuery(read(INJECTION), entries);
+    // Mêmes colonnes, mêmes jointures : seule la dernière ligne change.
+    expect(naive.split("\n").slice(0, -1)).toEqual(sql.split("\n").slice(0, -1));
+  });
+});
+
+describe("l'édition du lecteur, et la jointure qui cède", () => {
+  it("le décor livré ne porte aucune commande orpheline", () => {
+    // Porte non vide : si le décor était déjà cassé, les cas suivants ne
+    // prouveraient rien.
+    expect(findOrphans(ROWS_FR, ROWS_FR).orphans).toHaveLength(0);
+  });
+
+  it("un AUTRE nom casse le lien, et rend null sur les trois propriétés jointes", () => {
+    const rows = withEdit(0, { NOMCLI: "DURANT" });
+    const broken = rows[0];
+    expect(broken.VILCLI).toBeNull();
+    expect(broken.LIZEPO).toBeNull();
+    expect(broken.LIBLIV).toBeNull();
+    // Et SEULEMENT sur celles-là : ce que porte la commande elle-même tient.
+    expect(broken.NOMCLI).toBe("DURANT");
+    expect(broken.PRECLI).toBe("CLAIRE");
+    expect(broken.NUMCDE).toBe(104207);
+    expect(broken.DATCDE).toBe("20260112");
+    expect(broken.MTTCDE).toBe(125.5);
+  });
+
+  it("une commande cassée n'entraîne pas les autres", () => {
+    const rows = withEdit(0, { NOMCLI: "DURANT" });
+    expect(findOrphans(rows, rows).orphans).toHaveLength(1);
+    expect(rows[1].VILCLI).toBe("PARIS");
+  });
+
+  it("la casse ne casse pas : « durand » retrouve DURAND", () => {
+    const rows = withEdit(0, { NOMCLI: "durand" });
+    expect(rows[0].VILCLI).toBe("LYON");
+    expect(findOrphans(rows, rows).orphans).toHaveLength(0);
+  });
+
+  it("le prénom se compare de la même façon, dans les deux sens", () => {
+    const minuscules = withEdit(0, { NOMCLI: "durand", PRECLI: "claire" });
+    expect(minuscules[0].LIZEPO).toBe("EXP");
+    const melange = withEdit(0, { NOMCLI: "DuRaNd", PRECLI: "ClAiRe" });
+    expect(melange[0].VILCLI).toBe("LYON");
+    // Mais un AUTRE prénom casse : ce qui rompt un lien est un autre nom, pas
+    // une autre écriture du même nom.
+    const autre = withEdit(0, { PRECLI: "CLARA" });
+    expect(autre[0].VILCLI).toBeNull();
+  });
+
+  it("une orpheline retenue par le filtre n'est pas dite cachée", () => {
+    const rows = withEdit(0, { NOMCLI: "DURANT" });
+    const kept = filterRows("<nomClient:[=:DURANT/>", FR, rows);
+    const broken = findOrphans(rows, kept.rows);
+    expect(broken.orphans).toHaveLength(1);
+    expect(broken.hidden).toHaveLength(0);
+  });
+
+  it("une orpheline SORTIE du résultat par le filtre est dite cachée", () => {
+    // La morsure réelle : le chef de projet casse un nom sous un filtre qui
+    // teste ce même nom, la ligne quitte le résultat, et il cherche un null qui
+    // n'a nulle part où s'afficher.
+    const rows = withEdit(0, { NOMCLI: "DURANT" });
+    const kept = filterRows("<nomClient:[=:MAR/>", FR, rows);
+    const broken = findOrphans(rows, kept.rows);
+    expect(broken.orphans).toHaveLength(1);
+    expect(broken.hidden).toHaveLength(1);
+    expect(broken.hidden[0].NUMCDE).toBe(104207);
+  });
+
+  it("le JSON d'une orpheline montre bien ses trois null", () => {
+    const rows = withEdit(0, { NOMCLI: "DURANT" });
+    const json = renderJson(
+      [rows[0]],
+      pick(FR, "villeClient", "codeModeLivraison", "libelleModeLivraison"),
+    );
+    expect(json.match(/null/g)).toHaveLength(3);
+  });
+
+  it("le décor gelé n'a pas bougé sous l'édition", () => {
+    // `joinFiles` reçoit une COPIE : le module ne se laisse pas modifier par
+    // ce que le lecteur tape.
+    withEdit(0, { NOMCLI: "DURANT" });
+    expect(CDEMST[0].NOMCLI).toBe("DURAND");
+    expect(joinFiles(dict.fr.section4.modes)[0].VILCLI).toBe("LYON");
+  });
+
+  it("un montant que le fichier ne pourrait pas stocker rend null au lieu de tout arrêter", () => {
+    // `parseImplicitDecimal` LÈVE sur autre chose que des chiffres : sans garde,
+    // une lettre tapée dans un montant arrêtait la page entière.
+    const rows = withEdit(0, { MTTCDE: "12x50" });
+    expect(rows[0].MTTCDE).toBeNull();
+    expect(rows[0].MTTCDE_BRUT).toBe("12x50");
+    expect(rows[0].VILCLI).toBe("LYON");
+  });
+});
+
+describe("le chemin que la page emprunte vraiment", () => {
+  it("filterRows rend la LECTURE, pas seulement les lignes", () => {
+    // Le rendu bâtit la requête à partir de ce que `filterRows` lui rend. Tant
+    // que ce retour ne portait pas `conditions`, la requête sortait sans sa
+    // clause `where` pendant que le JSON, lui, filtrait : deux zones voisines
+    // se contredisaient. Trouvé au DOM d'essai le 23 août 2026, jamais par les
+    // familles ci-dessus, qui appelaient `recognise` en direct.
+    const result = filterRows("<nomClient:[=:DUR/>", FR, ROWS_FR);
+    expect(result.ok).toBe(true);
+    expect(result.conditions).toHaveLength(1);
+    expect(result).toHaveProperty("link");
+    expect(result.rows.length).toBeLessThan(result.total);
+  });
+
+  it("la requête bâtie depuis ce retour porte sa clause where", () => {
+    const result = filterRows("<nomClient:[=:DUR/>", FR, ROWS_FR);
+    const { sql, params } = buildParameterisedQuery(result, pick(FR, "nomClient"));
+    expect(sql).toContain("where CDEMST.NOMCLI like ?");
+    expect(params).toHaveLength(1);
+  });
+
+  it("le JSON et la requête parlent de la même demande", () => {
+    // Le lien qui manquait : autant de lignes filtrées d'un côté, autant de
+    // conditions posées de l'autre.
+    const result = filterRows("<villeClient:==:LYON/> && <nomClient:[=:DUR/>", FR, ROWS_FR);
+    const entries = pick(FR, "nomClient", "villeClient");
+    const { sql } = buildParameterisedQuery(result, entries);
+    expect(sql.match(/\?/g)).toHaveLength(2);
+    expect(JSON.parse(renderJson(result.rows, entries))).toHaveLength(result.rows.length);
+    expect(result.rows.every((row) => row.VILCLI === "LYON")).toBe(true);
+  });
+
+  it("une expression refusée ne rend ni lignes ni conditions exploitables", () => {
+    const result = filterRows("<motDePasse:==:toto/>", FR, ROWS_FR);
+    expect(result.ok).toBe(false);
+    expect(result.rows).toBeUndefined();
+    expect(result.refusal.code).toBe("colonne");
   });
 });

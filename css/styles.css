@@ -321,6 +321,16 @@ section {
   font-weight: 600;
 }
 
+/* Le sous-titre suit son titre et le précise : il se lit comme la suite du
+   titre, pas comme la première phrase du texte. Encre douce, comme les autres
+   textes secondaires de la feuille. */
+.sous-titre {
+  margin-top: calc(var(--space) / -2);
+  color: var(--color-ink-soft);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
 /* ---- Extraits de code (registre API : Plex Mono sur fond clair, filet vert).
    Le défilement horizontal reste dans le cadre, jamais la page (CLAUDE.md, UX). */
 .extrait {
@@ -897,6 +907,154 @@ section {
 .colonnes code {
   font-family: var(--font-mono);
   font-size: 0.875rem;
+}
+
+/* Le nom exposé et son origine physique s'empilent : côte à côte, une étiquette
+   comme « libelleModeLivraison LIBLIV · MODLIV » débordait la plus petite
+   largeur visée. Empilés, les neuf ponts tiennent à 320 px. */
+.colonne-texte {
+  display: flex;
+  flex-direction: column;
+}
+
+/* L'origine ne se traduit pas et ne se lit pas comme une donnée : elle rappelle
+   d'où sort le nom. Encre douce sur fond blanc, au delà du AA exigé. */
+.origine {
+  color: var(--color-ink-soft);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.colonnes-note {
+  max-width: var(--measure);
+  font-size: 0.875rem;
+  color: var(--color-ink-soft);
+}
+
+/* ---- L'édition des commandes.
+   Même gabarit que les boutons d'exemple, plancher tactile compris : c'est une
+   commande de la même famille, elle n'a pas de raison d'être plus petite. */
+.edition {
+  margin: var(--space) 0 0;
+}
+
+.edition button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: calc(var(--space) / 3) calc(var(--space) / 2);
+  border: 1px solid var(--color-ink-soft);
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+/* Enfoncé : l'état ne tient pas à la seule couleur. Le trait épaissit, et la
+   phrase d'appui apparaît sous le bouton. */
+.edition button[aria-pressed="true"] {
+  border-color: var(--color-ink);
+  font-weight: 600;
+}
+
+@media (hover: hover) {
+  .edition button:hover {
+    border-color: var(--color-ink);
+  }
+}
+
+.edition-note {
+  max-width: var(--measure);
+  margin: calc(var(--space) / 2) 0 0;
+  font-size: 0.875rem;
+  color: var(--color-ink-soft);
+}
+
+/* Les cellules ouvertes à l'écriture. Le champ occupe la cellule sans la faire
+   enfler : c'est `size`, posé sur la donnée la plus longue de la colonne, qui
+   fixe sa largeur. */
+.fichier td input {
+  box-sizing: content-box;
+  padding: 0;
+  border: 1px solid var(--color-ink-soft);
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+}
+
+/* Le message de jointure brisée : INFORMATION, jamais erreur. Filet bleu, celui
+   du registre S/36, parce que c'est un lien du fichier qui vient de céder. Et
+   surtout pas le rouge du refus : casser la jointure n'est pas une faute, c'est
+   la démonstration que le lecteur vient de provoquer lui-même. */
+.jointure:not(:empty) {
+  max-width: var(--measure);
+  margin: var(--space) 0;
+  padding: calc(var(--space) / 2) var(--space);
+  border-left: 3px solid var(--color-s36);
+  font-size: 0.875rem;
+}
+
+.jointure strong {
+  display: block;
+}
+
+.jointure span {
+  color: var(--color-ink-soft);
+}
+
+/* ---- Le JSON renvoyé et les deux requêtes. */
+
+/* Sans filtre, le bloc porte dix-huit objets : il est plafonné pour que la
+   requête qui le suit reste atteignable au pouce. Le défilement horizontal
+   reste celui de `.extrait pre`. */
+.plafond {
+  max-height: 24rem;
+  overflow-y: auto;
+}
+
+/* La phrase qui commente un cadre appartient au cadre : elle le suit, en encre
+   douce, et ne se confond pas avec le texte courant de la section. */
+.phrase {
+  max-width: var(--measure);
+  margin: calc(var(--space) / 2) 0 0;
+  font-size: 0.875rem;
+  color: var(--color-ink-soft);
+}
+
+.parametre-note {
+  max-width: var(--measure);
+  font-size: 0.875rem;
+}
+
+.valeurs-intro {
+  margin-bottom: calc(var(--space) / 2);
+  font-size: 0.875rem;
+  color: var(--color-ink-soft);
+}
+
+/* Numérotées : leur rang EST leur sens, il dit à quel `?` chacune répond. */
+.valeurs {
+  margin: 0;
+  padding-left: calc(var(--space) * 1.5);
+  font-size: 0.875rem;
+}
+
+.valeurs li + li {
+  margin-top: calc(var(--space) / 4);
+}
+
+.valeurs code {
+  font-family: var(--font-mono);
+}
+
+/* La traduction d'une borne se lit sous elle, jamais à côté : à 320 px, la
+   valeur et son explication ne tiennent pas sur une ligne. */
+.borne {
+  display: block;
+  color: var(--color-ink-soft);
+  font-size: 0.75rem;
 }
 
 /* ---- Pied de page. */

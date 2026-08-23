@@ -100,6 +100,7 @@
 
     <section id="solution" aria-labelledby="solution-titre">
       <h2 id="solution-titre" data-i18n="section3.title"></h2>
+      <p class="sous-titre" data-i18n="section3.sousTitre"></p>
       <p data-i18n="section3.intro"></p>
 
       <h3 data-i18n="section3.modele.title"></h3>
@@ -147,6 +148,7 @@
       </figure>
 
       <h3 data-i18n="section3.renversement.title"></h3>
+      <p class="sous-titre" data-i18n="section3.renversement.sousTitre"></p>
       <p data-i18n="section3.renversement.p1"></p>
       <p data-i18n="section3.renversement.p2"></p>
 
@@ -242,6 +244,16 @@
         <p class="legende-note" data-i18n="section4.legende.modifier"></p>
       </div>
 
+      <!-- Le bouton fabrique une INTENTION : sans lui, le lecteur qui casse une
+           jointure a fait une fausse manœuvre et subit un message ; avec lui, il
+           a décidé d'ouvrir les données, puis choisi sa cellule. On n'apprend
+           pas d'un accident, on apprend d'une expérience. -->
+      <p class="edition">
+        <button type="button" id="mini-edition" aria-pressed="false"
+                data-i18n="section4.edition.bouton"></button>
+      </p>
+      <p id="mini-edition-note" class="edition-note" data-i18n="section4.edition.note" hidden></p>
+
       <figure class="fichier">
         <figcaption id="fichier-cdemst" data-i18n="section4.decor.cdemst"></figcaption>
         <div class="defile" tabindex="0" role="region" aria-labelledby="fichier-cdemst">
@@ -259,6 +271,8 @@
           </table>
         </div>
       </figure>
+
+      <p id="mini-jointure" class="jointure" aria-live="polite"></p>
 
       <details class="fichier">
         <summary id="fichier-climst" data-i18n="section4.decor.climst"></summary>
@@ -322,6 +336,7 @@
         <p id="mini-aide" class="aide" aria-live="polite"></p>
 
         <h4 data-i18n="section4.colonnes.titre"></h4>
+        <p class="colonnes-note" data-i18n="section4.colonnes.note"></p>
         <ul id="mini-colonnes" class="colonnes" role="list"></ul>
 
         <h3 data-i18n="section4.zone2.titre"></h3>
@@ -329,6 +344,35 @@
           <figcaption id="mini-classe-legende" data-i18n="section4.morale"></figcaption>
           <pre tabindex="0" role="region" aria-labelledby="mini-classe-legende"><code id="mini-classe"></code></pre>
         </figure>
+
+        <h3 id="mini-json-titre" data-i18n="section4.json.titre"></h3>
+        <p data-i18n="section4.json.intro"></p>
+        <figure class="extrait">
+          <pre class="plafond" tabindex="0" role="region" aria-labelledby="mini-json-titre"><code id="mini-json"></code></pre>
+        </figure>
+
+        <h3 id="mini-requete-titre" data-i18n="section4.requete.titre"></h3>
+        <p data-i18n="section4.requete.intro"></p>
+
+        <figure class="extrait" id="mini-naive-bloc" hidden>
+          <figcaption id="mini-naive-legende" data-i18n="section4.requete.naive"></figcaption>
+          <pre tabindex="0" role="region" aria-labelledby="mini-naive-legende"><code id="mini-naive"></code></pre>
+          <p class="phrase" data-i18n="section4.requete.phraseNaive"></p>
+        </figure>
+
+        <figure class="extrait">
+          <figcaption id="mini-sql-legende" data-i18n="section4.requete.parametree"></figcaption>
+          <pre tabindex="0" role="region" aria-labelledby="mini-sql-legende"><code id="mini-sql"></code></pre>
+          <p class="phrase" id="mini-phrase-parametree" data-i18n="section4.requete.phraseParametree" hidden></p>
+        </figure>
+
+        <p class="parametre-note" data-i18n="section4.requete.parametre"></p>
+
+        <div id="mini-valeurs-bloc">
+          <h4 data-i18n="section4.valeurs.titre"></h4>
+          <p id="mini-valeurs-intro" class="valeurs-intro"></p>
+          <ol id="mini-valeurs" class="valeurs"></ol>
+        </div>
       </div>
     </section>
 
