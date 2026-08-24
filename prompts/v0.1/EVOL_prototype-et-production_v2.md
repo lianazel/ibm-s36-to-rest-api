@@ -80,6 +80,7 @@ comme tout code de ce site. Cet incrément n'en a pas besoin : il n'écrit que d
 | `meta.description` (FR + EN, `js/i18n.js` l. 45 et 519 + valeur initiale d'`index.html` l. 13) | « architecture réelle, testée, expliquée » / « a real, tested, explained architecture » | valeur 7, **GELÉE** |
 | `README.md` l. 28 (FR) | « raconte une architecture .Net réelle » | valeur 8, **GELÉE** |
 | `README.md` l. 7 (EN) | « telling the story of a real .Net architecture » | valeur 8, **GELÉE**. Domicile trouvé au balayage du 24 août : la leçon du 16 août l'exige au périmètre |
+| `hero.tagline` (FR + EN) | « l'architecture .Net … : réelle, testée, expliquée » / « … : real, tested, explained » | valeur 9, **GELÉE** — avenant 1, ci-dessous : dixième domicile trouvé au balayage de l'ÉTAPE 4 |
 
 `section4.ouverture.titre` (« Une idée, pas une pièce du système » / EN), `section4.title` et
 `nav.minilangage` restent tels quels.
@@ -152,6 +153,28 @@ aux deux langues ET dans la valeur initiale d'`index.html`)*
 
 - **l. 28, FR** : **Des fichiers S/36 à l'API REST.** Un site statique bilingue qui raconte un prototype d'API .Net : exposer en JSON des fichiers plats IBM S/36 qui tournent encore sur IBM i.
 - **l. 7, EN** : **From S/36 files to a REST API.** A bilingual static site telling the story of a .Net API prototype: exposing IBM S/36 flat files, still running on IBM i, as clean JSON.
+
+## Avenant 1 — dixième domicile : `hero.tagline`
+
+*Trouvé au balayage final (ÉTAPE 4), 24 août 2026, à la reprise après le plantage machine.
+**Les deux balayages précédents l'avaient manqué** — celui du 23 août, qui a fondé le périmètre,
+et celui du 24, qui avait pourtant trouvé `README.md` l. 7. Le fait est mesuré : `hero.tagline`
+porte mot pour mot la formule que la valeur 7 retire de `meta.description` (« réelle, testée,
+expliquée » / « real, tested, explained »), et c'est la **première phrase de la page**. Retirer la
+formule de l'aperçu de lien en la laissant en tête de page publierait la contradiction au lieu de
+la retirer : c'est exactement le défaut que cet incrément existe pour corriger (leçon du 16 août).
+**Arbitré par le chef de projet le 24 août**, sur observation déclarée de l'exécutant avant tout
+commit de code : la valeur est **dérivée de la valeur 7**, déjà gelée le même jour — un seul mot
+change par langue. L'exécutant n'a pas étendu l'arbitrage de lui-même (précédent de la session 19).*
+
+**Valeur 9 — `hero.tagline`**
+
+- **FR** : Quarante ans séparent un fichier plat S/36 d'un flux JSON. Ce site raconte l'architecture .Net qui les fait travailler ensemble : démontrée, testée, expliquée.
+- **EN** : Forty years separate an S/36 flat file from a JSON feed. This site tells the story of the .Net architecture that makes them work together: demonstrated, tested, explained.
+
+**Périmètre** : `js/i18n.js` seulement (deux valeurs). `index.html` ne porte pas de valeur initiale
+pour cette clé — contrairement à `meta.description`, le hero est un nœud `data-i18n`, pas un
+attribut. **Dix domiciles au total.**
 
 ## Formulation révoquée : trace, ne pas utiliser
 
