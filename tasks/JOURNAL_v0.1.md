@@ -1337,3 +1337,92 @@ portent sur la même zone — la saisie et sa réponse — et méritent leur con
 | Points neufs surgis aux tours 3 et 4 | **Inscrits, non corrigés**, sur consigne du chef de projet | Tout commit après un `SHIP` fait refuser la garde de fraîcheur et impose un tour de plus. La spirale se ferme par décision, pas par épuisement | **précédent** |
 | Les trois enrichissements d'usage nés de la validation | **Hors périmètre**, incrément dédié, motifs consignés | Ce ne sont pas des correctifs. Groupés, ils valent un contrat ; dispersés en retouches, ils échapperaient à la revue qui les mérite | **précédent** |
 | Niveau de bump | **Patch** 0.1.15 → 0.1.16, **sans redemander** | Règle en portée `précédent` depuis la session 12. Le défaut `feat/*` vaut minor, soit 0.2.0 ; la cible de fin de jalon est 1.0.0 depuis le 20 août. **Quinzième** inscription | précédent |
+
+## Session 19 — 23-24 août 2026 — EVOL `mini-langage-json-et-edition` (merge `482c89d`, 0.1.16 → 0.1.17)
+
+La section 4 rend son JSON, montre la requête que le serveur bâtirait, et ouvre les commandes à
+l'écriture. **Tests 254 → 282, six fichiers.** Trois commits, **deux revues**, un diagnostic en
+lecture seule, **deux passes de validation sur iPhone 14** — français le 23 au soir, anglais le 24 au
+matin. Le second sous-incrément de la section « Le mini-langage » est complet.
+
+### Ce qui distingue cette session : la page a été jugée par un œil, et l'œil avait raison
+
+L'incrément a obtenu `SHIP` à son premier commit, 0 FAIL, onze réserves. Toutes mes preuves étaient
+vertes. **Et le chef de projet, sur appareil réel, a rapporté que la rupture de jointure « semble sans
+effet », sans pouvoir dire si c'était un défaut ou une incompréhension.**
+
+Le diagnostic a établi que **ce n'était pas un bug** : le message se composait correctement, à chaque
+frappe, zéro erreur console, et son placement était **exactement conforme au prompt gelé** — « sous le
+tableau des commandes ». C'est la **spécification** qui n'avait pas vu que « sous le tableau » vaut
+618 px sur un téléphone. Deux causes, mesurées :
+
+- **La portée cellule → message vaut 813 px**, quand la bande Safari la plus généreuse en portrait
+  fait ~694 px. La cause et sa conséquence **ne tiennent sur aucun écran**. Et le chef de projet avait
+  édité la **première ligne** : le pire cas des dix-huit (813 px contre 261 px pour la dernière), et
+  le seul qu'un lecteur choisit spontanément. Le défaut était systématique pour le geste naturel.
+- **Trois des cinq promesses de la note d'édition étaient byte-identiques après une rupture.** La
+  classe se dérive des colonnes, la requête des colonnes et du filtre, le compte du filtre : aucune ne
+  dépend de la donnée. Le lecteur qui allait vérifier recevait **trois confirmations que rien ne
+  s'était passé**. Sa conclusion n'était pas une incompréhension, c'était ce que la page lui montrait.
+
+### Le correctif, et le mécanisme que personne n'avait vu
+
+La note ne promet plus que la jointure et le JSON, et **dit pourquoi** les deux autres ne bougent pas.
+La cellule teintée dit « ce lien tient » et **s'éteint** quand il cède, sans que le tableau soit
+reconstruit — le curseur survit à la frappe. La sélection de départ passe à six colonnes pour que les
+trois `null` s'observent sans deviner quelles cases manquent.
+
+**Et la validation a corrigé les deux experts.** La seconde revue prédisait, règle CSS à l'appui, que
+le filet en tirets ne se peindrait pas (`border-collapse` préfère `solid`) et que la teinte se
+réduirait à un anneau imperceptible en édition. Les captures montrent l'inverse : la teinte survit, les
+tirets se lisent. **Le mécanisme réel est différentiel** — le signal n'est pas « cette cellule est
+blanche », c'est « **cette ligne a cessé d'être comme les autres** », et c'est le voisinage teinté qui
+fait le travail. Ni la revue ni moi ne l'avions vu ; l'œil, oui.
+
+### Deux défauts trouvés hors de la suite, et la suite était verte les deux fois
+
+- **`filterRows` ne rendait que ses lignes, jamais sa lecture.** La requête sortait **sans sa clause
+  `where`** pendant que le JSON filtrait : deux zones voisines montraient deux demandes différentes.
+  Les cinq familles de tests ne l'ont pas vu — elles appelaient `recognise` en direct, jamais le chemin
+  que la page emprunte. Trouvé par une sonde au DOM d'essai. Quatre tests neufs gardent ce chemin.
+- **Une locale nommée `code` masquait le cadre de la classe.** `ReferenceError` au chargement, **le
+  simulateur ne montait plus du tout**, et les 282 tests restaient verts. Trouvé en ouvrant la page,
+  deux heures après que le `diagnostician` m'ait décrit exactement ce piège. → **[W32]**.
+
+### Les preuves
+
+Débordement de page **nul** à 320 et 390 px sur sept états puis quatre. Charge à chevrons et pire cas
+`<img src=x onerror=…>' OR '1'='1` → **écart d'éléments 0**, aucune balise fabriquée, la saisie relue
+intégralement en texte. Contrastes **7,81:1**. Bouton **44 px**, 90 cellules aux quatre coupures de
+clavier. Parité `section4` **117 = 117**, cadratins **10/1/8**, `data-i18n` **37 et 60**, formes
+imprimées **4 et 4**, `innerHTML` **0**, `<script` **2**, **zéro dépendance**.
+
+### Ce que la validation a établi, en anglais comme en français
+
+Le message pluriel nommant les deux commandes orphelines · les **trois `null`** au JSON sans cocher une
+case · `Order_342c` · la requête à deux conditions avec ses jokers en paramètres · les refus lisibles
+sans défiler de côté · **le clavier qui ne zoome plus**. Et un constat de geste : **le mode paysage est
+le contournement** de la saisie au clavier mobile, inscrit en ligne 8.
+
+### Dettes et inscriptions
+
+**[W32]** ouverte (une erreur qui empêche la page de monter passe une suite entièrement verte).
+**[W31]**, **[W23]**, **[W13]**, **[W12]** inchangées. Six réserves de revue inscrites (#3, #4, #7, #8,
+#11, et #6 laissée à un avenant). Ligne 8 enrichie, **ligne 9 neuve** — `EVOL prototype-et-production`,
+la confusion prototype/production à retirer de ses six domiciles.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| Le cadre SQL sans colonne cochée, muet au prompt gelé | **`json.vide` dans les deux cadres**, plus le corollaire : ni cadre naïf ni bloc de valeurs | Les deux issues lisibles se contredisaient chacune contre le critère 2. Arrêt et question **avant d'écrire une ligne** ; aucun compte gelé n'a bougé | **précédent** |
+| La ligne `requete.parametre` visible sans requête | **Non étendue de mon propre chef**, observation portée à la revue | Le corollaire nommait le cadre naïf et le bloc des valeurs, pas cette ligne. Étendre un arbitrage par analogie, c'est l'écrire à la place de son auteur | **précédent** |
+| La rupture « sans effet » : bug ou incompréhension | **Diagnostic en lecture seule avant tout correctif**, règle absolue §3 | Le symptôme était ambigu par construction. Corriger à l'aveugle aurait pu déplacer un message qui n'avait pas de défaut | **précédent** |
+| Où porter l'accusé de réception | **P7, extinction de teinte** ; P1 (rapprocher le message) **écartée** | Le signal arrive là où le doigt travaille, sans toucher à l'ordre du récit. La portée ne pouvait donc pas diminuer, et elle a même crû à 867 px — écart déclaré | **précédent** |
+| La promesse invérifiable des trois `null` | **La page MONTRE** : sélection de départ à six colonnes ; P9-texte tombe | Reformuler la promesse à la baisse aurait tenu le texte au prix de la démonstration. Retouche à une valeur gelée de l'incrément 6, prescrite | **précédent** |
+| Mes deux additions non prescrites (seconde phrase de la note, filet en tirets) | **Déclarées comme miennes, validées et gelées** par le chef de projet | Une addition qui se tait devient une valeur gelée par accident. La déclarer, c'est laisser son auteur la refuser | **précédent** |
+| Ma description du filet en tirets s'est révélée fausse | **Dit avant qu'on me le demande**, conclusion retirée de l'artefact | Le chef de projet avait gelé cette addition **sur ma description**. Laisser une justification fausse sous une décision validée, c'est fabriquer un consentement | **précédent** |
+| Les réserves de revue après un `SHIP` | **Quatre corrigées, six inscrites, une laissée à avenant** ; registre écrit ligne par ligne | La seconde revue a trouvé qu'une réserve était **sortie du suivi sans décision** : c'est la définition de la dette silencieuse | **précédent** |
+| `tasks/ROADMAP.md` au périmètre, huitième fichier | **Oui**, écart déclaré | La dette et le geste qui la crée sont indissociables. Précédent de la session 18 | précédent |
+| Le push, que `CLAUDE.md` réserve au chef de projet | **Exécuté sur son instruction explicite**, et signalé comme tel | Une autorisation nommée dans le fil vaut mieux qu'une règle appliquée contre son auteur ; la signaler évite qu'elle devienne un usage | cas d'espèce |
+| Niveau de bump | **Patch** 0.1.16 → 0.1.17, **sans redemander** | Règle en portée `précédent` depuis la session 12. **Dix-septième** inscription | précédent |

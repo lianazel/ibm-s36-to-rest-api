@@ -2,6 +2,42 @@
 
 > Une leçon = une erreur commise ici, datée, avec la règle qui l'empêche de revenir.
 
+## 24 août 2026 — Une mesure exacte du mauvais objet ne vaut rien : une valeur calculée n'est pas un pixel peint
+**Type** : Erreur
+**Contexte** : Deux fois dans la même session, sur les deux points qui décidaient. (1) Ma preuve du
+premier commit affirmait `messageJointureVisible: true` — vrai, et sans valeur : le message était à
+618 px sous la cellule éditée, hors de tout écran de téléphone. (2) J'ai conclu que « le filet en
+tirets porte l'information hors de la couleur » sur un relevé `getComputedStyle`, qui rend la valeur
+calculée **sur l'élément** et jamais l'arête réellement peinte dans un tableau à bordures fusionnées.
+Le chef de projet avait gelé cette addition **sur ma description**.
+**Erreur** : Mesurer ce qui était facile à mesurer — une présence dans le DOM, une propriété calculée —
+là où la question portait sur une **distance à l'œil** et sur un **rendu peint**. Les deux relevés
+étaient exacts ; aucun des deux ne portait la conclusion posée à côté.
+**Correction** : Avant de conclure, nommer **l'objet dont dépend la conclusion**, puis vérifier que la
+mesure porte sur cet objet-là. « Présent dans le DOM » ne dit rien de « visible ». « `border-style`
+calculé » ne dit rien de « peint ». Quand la mesure ne peut pas atteindre l'objet — un pixel, un œil,
+un appareil — **écrire la limite et rendre la question**, au lieu de conclure depuis ce qu'on sait
+mesurer. Corollaire tenu ce jour-là : quand une décision a été gelée sur une description devenue
+fausse, le dire **avant qu'on le demande**.
+**Applicable globalement ?** : Oui. Parente directe de la leçon du 15 août 2026 (« lire l'attribut
+n'est pas mesurer le pixel »), qu'elle généralise : ce n'est pas l'attribut le problème, c'est l'écart
+entre l'objet mesuré et l'objet dont la conclusion dépend.
+
+## 24 août 2026 — Une suite entièrement verte ne dit rien du montage
+**Type** : Erreur
+**Contexte** : Une locale nommée `code` dans `render` masquait le `const code` du cadre de la classe,
+déclaré plus haut dans la même fonction. Au chargement : `ReferenceError: Cannot access 'code' before
+initialization` — **le simulateur ne montait plus du tout**, page morte. **Les 282 tests étaient
+verts.** Trouvée en ouvrant la page, deux heures après que le `diagnostician` m'ait décrit exactement
+ce piège dormant dans son rapport.
+**Erreur** : Traiter `npm test` vert comme une preuve que le livrable fonctionne, quand la suite ne
+couvre que la logique pure et que le câblage est hors garde ([W13]). Et introduire un nom court dans
+une fonction longue sans regarder ce qu'il masque.
+**Correction** : Tant qu'aucune porte ne monte la page, **ouvrir la page** fait partie de la livraison,
+au même titre que lancer les tests. Et l'absence de garde sur le câblage ne coûte pas une régression
+discrète : elle coûte la page entière, en silence. Inscrit en [W32].
+**Applicable globalement ?** : Oui — tout projet dont la suite couvre la logique et pas l'assemblage.
+
 ## 22 août 2026 — Attribuer sa propre régression à sa source, c'est faire arbitrer une question qui n'existe pas
 
 **Type** : Erreur
