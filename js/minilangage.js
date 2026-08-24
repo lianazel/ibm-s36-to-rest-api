@@ -14,7 +14,7 @@
  * Le câblage DOM, en fin de fichier, est la seule partie qui connaisse la
  * langue ; il est inerte hors navigateur (pas de DOM sous Vitest).
  */
-import { parseImplicitDecimal } from "./s36.js";
+import { formatImplicitDecimal, isDigitsOnly, parseImplicitDecimal } from "./s36.js";
 
 /* ------------------------------------------------------------------ MODÈLE */
 
@@ -297,9 +297,19 @@ function typesAccepting(operator) {
 
 /* ---------------------------------------------------------------- JOINTURE */
 
-/** Deux lignes désignent le même client si le nom ET le prénom concordent. */
+/**
+ * Deux lignes désignent le même client si le nom ET le prénom concordent.
+ *
+ * La comparaison ignore la casse, comme `matches` le fait déjà pour le filtre.
+ * Tant que le décor était figé en majuscules, rien ne mordait ; dès que le
+ * lecteur édite, « durand » aurait cassé la jointure de DURAND sans que rien
+ * dans la page ne l'explique. Ce qui casse un lien, c'est un AUTRE NOM, pas une
+ * autre écriture du même nom — sinon la démonstration enseignerait la casse là
+ * où elle veut enseigner la jointure par les valeurs.
+ */
 function sameCustomer(left, right) {
-  return left.NOMCLI === right.NOMCLI && left.PRECLI === right.PRECLI;
+  return left.NOMCLI.toUpperCase() === right.NOMCLI.toUpperCase()
+    && left.PRECLI.toUpperCase() === right.PRECLI.toUpperCase();
 }
 
 /**
@@ -312,20 +322,39 @@ function sameCustomer(left, right) {
  *
  * @param {Record<string, string>} labels Libellé de chaque code de MODLIV,
  *   dans la langue courante. Ce module ne les traduit pas, il les reçoit.
+ * @param {ReadonlyArray<object>} orders Les commandes à joindre. Le décor gelé
+ *   par défaut ; la copie que le lecteur édite quand il a ouvert les données.
+ *   Sans ce paramètre, la rupture de jointure ne serait pas de la logique pure
+ *   testable : le décor est figé au niveau du module.
  * @returns {Array<object>} Les commandes, enrichies, clés physiques.
  */
-export function joinFiles(labels = {}) {
-  return CDEMST.map((order) => {
+export function joinFiles(labels = {}, orders = CDEMST) {
+  return orders.map((order) => {
     const customer = CLIMST.find((row) => sameCustomer(row, order)) ?? null;
     const mode = CMLIV.find((row) => sameCustomer(row, order)) ?? null;
     const code = mode === null ? null : mode.LIZEPO;
+    // Le lecteur édite les commandes : ces deux champs peuvent porter ce qu'il
+    // a tapé, y compris ce qu'un enregistrement S/36 n'aurait jamais pu tenir.
+    // `parseImplicitDecimal` LÈVE sur autre chose que des chiffres — sans cette
+    // garde, une lettre dans un montant arrêtait la page entière. Une valeur
+    // que le fichier ne pourrait pas stocker rend `null`, comme une jointure
+    // qui ne trouve rien : la page ne corrige jamais à la place du lecteur.
+    //
+    // LE MÊME PRÉDICAT pour les deux champs. `Number()` seul était trop
+    // accueillant : il rendait 0 sur une cellule vidée, 1000 sur « 1e3 », 16 sur
+    // « 0x10 » — aucune de ces formes ne tient dans un champ de chiffres, et le
+    // message de rupture aurait nommé « 0 DURAND CLAIRE ». Deux gardes voisines
+    // doivent avoir la même rigueur, sans quoi l'une dément l'autre.
+    const amount = isDigitsOnly(order.MTTCDE)
+      ? parseImplicitDecimal(order.MTTCDE, IMPLICIT_DECIMALS)
+      : null;
     return {
       NOMCLI: order.NOMCLI,
       PRECLI: order.PRECLI,
-      NUMCDE: Number(order.NUMCDE),
+      NUMCDE: isDigitsOnly(order.NUMCDE) ? Number(order.NUMCDE) : null,
       DATCDE: order.DATCDE,
       MTTCDE_BRUT: order.MTTCDE,
-      MTTCDE: parseImplicitDecimal(order.MTTCDE),
+      MTTCDE: amount,
       VILCLI: customer === null ? null : customer.VILCLI,
       LIZEPO: code,
       // Les codes sont en majuscules dans les fichiers, les clés du
@@ -333,6 +362,27 @@ export function joinFiles(labels = {}) {
       LIBLIV: code === null ? null : (labels[code.toLowerCase()] ?? null),
     };
   });
+}
+
+/**
+ * Les commandes qui ne retrouvent plus leur client.
+ *
+ * Une jointure sans correspondance rend `null` : c'est le signe, et le seul.
+ * `hidden` porte celles qui sont EN PLUS sorties du résultat filtré — sans
+ * cette distinction, le lecteur qui casse un nom sous un filtre qui teste ce
+ * même nom voit la ligne disparaître et cherche un `null` qui n'a nulle part
+ * où s'afficher. Il en conclurait que la démonstration ment.
+ *
+ * L'appartenance se mesure par identité d'objet, jamais par numéro : le lecteur
+ * peut aussi éditer le numéro, et deux commandes peuvent en porter le même.
+ *
+ * @param {Array<object>} rows Toutes les lignes jointes.
+ * @param {Array<object>} kept Celles que le filtre en cours retient.
+ */
+export function findOrphans(rows, kept) {
+  const orphans = rows.filter((row) => row.VILCLI === null || row.LIZEPO === null);
+  const shown = new Set(kept);
+  return { orphans, hidden: orphans.filter((row) => !shown.has(row)) };
 }
 
 /* --------------------------------------------------------------- FILTRAGE */
@@ -390,7 +440,16 @@ function matches(condition, row) {
 /**
  * Filtre les lignes jointes par une expression.
  *
- * @returns {{ok: true, rows: Array, total: number}|{ok: false, refusal: object}}
+ * Le retour PORTE LA LECTURE — `link` et `conditions` — et pas seulement les
+ * lignes. Sans elle, l'appelant qui veut aussi montrer la requête devrait
+ * reconnaître une seconde fois la même chaîne, et deux lectures d'un même texte
+ * sont deux occasions de diverger : la requête est partie sans sa clause
+ * `where` pendant que le JSON, lui, filtrait (mesuré au DOM d'essai, 23 août
+ * 2026). Le chemin de refus rendait déjà la lecture telle quelle ; les deux
+ * chemins sont désormais de la même forme.
+ *
+ * @returns {{ok: true, link: string|null, conditions: Array, rows: Array,
+ *   total: number}|{ok: false, refusal: object}}
  */
 export function filterRows(text, model, rows) {
   const read = recognise(text, model);
@@ -398,12 +457,280 @@ export function filterRows(text, model, rows) {
     return read;
   }
   if (read.conditions.length === 0) {
-    return { ok: true, rows: [...rows], total: rows.length };
+    return { ...read, rows: [...rows], total: rows.length };
   }
   const keep = read.link === "||"
     ? (row) => read.conditions.some((condition) => matches(condition, row))
     : (row) => read.conditions.every((condition) => matches(condition, row));
-  return { ok: true, rows: rows.filter(keep), total: rows.length };
+  return { ...read, rows: rows.filter(keep), total: rows.length };
+}
+
+/* -------------------------------------------------------- JSON ET REQUÊTE */
+
+/* AVERTISSEMENT DE PÉRIMÈTRE, et la revue doit pouvoir le vérifier : aucune
+   requête n'est ÉMISE ni EXÉCUTÉE nulle part dans ce fichier. Les deux textes
+   fabriqués ci-dessous sont des CHAÎNES D'ILLUSTRATION, posées dans la page par
+   `textContent`. Il n'y a ni base, ni pilote, ni appel réseau dans ce projet.
+   La requête « naïve » est une concaténation délibérée : elle existe pour
+   MONTRER la faille que la règle « zéro concaténation SQL » interdit d'écrire
+   pour de vrai. La montrer désarmée est le seul usage qu'en fait ce site. */
+
+/**
+ * Le JSON que l'API renverrait : les propriétés cochées, les lignes retenues.
+ *
+ * `JSON.stringify` fait exactement ce que le contrat demande — guillemets sur
+ * les textes, rien sur les nombres, `null` nu, pas de virgule finale — et le
+ * refaire à la main n'ajouterait que des façons de se tromper.
+ *
+ * Les deux vides ne disent pas la même chose et ne se confondent pas :
+ * `null` quand AUCUNE COLONNE n'est choisie (il n'y a rien à renvoyer), `"[]"`
+ * quand des colonnes le sont mais qu'aucune ligne ne passe le filtre.
+ *
+ * @param {Array<object>} rows Les lignes retenues, clés physiques.
+ * @param {ReadonlyArray<object>} entries Les entrées cochées, ordre du modèle.
+ * @returns {string|null}
+ */
+export function renderJson(rows, entries) {
+  if (entries.length === 0) {
+    return null;
+  }
+  const objects = rows.map((row) =>
+    Object.fromEntries(entries.map((entry) => [entry.property, row[entry.key] ?? null])),
+  );
+  return JSON.stringify(objects, null, 2);
+}
+
+/** Toute requête part des commandes. */
+const BASE_FILE = "CDEMST";
+
+/** Les décimales implicites des montants du décor. Même valeur qu'au fichier. */
+const IMPLICIT_DECIMALS = 2;
+
+/**
+ * Les jointures, écrites une fois, par les valeurs du métier et rien d'autre.
+ *
+ * `MODLIV` ne se rejoint qu'À TRAVERS `CMLIV` : le code du mode vit chez le
+ * client, le libellé au référentiel. C'est la même donnée sous deux noms —
+ * `LIZEPO` et `CODLIV` — et c'est l'argument central du site.
+ */
+const JOIN_CLAUSES = Object.freeze({
+  CLIMST: "join CLIMST on CLIMST.NOMCLI = CDEMST.NOMCLI and CLIMST.PRECLI = CDEMST.PRECLI",
+  CMLIV: "join CMLIV on CMLIV.NOMCLI = CDEMST.NOMCLI and CMLIV.PRECLI = CDEMST.PRECLI",
+  MODLIV: "join MODLIV on MODLIV.CODLIV = CMLIV.LIZEPO",
+});
+
+/** Ordre fixe : la requête ne change pas de forme selon l'ordre des cases. */
+const JOIN_ORDER = Object.freeze(["CLIMST", "CMLIV", "MODLIV"]);
+
+/** L'opérateur SQL de chacun. `><` a sa propre forme, à deux paramètres. */
+const SQL_OPERATORS = Object.freeze({
+  "==": "=",
+  "[=": "like",
+  "=]": "like",
+  "[]": "like",
+  "=>": ">=",
+});
+
+/**
+ * Les fichiers qu'il faut joindre : ceux qu'une colonne cochée OU filtrée
+ * exige, jamais plus. Une requête ne traîne pas un fichier dont personne ne lit
+ * la moindre colonne.
+ */
+function requiredFiles(entries, conditions) {
+  const wanted = new Set();
+  for (const entry of [...entries, ...conditions.map((condition) => condition.entry)]) {
+    if (entry.file === BASE_FILE) {
+      continue;
+    }
+    wanted.add(entry.file);
+    if (entry.file === "MODLIV") {
+      wanted.add("CMLIV");
+    }
+  }
+  return JOIN_ORDER.filter((file) => wanted.has(file));
+}
+
+/**
+ * Les colonnes du `select`, DÉDOUBLONNÉES sur le couple fichier + colonne.
+ *
+ * `montantBrut` et `montantCommande` sortent tous deux de `CDEMST.MTTCDE` : le
+ * `select` la lit UNE FOIS. Sans cela la requête afficherait la même colonne
+ * deux fois, ce qu'aucune API n'écrirait. Le JSON, lui, garde les deux
+ * propriétés : c'est le modèle qui les distingue, pas la requête.
+ */
+function selectColumns(entries) {
+  const seen = new Set();
+  const columns = [];
+  for (const entry of entries) {
+    const qualified = `${entry.file}.${entry.column}`;
+    if (seen.has(qualified)) {
+      continue;
+    }
+    seen.add(qualified);
+    columns.push(qualified);
+  }
+  return columns;
+}
+
+/**
+ * Le motif d'un `like`. La valeur porte son joker : c'est ELLE qui voyage, et
+ * le lecteur doit voir ce qui voyage vraiment, pas une version allégée.
+ */
+function likePattern(operator, value) {
+  if (operator === "[=") return `${value}%`;
+  if (operator === "=]") return `%${value}`;
+  return `%${value}%`;
+}
+
+/**
+ * La traduction d'une borne décimale, ou son absence.
+ *
+ * Le fichier stocke `000012550` pour 125,50 : `125` part donc en `12500`. Sans
+ * cette traduction, la requête affichée ne trouverait pas ce que le simulateur
+ * montre, et la page mentirait sur son propre mécanisme. Seul le type `décimal`
+ * est concerné : un texte ou un entier part tel quel.
+ *
+ * Une valeur qui n'est pas un nombre passe INTACTE — le reconnaisseur ne
+ * valide pas la numéricité d'une borne, et traduire « abc » afficherait un
+ * `NaN` là où le lecteur attend sa propre saisie.
+ */
+function translateBound(entry, value) {
+  if (entry.type !== "décimal") {
+    return null;
+  }
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric) || numeric < 0) {
+    return null;
+  }
+  // Hors de l'entier sûr, `formatImplicitDecimal` REFUSE plutôt que de rendre
+  // une notation scientifique. Le champ étant libre, le lecteur peut y écrire
+  // 1e21 : la borne passe alors intacte, comme une borne non numérique, plutôt
+  // que d'arrêter la page sur une exception.
+  if (numeric * 10 ** IMPLICIT_DECIMALS > Number.MAX_SAFE_INTEGER) {
+    return null;
+  }
+  return { avant: value, apres: formatImplicitDecimal(numeric, IMPLICIT_DECIMALS) };
+}
+
+/**
+ * Ce qu'une valeur devient à côté de la requête, en paramètre.
+ *
+ * Un texte s'affiche entre guillemets DROITS : c'est de la délimitation, pas du
+ * SQL — elle rend visibles les espaces et les apostrophes que la valeur porte.
+ * Une borne numérique s'affiche nue : un paramètre est typé, un nombre n'est
+ * pas un texte.
+ */
+function toParameter(entry, operator, value) {
+  const raw = entry.type === "texte" && operator !== "==" ? likePattern(operator, value) : value;
+  if (entry.type === "texte") {
+    return { property: entry.property, display: `"${raw}"`, translated: null };
+  }
+  const translated = translateBound(entry, raw);
+  return {
+    property: entry.property,
+    display: translated === null ? raw : translated.apres,
+    translated,
+  };
+}
+
+/**
+ * La même valeur, mais COLLÉE dans le texte. C'est tout le défaut, montré.
+ *
+ * ⚠ Cette fonction fabrique une concaténation SQL, délibérément. Elle n'existe
+ * que pour MONTRER la faille, et rien de ce qu'elle rend n'est exécuté nulle
+ * part : ni base, ni pilote, ni réseau dans ce projet. Ne pas la reprendre
+ * ailleurs sans cette phrase.
+ */
+function toLiteral(entry, operator, value) {
+  const raw = entry.type === "texte" && operator !== "==" ? likePattern(operator, value) : value;
+  if (entry.type === "texte") {
+    return `'${raw}'`;
+  }
+  const translated = translateBound(entry, raw);
+  return translated === null ? raw : translated.apres;
+}
+
+/**
+ * Le squelette commun aux deux textes : mêmes colonnes, mêmes jointures, même
+ * `where`. Seule la façon dont la valeur y entre change — et c'est précisément
+ * ce que le vis-à-vis donne à voir.
+ */
+function composeQuery(read, entries, literal) {
+  const conditions = read.conditions ?? [];
+  const lines = [`select ${selectColumns(entries).join(", ")}`, `  from ${BASE_FILE}`];
+  for (const file of requiredFiles(entries, conditions)) {
+    lines.push(`  ${JOIN_CLAUSES[file]}`);
+  }
+  const params = [];
+  const glue = read.link === "||" ? "or" : "and";
+  conditions.forEach((condition, index) => {
+    const column = `${condition.entry.file}.${condition.entry.column}`;
+    const values = condition.operator === "><" ? condition.bounds : [condition.value];
+    const marks = values.map((value) => {
+      if (literal) {
+        return toLiteral(condition.entry, condition.operator, value);
+      }
+      params.push(toParameter(condition.entry, condition.operator, value));
+      return "?";
+    });
+    const fragment = condition.operator === "><"
+      ? `${column} between ${marks[0]} and ${marks[1]}`
+      : `${column} ${SQL_OPERATORS[condition.operator]} ${marks[0]}`;
+    // Une condition par ligne : la requête reste lisible sur un téléphone, et
+    // les mots-clés se calent les uns sous les autres comme on les écrit.
+    lines.push(index === 0 ? ` where ${fragment}` : `${glue.padStart(6)} ${fragment}`);
+  });
+  return { sql: lines.join("\n"), params };
+}
+
+/**
+ * La requête paramétrée, et les valeurs qui voyagent à côté d'elle.
+ *
+ * @param {{link: string|null, conditions: Array}} read Une lecture RÉUSSIE.
+ * @param {ReadonlyArray<object>} entries Les entrées cochées.
+ * @returns {{sql: string|null, params: Array}} `sql` vaut `null` sans colonne
+ *   cochée : il n'y a alors pas de requête (arbitrage du chef de projet,
+ *   session 19), et l'appelant affiche le texte d'absence.
+ */
+export function buildParameterisedQuery(read, entries) {
+  if (entries.length === 0) {
+    return { sql: null, params: [] };
+  }
+  return composeQuery(read, entries, false);
+}
+
+/**
+ * La requête qu'une API naïve aurait fabriquée en collant les textes bout à
+ * bout, valeur comprise.
+ *
+ * Elle n'apparaît QUE si une valeur porte une apostrophe : sur une demande
+ * ordinaire, la page reste sobre. Sans colonne cochée il n'y a pas de requête,
+ * donc pas de version naïve non plus, apostrophe ou pas.
+ *
+ * ⚠ C'EST LA FONCTION QUI COLLE UNE VALEUR DANS UN TEXTE SQL. Elle est le
+ * contre-exemple du site, jamais un modèle : la chaîne qu'elle rend n'est
+ * ÉMISE ni EXÉCUTÉE nulle part, il n'y a ni base, ni pilote, ni appel réseau
+ * dans ce projet. La règle permanente « zéro concaténation SQL » n'a pas
+ * d'autre garde ici que cet avertissement — il est répété à la fonction plutôt
+ * que laissé en tête de section, parce qu'un copier-coller n'emporte pas
+ * l'en-tête d'un fichier.
+ *
+ * @returns {string|null}
+ */
+export function buildNaiveQuery(read, entries) {
+  if (entries.length === 0) {
+    return null;
+  }
+  const conditions = read.conditions ?? [];
+  const carries = conditions.some((condition) =>
+    (condition.operator === "><" ? condition.bounds : [condition.value]).some((value) =>
+      value.includes("'"),
+    ),
+  );
+  if (!carries) {
+    return null;
+  }
+  return composeQuery(read, entries, true).sql;
 }
 
 /* ----------------------------------------------------------------- CLASSE */
@@ -504,15 +831,26 @@ export function exampleExpression(example, model) {
   );
 }
 
-/** Les quatre propriétés cochées au départ : nom, numéro, montant, mode. */
-export const DEFAULT_SELECTION = Object.freeze([0, 4, 7, 2]);
+/**
+ * Les six propriétés cochées au départ : nom, numéro, montant, mode, puis la
+ * ville et le libellé du mode.
+ *
+ * Les deux dernières sont entrées le 23 août 2026, et le motif est mesuré : le
+ * message de rupture annonce que LES TROIS propriétés jointes rendent `null`,
+ * or `villeClient` et `libelleModeLivraison` étaient décochées au chargement.
+ * Le lecteur qui cassait une jointure lisait donc une affirmation qu'il ne
+ * pouvait vérifier qu'au tiers, et devait pour le reste cocher deux cases dont
+ * rien ne lui disait qu'elles manquaient. La page MONTRE au lieu de reformuler
+ * sa promesse à la baisse (arbitrage du chef de projet, session 19).
+ */
+export const DEFAULT_SELECTION = Object.freeze([0, 4, 7, 2, 8, 3]);
 
 /**
  * La sélection de départ, dans l'ordre du modèle.
  *
- * `DEFAULT_SELECTION` énumère les quatre colonnes dans l'ordre où le contrat
- * les nomme, pas dans celui du modèle. Servie telle quelle, elle donnait à la
- * classe un nom qui dépendait du CHEMIN du lecteur : les mêmes quatre colonnes
+ * `DEFAULT_SELECTION` énumère les colonnes dans l'ordre où le contrat les
+ * nomme, pas dans celui du modèle. Servie telle quelle, elle donnait à la
+ * classe un nom qui dépendait du CHEMIN du lecteur : les mêmes colonnes
  * rendaient `b0ff` au chargement et `4b8e` après une case cochée puis décochée,
  * parce que le tri n'entrait en jeu qu'au premier basculement. La page enseigne
  * que le nom se dérive des colonnes choisies ; il se dérivait de l'ordre des
@@ -572,6 +910,17 @@ export function mountMiniLanguage({ dict, root }) {
   const examples = root.getElementById("mini-exemples");
   const help = root.getElementById("mini-aide");
   const code = root.getElementById("mini-classe");
+  const jsonBox = root.getElementById("mini-json");
+  const sqlBox = root.getElementById("mini-sql");
+  const naiveBox = root.getElementById("mini-naive");
+  const naiveBlock = root.getElementById("mini-naive-bloc");
+  const parametreePhrase = root.getElementById("mini-phrase-parametree");
+  const valuesBlock = root.getElementById("mini-valeurs-bloc");
+  const valuesIntro = root.getElementById("mini-valeurs-intro");
+  const valuesList = root.getElementById("mini-valeurs");
+  const editButton = root.getElementById("mini-edition");
+  const editNote = root.getElementById("mini-edition-note");
+  const joinBox = root.getElementById("mini-jointure");
   const bodies = {
     CDEMST: root.getElementById("mini-cdemst"),
     CLIMST: root.getElementById("mini-climst"),
@@ -579,8 +928,20 @@ export function mountMiniLanguage({ dict, root }) {
     MODLIV: root.getElementById("mini-modliv"),
   };
 
-  /** Les cases cochées, par indice de propriété. Seul état de la page. */
+  /** Les cases cochées, par indice de propriété. */
   let selection = initialSelection();
+  /**
+   * Les commandes telles que le lecteur les a laissées.
+   *
+   * Une COPIE : le décor reste gelé, et seules les commandes s'éditent. Les
+   * trois autres fichiers ne bougent pas, et c'est voulu — `CLIMST` continue de
+   * montrer la graphie d'origine, si bien que le lecteur répare en lisant
+   * l'autre fichier. C'est la jointure par les valeurs enseignée par le geste
+   * même de la réparation.
+   */
+  const orders = CDEMST.map((order) => ({ ...order }));
+  /** Les données sont-elles ouvertes à l'écriture ? Le bouton en décide. */
+  let editing = false;
   /**
    * Le dernier exemple retenu par un clic : il survit au survol.
    *
@@ -607,13 +968,67 @@ export function mountMiniLanguage({ dict, root }) {
     return td;
   };
 
+  /**
+   * La largeur d'une colonne, en caractères, d'après la donnée la plus longue :
+   * le tableau garde son gabarit quand il s'ouvre à l'écriture, au lieu de
+   * s'élargir sous le doigt au moment précis où le lecteur vise une cellule.
+   */
+  const widthOf = (fieldName) =>
+    Math.max(...orders.map((order) => String(order[fieldName]).length));
+
+  /** Une cellule de commande : texte au repos, champ de saisie une fois ouverte. */
+  const orderCell = (order, fieldName, tint) => {
+    const td = root.createElement("td");
+    if (tint) {
+      td.className = tint;
+    }
+    if (!editing) {
+      td.textContent = order[fieldName];
+      return td;
+    }
+    const input = root.createElement("input");
+    input.type = "text";
+    input.value = order[fieldName];
+    input.size = widthOf(fieldName);
+    // Les quatre mêmes coupures que le champ du filtre (`index.html`) : sur
+    // téléphone, le clavier corrige et met en capitale de son propre chef, et
+    // il réparerait sous le doigt la rupture que le lecteur cherche à
+    // provoquer. Mesuré sur iPhone 14 le 21 août 2026.
+    input.autocomplete = "off";
+    input.spellcheck = false;
+    input.setAttribute("autocapitalize", "off");
+    input.setAttribute("autocorrect", "off");
+    // Nom accessible physique, donc jamais traduit : la colonne du fichier et
+    // le numéro de la commande suffisent à situer la cellule.
+    input.setAttribute("aria-label", `${fieldName} ${order.NUMCDE}`);
+    input.addEventListener("input", () => {
+      // La valeur est prise TELLE QUE TAPÉE : la page ne corrige jamais à la
+      // place du lecteur. C'est la jointure qui tolère la casse, pas la saisie
+      // qui se fait redresser.
+      order[fieldName] = input.value;
+      render();
+    });
+    td.append(input);
+    return td;
+  };
+
   const fillTables = () => {
     const labels = texts().modes;
+    if (bodies.CDEMST !== null) {
+      bodies.CDEMST.replaceChildren();
+      for (const order of orders) {
+        const tr = root.createElement("tr");
+        tr.append(
+          orderCell(order, "NOMCLI", "lien-valeurs"),
+          orderCell(order, "PRECLI", "lien-valeurs"),
+          orderCell(order, "NUMCDE", ""),
+          orderCell(order, "DATCDE", ""),
+          orderCell(order, "MTTCDE", ""),
+        );
+        bodies.CDEMST.append(tr);
+      }
+    }
     const rows = [
-      [bodies.CDEMST, CDEMST.map((row) => [
-        [row.NOMCLI, "lien-valeurs"], [row.PRECLI, "lien-valeurs"],
-        [row.NUMCDE, ""], [row.DATCDE, ""], [row.MTTCDE, ""],
-      ])],
       [bodies.CLIMST, CLIMST.map((row) => [
         [row.NOMCLI, "lien-valeurs"], [row.PRECLI, "lien-valeurs"], [row.VILCLI, ""],
       ])],
@@ -660,7 +1075,20 @@ export function mountMiniLanguage({ dict, root }) {
       });
       const name = root.createElement("code");
       name.textContent = entry.property;
-      label.append(box, name);
+      // Le pont de noms, posé LÀ OÙ LE LECTEUR COCHE. Il vivait déjà en tête de
+      // section et dans les commentaires de la classe, mais loin et implicite :
+      // pour `codeModeLivraison` face à `LIZEPO`, personne ne peut deviner.
+      // Ces rappels NE SE TRADUISENT PAS : les noms physiques sont la moitié du
+      // pont qui ne bouge jamais. `montantBrut` et `montantCommande` affichent
+      // donc tous deux « MTTCDE · CDEMST », et c'est voulu : le couple se voit
+      // à l'endroit même où on le coche, avant que la requête ne le dédoublonne.
+      const origin = root.createElement("small");
+      origin.className = "origine";
+      origin.textContent = `${entry.column} · ${entry.file}`;
+      const stack = root.createElement("span");
+      stack.className = "colonne-texte";
+      stack.append(name, origin);
+      label.append(box, stack);
       item.append(label);
       columns.append(item);
     });
@@ -717,7 +1145,7 @@ export function mountMiniLanguage({ dict, root }) {
       heldExample = null;
       restoreHelp();
     }
-    const rows = joinFiles(texts().modes);
+    const rows = joinFiles(texts().modes, orders);
     const result = filterRows(field.value, model, rows);
 
     // Le texte entre élément par élément, par `textContent` seul : un motif de
@@ -763,7 +1191,142 @@ export function mountMiniLanguage({ dict, root }) {
       comment: texts().classe.commentaire,
       empty: texts().classe.vide,
     });
+
+    /* ---- Les quatre zones du second sous-incrément, AU MÊME RENDU. Elles ne
+       se rafraîchissent jamais à part : une zone qui a son propre rendu finit
+       par montrer un état que les autres ont déjà quitté. */
+
+    const refused = !result.ok;
+    const query = refused ? { sql: null, params: [] } : buildParameterisedQuery(result, chosen);
+    const naive = refused ? null : buildNaiveQuery(result, chosen);
+
+    // Une demande refusée ne part pas au serveur, et la page le montre au lieu
+    // de garder un état périmé.
+    //
+    // Le cadre est fait pour du code, qui ne se replie pas : une PHRASE posée
+    // dedans sortait du champ sur téléphone, et le lecteur lisait « rien ne
+    // part au serv » avant de devoir défiler de côté (relevé sur iPhone 14 le
+    // 23 août 2026). La classe `prose` rend le repli à ce qui est de la prose,
+    // et à elle seule : le JSON et le SQL gardent leur défilement.
+    // `putCode` et non `code` : le cadre de la classe s'appelle déjà `code`
+    // dans cette fonction, et une locale du même nom l'aurait masqué. Le nom
+    // court a coûté une page blanche, verte aux 282 tests, le 23 août 2026.
+    const putMessage = (box, texte) => {
+      box.textContent = texte;
+      box.className = "prose";
+    };
+    const putCode = (box, texte) => {
+      box.textContent = texte;
+      box.className = "";
+    };
+
+    const json = refused ? null : renderJson(result.rows, chosen);
+    if (refused) {
+      putMessage(jsonBox, texts().refusRien);
+    } else if (json === null) {
+      putMessage(jsonBox, texts().json.vide);
+    } else {
+      putCode(jsonBox, json);
+    }
+
+    // Sans colonne cochée il n'y a pas de requête : les deux cadres disent la
+    // même absence. Ni vis-à-vis ni bloc de valeurs alors — ce bloc accompagne
+    // une requête, et aucune valeur ne voyage puisque rien ne part (arbitrage
+    // du chef de projet, session 19).
+    if (refused) {
+      putMessage(sqlBox, texts().refusRien);
+    } else if (query.sql === null) {
+      putMessage(sqlBox, texts().json.vide);
+    } else {
+      putCode(sqlBox, query.sql);
+    }
+
+    naiveBlock.hidden = naive === null;
+    parametreePhrase.hidden = naive === null;
+    if (naive !== null) {
+      naiveBox.textContent = naive;
+    }
+
+    valuesBlock.hidden = refused || query.sql === null;
+    valuesList.replaceChildren();
+    if (!valuesBlock.hidden) {
+      valuesIntro.textContent = query.params.length > 0
+        ? texts().valeurs.intro
+        : texts().valeurs.aucune;
+      for (const parameter of query.params) {
+        const item = root.createElement("li");
+        const shown = root.createElement("code");
+        shown.textContent = parameter.display;
+        item.append(shown);
+        if (parameter.translated !== null) {
+          const note = root.createElement("small");
+          note.className = "borne";
+          note.textContent = fill(texts().valeurs.borne, parameter.translated);
+          item.append(note);
+        }
+        valuesList.append(item);
+      }
+    }
+
+    // Information, jamais erreur : casser n'est pas une faute, c'est la
+    // démonstration. Le texte entre élément par élément, `textContent` seul.
+    const broken = findOrphans(rows, result.ok ? result.rows : rows);
+
+    // L'EXTINCTION DE TEINTE. La cellule teintée dit « ce lien tient » ; quand
+    // il cède, elle s'éteint. C'est l'absence qui parle, jamais le rouge :
+    // casser n'est pas une faute, c'est la démonstration.
+    //
+    // C'est le seul accusé de réception qui arrive LÀ OÙ LE DOIGT TRAVAILLE.
+    // Le message complet vit sous les dix-huit lignes du tableau, soit 618 px
+    // plus bas ; sur un iPhone 14, la cellule éditée et son message ne tiennent
+    // sur AUCUN écran (portée 813 px mesurée le 23 août 2026, bande utile 694 px
+    // au mieux). Sans ce signal, le lecteur fait le geste et ne voit rien.
+    //
+    // La bascule se fait par `className`, sur les cellules et jamais sur la
+    // ligne : le tableau n'est pas reconstruit, donc les champs de saisie
+    // gardent leur curseur au milieu d'une frappe.
+    if (bodies.CDEMST !== null) {
+      const orphans = new Set(broken.orphans);
+      [...bodies.CDEMST.children].forEach((line, index) => {
+        const severed = orphans.has(rows[index]);
+        for (const td of line.children) {
+          if (!td.className.startsWith("lien-valeurs")) {
+            continue;
+          }
+          td.className = severed ? "lien-valeurs lien-eteint" : "lien-valeurs";
+        }
+      });
+    }
+
+    joinBox.replaceChildren();
+    if (broken.orphans.length > 0) {
+      const jointure = texts().edition.jointure;
+      const title = root.createElement("strong");
+      title.textContent = broken.orphans.length === 1
+        ? jointure.une
+        : fill(jointure.plusieurs, { n: broken.orphans.length });
+      const body = root.createElement("span");
+      body.textContent = fill(jointure.corps, { liste: nameList(broken.orphans) });
+      joinBox.append(title, root.createTextNode(" "), body);
+      if (broken.hidden.length > 0) {
+        const note = root.createElement("span");
+        note.textContent = fill(
+          broken.hidden.length === 1 ? jointure.filtreUne : jointure.filtrePlusieurs,
+          { liste: nameList(broken.hidden) },
+        );
+        joinBox.append(root.createTextNode(" "), note);
+      }
+    }
   };
+
+  /**
+   * « 104207 DURAND CLAIRE ». Le numéro tombe s'il n'est plus lisible : le
+   * lecteur peut aussi éditer cette colonne, et « NaN » ne nomme rien.
+   */
+  const nameList = (list) =>
+    list
+      .map((row) => [row.NUMCDE, row.NOMCLI, row.PRECLI].filter((part) => part !== null).join(" "))
+      .join(", ");
 
   /** La langue du dernier rendu : elle sert à réécrire le filtre déjà tapé. */
   let renderedLang = root.documentElement.lang;
@@ -785,6 +1348,17 @@ export function mountMiniLanguage({ dict, root }) {
   };
 
   field.addEventListener("input", render);
+
+  // Le tableau se refait — les cellules changent de nature — puis tout se
+  // rejoue. Une modification, elle, ne refait PAS le tableau : le champ en
+  // cours de frappe perdrait le curseur à chaque touche.
+  editButton.addEventListener("click", () => {
+    editing = !editing;
+    editButton.setAttribute("aria-pressed", String(editing));
+    editNote.hidden = !editing;
+    fillTables();
+    render();
+  });
 
   // La bascule de langue vient de réécrire tous les textes marqués `data-i18n` ;
   // ce qui est fabriqué ici ne l'est pas, et se refait donc à la même occasion.
