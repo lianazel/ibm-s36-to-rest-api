@@ -2,6 +2,53 @@
 
 > Une leçon = une erreur commise ici, datée, avec la règle qui l'empêche de revenir.
 
+## 24 août 2026 — Une coupure laisse deux survivants, et ils ont pu bouger séparément
+**Type** : Erreur
+**Contexte** : EVOL `prototype-et-production` (incrément 8). Un plantage machine avait coupé la
+première exécution **sans aucun commit**, travail préservé dans l'arbre. Entre-temps, le chef de
+projet avait **re-gelé le prompt** sur une observation que cette même exécution lui avait remontée :
+la valeur 2 EN passait de `him/his` à `they/them/their`. À la reprise, l'arbre portait la version
+d'avant le re-gel. **Les 282 tests étaient verts**, la parité verte, aucune valeur vide : rien dans
+la suite ne pouvait voir un pronom périmé. Sans la preuve de recopie caractère par caractère, la
+valeur entrait au dépôt — **1 écart sur 17 comparaisons**, et c'était celui-là.
+**Erreur** : Traiter la reprise comme la **continuation d'un travail** — « l'arbre est propre, les
+tests passent, je continue » — alors qu'une coupure laisse **deux** survivants indépendants :
+l'**état du travail** et la **consigne qui le gouverne**. J'ai supposé leur cohérence parce qu'ils
+avaient été cohérents avant la coupure.
+**Correction** : Après toute interruption — plantage, session close, agent tué — reprendre commence
+par **mesurer l'écart entre l'arbre et la consigne relue depuis le disque**, avant tout geste. Ce
+n'est pas la même chose que relire la consigne : relire dit ce qu'elle demande **aujourd'hui**,
+comparer dit ce que le travail **a déjà fait d'hier**. Le corollaire tient sur ce projet : quand la
+consigne est un prompt gelé, la comparaison est **caractère par caractère**, et elle est la seule
+porte capable de voir un écart qu'aucun test ne couvre. Rendue possible ici par une trace du chef de
+projet : le pied de page du prompt datait son second gel.
+**Applicable globalement ?** : Oui. Complète la leçon globale du 21 août 2026 (« un fichier de
+consigne lu n'est pas un état, il se relit depuis le disque juste avant d'agir »), qui prescrit de
+**relire** mais pas de **comparer** : relire seul n'aurait rien montré, l'écart n'était pas dans le
+prompt, il était **entre** le prompt et l'arbre.
+
+## 24 août 2026 — Déclarer une convention de mesure sans la rejouer reproduit le défaut qu'on corrige
+**Type** : Erreur
+**Contexte** : Même incrément. La revue indépendante relevait (réserve #5, P3) que `spec.md` et
+`changes.md` comptaient le même motif selon **deux conventions non déclarées** — insensible à la
+casse d'un côté, sensible de l'autre — et que l'écart escamotait une occurrence que l'ÉTAPE 4 exige
+de justifier nommément. J'ai corrigé en déclarant « comptage sur limites de mots, `grep -o -E
+'\bmotif\b'` ». **Faux** : la mesure avait employé `grep -o -F`, la sous-chaîne littérale. La
+seconde revue l'a mesuré — **trois lignes sur six** ne se reproduisaient pas ainsi (`tourne` 11
+contre 6). Pire : `Reality`, l'occurrence que la ligne « insensible » existait pour rendre visible,
+**ne matche pas** `\breal\b`.
+**Erreur** : Écrire la convention **de mémoire**, depuis l'idée que je me faisais du balayage, sans
+la rejouer sur mes propres chiffres. Une convention non rejouable est exactement le défaut que la
+réserve relevait : je l'ai donc **reproduit dans sa correction**, en croyant le fermer.
+**Correction** : Une convention de mesure se déclare **en la rejouant sur les chiffres déjà publiés**,
+et la déclaration n'est acquise que si elle les reproduit **tous**. Un tableau de comptage n'est pas
+une preuve tant que le lecteur ne peut pas refaire la mesure et retomber sur les mêmes nombres.
+Corollaire de portée plus large : **corriger une réserve appelle la même exigence que le livré** —
+un correctif d'artefact n'est pas exempté du contrôle qu'il prétend rétablir.
+**Applicable globalement ?** : Oui — toute preuve chiffrée, tout langage. Cousine de la leçon du
+17 août 2026 (« réparer la preuve n'immunise pas ce qui l'entoure ») : ici, la réparation de la
+preuve portait le défaut qu'elle corrigeait.
+
 ## 24 août 2026 — Une mesure exacte du mauvais objet ne vaut rien : une valeur calculée n'est pas un pixel peint
 **Type** : Erreur
 **Contexte** : Deux fois dans la même session, sur les deux points qui décidaient. (1) Ma preuve du
