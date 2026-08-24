@@ -741,7 +741,7 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
       pourquoi: {
         a1: "An open where clause hands over the keys to the house: the caller can ask for any column, any file, any subquery.",
         a2: "An open where clause speaks the file's language, with its names of six characters at most. This one speaks the language of the business.",
-        a3: "An open where cannot be fenced in: nothing lets you forbid a negation that would return everything, or require two characters on a \"contains\". With three closed lists, those rules can be written, and this page applies them one by one.",
+        a3: "An open where clause cannot be fenced in: nothing lets you forbid a negation that would return everything, or require two characters on a \"contains\". With three closed lists, those rules can be written, and this page applies them one by one.",
       },
       decor: {
         titre: "The setting: the wholesaler's files",
