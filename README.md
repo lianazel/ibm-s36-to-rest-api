@@ -4,7 +4,7 @@
 
 ## English
 
-**From S/36 files to a REST API.** A bilingual static site telling the story of a real .Net architecture: exposing IBM S/36 flat files, still running on IBM i, as clean JSON.
+**From S/36 files to a REST API.** A bilingual static site telling the story of a .Net API prototype: exposing IBM S/36 flat files, still running on IBM i, as clean JSON.
 
 **Live site**: https://lianazel.github.io/ibm-s36-to-rest-api/
 
@@ -25,7 +25,7 @@ Code under the MIT license. Site texts and visuals: all rights reserved. IBM Ple
 
 ## Français
 
-**Des fichiers S/36 à l'API REST.** Un site statique bilingue qui raconte une architecture .Net réelle : exposer en JSON des fichiers plats IBM S/36 qui tournent encore sur IBM i.
+**Des fichiers S/36 à l'API REST.** Un site statique bilingue qui raconte un prototype d'API .Net : exposer en JSON des fichiers plats IBM S/36 qui tournent encore sur IBM i.
 
 **Site en ligne** : https://lianazel.github.io/ibm-s36-to-rest-api/
 

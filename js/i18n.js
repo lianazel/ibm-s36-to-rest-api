@@ -23,7 +23,7 @@ export const dict = {
     },
     hero: {
       tagline:
-        "Quarante ans séparent un fichier plat S/36 d'un flux JSON. Ce site raconte l'architecture .Net qui les fait travailler ensemble : réelle, testée, expliquée.",
+        "Quarante ans séparent un fichier plat S/36 d'un flux JSON. Ce site raconte l'architecture .Net qui les fait travailler ensemble : démontrée, testée, expliquée.",
     },
     nav: {
       aria: "Sections",
@@ -42,7 +42,7 @@ export const dict = {
     },
     meta: {
       description:
-        "Une API REST .Net qui expose en JSON des fichiers hérités IBM S/36 tournant sur IBM i : architecture réelle, testée, expliquée.",
+        "Un prototype d'API REST .Net qui expose en JSON des fichiers hérités IBM S/36 tournant sur IBM i : démontré, testé, expliqué.",
     },
     section1: {
       title: "Le décor",
@@ -194,8 +194,8 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
         hors2: "porte ce qui sort : les instances, et c'est elle qui part en flux JSON.",
       },
       etape: {
-        title: "Le noyau tourne. Il restait une étape",
-        p1: "Le noyau tourne, et je ne suis pas allé plus loin. Il restait une étape. Une requête mise au point pour l'API mériterait d'être enregistrée plutôt que ressaisie : l'appelant la désignerait alors par son nom, et non par son texte. C'est cette étape qui en aurait fait un produit. Pas parfait, mais intéressant. Restreindre ce qu'une requête a le droit de faire appartient au même chantier, celui d'après.",
+        title: "Le noyau est opérationnel. Il restait une étape",
+        p1: "Le noyau qui construit le modèle dynamique est opérationnel, et je ne suis pas allé plus loin. Il restait une étape. Une requête mise au point pour l'API mériterait d'être enregistrée plutôt que ressaisie : l'appelant la désignerait alors par son nom, et non par son texte. C'est cette étape qui en aurait fait un produit. Pas parfait, mais intéressant. Restreindre ce qu'une requête a le droit de faire, et enregistrer aussi le modèle une fois bâti plutôt que le refabriquer à chaque fois (sérialiser le type CLR lui-même), appartiennent au même chantier, celui d'après.",
       },
       dessin1: {
         legende: "Écrit à la main : tout est figé d'avance, et tout est à maintenir.",
@@ -260,14 +260,14 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
       title: "Le mini-langage",
       ouverture: {
         titre: "Une idée, pas une pièce du système",
-        p1: "Ce chapitre n'est pas comme les autres. Tout ce que le site raconte jusqu'ici existe et tourne. Ce qui suit est une idée que j'ai eu envie d'essayer, ici, sur ce site, et nulle part ailleurs.",
-        p2: "Elle part d'une question simple : qu'est-ce qu'un appelant a le droit de demander ? Lui laisser écrire lui-même son filtre, c'est lui donner les clés du bâtiment. Il pourrait lire une colonne que je ne lui montre pas, ouvrir un fichier dont je ne lui ai jamais parlé. Alors j'ai imaginé l'inverse : il ne rédige rien, il choisit. Une colonne dans la liste que j'expose, un test dans une liste de six, et une valeur. Trois listes, et rien en dehors.",
-        p3: "Est-ce que ça tient debout ? C'est exactement ce que la suite de cette page permet d'essayer.",
+        p1: "Ce chapitre n'est pas comme les autres. Jusqu'ici, le site raconte du réel : des fichiers S/36 qui tournent encore en production, et un prototype qui a démontré que l'API fonctionne, jamais parti en production. Ce qui suit est né en marge de ce prototype, comme un chantier de recherche. Il a tourné dans mon atelier, jamais ailleurs, et cette page le remet en scène.",
+        p2: "L'idée est venue tout de suite, pendant la conception du prototype : les noms métier que l'API expose pouvaient servir une seconde fois, pour construire les filtres de recherche. La réflexion qui fabrique ces noms sait d'ailleurs les traduire dans les deux sens, du fichier vers le métier et retour. La question était simple : qu'est-ce qu'un appelant a le droit de demander ? Lui laisser écrire lui-même son filtre, c'est lui donner les clés du bâtiment. Il pourrait lire une colonne que je ne lui montre pas, ouvrir un fichier dont je ne lui ai jamais parlé. Alors j'ai imaginé l'inverse : il ne rédige rien, il choisit. Une colonne dans la liste que j'expose, un test dans une liste de six, et une valeur. Trois listes, et rien en dehors.",
+        p3: "Ce langage, je ne l'ai pas inventé seul. Le ET, le OU et le « différent de » viennent du C# lui-même ; « commence par » et « finit par », d'un langage d'un autre atelier, dont les opérateurs de chaînes disaient déjà tout. Le « différent de », justement : celui-là, la page le refuse exprès, et elle dit pourquoi plus bas. Puis ce chantier s'est arrêté là où le prototype s'est également arrêté. Tout fonctionnait très bien. Mais une nouvelle idée commençait à germer : trouver un moyen pour que le système se débrouille tout seul. Cette idée-là est déjà racontée : c'est elle qui a donné le modèle dynamique. Celle du mini-langage, est-ce qu'elle tient debout ? C'est exactement ce que la suite de cette page permet d'essayer.",
       },
       pourquoi: {
         a1: "Un where ouvert, c'est donner les clés de la maison : l'appelant peut demander n'importe quelle colonne, n'importe quel fichier, n'importe quelle sous-requête.",
         a2: "Un where ouvert parle le langage du fichier, avec ses noms d'au plus six caractères. Celui-ci parle le langage du métier.",
-        a3: "Un where ouvert ne se borne pas. On ne peut ni interdire une négation qui ramènerait tout, ni exiger deux caractères sur un « contient ». Avec trois listes closes, on le peut.",
+        a3: "Un where ouvert ne se borne pas : rien ne permet d'y interdire une négation qui ramènerait tout, ni d'y exiger deux caractères sur un « contient ». Avec trois listes closes, ces règles s'écrivent, et cette page les applique une par une.",
       },
       decor: {
         titre: "Le décor : les fichiers du grossiste",
@@ -498,7 +498,7 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
     },
     hero: {
       tagline:
-        "Forty years separate an S/36 flat file from a JSON feed. This site tells the story of the .Net architecture that makes them work together: real, tested, explained.",
+        "Forty years separate an S/36 flat file from a JSON feed. This site tells the story of the .Net architecture that makes them work together: demonstrated, tested, explained.",
     },
     nav: {
       aria: "Sections",
@@ -516,7 +516,7 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
     },
     meta: {
       description:
-        "A .Net REST API that turns IBM S/36 flat files still running on IBM i into JSON: a real, tested, explained architecture.",
+        "A .Net REST API prototype exposing legacy IBM S/36 files running on IBM i as JSON: demonstrated, tested, explained.",
     },
     section1: {
       title: "The setting",
@@ -668,8 +668,8 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
         hors2: "holds what goes out: the instances, and it is the one that leaves as a JSON feed.",
       },
       etape: {
-        title: "The core runs. One step was left",
-        p1: "The core runs, and I did not take it further. One step was left. A query tuned for the API would deserve to be stored rather than retyped: the caller would then name it, instead of sending its text. That step is what would have made it a product. Not a perfect one, but an interesting one. Restricting what a query is allowed to do belongs to the same job, the next one.",
+        title: "The core is operational. One step was left",
+        p1: "The core that builds the dynamic model is operational, and I did not take it further. One step was left. A query tuned for the API would deserve to be stored rather than retyped: the caller would then name it, instead of sending its text. That step is what would have made it a product. Not a perfect one, but an interesting one. Restricting what a query is allowed to do, and storing the model once built rather than rebuilding it every time (serialising the CLR type itself), belong to the same job, the next one.",
       },
       dessin1: {
         legende: "Written by hand: everything is fixed in advance, and everything has to be maintained.",
@@ -734,14 +734,14 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
       title: "The mini-language",
       ouverture: {
         titre: "An idea, not a working part",
-        p1: "This chapter is not like the others. Everything the site has shown you so far exists and runs. What follows is an idea I felt like trying, here, on this site, and nowhere else.",
-        p2: "It starts with a simple question: what is a caller entitled to ask for? Let them write their own filter and you have handed over the keys to the building. They could read a column you never showed them, open a file you never mentioned. So I imagined the opposite: they write nothing, they choose. A column from the list I expose, a test from a list of six, and a value. Three lists, and nothing outside them.",
-        p3: "Does it hold up? That is exactly what the rest of this page lets you try.",
+        p1: "This chapter is not like the others. Up to here, the site tells of real things: S/36 files still running in production, and a prototype that proved the API works, never taken to production. What follows was born alongside that prototype, as a research project. It ran in my workshop, nowhere else, and this page puts it back on stage.",
+        p2: "The idea came at once, while the prototype was being designed: the business names the API exposes could serve a second time, to build the search filters. The reflection that builds those names can, in fact, translate them both ways, from file to business and back. The question was simple: what does a caller have the right to ask for? Letting them write their own filter means handing them the keys to the building. They could read a column I do not show, open a file I never told them about. So I imagined the opposite: they write nothing, they choose. A column from the list I expose, a test from a list of six, and a value. Three lists, and nothing outside them.",
+        p3: "This language I did not invent alone. The AND, the OR and the \"not equal\" come from C# itself; \"starts with\" and \"ends with\", from a language out of another workshop, whose string operators already said it all. The \"not equal\", precisely: that one, this page refuses on purpose, and it says why further down. Then this project stopped where the prototype also stopped. Everything worked very well. But a new idea was beginning to take root: finding a way for the system to manage on its own. That idea has already been told: it is the one that became the dynamic model. As for the mini-language's idea, does it hold up? That is exactly what the rest of this page lets you try.",
       },
       pourquoi: {
         a1: "An open where clause hands over the keys to the house: the caller can ask for any column, any file, any subquery.",
         a2: "An open where clause speaks the file's language, with its names of six characters at most. This one speaks the language of the business.",
-        a3: "An open where clause cannot be bounded. You cannot forbid a negation that would bring back everything, nor require two characters on a contains. With three closed lists, you can.",
+        a3: "An open where cannot be fenced in: nothing lets you forbid a negation that would return everything, or require two characters on a \"contains\". With three closed lists, those rules can be written, and this page applies them one by one.",
       },
       decor: {
         titre: "The setting: the wholesaler's files",
