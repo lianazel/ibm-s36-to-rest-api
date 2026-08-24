@@ -120,10 +120,11 @@ finale est celle du site actuel au caractère près)*
 - **EN** : This language I did not invent alone. The AND, the OR and the "not equal" come from C# itself; "starts with" and "ends with", from a language out of another workshop, whose string operators already said it all. The "not equal", precisely: that one, this page refuses on purpose, and it says why further down. Then this project stopped where the prototype also stopped. Everything worked very well. But a new idea was beginning to take root: finding a way for the system to manage on its own. That idea has already been told: it is the one that became the dynamic model. As for the mini-language's idea, does it hold up? That is exactly what the rest of this page lets you try.
 
 **Valeur 4 — `section4.pourquoi.a3`** *(l'ellipse « on ne peut / on le peut » résolue, le sujet
-nommé ; « cette page » plutôt qu'un terme que la page n'étiquette pas)*
+nommé ; « cette page » plutôt qu'un terme que la page n'étiquette pas. **EN corrigé par l'avenant 2**,
+24 août, après la passe iPhone 14 : le mot `clause` rendu à sa place — voir ci-dessous)*
 
 - **FR** : Un where ouvert ne se borne pas : rien ne permet d'y interdire une négation qui ramènerait tout, ni d'y exiger deux caractères sur un « contient ». Avec trois listes closes, ces règles s'écrivent, et cette page les applique une par une.
-- **EN** : An open where cannot be fenced in: nothing lets you forbid a negation that would return everything, or require two characters on a "contains". With three closed lists, those rules can be written, and this page applies them one by one.
+- **EN** : An open where clause cannot be fenced in: nothing lets you forbid a negation that would return everything, or require two characters on a "contains". With three closed lists, those rules can be written, and this page applies them one by one.
 
 **Valeur 5 — `section3.etape.p1`** *(arbitrage du 23 août ; dernière phrase réarbitrée le 24 août
 au re-gel, avant toute exécution, en deux temps : l'enregistrement du modèle rejoint le chantier
@@ -176,6 +177,21 @@ change par langue. L'exécutant n'a pas étendu l'arbitrage de lui-même (préc�
 pour cette clé — contrairement à `meta.description`, le hero est un nœud `data-i18n`, pas un
 attribut. **Dix domiciles au total.**
 
+## Avenant 2 — le mot `clause` rendu à la valeur 4 EN
+
+*Trouvé à la **passe iPhone 14 du 24 août**, sur le tunnel d'aperçu, en lisant les captures du chef
+de projet — **et pas avant** : ni la première revue ni la seconde ne l'avaient vu, parce qu'il ne se
+lit qu'à l'endroit où les trois arguments s'affichent **l'un sous l'autre**.*
+
+Les trois arguments de `section4.pourquoi` forment une **série**, et l'anglais l'ouvrait deux fois
+sur `An open where clause` (a1, a2) avant que la valeur 4 gelée n'écrive `An open where`. La
+**valeur d'avant l'incrément le portait aussi** (« An open where clause cannot be bounded ») : ce
+n'est pas une variation héritée, c'est une **rupture introduite par cet incrément**, en anglais
+seulement — le français ouvre ses trois arguments par « Un where ouvert » et reste homogène.
+
+**Arbitré par le chef de projet le 24 août** : le mot est rendu. Un seul mot change, la valeur 4 EN
+ci-dessus est corrigée sur place, et sa formulation précédente est conservée en trace ci-dessous.
+
 ## Formulation révoquée : trace, ne pas utiliser
 
 L'`ouverture.p1` gelée le 23 août disait : « Ce chapitre n'est pas comme les autres. Jusqu'ici, le
@@ -184,6 +200,13 @@ démontré que l'API fonctionne, jamais parti en production. Ce qui suit est une
 d'essayer, ici, sur ce site, et nulle part ailleurs. » Révoquée le 24 août par son auteur : la
 clause finale est fausse, l'idée est née avec le prototype et a tourné dans l'atelier. Ses deux
 premières phrases survivent dans la valeur 1.
+
+La valeur 4 EN gelée le 24 août, **avant l'avenant 2**, disait : « An open where cannot be fenced
+in: nothing lets you forbid a negation that would return everything, or require two characters on a
+"contains". With three closed lists, those rules can be written, and this page applies them one by
+one. » Corrigée le même jour après la passe iPhone 14 : elle rompait la série des trois arguments
+anglais, que `a1` et `a2` ouvrent sur « An open where **clause** » — et que la valeur d'avant
+l'incrément ouvrait ainsi elle aussi. Seul le mot `clause` a été rendu ; le reste est identique.
 
 ## Étapes
 
