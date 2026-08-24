@@ -28,6 +28,8 @@ longueur lui échapperait. Proposé en R&D, non exécuté.
 rien du montage ») : ici, une suite verte et deux revues de code ne disent rien d'une série que
 **seule la mise en page révèle**. Corollaire de méthode : c'est précisément la classe de défaut que
 la validation humaine sur appareil existe pour attraper — elle l'a attrapée au premier coup d'œil.
+**Promue en global le 24 août 2026 (validation du chef de projet)**, sous le même titre
+« Un défaut de série ne vit pas dans la valeur, il vit dans son voisinage » — entrée datée 2026-08-24 de `~/.claude/lessons.md`.
 
 ## 24 août 2026 — Un balayage qui s'arrête aux fichiers publiés laisse la contradiction dans la pièce qui dirige le travail
 **Type** : Erreur
@@ -53,6 +55,8 @@ l'ancienne qui vit dans le même paragraphe.
 « tous ses domiciles » signifie **tout le dépôt**, et d'abord le fichier qu'on est en train de
 modifier. Parente de la leçon du 19 août (« déclarer, c'est balayer ») : ici le balayage existait,
 c'est son **périmètre** qui portait le défaut.
+**Promue en global le 24 août 2026 (validation du chef de projet)**, sous le même titre
+« Un balayage qui s'arrête aux fichiers publiés laisse la contradiction dans la pièce qui dirige le travail » — entrée datée 2026-08-24 de `~/.claude/lessons.md`.
 
 ## 24 août 2026 — Une coupure laisse deux survivants, et ils ont pu bouger séparément
 **Type** : Erreur
@@ -78,6 +82,8 @@ projet : le pied de page du prompt datait son second gel.
 consigne lu n'est pas un état, il se relit depuis le disque juste avant d'agir »), qui prescrit de
 **relire** mais pas de **comparer** : relire seul n'aurait rien montré, l'écart n'était pas dans le
 prompt, il était **entre** le prompt et l'arbre.
+**Promue en global le 24 août 2026 (validation du chef de projet)**, sous le même titre
+« Une coupure laisse deux survivants, et ils ont pu bouger séparément » — entrée datée 2026-08-24 de `~/.claude/lessons.md`.
 
 ## 24 août 2026 — Déclarer une convention de mesure sans la rejouer reproduit le défaut qu'on corrige
 **Type** : Erreur
@@ -100,6 +106,8 @@ un correctif d'artefact n'est pas exempté du contrôle qu'il prétend rétablir
 **Applicable globalement ?** : Oui — toute preuve chiffrée, tout langage. Cousine de la leçon du
 17 août 2026 (« réparer la preuve n'immunise pas ce qui l'entoure ») : ici, la réparation de la
 preuve portait le défaut qu'elle corrigeait.
+**Promue en global le 24 août 2026 (validation du chef de projet)**, sous le même titre
+« Déclarer une convention de mesure sans la rejouer reproduit le défaut qu'on corrige » — entrée datée 2026-08-24 de `~/.claude/lessons.md`.
 
 ## 24 août 2026 — Une mesure exacte du mauvais objet ne vaut rien : une valeur calculée n'est pas un pixel peint
 **Type** : Erreur
