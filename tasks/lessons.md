@@ -2,6 +2,58 @@
 
 > Une leçon = une erreur commise ici, datée, avec la règle qui l'empêche de revenir.
 
+## 24 août 2026 — Un défaut de série ne vit pas dans la valeur, il vit dans son voisinage
+**Type** : Erreur
+**Contexte** : EVOL `prototype-et-production` (incrément 8). La valeur 4 EN gelée ouvrait sur
+« An open where cannot be fenced in », quand ses deux sœurs `a1` et `a2` ouvrent sur « An open where
+**clause** » — et que la valeur d'avant l'incrément portait le mot elle aussi. **Rupture introduite
+par cet incrément**, en anglais seulement, le français ouvrant ses trois arguments par « Un where
+ouvert » sans varier. Elle a franchi **282 tests verts**, la porte de parité, la preuve de recopie
+caractère par caractère (qui compare une valeur à son gel, jamais à ses sœurs), **et deux revues
+indépendantes**. Trouvée par le chef de projet à la passe iPhone 14, là où les trois arguments
+s'affichent **l'un sous l'autre**.
+**Erreur** : Vérifier chaque valeur **contre sa source** et jamais **contre ses voisines**. Prise
+seule, `a3` était impeccable : conforme au prompt au caractère près, non vide, appariée FR/EN. Le
+défaut n'existait qu'à l'échelle du groupe, et aucune de mes portes ne travaille à cette échelle —
+elles valident des valeurs, une par une.
+**Correction** : Quand un geste touche **un membre d'une série** — puces d'une même liste, titres de
+même rang, cellules d'une colonne, étapes numérotées — la vérification porte sur **la série entière,
+après le geste**, pas sur le membre modifié. Et cette classe est **outillable** : le `reviewer` l'a
+démontré en trente lignes (préfixe commun des frères d'un même parent, avant contre après), avec la
+contre-épreuve qui compte — pointé sur le commit fautif, le détecteur sort **exactement la rupture
+en question** ; pointé sur le commit corrigé, il se tait. Limite déclarée par son auteur : il ne voit
+que les fratries d'un même parent et les motifs de bord ; une série définie par le rythme ou la
+longueur lui échapperait. Proposé en R&D, non exécuté.
+**Applicable globalement ?** : Oui. Cousine directe de [W32] (« une suite entièrement verte ne dit
+rien du montage ») : ici, une suite verte et deux revues de code ne disent rien d'une série que
+**seule la mise en page révèle**. Corollaire de méthode : c'est précisément la classe de défaut que
+la validation humaine sur appareil existe pour attraper — elle l'a attrapée au premier coup d'œil.
+
+## 24 août 2026 — Un balayage qui s'arrête aux fichiers publiés laisse la contradiction dans la pièce qui dirige le travail
+**Type** : Erreur
+**Contexte** : Même incrément, dont le motif déclaré est la leçon du 16 août — « une affirmation
+réfutée se retire de tous ses domiciles ». Deux balayages (23 puis 24 août) ont couvert `js/i18n.js`,
+`index.html` et `README.md`, et trouvé au second passage un domicile oublié dans le README. Aucun n'a
+regardé `tasks/`. Or la ligne 8 du fil portait encore « le mini-langage est une idée essayée **ici
+seulement** » à **630 caractères** du segment que le même commit ajoutait : « le mini-langage a
+**réellement tourné** dans la solution .Net ». La contradiction vivait donc **dans la même cellule**,
+dans le seul fichier de pilotage que l'incrément éditait, sur son sujet même. Trouvée par la revue
+indépendante, pas par moi.
+**Erreur** : Avoir assimilé « domicile » à « fichier servi au lecteur ». Le périmètre du balayage a
+été déduit de la liste des fichiers du livrable, alors que la leçon du 16 août parle d'**affirmation**
+et ne connaît pas cette frontière. Le fil, les dettes, les prompts disent la même chose que le site —
+et **le dépôt est public** : un fichier de pilotage y est un fichier publié.
+**Correction** : Le balayage d'une affirmation réfutée porte sur **tout ce qui est versionné**, pas
+sur les fichiers du livrable : `tasks/`, `prompts/`, `CLAUDE.md`, les messages de commit à venir. Un
+`git grep` sur le motif coûte une seconde et couvre le dépôt entier ; restreindre le balayage aux
+fichiers touchés, c'est décider d'avance où le défaut a le droit d'être. Corollaire mesuré ici : le
+danger est maximal **là où l'on vient d'écrire**, parce qu'on y ajoute la version neuve sans relire
+l'ancienne qui vit dans le même paragraphe.
+**Applicable globalement ?** : Oui. Précise la leçon du 16 août 2026 en lui donnant son périmètre :
+« tous ses domiciles » signifie **tout le dépôt**, et d'abord le fichier qu'on est en train de
+modifier. Parente de la leçon du 19 août (« déclarer, c'est balayer ») : ici le balayage existait,
+c'est son **périmètre** qui portait le défaut.
+
 ## 24 août 2026 — Une coupure laisse deux survivants, et ils ont pu bouger séparément
 **Type** : Erreur
 **Contexte** : EVOL `prototype-et-production` (incrément 8). Un plantage machine avait coupé la

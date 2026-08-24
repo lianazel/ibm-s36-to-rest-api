@@ -1426,3 +1426,102 @@ la confusion prototype/production à retirer de ses six domiciles.
 | `tasks/ROADMAP.md` au périmètre, huitième fichier | **Oui**, écart déclaré | La dette et le geste qui la crée sont indissociables. Précédent de la session 18 | précédent |
 | Le push, que `CLAUDE.md` réserve au chef de projet | **Exécuté sur son instruction explicite**, et signalé comme tel | Une autorisation nommée dans le fil vaut mieux qu'une règle appliquée contre son auteur ; la signaler évite qu'elle devienne un usage | cas d'espèce |
 | Niveau de bump | **Patch** 0.1.16 → 0.1.17, **sans redemander** | Règle en portée `précédent` depuis la session 12. **Dix-septième** inscription | précédent |
+
+## Session 20 — 24 août 2026 — EVOL `prototype-et-production` (merge `d87e230`, 0.1.17 → 0.1.18)
+
+**Le site rangeait le prototype avec ce qui tourne, et c'était faux.** La réalité a trois niveaux :
+le S/36 tourne encore **en production**, c'est la thèse et elle ne bouge pas ; le prototype de l'API
+a **démontré** que cela fonctionne, sans jamais partir en production ; le mini-langage est né en
+marge de ce prototype et a tourné dans l'atelier. En collant les deux premiers, le site affaiblissait
+le niveau fort — et se contredisait, la section 3 disant déjà « je ne suis pas allé plus loin ».
+
+Le prompt gelait **neuf domiciles**. Il en est parti **onze**.
+
+### Une session qui commence par une coupure
+
+La première exécution avait été tuée par un **plantage machine**, sans aucun commit, travail préservé
+dans l'arbre. Entre-temps le chef de projet avait **re-gelé le prompt** — sur une observation que
+cette exécution lui avait elle-même remontée : la valeur 2 EN passait de `him/his` à
+`they/them/their`, pour tenir la convention des 235 valeurs anglaises du site.
+
+À la reprise, l'arbre portait encore la version d'avant le re-gel. **282 tests verts, parité verte,
+aucune valeur vide** : rien dans la suite ne pouvait voir un pronom périmé. La preuve de recopie
+caractère par caractère l'a sorti — **1 écart sur 17** — et la valeur a été réalignée en la
+**réinjectant depuis le prompt**, jamais en la retapant. Passage final : **19/19**.
+
+D'où la première leçon : une coupure laisse **deux survivants** qui ont pu bouger séparément,
+l'arbre et la consigne. Reprendre commence par mesurer leur écart, pas par continuer le travail.
+
+### Trois défauts, trois instruments, et aucun ne voyait ce que voyaient les autres
+
+| Défaut | Trouvé par | Ce qui l'avait laissé passer |
+|---|---|---|
+| Valeur 2 EN restée en `him/his` | la **preuve de recopie** | 282 tests verts, parité verte |
+| `hero.tagline` portait la formule retirée de `meta.description` — **première phrase de la page** | le **balayage de l'ÉTAPE 4** | deux balayages, les 23 et 24 août |
+| La ligne 8 du fil se contredisait **dans sa propre cellule**, à 630 caractères d'écart | la **revue indépendante** | deux balayages, qui s'arrêtaient aux fichiers publiés |
+| `a3` EN avait perdu le `clause` que `a1` et `a2` portent | l'**œil du chef de projet sur iPhone 14** | 282 tests, **deux revues indépendantes**, la preuve de recopie |
+
+Le dernier est le plus instructif : **seul défaut de la session à avoir atteint le code livré**. Pris
+seule, la valeur était impeccable — conforme au gel au caractère près, non vide, appariée FR/EN. Elle
+ne devenait fausse qu'**alignée sous ses deux sœurs**. Aucune porte du projet ne travaille à cette
+échelle : elles valident des valeurs, une par une.
+
+### Trois revues, et chacune a trouvé ce que la précédente n'avait pas vu
+
+- **Première passe** (`a11c452`) : SHIP, 0 FAIL, 5 WARN — dont le onzième domicile.
+- **Seconde passe** (`3ce9583`) : SHIP, 0 FAIL, 3 WARN — dont **deux défauts du dossier lui-même** :
+  une convention de comptage déclarée **fausse dans la correction d'une réserve portant sur le
+  comptage**, et une réserve du `reviewer` que j'avais **durcie** en une affirmation fausse avant de
+  la présenter au chef de projet, qui a donc arbitré sur une version exagérée. Dit en clair au dossier.
+- **Troisième passe** (`034f60e`) : SHIP, 0 FAIL, 1 WARN. Elle a rejoué ma convention sur 9 motifs ×
+  3 fichiers (les dix lignes se reproduisent), refait sa **propre** preuve de recopie (19/19), et
+  écrit un **détecteur de fratrie** qu'elle a **vu mordre** avant de le croire : pointé sur le commit
+  fautif, il sort exactement la rupture du `clause` ; pointé sur le commit corrigé, il se tait.
+
+### La validation d'appareil, et ce qu'elle a coûté
+
+Servie par tunnel éphémère (scène hors dépôt, onze fichiers tous déjà commités, **8 tentatives
+d'évasion / 0 évasion**). Huit captures, FR et EN, portrait et paysage.
+
+Mesuré à **390 × 844, en français** (le pire cas), sur les deux états :
+
+| | avant `fe1f5bd` | après | écart |
+|---|---|---|---|
+| Hauteur de l'ouverture (p1 → p3) | 441 px — 0,52 écran | 1055 px — **1,25 écran** | **×2,4** |
+| Titre « Le mini-langage » → premier bouton | 1534 px — 1,82 écran | 2199 px — **2,61 écran** | **+43 %** |
+
+Le chef de projet a vu le rendu et **validé** : le texte vaut son prix. Et sa capture en paysage
+**documente sur appareil** ce que la ligne 9 du fil affirmait depuis une seule observation — le
+contournement de la saisie complexe est la **bascule d'orientation**.
+
+### Les preuves
+
+`réelle` **2/1/1 → 0/0/0** · `nulle part ailleurs`, `existe et tourne`, `exists and runs` → **0** ·
+chaque occurrence restante justifiée nommément, **convention de comptage déclarée et rejouable** ·
+parité **235 = 235**, `section4` **117 = 117** · `innerHTML` **0**, entités au dictionnaire **0**,
+dépendances **zéro** · page chargée FR, EN **et à la bascule par bouton**, **zéro erreur JS**,
+simulateur monté · preuve de recopie **19/19**, refaite indépendamment.
+
+### Dettes et inscriptions
+
+**Quatre leçons** — deux validées en cours de session (la coupure, la convention non rejouée), deux
+sur réserve P2 de la troisième revue (le défaut de série, le périmètre du balayage). **[W32]**,
+**[W31]**, **[W23]**, **[W13]**, **[W12]** inchangées. **Deux propositions R&D inscrites, non
+exécutées** : une **porte de recopie** prompt gelé → dictionnaire (la seule preuve du risque n° 1 vit
+hors dépôt et n'est rejouable par personne), et un **balayage lexical outillé sur tous les fichiers
+publiés** — c'est là que le onzième domicile a survécu à deux passages.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| Reprendre l'arbre survivant, ou repartir de la base | **Reprendre**, après mesure de l'écart arbre/consigne | Le travail était bon ; c'est la consigne qui avait bougé. Mesurer d'abord a sorti l'écart que rien d'autre ne voyait | **précédent** |
+| Le dixième domicile (`hero.tagline`), hors périmètre gelé | **Entré au périmètre**, valeur 9 **dérivée de la valeur 7**, avenant 1 | Arrêt et question **avant tout commit de code** : l'exécutant n'étend pas un arbitrage par analogie (précédent de la session 19). Sans ce geste, l'incrément publiait la contradiction au lieu de la retirer | **précédent** |
+| Le onzième domicile (ligne 8 du fil), trouvé par la revue | **Thèse à trois niveaux recalée**, pas datée | La contradiction vivait dans le fichier de pilotage que l'incrément éditait, sur son sujet même | **précédent** |
+| L'asymétrie `hero` / `meta` après correction | **Voulue** : le hero promet l'architecture, la méta porte la qualification | Les deux valeurs sont du chef de projet ; la revue a porté le constat, pas la décision | cas d'espèce |
+| Portée de la garde d'anonymisation sur `[=` / `=]` | **« Non nommé »**, et elle est atteinte | La syntaxe seule ne désigne personne nommément | **précédent** |
+| Le mot `clause` perdu par la valeur 4 EN | **Rendu**, avenant 2, valeur gelée réécrite **sur place** avec trace de la précédente | Laisser la valeur périmée dans « Les valeurs gelées » exposait au défaut exact qui a coûté l'écart `him/his` — un extracteur y aurait repris l'ancienne | **précédent** |
+| La réserve UX, ouverte aux deux premières revues | **Fermée par validation d'appareil**, mesure avant/après au dossier | La validation visuelle appartient au chef de projet et ne se délègue pas ; elle est due **avant** merge, pas après | **précédent** |
+| Les deux leçons de la réserve P2 | **Inscrites au `/land`**, dans le commit de clôture | Le commit de clôture est postérieur à la pré-garde : il n'invalide pas `review.json` et évite une quatrième revue pour deux entrées de registre | **précédent** |
+| Trailer `Co-Authored-By` aux commits | **Non**, écart déclaré | L'historique du dépôt n'en porte aucun ; en introduire un en silence dans un dépôt public changerait une convention établie | cas d'espèce |
+| Niveau de bump | **Patch** 0.1.17 → 0.1.18, **sans redemander** | Règle en portée `précédent` depuis la session 12. Le défaut `feat/*` vaut minor, soit 0.2.0 ; la cible de fin de jalon est 1.0.0 depuis le 20 août. **Dix-huitième** inscription | précédent |
