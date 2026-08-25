@@ -44,6 +44,15 @@
   --color-ink: #161616;          /* encre presque noire (gris 100 IBM) */
   --color-ink-soft: #525252;     /* texte secondaire, AA sur fond blanc */
   --color-line: #e0e0e0;         /* filets discrets */
+  /* Deux gris de fond, et non un seul : #f4f4f4 sur un bouton de la taille d'un
+     doigt ne se voit pas (1,10 d'écart avec la page), mais il suffit sur la
+     grande surface du bloc de refus, qui porte en outre son filet rouge ;
+     #e0e0e0 sur ce bloc l'alourdirait sans rien ajouter à un filet qui parle
+     déjà. Aucune teinte de LIEN n'est réemployée : elles disent « ce lien
+     tient » dans les cellules, et les poser ailleurs leur ferait dire deux
+     choses. Contrastes mesurés le 25 août 2026, formule WCAG. */
+  --color-bg-soft: #f4f4f4;      /* fond du refus ; textes portés : #a2191f 7,08:1, #525252 7,10:1, #161616 16,45:1 */
+  --color-bg-marque: #e0e0e0;    /* fond du dernier exemple utilisé ; #161616 13,71:1, #a2191f 5,90:1 */
   --color-s36: #0f62fe;          /* bleu IBM — registre S/36 (AA sur clair) */
   --color-api: #198038;          /* vert — registre API (5,02:1 sur fond blanc, AA texte) */
   --font-sans: "IBM Plex Sans", system-ui, sans-serif;
@@ -808,6 +817,79 @@ section {
   border: 1px solid var(--color-ink-soft);
   font-family: var(--font-mono);
   font-size: 1rem;
+  /* Le champ se REPLIE. La plus longue expression que la page écrit fait 83
+     caractères en anglais, et aucune largeur disponible ne les montre d'un seul
+     trait : 37 caractères par ligne en portrait à 390 px, 66 en paysage, plafond
+     de 42 rem de la colonne de lecture compris. Sur une seule ligne, le champ
+     cachait donc forcément une partie de ce que le lecteur venait de poser.
+     Trois lignes (attribut `rows`) suffisent au pire cas en portrait.
+
+     Repli vertical seulement : élargir le champ ferait déborder la page. */
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* Une seule disposition à toutes les tailles, aucune règle d'orientation : la
+   rangée se replie plutôt que de déborder. À 320 px « Envoyer » passe à la ligne
+   suivante, et c'est acceptable. */
+.champ .actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--space) / 2);
+}
+
+/* Gabarit du bouton de bascule de langue (l. 149-154), au plancher tactile de
+   44 px que le site s'impose déjà partout où le doigt travaille. */
+.champ .actions button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: calc(var(--space) / 4) calc(var(--space) / 2);
+  border: 1px solid var(--color-ink);
+  background: var(--color-bg);
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+/* Les trois signes de structure : en Plex Mono, parce qu'ils MONTRENT ce qu'ils
+   insèrent. Ils ne sont pas au dictionnaire : un signe ne se traduit pas, comme
+   les noms physiques des colonnes. */
+.champ .actions .signe {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+}
+
+/* L'action principale de la zone, et la seule à porter un mot plutôt qu'un
+   signe : elle se range à droite de la rangée. */
+.champ .actions .envoyer {
+  margin-left: auto;
+  font-family: inherit;
+  font-size: 0.875rem;
+}
+
+/* Un bouton inerte reste LISIBLE : son filet s'adoucit, son texte ne descend
+   pas sous le AA (#525252 sur blanc, 7,81:1 recalculé le 25 août 2026). Dire
+   qu'il dort ne justifie pas de le rendre illisible. */
+.champ .actions button:disabled {
+  border-color: var(--color-line);
+  color: var(--color-ink-soft);
+  cursor: default;
+}
+
+/* L'indication d'orientation. Elle parle du CLAVIER du téléphone, pas de la
+   largeur de l'écran : un écran d'ordinateur étroit ne la voit donc pas. Et
+   elle ne dit pas POURQUOI le paysage aide : seul le contournement a été
+   mesuré, jamais son mécanisme. */
+.paysage {
+  display: none;
+  font-size: 0.875rem;
+  color: var(--color-ink-soft);
+}
+
+@media (pointer: coarse) and (orientation: portrait) {
+  .paysage {
+    display: block;
+  }
 }
 
 /* Le statut vit sous le champ, là où le lecteur vient de taper. Une seule
@@ -821,6 +903,11 @@ section {
 
 .statut.refuse {
   border-left-color: #a2191f;
+  /* C'est le REFUS qu'on distingue, pas le service qu'on décore : l'état servi
+     (`.statut` sans `.refuse`) ne change pas. Le padding droit répond au gauche,
+     pour que le texte ne colle pas au bord du fond. */
+  background: var(--color-bg-soft);
+  padding-right: var(--space);
 }
 
 .statut strong {
@@ -850,8 +937,10 @@ section {
    (l. 302). Ces treize boutons sont les commandes les plus sollicitées de la
    page : ils ne peuvent pas être les seules à en être privées. */
 .exemples button {
-  display: inline-flex;
+  display: inline-grid;
+  grid-template-areas: "nom";
   align-items: center;
+  justify-items: center;
   min-height: 44px;
   padding: calc(var(--space) / 3) calc(var(--space) / 2);
   border: 1px solid var(--color-ink-soft);
@@ -860,6 +949,31 @@ section {
   font-family: inherit;
   font-size: 0.875rem;
   cursor: pointer;
+}
+
+/* LA RANGÉE NE DOIT PAS BOUGER quand un bouton se marque, et la graisse la
+   faisait bouger : 4 px de décalage du voisin, mesurés au navigateur le
+   25 août 2026 (le filet, lui, est compensé par le padding plus bas).
+
+   Le nom est donc doublé dans une couche invisible, toujours en 600 : les deux
+   occupent la même cellule de grille, la boîte prend la largeur de la plus
+   large, et le bouton a dès le repos la largeur qu'il aura une fois marqué.
+   Hauteur nulle : la couche réserve de la largeur, jamais de la hauteur.
+
+   Treize boutons qui se décalent au moment où l'on vient d'en toucher un,
+   c'est la cible suivante qui se dérobe sous le doigt. */
+.exemples button .nom,
+.exemples button::after {
+  grid-area: nom;
+}
+
+.exemples button::after {
+  content: attr(data-nom);
+  font-weight: 600;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 /* Rouge : la demande tente ce que le langage n'accorde pas. La couleur ne porte
@@ -874,6 +988,36 @@ section {
   .exemples button:hover {
     border-color: var(--color-ink);
   }
+}
+
+/* LE DERNIER EXEMPLE UTILISÉ. Trois canaux, et aucun ne porte seul : le fond,
+   le filet, et le nom repris en tête de l'explication (avec `aria-current`).
+   Le fond est un gris de la palette, jamais une teinte de sens.
+
+   LE PADDING COMPENSE LE FILET AU PIXEL PRÈS : le filet passe de 1 à 2 px, donc
+   le padding perd 1 px sur chaque bord et la boîte garde exactement sa taille.
+   Sans cela le bouton grossit, et treize boutons qui se décalent au moment où
+   l'on vient d'en toucher un, c'est la cible suivante qui se dérobe. */
+.exemples button.retenu {
+  background: var(--color-bg-marque);
+  border-width: 2px;
+  border-color: var(--color-ink);
+  padding: calc(var(--space) / 3 - 1px) calc(var(--space) / 2 - 1px);
+  font-weight: 600;
+}
+
+/* Le bouton rouge marqué garde son texte rouge sur le même gris (5,90:1
+   mesuré) : la famille de l'exemple ne change pas parce qu'il vient d'être
+   touché. */
+.exemples button.rouge.retenu {
+  border-color: #a2191f;
+}
+
+/* Une RÉSERVE, pas une alarme : elle nuance un compte que l'édition a rendu
+   faux, elle ne signale aucune faute. Casser une jointure est la démonstration,
+   jamais une erreur. */
+.aide .reserve {
+  color: var(--color-ink-soft);
 }
 
 /* Une seule surface d'explication, toujours présente : elle porte un texte

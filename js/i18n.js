@@ -335,7 +335,19 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
       },
       zone1: { titre: "Ce que l'appelant demande" },
       zone2: { titre: "La classe que la machine vient de fabriquer" },
-      champ: { filtre: "Filtre" },
+      champ: {
+        filtre: "Filtre",
+        // Le contournement mesuré cesse d'être un secret. Elle ne dit PAS
+        // pourquoi le paysage aide : seul le contournement a été mesuré, pas
+        // son mécanisme.
+        paysage: "Sur téléphone, passez en mode paysage pour taper une condition double.",
+        // Noms accessibles des trois boutons à signe : jamais affichés, donc
+        // invisibles à une relecture d'écran. Leur fratrie se vérifie alignée.
+        fermer: "Fermer la séquence",
+        et: "Fermer et enchaîner avec ET",
+        ou: "Fermer et enchaîner avec OU",
+        envoyer: "Envoyer la demande",
+      },
       colonnes: {
         titre: "Colonnes voulues",
         note: "Ces noms sont ceux que le modèle C# expose (voir la sous-section « Avec un modèle de données C# », à la section 3). Le fichier, lui, garde les siens : ils sont rappelés en gris, avec le fichier d'où chacun sort.",
@@ -343,6 +355,9 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
       exemples: {
         note: "Des exemples à cliquer : chacun remplit le champ « Filtre » à votre place. Les gris passent ; les rouges tentent une demande interdite, et c'est leur refus qu'ils servent à montrer.",
         repos: "Survolez un exemple, ou touchez-le, pour lire ce qu'il démontre.",
+        // La réserve qui rend l'explication falsifiable : les aides gelées
+        // annoncent des comptes ("2 commandes ici") que l'édition peut démentir.
+        donneesModifiees: "Vous avez modifié les données : les comptes de cette explication valent pour les données d'origine.",
       },
       morale: "Aucune de ces classes n'existe dans le code.",
       json: {
@@ -808,7 +823,14 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
       },
       zone1: { titre: "What the caller asks for" },
       zone2: { titre: "The class the machine has just built" },
-      champ: { filtre: "Filter" },
+      champ: {
+        filtre: "Filter",
+        paysage: "On a phone, switch to landscape to type a double condition.",
+        fermer: "Close the sequence",
+        et: "Close and chain with AND",
+        ou: "Close and chain with OR",
+        envoyer: "Send the request",
+      },
       colonnes: {
         titre: "Columns wanted",
         note: "These names are the ones the C# model exposes (see the subsection \"With a C# data model\", in section 3). The file keeps its own: they are recalled in grey, with the file each one comes from.",
@@ -816,6 +838,7 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
       exemples: {
         note: "Examples to click: each one fills the Filter field for you. The grey ones go through; the red ones attempt a forbidden request, and it is their refusal they are there to show.",
         repos: "Hover over an example, or tap it, to read what it demonstrates.",
+        donneesModifiees: "You have changed the data: the counts in this explanation hold for the original data.",
       },
       morale: "None of these classes exists in the code.",
       json: {

@@ -880,6 +880,98 @@ export function translateExpression(text, fromModel, toModel) {
   });
 }
 
+/**
+ * Retire les retours à la ligne d'un texte LU — jamais du champ lui-même.
+ *
+ * Le champ est une zone repliée : le lecteur y coupe ses lignes pour lire une
+ * expression de 83 caractères qu'aucune largeur disponible ne montre d'un seul
+ * trait (37 caractères en portrait, 66 en paysage, plafond de 42 rem compris).
+ * Ce découpage est une MISE EN PAGE, pas une faute de langue — le retour
+ * chariot n'est pas un caractère de ce mini-langage. On l'ignore donc à la
+ * lecture, et la page ne réécrit rien sous le doigt du lecteur.
+ *
+ * Retiré, et non remplacé par une espace : dans ce langage une espace COMPTE,
+ * et des valeurs en portent (`D' OR '1'='1`). La remplacer donnerait au retour
+ * chariot un sens qu'il n'a pas — `<nomClient:[=⏎:DUR/>` se lirait alors sur un
+ * opérateur `[= ` que rien à l'écran ne distingue de `[=`, et `DU⏎RAND` sur une
+ * valeur `DU RAND` qui ne trouve rien.
+ */
+export function stripLineBreaks(text) {
+  return String(text).replace(/\r\n?|\n/g, "");
+}
+
+/**
+ * Ferme la séquence en cours par `/>`, et ne vérifie rien d'autre.
+ *
+ * Sur clavier iOS, `/` et `>` vivent sur deux pages de symboles différentes :
+ * fermer une séquence à la main coûte huit changements de page (mesuré sur
+ * iPhone 14, le 22 août 2026). Ce bouton COMPLÈTE ce que le lecteur n'a pas
+ * fini d'écrire ; il ne répare jamais ce qu'il a fini et raté.
+ * `<villeClient:===:l` devient donc `<villeClient:===:l/>`, que le
+ * reconnaisseur refuse toujours sur son opérateur — et c'est le refus qui
+ * enseigne. Un bouton qui redresserait `===` en `==` volerait au lecteur
+ * l'erreur qui allait lui apprendre quelque chose.
+ */
+export function closeSequence(text) {
+  const value = String(text);
+  const tail = value.trimEnd();
+  // Rien à fermer dans trois cas : champ vide, séquence déjà close, et liaison
+  // en attente de sa séquence — sans ce dernier, `<a:b:c/> && ` donnerait
+  // `<a:b:c/> &&/>`, atteignable dès que le lecteur appuie sur `/>` après un
+  // bouton de liaison.
+  if (tail === "" || tail.endsWith("/>") || tail.endsWith("&&") || tail.endsWith("||")) {
+    return value;
+  }
+  return `${tail}/>`;
+}
+
+/**
+ * Ferme la séquence en cours, puis enchaîne sur `&&` ou `||`.
+ *
+ * Le scénario est celui du chef de projet : le lecteur tape sa séquence,
+ * appuie sur `/>` pour la terminer, puis enchaîne. Le `&` est l'un des huit
+ * caractères qui vivent hors de la page des lettres du clavier iOS ; sans ce
+ * bouton, fermer ne supprimait que le premier obstacle des deux.
+ *
+ * L'espace finale est voulue : le lecteur enchaîne sans avoir à la poser.
+ */
+export function appendLink(text, link) {
+  const value = String(text);
+  const tail = value.trimEnd();
+  // Inchangé sur champ vide et sur liaison déjà en attente : deux liaisons de
+  // suite ne veulent rien dire, et le bouton n'a alors rien à compléter.
+  if (tail === "" || tail.endsWith("&&") || tail.endsWith("||")) {
+    return value;
+  }
+  // `trimEnd` sur le résultat : `closeSequence` absorbe déjà les espaces de fin
+  // quand elle ferme, et l'omettre donnerait deux espaces sur une séquence
+  // DÉJÀ close suivie d'une espace — `<a:b:c/> ` deviendrait `<a:b:c/>  && `.
+  return `${closeSequence(value).trimEnd()} ${link} `;
+}
+
+/**
+ * Le lecteur a-t-il modifié les commandes ?
+ *
+ * Sert à rendre FALSIFIABLE une explication gelée : `ex.jointure.aide` affirme
+ * « 2 commandes ici » pendant que le statut peut en compter une, parce que le
+ * lecteur vient de casser une jointure. La page ne réécrit pas l'aide — c'est
+ * une valeur gelée — elle ajoute une réserve, et cette fonction en décide.
+ *
+ * Comparaison à l'octet près : celui qui retape DURAND à l'identique n'a rien
+ * modifié. La casse compte donc (`durand` est une modification), et c'est
+ * voulu : ce détecteur ne juge pas la jointure — qui, elle, tolère la casse —
+ * il constate que la donnée affichée n'est plus celle d'origine.
+ */
+export function hasEdits(orders, origin = CDEMST) {
+  return orders.some((order, index) => {
+    const source = origin[index];
+    if (source === undefined) {
+      return true;
+    }
+    return Object.keys(source).some((name) => String(order[name]) !== String(source[name]));
+  });
+}
+
 /* ------------------------------------------------- CÂBLAGE (hors logique) */
 
 /** Remplace `{nom}` par sa valeur. Le texte reste du texte : jamais de HTML. */
@@ -905,6 +997,10 @@ export function mountMiniLanguage({ dict, root }) {
   }
 
   const field = root.getElementById("mini-filtre");
+  const closeButton = root.getElementById("mini-fermer");
+  const andButton = root.getElementById("mini-et");
+  const orButton = root.getElementById("mini-ou");
+  const sendButton = root.getElementById("mini-envoyer");
   const status = root.getElementById("mini-statut");
   const columns = root.getElementById("mini-colonnes");
   const examples = root.getElementById("mini-exemples");
@@ -928,6 +1024,8 @@ export function mountMiniLanguage({ dict, root }) {
     MODLIV: root.getElementById("mini-modliv"),
   };
 
+  /** Les treize boutons d'exemple, dans l'ordre du modèle : `render()` y pose le marquage. */
+  let exampleButtons = [];
   /** Les cases cochées, par indice de propriété. */
   let selection = initialSelection();
   /**
@@ -950,6 +1048,27 @@ export function mountMiniLanguage({ dict, root }) {
    * son explication dans la langue courante après un basculement.
    */
   let heldExample = null;
+  /**
+   * L'exemple SURVOLÉ, distinct de celui qui est retenu.
+   *
+   * Il est ici, et non dans une peinture à part, parce que la surface
+   * d'explication est peinte par `render()` comme tout le reste : le survol
+   * change un ÉTAT, il ne repeint rien lui-même (avenant 1 — un seul peintre).
+   */
+  let hovered = null;
+  /**
+   * La dernière demande LUE, jamais le contenu du champ.
+   *
+   * C'est la coupure en deux zones : le lecteur écrit dans le champ, et rien ne
+   * répond tant qu'il n'a pas envoyé. La page explique une API REST, où une
+   * demande part et où la réponse arrive APRÈS ; réécrire le JSON à chaque
+   * touche faisait précéder la demande par sa réponse, et faisait défiler des
+   * refus pour une demande que le lecteur n'avait pas fini d'écrire.
+   *
+   * La chaîne vide n'est pas un refus mais l'absence de condition : la page
+   * s'ouvre donc sur ses dix-huit lignes, comme avant cet incrément.
+   */
+  let sent = "";
 
   const texts = () => dict[root.documentElement.lang]?.section4 ?? dict.fr.section4;
 
@@ -1098,40 +1217,97 @@ export function mountMiniLanguage({ dict, root }) {
     const model = currentModel();
     const labels = texts().ex;
     examples.replaceChildren();
-    for (const example of EXAMPLES) {
+    exampleButtons = EXAMPLES.map((example) => {
       const item = root.createElement("li");
       const button = root.createElement("button");
       button.type = "button";
       button.className = `exemple ${example.tone}`;
-      button.textContent = labels[example.key].nom;
-      const explain = () => showHelp(labels[example.key].aide);
-      button.addEventListener("mouseenter", explain);
-      button.addEventListener("focus", explain);
-      button.addEventListener("mouseleave", restoreHelp);
-      button.addEventListener("blur", restoreHelp);
+      // Le nom est posé DEUX fois : une fois visible, une fois en attribut. La
+      // feuille s'en sert pour réserver dès le repos la largeur que le bouton
+      // aura une fois marqué en gras, sans quoi le marquage pousse les voisins
+      // (4 px mesurés au navigateur le 25 août 2026).
+      const nom = labels[example.key].nom;
+      button.dataset.nom = nom;
+      const label = root.createElement("span");
+      label.className = "nom";
+      label.textContent = nom;
+      button.append(label);
+      // Le survol montre sans engager ; le clic retient. Ni l'un ni l'autre ne
+      // peint : ils posent un état, et `render()` peint (avenant 1).
+      const enter = () => {
+        hovered = example;
+        render();
+      };
+      const leave = () => {
+        hovered = null;
+        render();
+      };
+      button.addEventListener("mouseenter", enter);
+      button.addEventListener("focus", enter);
+      button.addEventListener("mouseleave", leave);
+      button.addEventListener("blur", leave);
       button.addEventListener("click", () => {
+        // Cliquer ÉCRIT la demande, il ne l'envoie pas : le résultat doit
+        // rester la découverte du lecteur. L'ancien résultat demeure affiché —
+        // un avant-après enseigne mieux qu'un vide qui se remplit, et un écran
+        // qui se vide au moment où l'on vient d'agir se lit comme une panne.
         heldExample = example;
         field.value = exampleExpression(example, model);
-        showHelp(labels[example.key].aide);
         render();
       });
       item.append(button);
       examples.append(item);
-    }
+      return button;
+    });
   };
 
-  /** Le survol montre sans engager ; le clic retient. Une seule surface. */
-  const showHelp = (text) => {
-    help.textContent = text;
-  };
-  const restoreHelp = () => {
-    help.textContent = heldExample === null
-      ? texts().exemples.repos
-      : texts().ex[heldExample.key].aide;
+  /**
+   * La surface d'explication, peinte depuis l'ÉTAT et jamais depuis un
+   * événement : le survol l'emporte sur l'exemple retenu, et le texte de repos
+   * ne paraît que si aucun des deux n'est là.
+   *
+   * Le texte entre élément par élément, `textContent` seul.
+   */
+  const paintHelp = () => {
+    const subject = hovered ?? heldExample;
+    help.replaceChildren();
+    if (subject === null) {
+      help.textContent = texts().exemples.repos;
+      return;
+    }
+    const labels = texts().ex;
+    // Le nom repris en tête : treize boutons se ressemblent, et l'aide seule ne
+    // dit pas lequel le lecteur vient de toucher.
+    const name = root.createElement("strong");
+    name.textContent = labels[subject.key].nom;
+    const aide = root.createElement("span");
+    aide.textContent = labels[subject.key].aide;
+    help.append(name, root.createTextNode(" "), aide);
+    // L'explication devient FALSIFIABLE dès que le lecteur édite : l'aide de la
+    // jointure affirme « 2 commandes ici » pendant que le statut peut en
+    // compter une. La valeur gelée n'est pas réécrite — une réserve s'ajoute.
+    // Jamais sur le texte de repos : il n'affirme aucun compte.
+    if (hasEdits(orders)) {
+      const reserve = root.createElement("span");
+      reserve.className = "reserve";
+      reserve.textContent = texts().exemples.donneesModifiees;
+      help.append(root.createTextNode(" "), reserve);
+    }
   };
 
   const render = () => {
     const model = currentModel();
+
+    /* ---- UN SEUL PEINTRE, DEUX SOURCES (avenant 1, 25 août 2026).
+       `render()` peint les deux zones : celle où l'on ÉCRIT se lit sur `typed`,
+       celle qui RÉPOND se lit sur `sent`. Un second peintre de la même zone est
+       exactement la façon dont une zone finit par montrer un état que l'autre a
+       déjà quitté — défaut mesuré deux fois sur ce projet.
+
+       `stripLineBreaks` n'a que DEUX sites d'appel : ici, et à l'envoi. Le
+       champ, lui, n'est JAMAIS réaffecté depuis l'une ni l'autre : le retrait
+       vit dans la lecture, et ce que le lecteur a tapé reste à l'écran. */
+    const typed = stripLineBreaks(field.value);
 
     // Une explication ne survit pas à un champ qui la contredit : le lecteur
     // avait sous les yeux « 3 commandes sur 18 » pendant que la page refusait
@@ -1141,12 +1317,43 @@ export function mountMiniLanguage({ dict, root }) {
     // COURANTE, jamais sur la chaîne mémorisée au clic : le basculement de
     // langue réécrit le champ, et comparer à la chaîne d'origine effacerait
     // l'explication d'un exemple qui est pourtant toujours celui affiché.
-    if (heldExample !== null && field.value !== exampleExpression(heldExample, model)) {
+    // La comparaison porte sur `typed`, jamais sur `sent` : l'explication décrit
+    // ce qui est ÉCRIT, pas ce qui a été envoyé — la comparer à `sent`
+    // effacerait l'explication à l'instant même où le lecteur clique l'exemple.
+    // Et elle porte sur le texte SANS retours à la ligne, pour qu'une coupure
+    // de ligne ne fasse pas tomber l'aide d'un exemple qu'il est en train de
+    // lire.
+    if (heldExample !== null && typed !== exampleExpression(heldExample, model)) {
       heldExample = null;
-      restoreHelp();
     }
+    paintHelp();
+
+    // Les quatre boutons se dérivent du CHAMP : ils s'allument quand ils ont
+    // quelque chose à compléter. Celui d'envoi s'allume quand ce qui est écrit
+    // n'est plus ce qui est affiché — c'est le SEUL signal d'état périmé de la
+    // page, et le lecteur sait donc toujours si la réponse qu'il voit
+    // correspond à la demande qu'il lit.
+    closeButton.disabled = closeSequence(field.value) === field.value;
+    andButton.disabled = appendLink(field.value, "&&") === field.value;
+    orButton.disabled = appendLink(field.value, "||") === field.value;
+    sendButton.disabled = typed === sent;
+
+    // Le marquage, DÉRIVÉ de `heldExample` : aucun second état, donc un seul
+    // bouton marqué par construction, et le marquage tombe au même rendu que
+    // l'explication.
+    exampleButtons.forEach((button, index) => {
+      const held = heldExample !== null && EXAMPLES[index].key === heldExample.key;
+      button.classList.toggle("retenu", held);
+      if (held) {
+        button.setAttribute("aria-current", "true");
+      } else {
+        button.removeAttribute("aria-current");
+      }
+    });
+
     const rows = joinFiles(texts().modes, orders);
-    const result = filterRows(field.value, model, rows);
+    // LA ZONE DE RÉPONSE lit `sent`, et elle seule.
+    const result = filterRows(sent, model, rows);
 
     // Le texte entre élément par élément, par `textContent` seul : un motif de
     // refus cite ce que le lecteur vient de taper, et cette chaîne ne doit
@@ -1343,11 +1550,40 @@ export function mountMiniLanguage({ dict, root }) {
     fillTables();
     buildColumns();
     buildExamples();
-    restoreHelp();
     render();
   };
 
+  // L'écouteur APPELLE le peintre, il ne peint rien lui-même : l'état des
+  // quatre boutons, la chute de `heldExample` et le retrait du marquage vivent
+  // dans `render()` (avenant 1). Recalculer dix-huit lignes à chaque touche ne
+  // coûte rien ; un second peintre coûterait la garantie.
   field.addEventListener("input", render);
+
+  /**
+   * Les trois boutons de structure COMPLÈTENT le champ, puis rendent la main.
+   *
+   * Ils n'envoient rien : la zone de réponse relit `sent`, qui n'a pas bougé —
+   * c'est pourquoi appeler `render()` ici est sans risque. Et `||` reste offert
+   * même quand l'expression porte déjà des `&&` : mêler les deux liaisons est
+   * refusé par le reconnaisseur, et ce refus est une LEÇON de la page. Une
+   * rangée qui empêcherait le mélange volerait au lecteur ce qu'il vient voir.
+   */
+  const completeWith = (rewrite) => () => {
+    field.value = rewrite(field.value);
+    render();
+    field.focus();
+  };
+  closeButton.addEventListener("click", completeWith(closeSequence));
+  andButton.addEventListener("click", completeWith((text) => appendLink(text, "&&")));
+  orButton.addEventListener("click", completeWith((text) => appendLink(text, "||")));
+
+  // L'ENVOI — le second et dernier site d'appel de `stripLineBreaks`. Le
+  // lecteur a coupé ses lignes où il voulait ; la page reconstruit l'expression
+  // au moment de la LIRE, et ne touche jamais au champ.
+  sendButton.addEventListener("click", () => {
+    sent = stripLineBreaks(field.value);
+    render();
+  });
 
   // Le tableau se refait — les cellules changent de nature — puis tout se
   // rejoue. Une modification, elle, ne refait PAS le tableau : le champ en

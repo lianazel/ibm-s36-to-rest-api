@@ -12,11 +12,13 @@ import { describe, expect, it } from "vitest";
 import { dict } from "../js/i18n.js";
 import { parseImplicitDecimal } from "../js/s36.js";
 import {
+  appendLink,
   buildModel,
   buildNaiveQuery,
   buildParameterisedQuery,
   CDEMST,
   CLIMST,
+  closeSequence,
   CMLIV,
   className,
   DEFAULT_SELECTION,
@@ -24,6 +26,7 @@ import {
   exampleExpression,
   filterRows,
   findOrphans,
+  hasEdits,
   initialSelection,
   joinFiles,
   MODLIV_CODES,
@@ -32,6 +35,7 @@ import {
   recognise,
   renderClass,
   renderJson,
+  stripLineBreaks,
   translateExpression,
 } from "../js/minilangage.js";
 
@@ -613,9 +617,10 @@ describe("avenant 2 : ce que la page affirme doit être vrai", () => {
     };
     const fr = cles(dict.fr.section4);
     const en = cles(dict.en.section4);
-    // 94 au sortir de l'incrément 6, plus les 23 clés du second sous-incrément.
-    expect(fr).toHaveLength(117);
-    expect(en).toHaveLength(117);
+    // 94 au sortir de l'incrément 6, plus les 23 clés du second sous-incrément,
+    // plus les 6 du confort de saisie : cinq `champ.*` et `exemples.donneesModifiees`.
+    expect(fr).toHaveLength(123);
+    expect(en).toHaveLength(123);
     expect(fr).toEqual(en);
   });
 });
@@ -1135,5 +1140,223 @@ describe("l'avertissement de périmètre vit sur la fonction, pas seulement en t
       expect(commentaire, nom).toMatch(/exécuté|EXÉCUT/);
       expect(commentaire, nom).toMatch(/ni base|aucune base|ni pilote/);
     }
+  });
+});
+
+/* ------------------------------------- LE CONFORT DE SAISIE (incrément 9)
+
+   Quatre fonctions pures, et rien du câblage : l'écouteur, l'état des boutons
+   et la coupure en deux zones vivent dans `mountMiniLanguage`, sous [W13]
+   (aucun DOM sous Vitest). Ce que ces suites gardent, ce sont les RÈGLES. */
+
+describe("stripLineBreaks : le retour chariot est ignoré à la lecture, jamais retiré du champ", () => {
+  it("rend un texte sans retour à la ligne inchangé, à l'octet près", () => {
+    const texte = `<${FR[0].property}:[=:DUR/> && <${FR[2].property}:==:EXP/>`;
+    expect(stripLineBreaks(texte)).toBe(texte);
+  });
+
+  it("retire les trois formes, et compte le `\\r\\n` de Windows une seule fois", () => {
+    expect(stripLineBreaks("a\nb")).toBe("ab");
+    expect(stripLineBreaks("a\rb")).toBe("ab");
+    // Un texte collé depuis Windows porte DEUX caractères pour une seule
+    // coupure : les traiter séparément mangerait un cran de trop.
+    expect(stripLineBreaks("a\r\nb")).toBe("ab");
+    expect(stripLineBreaks("a\r\nb")).toHaveLength(2);
+  });
+
+  it("ne touche jamais aux espaces ordinaires : dans ce langage une espace compte", () => {
+    // La valeur d'injection en porte deux, et elles font partie de la
+    // démonstration : les avaler changerait ce que la page prouve.
+    expect(stripLineBreaks("D' OR '1'='1")).toBe("D' OR '1'='1");
+    expect(stripLineBreaks("  <a:b:c/>  ")).toBe("  <a:b:c/>  ");
+  });
+});
+
+describe("stripLineBreaks : les cinq positions, jugées sur ce qui est LU", () => {
+  // Le test porte sur le RÉSULTAT de la lecture, jamais sur la chaîne
+  // nettoyée : c'est la demande lue par la page qui doit être la bonne.
+  const NOM = FR[0].property;
+  const MODE = FR[2].property;
+  const lire = (texte) => filterRows(stripLineBreaks(texte), FR, ROWS_FR);
+
+  it("entre deux séquences : sans effet, les deux conditions sont lues", () => {
+    const read = lire(`<${NOM}:[=:DUR/>\n && <${MODE}:==:EXP/>`);
+    expect(read.ok).toBe(true);
+    expect(read.conditions).toHaveLength(2);
+  });
+
+  it("juste avant `&&`, sans espace : sans effet", () => {
+    const read = lire(`<${NOM}:[=:DUR/>\n&& <${MODE}:==:EXP/>`);
+    expect(read.ok).toBe(true);
+    expect(read.conditions).toHaveLength(2);
+  });
+
+  it("collé depuis Windows (`\\r\\n`) : sans effet", () => {
+    const read = lire(`<${NOM}:[=:DUR/>\r\n && <${MODE}:==:EXP/>`);
+    expect(read.ok).toBe(true);
+    expect(read.conditions).toHaveLength(2);
+  });
+
+  it("dans l'opérateur : l'opérateur est lu, la demande passe", () => {
+    // L'espace de remplacement, elle, donnait un opérateur `[= ` que rien à
+    // l'écran ne distingue de `[=` — et un refus incompréhensible.
+    const read = lire(`<${NOM}:[=\n:DUR/>`);
+    expect(read.ok).toBe(true);
+    expect(read.conditions[0].operator).toBe("[=");
+  });
+
+  it("dans une valeur : la valeur est recollée, et les lignes sont trouvées", () => {
+    const read = lire(`<${NOM}:==:DU\nRAND/>`);
+    expect(read.ok).toBe(true);
+    expect(read.conditions[0].value).toBe("DURAND");
+    // L'espace de remplacement donnait `DU RAND`, et aucune ligne.
+    expect(read.rows.length).toBeGreaterThan(0);
+    expect(read.rows.every((row) => row.NOMCLI === "DURAND")).toBe(true);
+  });
+});
+
+describe("closeSequence : elle complète, elle ne répare pas", () => {
+  it("ne touche pas à ce qui n'a rien à fermer", () => {
+    expect(closeSequence("")).toBe("");
+    expect(closeSequence("   ")).toBe("   ");
+    expect(closeSequence("<a:b:c/>")).toBe("<a:b:c/>");
+  });
+
+  it("ne ferme pas une liaison en attente de sa séquence", () => {
+    // Sans cette garde, `<a:b:c/> && ` donnait `<a:b:c/> &&/>` — une absurdité
+    // atteignable dès que le lecteur appuie sur `/>` après un bouton de liaison.
+    expect(closeSequence("<a:b:c/> && ")).toBe("<a:b:c/> && ");
+    expect(closeSequence("<a:b:c/> || ")).toBe("<a:b:c/> || ");
+  });
+
+  it("ferme une séquence ouverte, et absorbe les espaces de fin", () => {
+    expect(closeSequence("<a:b:c")).toBe("<a:b:c/>");
+    expect(closeSequence("<a:b:c   ")).toBe("<a:b:c/>");
+  });
+
+  it("GARDIEN DE LA LIGNE GRAVÉE : la séquence fermée reste refusée", () => {
+    // Le cas mesuré sur iPhone 14 : le lecteur a tapé un opérateur de trop.
+    // Le bouton ferme ce qu'il n'avait pas fini d'écrire — il ne redresse PAS
+    // le `===` qu'il a fini et raté. Si ce test devient vert en rendant une
+    // expression VALIDE, c'est que quelqu'un a fait de ce bouton un correcteur.
+    //
+    // Le refus se DÉPLACE en se fermant, et c'est la démonstration même :
+    // `forme` tant que la séquence est ouverte, `operateur` une fois fermée,
+    // parce que la page peut enfin voir la vraie faute. (Le prompt gelé
+    // annonçait `forme` après fermeture : mesuré ici, c'est `operateur` —
+    // l'invariant qui compte, « toujours refusée », est intact.)
+    const ouvert = `<${FR[8].property}:===:l`;
+    expect(recognise(ouvert, FR).refusal.code).toBe("forme");
+
+    const ferme = closeSequence(ouvert);
+    expect(ferme).toBe(`<${FR[8].property}:===:l/>`);
+    const read = recognise(ferme, FR);
+    expect(read.ok).toBe(false);
+    expect(read.refusal.code).toBe("operateur");
+  });
+});
+
+describe("appendLink : elle ferme d'abord, puis enchaîne", () => {
+  it("ne fait rien quand il n'y a rien à lier", () => {
+    expect(appendLink("", "&&")).toBe("");
+    expect(appendLink("   ", "||")).toBe("   ");
+  });
+
+  it("ferme la séquence en cours avant d'ajouter la liaison", () => {
+    expect(appendLink("<a:b:c", "&&")).toBe("<a:b:c/> && ");
+    expect(appendLink("<a:b:c/>", "&&")).toBe("<a:b:c/> && ");
+    expect(appendLink("<a:b:c/>", "||")).toBe("<a:b:c/> || ");
+  });
+
+  it("reste inerte quand une liaison attend déjà sa séquence", () => {
+    expect(appendLink("<a:b:c/> && ", "&&")).toBe("<a:b:c/> && ");
+    expect(appendLink("<a:b:c/> && ", "||")).toBe("<a:b:c/> && ");
+  });
+
+  it("GARDIEN DE LA LEÇON : le mélange de ET et de OU reste atteignable", () => {
+    // La rangée n'empêche jamais le lecteur d'atteindre ce refus : l'exemple
+    // « ET mêlé à OU » existe pour le montrer. Une prévenance qui désactiverait
+    // `||` en présence d'un `&&` lui volerait ce qu'il vient voir.
+    const mele = appendLink(
+      `<${FR[0].property}:[=:DUR/> && <${FR[8].property}:==:LYON/>`,
+      "||",
+    );
+    expect(mele).toBe(
+      `<${FR[0].property}:[=:DUR/> && <${FR[8].property}:==:LYON/> || `,
+    );
+    const read = recognise(`${mele}<${FR[0].property}:[=:MAR/>`, FR);
+    expect(read.ok).toBe(false);
+    expect(read.refusal.code).toBe("liaison");
+  });
+});
+
+describe("hasEdits : le lecteur a-t-il modifié les commandes ?", () => {
+  const copie = () => CDEMST.map((order) => ({ ...order }));
+
+  it("l'origine n'est pas une modification", () => {
+    expect(hasEdits(copie())).toBe(false);
+  });
+
+  it("une cellule changée suffit", () => {
+    const orders = copie();
+    orders[0].NOMCLI = "DURANT";
+    expect(hasEdits(orders)).toBe(true);
+  });
+
+  it("retapée à l'identique, elle ne l'est plus", () => {
+    const orders = copie();
+    orders[0].NOMCLI = "DURANT";
+    orders[0].NOMCLI = "DURAND";
+    expect(hasEdits(orders)).toBe(false);
+  });
+
+  it("la casse compte : ce détecteur constate, il ne juge pas la jointure", () => {
+    // La jointure, elle, tolère la casse. Les deux règles sont distinctes et
+    // c'est voulu : la donnée n'est plus celle d'origine, même si le lien tient.
+    const orders = copie();
+    orders[0].NOMCLI = "durand";
+    expect(hasEdits(orders)).toBe(true);
+  });
+
+  it("les dix-huit commandes sont parcourues, pas seulement la première", () => {
+    const orders = copie();
+    orders[17].MTTCDE = "000000001";
+    expect(hasEdits(orders)).toBe(true);
+    expect(orders).toHaveLength(18);
+  });
+});
+
+describe("Le modèle d'envoi : la règle de l'inerte", () => {
+  // Le câblage est sous [W13] ; ce qui se garde ici, c'est la RÈGLE qui protège
+  // du défaut d'état périmé — « Envoyer » éteint veut dire « la réponse
+  // affichée correspond à ce que vous lisez ».
+  const inerte = (champ, sent) => stripLineBreaks(champ) === sent;
+
+  it("à l'arrivée : champ vide, rien d'envoyé, bouton inerte", () => {
+    expect(inerte("", "")).toBe(true);
+  });
+
+  it("le champ rempli par un exemple, sans envoi : bouton ACTIF", () => {
+    // C'est l'arbitrage du 25 août : cliquer écrit la demande, le lecteur
+    // l'envoie. Le résultat doit rester sa découverte.
+    const exemple = exampleExpression(EXAMPLES[0], FR);
+    expect(inerte(exemple, "")).toBe(false);
+  });
+
+  it("deux frappes sans envoi ne changent pas ce qui a été envoyé", () => {
+    const sent = `<${FR[0].property}:[=:DUR/>`;
+    expect(inerte(`${sent}X`, sent)).toBe(false);
+    expect(inerte(`${sent}XY`, sent)).toBe(false);
+  });
+
+  it("un envoi remplace la demande lue, et rendort le bouton", () => {
+    const champ = `<${FR[0].property}:[=:DUR/>`;
+    const sent = stripLineBreaks(champ);
+    expect(inerte(champ, sent)).toBe(true);
+  });
+
+  it("un retour chariot ajouté ne réveille pas le bouton : rien de neuf à envoyer", () => {
+    const sent = `<${FR[0].property}:[=:DUR/>`;
+    expect(inerte(`<${FR[0].property}:[=:DUR/>\n`, sent)).toBe(true);
   });
 });
