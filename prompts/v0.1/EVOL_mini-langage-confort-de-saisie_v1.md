@@ -96,6 +96,15 @@
 > lecteur n'a pas fini d'écrire, jamais réparer ce qu'il a fini et raté.* Un correcteur silencieux
 > lui volerait l'erreur qui allait lui apprendre quelque chose. Si une consigne ci-dessous te
 > semble l'enfreindre, ARRÊTE-TOI et signale.
+>
+> **⚠ AVENANT 1 — 25 août 2026, session 21, avant toute ligne de code. À lire avant d'exécuter.**
+> Ce prompt se contredisait sur **ce qui alimente la zone de réponse** : le livrable B1 faisait lire
+> `filterRows` sur le champ, le livrable B3 sur `sent`. Contradiction trouvée à l'ÉTAPE 0 et portée
+> au chef de projet, qui a tranché : **`render()` peint les deux zones et lit chacune à sa source**,
+> et **l'écouteur `input` appelle `render()`** au lieu de repeindre lui-même. **Il n'y a qu'un seul
+> peintre.** Les quatre passages touchés sont corrigés **sur place** et signalés ; leurs
+> formulations précédentes sont conservées en **trace** en fin de prompt. Section `## Avenant 1`
+> ci-dessous.
 
 ## Satellites consultés
 
@@ -333,10 +342,14 @@ poser ; replié, il ne cache plus rien. *(Demande du chef de projet, 25 août 20
   `String(text).replace(/\r\n?|\n/g, "")`, exportée et testée. Elle couvre les trois formes,
   `\n`, `\r` et le `\r\n` d'un texte collé depuis Windows. *(Arbitrage du chef de projet,
   25 août 2026 : « tu détectes ce retour chariot et tu l'ignores ».)*
-- **Où l'appliquer, et nulle part ailleurs** : au **début** de `render()`, une fois, dans une
-  locale — `const typed = stripLineBreaks(field.value)` — puis `typed` sert à la comparaison de
-  `heldExample` (l. 1144) et à `filterRows` (l. 1149). **`field.value` n'est jamais réaffecté à
-  partir d'elle** : le retrait vit dans la lecture, jamais dans le champ. C'est l'invariant central
+- **Où l'appliquer — deux sites, et deux seulement** *(recalé par l'avenant 1, 25 août 2026 ;
+  formulation précédente en trace en fin de prompt)* : **à l'envoi**,
+  `sent = stripLineBreaks(field.value)` (livrable B3), qui alimente **`filterRows` (l. 1149)** et
+  toute la zone de réponse ; et au **début** de `render()`, une fois, dans une locale —
+  `const typed = stripLineBreaks(field.value)` — qui sert la seule **zone d'écriture** : la
+  comparaison de `heldExample` (l. 1144) et l'état inerte ou actif des quatre boutons.
+  **`field.value` n'est jamais réaffecté à partir de l'une ni de l'autre** : le retrait vit dans la
+  lecture, jamais dans le champ. C'est l'invariant central
   de ce point — un exécutant pressé écrirait `field.value = stripLineBreaks(field.value)` et
   réécrirait sous le doigt du lecteur ce qu'il vient de poser. La réécriture de langue
   (l. 1336-1340) n'y touche pas : `translateExpression` ne remplace que des noms de propriété et
@@ -444,12 +457,14 @@ chaque zone a son moment.
 | **La zone de réponse** | le statut (compte ou refus), la classe fabriquée, le JSON, la requête et ses valeurs, le message de jointure et l'extinction de teinte | **à l'envoi**, et à chaque case cochée ou commande modifiée |
 
 Le module tient une locale de plus, `sent` — la dernière demande **lue**, jamais le contenu du
-champ. `render()`, qui peint la zone de réponse, travaille sur `sent` et **plus jamais** sur
-`field.value`.
+champ. **`render()` peint les deux zones, et lit chacune à sa source** *(recalé par l'avenant 1,
+25 août 2026 ; formulation précédente en trace en fin de prompt)* : la **zone de réponse** sur
+`sent`, la **zone d'écriture** sur `typed`. **Il n'y a donc qu'un seul peintre.**
 
-- **Envoyer** : `sent = stripLineBreaks(field.value)`, puis `render()`. C'est le **seul** endroit
-  où `stripLineBreaks` est appelée, et c'est là que la demande du chef de projet se réalise — le
-  lecteur a coupé sa ligne où il voulait, la page reconstruit l'expression au moment de la lire.
+- **Envoyer** : `sent = stripLineBreaks(field.value)`, puis `render()`. C'est là que la demande du
+  chef de projet se réalise — le lecteur a coupé sa ligne où il voulait, la page reconstruit
+  l'expression au moment de la lire. `stripLineBreaks` a **deux sites d'appel, et deux
+  seulement** : celui-ci, et la tête de `render()` (livrable B1).
 - **Cliquer un exemple n'envoie pas.** `field.value = exampleExpression(...)`, l'explication
   paraît, le bouton « Envoyer » s'allume — et **aucun résultat ne bouge**. C'est le lecteur qui
   envoie. *(Arbitrage du chef de projet, 25 août 2026 : « l'utilisateur doit découvrir le
@@ -469,13 +484,24 @@ champ. `render()`, qui peint la zone de réponse, travaille sur `sent` et **plus
   de `sent`, qui ne bouge pas. *(Retenu au gel du 25 août 2026 : c'est ce qui protège la classe qui
   se réécrit sous la case cochée et la jointure qui casse sous le doigt.)*
 
-**Ce que fait exactement l'écouteur `input` du champ**, et rien de plus — il ne peint que la zone
-d'écriture :
+**Ce que fait exactement l'écouteur `input` du champ** *(recalé par l'avenant 1, 25 août 2026 ;
+formulation précédente en trace en fin de prompt)* : **il appelle `render()`, et rien d'autre.** Il
+ne repeint rien lui-même. Les trois gestes ci-dessous vivent **dans** `render()`, jamais à côté :
 
 1. recalcule l'état inerte ou actif des **quatre** boutons ;
 2. si un exemple est retenu et que le champ ne l'écrit plus, **lâche `heldExample`** et remet la
    surface d'explication à son texte de repos ;
 3. retire le marquage du bouton d'exemple (livrable C), qui se dérive de `heldExample`.
+
+**L'allègement que ce point annonçait — « la frappe ne rend plus rien » — tombe, et c'est assumé.**
+Recalculer dix-huit lignes à chaque touche ne coûte rien, alors qu'un **second peintre de la même
+zone** est exactement la façon dont une zone finit par montrer un état que l'autre a déjà quitté :
+le défaut que ce livrable existe pour empêcher. Le prix est nul, la garantie ne l'est pas.
+
+**Corollaire, et il n'est pas gratuit à vérifier** : tout bouton qui modifie le champ (`/>`, `&&`,
+`||`) peut appeler `render()` sans risque, puisque la zone de réponse relit `sent`, qui n'a pas
+bougé. Le « puis `render()` » du bouton de fermeture, plus bas, est donc **correct tel quel** —
+c'est un test de cette lecture, pas une exception.
 
 **Le piège que l'envoi crée, et sa parade — lis ce point deux fois.** Entre la frappe et l'envoi,
 l'écran montre une réponse qui ne correspond plus à la demande affichée. C'est **exactement** le
@@ -721,9 +747,13 @@ revue au subagent `reviewer`** (→ `review.json`) · `.pipeline/STATUS.md` =
    à envoyer, allumé sinon — frappe comme clic d'exemple ; `heldExample` se compare au **champ**.
    Les quatre états montrés à la capture.
 2 ter. **Le retour chariot est détecté et ignoré, à la lecture seulement** : la touche Entrée
-   n'est pas empêchée, le champ garde ce que le lecteur a tapé, `stripLineBreaks` est appliquée une
-   fois au début de `render()` et **jamais** à ce qui est réaffecté au champ ; les cinq cas de
-   position testés en logique pure ; les espaces ordinaires intactes.
+   n'est pas empêchée, le champ garde ce que le lecteur a tapé, `stripLineBreaks` a **deux sites
+   d'appel et deux seulement** — à l'envoi (`sent`) et en tête de `render()` (`typed`) — et
+   **jamais** à ce qui est réaffecté au champ ; les cinq cas de position testés en logique pure ;
+   les espaces ordinaires intactes. *(Recalé par l'avenant 1, 25 août 2026.)*
+2 sexies. **Un seul peintre.** `render()` peint les deux zones et lit chacune à sa source — la
+   réponse sur `sent`, l'écriture sur `typed` ; l'écouteur `input` **appelle** `render()` et ne
+   repeint rien lui-même. Aucun second peintre de la zone d'écriture, nulle part. *(Avenant 1.)*
 3. Le dernier exemple retenu porte **son fond `--color-bg-marque`**, sa bordure et
    `aria-current="true"`, tous dérivés de `heldExample` ; le marquage tombe avec l'explication ;
    son nom est repris en tête de l'aide ; **la rangée ne bouge pas**, mesuré à la capture ; un
@@ -740,6 +770,84 @@ revue au subagent `reviewer`** (→ `review.json`) · `.pipeline/STATUS.md` =
 8. **La ligne 9 est recalée au `/land`** : ce que cet incrément a fait, et **ce qu'il n'a pas
    fait** — la retouche d'une valeur reste ouverte, inscrite comme sujet à part.
 9. `review.json` en `SHIP` pour cet incrément et ce commit ; `READY` écrit en dernier.
+
+## Avenant 1 — un seul peintre : `render()` lit deux sources
+
+*Trouvé à l'**ÉTAPE 0 de confrontation**, le 25 août 2026, **avant toute ligne de code et avant même
+la création de la branche** — et signalé plutôt qu'arbitré par l'exécutant, précédent des sessions
+19 et 20 : on n'étend pas un arbitrage par analogie, et on ne tranche pas de son propre chef une
+consigne gelée. Le prompt le demandait en propre, trois fois : en tête (« tu arrêtes et tu le dis »),
+à l'ÉTAPE 0 (« Contradiction → ARRÊTE-TOI et signale »), et au livrable B3 (« ARRÊTE-TOI et signale
+plutôt que de la traiter au jugé »).*
+
+**Trois passages ne pouvaient pas être vrais ensemble.**
+
+1. **B1**, sous « Où l'appliquer, et nulle part ailleurs » : `typed` sert la comparaison de
+   `heldExample` **et `filterRows`**.
+2. **B3**, sous « C'est le cœur de cet incrément » : `render()` travaille sur `sent` et **plus
+   jamais** sur `field.value` ; l'envoi est le **seul** endroit où `stripLineBreaks` est appelée.
+3. **B3, trois lignes plus bas** : `heldExample` se compare sur `stripLineBreaks(field.value)` —
+   un second site d'appel, que « le seul endroit » dément.
+
+**Le conflit décisif est le premier.** Si `filterRows` lit `typed`, la zone de réponse **suit la
+frappe** : exactement ce que le livrable B3 existe pour supprimer, et ce que le critère 2 quater
+interdit. Il n'existait pas de lecture tenant les deux. B1 est un **fossile d'avant la v6**, que la
+postface de ce prompt date elle-même — « La v6 ajoute le bouton Envoyer », « La v7 […] coupe la
+section en deux zones ». La phrase « et à `filterRows` » a été écrite quand `render()` lisait encore
+le champ ; B3 l'a remplacée sans que B1 soit repassé.
+
+**Arbitrage du chef de projet, 25 août 2026**, validé avec la précision qui lève l'ambiguïté
+restante — et c'est elle qui commande l'implémentation, elle ne se déduit pas :
+
+- **`render()` peint LES DEUX ZONES**, et lit **chacune à sa source** : la zone de réponse sur
+  `sent`, la zone d'écriture sur `typed`. **Il n'y a donc QU'UN SEUL PEINTRE.**
+- **Conséquence directe** : l'écouteur `input` du champ **appelle `render()`**, il ne repeint rien
+  lui-même. Les trois gestes que B3 lui prêtait — état des quatre boutons, chute de `heldExample`,
+  retrait du marquage — vivent **dans** `render()`, jamais à côté.
+- **L'allègement annoncé en B3 (« la frappe ne rend plus rien ») TOMBE, et c'est assumé** :
+  recalculer dix-huit lignes à chaque touche ne coûte rien, alors qu'un **second peintre de la même
+  zone** est exactement la façon dont une zone finit par montrer un état que l'autre a déjà quitté.
+  C'est le défaut que B3 existe pour empêcher ; le prix est nul.
+- **Corollaire, et il n'est pas gratuit à vérifier** : tout bouton qui modifie le champ (`/>`,
+  `&&`, `||`) peut appeler `render()` sans risque, puisque la zone de réponse relit `sent`, qui n'a
+  pas bougé. Le « puis `render()` » du bouton de fermeture est donc **correct tel quel** — c'est un
+  **test de la lecture**, pas une exception.
+- **Deux sites d'appel de `stripLineBreaks`, et deux seulement** : à l'envoi
+  (`sent = stripLineBreaks(field.value)`) et en tête de `render()`
+  (`const typed = stripLineBreaks(field.value)`). **L'invariant central de B1 est préservé mot pour
+  mot** : `field.value` n'est jamais réaffecté depuis l'une ni l'autre.
+- **Critère 2 ter recalé**, et **critère 2 sexies ajouté** dans le même mouvement.
+
+**Quatre passages corrigés sur place**, chacun portant la mention `(recalé par l'avenant 1)` :
+livrable B1 (« Où l'appliquer »), livrable B3 (la locale `sent` et le point « Envoyer »), livrable
+B3 (l'écouteur `input`), critère 2 ter. Leurs formulations précédentes suivent.
+
+## Formulations révoquées : trace, ne pas utiliser
+
+*Conservées parce qu'une formulation périmée laissée sans trace dans un prompt gelé expose au défaut
+exact de l'avenant 2 de la session 20 : un lecteur — ou un extracteur — y reprend l'ancienne.*
+
+**B1, « Où l'appliquer », avant l'avenant 1** : « **Où l'appliquer, et nulle part ailleurs** : au
+**début** de `render()`, une fois, dans une locale — `const typed = stripLineBreaks(field.value)` —
+puis `typed` sert à la comparaison de `heldExample` (l. 1144) et à `filterRows` (l. 1149). » —
+**Révoquée sur `filterRows` seulement** : le reste du point, dont l'invariant « `field.value` n'est
+jamais réaffecté », est inchangé.
+
+**B3, la locale `sent`, avant l'avenant 1** : « `render()`, qui peint la zone de réponse, travaille
+sur `sent` et **plus jamais** sur `field.value`. » — Révoquée : `render()` peint les deux zones.
+
+**B3, le point « Envoyer », avant l'avenant 1** : « C'est le **seul** endroit où `stripLineBreaks`
+est appelée » — Révoquée : deux sites, et B3 elle-même en nommait déjà un second trois lignes plus
+bas (la comparaison de `heldExample`).
+
+**B3, l'écouteur `input`, avant l'avenant 1** : « **Ce que fait exactement l'écouteur `input` du
+champ**, et rien de plus — il ne peint que la zone d'écriture : » — Révoquée : il appelle
+`render()`, qui peint les deux zones. Les trois gestes listés restent exacts, ils ont changé de
+domicile.
+
+**Critère 2 ter, avant l'avenant 1** : « `stripLineBreaks` est appliquée une fois au début de
+`render()` et **jamais** à ce qui est réaffecté au champ » — Révoquée sur le compte des sites : deux,
+à l'envoi et en tête de `render()`. La seconde moitié du critère est inchangée et reste due.
 
 ---
 *Gelé le 25 août 2026, session 21, depuis le brouillon v8 du même jour. La v1 du même jour portait un composeur (piste B de la
