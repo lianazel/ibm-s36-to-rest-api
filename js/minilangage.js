@@ -901,6 +901,39 @@ export function stripLineBreaks(text) {
 }
 
 /**
+ * Une liaison attend-elle sa séquence ?
+ *
+ * UN SEUL PORTEUR pour une règle qui en avait trois implicites. La même notion
+ * était écrite trois fois — dans `closeSequence`, dans `appendLink`, et nulle
+ * part dans le clic d'un exemple. C'est justement l'endroit qui l'ignorait qui
+ * a mordu : le lecteur composait `<…/> ||` au doigt, cliquait un exemple pour
+ * remplir le second membre, et perdait tout (passe iPhone 14 du 26 août 2026).
+ *
+ * Ses trois appelants s'accordent désormais par construction : on ne ferme pas
+ * une liaison, on n'en empile pas une seconde, et un exemple cliqué complète au
+ * lieu d'effacer.
+ */
+export function hasPendingLink(text) {
+  const tail = String(text).trimEnd();
+  return tail.endsWith("&&") || tail.endsWith("||");
+}
+
+/**
+ * Ce que le clic d'un exemple pose dans le champ.
+ *
+ * Il AJOUTE quand une liaison attend — le lecteur a posé cette intention de son
+ * doigt en appuyant sur `&&` ou `||` —, il REMPLACE sinon. Sans liaison en
+ * attente, ajouter exigerait d'inventer un `&&` que personne n'a demandé :
+ * ce serait deviner l'intention du lecteur, ce que la ligne gravée au fil
+ * interdit. Ici la page ne devine rien, elle lit.
+ */
+export function applyExample(text, expression) {
+  return hasPendingLink(text)
+    ? `${String(text).trimEnd()} ${expression}`
+    : String(expression);
+}
+
+/**
  * Ferme la séquence en cours par `/>`, et ne vérifie rien d'autre.
  *
  * Sur clavier iOS, `/` et `>` vivent sur deux pages de symboles différentes :
@@ -919,7 +952,7 @@ export function closeSequence(text) {
   // en attente de sa séquence — sans ce dernier, `<a:b:c/> && ` donnerait
   // `<a:b:c/> &&/>`, atteignable dès que le lecteur appuie sur `/>` après un
   // bouton de liaison.
-  if (tail === "" || tail.endsWith("/>") || tail.endsWith("&&") || tail.endsWith("||")) {
+  if (tail === "" || tail.endsWith("/>") || hasPendingLink(value)) {
     return value;
   }
   return `${tail}/>`;
@@ -940,7 +973,7 @@ export function appendLink(text, link) {
   const tail = value.trimEnd();
   // Inchangé sur champ vide et sur liaison déjà en attente : deux liaisons de
   // suite ne veulent rien dire, et le bouton n'a alors rien à compléter.
-  if (tail === "" || tail.endsWith("&&") || tail.endsWith("||")) {
+  if (tail === "" || hasPendingLink(value)) {
     return value;
   }
   // `trimEnd` sur le résultat : `closeSequence` absorbe déjà les espaces de fin
@@ -1065,10 +1098,17 @@ export function mountMiniLanguage({ dict, root }) {
    * touche faisait précéder la demande par sa réponse, et faisait défiler des
    * refus pour une demande que le lecteur n'avait pas fini d'écrire.
    *
-   * La chaîne vide n'est pas un refus mais l'absence de condition : la page
-   * s'ouvre donc sur ses dix-huit lignes, comme avant cet incrément.
+   * `null` TANT QUE RIEN N'A ÉTÉ ENVOYÉ, et c'est distinct de la chaîne vide :
+   * celle-ci est une demande sans condition, mais ENVOYÉE. La distinction porte
+   * tout l'état d'arrivée — afficher « 18 lignes trouvées sur 18 » avant le
+   * premier envoi, c'est répondre à une question que personne n'a posée, soit
+   * exactement la réponse-avant-la-demande que cette coupure existe pour
+   * retirer (passe iPhone 14 du chef de projet, 26 août 2026).
+   *
+   * Le premier envoi lui donne sa valeur, et `null` ne revient JAMAIS — y
+   * compris quand le lecteur vide le champ et renvoie.
    */
-  let sent = "";
+  let sent = null;
 
   const texts = () => dict[root.documentElement.lang]?.section4 ?? dict.fr.section4;
 
@@ -1251,8 +1291,16 @@ export function mountMiniLanguage({ dict, root }) {
         // rester la découverte du lecteur. L'ancien résultat demeure affiché —
         // un avant-après enseigne mieux qu'un vide qui se remplit, et un écran
         // qui se vide au moment où l'on vient d'agir se lit comme une panne.
-        heldExample = example;
-        field.value = exampleExpression(example, model);
+        //
+        // Et il COMPLÈTE au lieu d'effacer quand une liaison attend : le
+        // lecteur qui a composé `<…/> ||` au doigt puis clique un exemple
+        // remplit son second membre, il ne perd pas son travail.
+        const expression = exampleExpression(example, model);
+        // Quand l'exemple s'ajoute, le champ ne porte plus l'exemple SEUL :
+        // aucun exemple n'est donc retenu, et ni l'explication ni le marquage
+        // ne peuvent prétendre décrire ce qui est écrit.
+        heldExample = hasPendingLink(field.value) ? null : example;
+        field.value = applyExample(field.value, expression);
         render();
       });
       item.append(button);
@@ -1336,7 +1384,9 @@ export function mountMiniLanguage({ dict, root }) {
     closeButton.disabled = closeSequence(field.value) === field.value;
     andButton.disabled = appendLink(field.value, "&&") === field.value;
     orButton.disabled = appendLink(field.value, "||") === field.value;
-    sendButton.disabled = typed === sent;
+    // `sent ?? ""` : à l'arrivée, champ vide et rien d'envoyé, le bouton dort —
+    // il n'y a effectivement rien à envoyer.
+    sendButton.disabled = typed === (sent ?? "");
 
     // Le marquage, DÉRIVÉ de `heldExample` : aucun second état, donc un seul
     // bouton marqué par construction, et le marquage tombe au même rendu que
@@ -1353,14 +1403,27 @@ export function mountMiniLanguage({ dict, root }) {
 
     const rows = joinFiles(texts().modes, orders);
     // LA ZONE DE RÉPONSE lit `sent`, et elle seule.
-    const result = filterRows(sent, model, rows);
+    //
+    // `sent ?? ""` sert à garder tout le calcul en aval valide avant le premier
+    // envoi — la jointure et l'extinction de teinte doivent continuer de
+    // répondre au doigt qui édite une commande, qui est resté immédiat. Ce que
+    // l'attente change, ce sont les trois SURFACES de réponse, plus bas.
+    const awaiting = sent === null;
+    const result = filterRows(sent ?? "", model, rows);
 
     // Le texte entre élément par élément, par `textContent` seul : un motif de
     // refus cite ce que le lecteur vient de taper, et cette chaîne ne doit
     // jamais avoir la moindre chance d'être lue comme du balisage. C'est cette
     // pose, et non l'encodage des chevrons, qui rend l'injection impossible.
     status.replaceChildren();
-    if (result.ok) {
+    if (awaiting) {
+      // Aucune demande n'est partie : la page n'a rien à répondre, et elle le
+      // dit au lieu d'afficher un compte que personne n'a demandé.
+      const line = root.createElement("span");
+      line.textContent = texts().champ.attente;
+      status.append(line);
+      status.className = "statut attente";
+    } else if (result.ok) {
       const found = result.rows.length;
       const template = found === 0
         ? texts().compte.aucune
@@ -1428,7 +1491,9 @@ export function mountMiniLanguage({ dict, root }) {
     };
 
     const json = refused ? null : renderJson(result.rows, chosen);
-    if (refused) {
+    if (awaiting) {
+      putMessage(jsonBox, texts().champ.attente);
+    } else if (refused) {
       putMessage(jsonBox, texts().refusRien);
     } else if (json === null) {
       putMessage(jsonBox, texts().json.vide);
@@ -1440,7 +1505,9 @@ export function mountMiniLanguage({ dict, root }) {
     // même absence. Ni vis-à-vis ni bloc de valeurs alors — ce bloc accompagne
     // une requête, et aucune valeur ne voyage puisque rien ne part (arbitrage
     // du chef de projet, session 19).
-    if (refused) {
+    if (awaiting) {
+      putMessage(sqlBox, texts().champ.attente);
+    } else if (refused) {
       putMessage(sqlBox, texts().refusRien);
     } else if (query.sql === null) {
       putMessage(sqlBox, texts().json.vide);
@@ -1448,13 +1515,13 @@ export function mountMiniLanguage({ dict, root }) {
       putCode(sqlBox, query.sql);
     }
 
-    naiveBlock.hidden = naive === null;
-    parametreePhrase.hidden = naive === null;
+    naiveBlock.hidden = awaiting || naive === null;
+    parametreePhrase.hidden = awaiting || naive === null;
     if (naive !== null) {
       naiveBox.textContent = naive;
     }
 
-    valuesBlock.hidden = refused || query.sql === null;
+    valuesBlock.hidden = awaiting || refused || query.sql === null;
     valuesList.replaceChildren();
     if (!valuesBlock.hidden) {
       valuesIntro.textContent = query.params.length > 0
@@ -1614,6 +1681,7 @@ export function mountMiniLanguage({ dict, root }) {
     sent = stripLineBreaks(field.value);
     render();
   });
+
 
   // Le tableau se refait — les cellules changent de nature — puis tout se
   // rejoue. Une modification, elle, ne refait PAS le tableau : le champ en

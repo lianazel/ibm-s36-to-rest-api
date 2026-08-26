@@ -347,6 +347,9 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
         et: "Fermer et enchaîner avec ET",
         ou: "Fermer et enchaîner avec OU",
         envoyer: "Envoyer la demande",
+        // Servie par le module aux trois surfaces de réponse tant que rien
+        // n'est parti : la page ne répond pas à une demande qu'on n'a pas faite.
+        attente: "Envoyez la demande pour voir la réponse.",
       },
       colonnes: {
         titre: "Colonnes voulues",
@@ -830,6 +833,7 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
         et: "Close and chain with AND",
         ou: "Close and chain with OR",
         envoyer: "Send the request",
+        attente: "Send the request to see the response.",
       },
       colonnes: {
         titre: "Columns wanted",

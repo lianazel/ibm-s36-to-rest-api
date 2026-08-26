@@ -867,6 +867,21 @@ section {
   font-size: 0.875rem;
 }
 
+/* « Envoyer » est le SEUL signal d'état périmé de la page : bouton allumé, la
+   réponse affichée date d'avant le dernier geste du lecteur. Sur l'écran d'un
+   téléphone, un filet adouci ne dit pas cela (passe iPhone 14 du 26 août 2026).
+
+   C'est donc l'état ACTIF qui se renforce, jamais l'inerte qui s'affaiblit :
+   affaiblir l'inerte le ferait passer sous le AA. Le bouton passe du contour au
+   PLEIN (blanc sur encre, 18,10:1 mesuré), si bien que la différence ne repose
+   pas sur la teinte seule. Ce sera le seul bouton plein du site, et c'est
+   défendable : c'est la seule commande qui envoie. */
+.champ .actions .envoyer:enabled {
+  background: var(--color-ink);
+  color: var(--color-bg);
+  border-color: var(--color-ink);
+}
+
 /* Un bouton inerte reste LISIBLE : son filet s'adoucit, son texte ne descend
    pas sous le AA (#525252 sur blanc, 7,81:1 recalculé le 25 août 2026). Dire
    qu'il dort ne justifie pas de le rendre illisible. */
@@ -899,6 +914,15 @@ section {
   padding: calc(var(--space) / 2) 0 calc(var(--space) / 2) var(--space);
   border-left: 3px solid var(--color-api);
   font-size: 0.875rem;
+}
+
+/* L'ATTENTE n'est pas une réponse : elle ne prend donc ni le vert du service ni
+   le rouge du refus. Filet neutre et encre douce, le temps que le lecteur
+   envoie sa première demande. Ajout de l'exécutant, déclaré : sans lui, le
+   texte d'attente hériterait du filet vert et se lirait comme un résultat. */
+.statut.attente {
+  border-left-color: var(--color-line);
+  color: var(--color-ink-soft);
 }
 
 .statut.refuse {

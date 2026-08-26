@@ -13,6 +13,7 @@ import { dict } from "../js/i18n.js";
 import { parseImplicitDecimal } from "../js/s36.js";
 import {
   appendLink,
+  applyExample,
   buildModel,
   buildNaiveQuery,
   buildParameterisedQuery,
@@ -27,6 +28,7 @@ import {
   filterRows,
   findOrphans,
   hasEdits,
+  hasPendingLink,
   initialSelection,
   joinFiles,
   MODLIV_CODES,
@@ -618,9 +620,10 @@ describe("avenant 2 : ce que la page affirme doit être vrai", () => {
     const fr = cles(dict.fr.section4);
     const en = cles(dict.en.section4);
     // 94 au sortir de l'incrément 6, plus les 23 clés du second sous-incrément,
-    // plus les 6 du confort de saisie : cinq `champ.*` et `exemples.donneesModifiees`.
-    expect(fr).toHaveLength(123);
-    expect(en).toHaveLength(123);
+    // plus les 7 du confort de saisie : six `champ.*` (dont `attente`, gelée à
+    // l'avenant 3) et `exemples.donneesModifiees`.
+    expect(fr).toHaveLength(124);
+    expect(en).toHaveLength(124);
     expect(fr).toEqual(en);
   });
 });
@@ -1383,5 +1386,85 @@ describe("La bascule de langue : les deux zones parlent la même langue", () => 
     expect(avant.ok).toBe(true);
     expect(apres.ok).toBe(true);
     expect(apres.rows).toHaveLength(avant.rows.length);
+  });
+});
+
+/* ------------------------------- AVENANT 3 : ce que la passe d'appareil a
+   trouvé, et qu'aucun fichier ne portait (26 août 2026). */
+
+describe("hasPendingLink : un seul porteur pour une règle qui en avait trois", () => {
+  it("dit vrai quand, et seulement quand, une liaison attend sa séquence", () => {
+    expect(hasPendingLink("")).toBe(false);
+    expect(hasPendingLink("   ")).toBe(false);
+    expect(hasPendingLink("<a:b:c/>")).toBe(false);
+    expect(hasPendingLink("<a:b:c/> &&")).toBe(true);
+    expect(hasPendingLink("<a:b:c/> ||")).toBe(true);
+    // Les espaces de fin sont absorbées : le bouton laisse « <a/> && ».
+    expect(hasPendingLink("<a:b:c/> &&   ")).toBe(true);
+    // La liaison n'attend plus : elle a reçu sa séquence.
+    expect(hasPendingLink("<a:b:c/> && <d:e:f/>")).toBe(false);
+  });
+
+  it("LE TEST QUI VAUT LE CORRECTIF : les trois appelants s'accordent sur le même texte", () => {
+    // La même notion était écrite trois fois, et l'endroit qui l'ignorait est
+    // celui qui a mordu. Un seul prédicat, trois comportements cohérents —
+    // vérifiés ensemble, jamais séparément.
+    const enAttente = "<a:b:c/> && ";
+    expect(hasPendingLink(enAttente)).toBe(true);
+    expect(closeSequence(enAttente)).toBe(enAttente);          // rien à fermer
+    expect(appendLink(enAttente, "||")).toBe(enAttente);       // rien à empiler
+    expect(applyExample(enAttente, "<d:e:f/>")).toBe("<a:b:c/> && <d:e:f/>"); // on ajoute
+
+    const fini = "<a:b:c/>";
+    expect(hasPendingLink(fini)).toBe(false);
+    expect(closeSequence(fini)).toBe(fini);
+    expect(appendLink(fini, "||")).toBe("<a:b:c/> || ");
+    expect(applyExample(fini, "<d:e:f/>")).toBe("<d:e:f/>");   // on remplace
+  });
+});
+
+describe("applyExample : le clic complète, il ne détruit pas", () => {
+  it("LE CAS MORDU sur iPhone 14 : la liaison composée au doigt survit", () => {
+    // Le lecteur avait composé `<nomClient:[]:AR/> ||` au doigt — le geste le
+    // plus coûteux de la page — puis cliqué « commence par » pour remplir le
+    // second membre. Tout partait.
+    const compose = `<${FR[0].property}:[]:AR/> ||`;
+    const exemple = exampleExpression(EXAMPLES[0], FR);
+    const apres = applyExample(compose, exemple);
+    expect(apres).toBe(`<${FR[0].property}:[]:AR/> || ${exemple}`);
+    // L'expression du lecteur est toujours là, à l'octet près.
+    expect(apres.startsWith(`<${FR[0].property}:[]:AR/>`)).toBe(true);
+    // Et le tout se lit : le refus du mélange n'est pas en cause ici.
+    expect(recognise(apres, FR).ok).toBe(true);
+  });
+
+  it("remplace quand aucune liaison n'attend, y compris sur champ vide", () => {
+    // Sans liaison en attente, ajouter exigerait d'INVENTER un `&&` que le
+    // lecteur n'a pas demandé : ce serait deviner son intention.
+    expect(applyExample("", "<d:e:f/>")).toBe("<d:e:f/>");
+    expect(applyExample("<a:b:c/>", "<d:e:f/>")).toBe("<d:e:f/>");
+    expect(applyExample("<a:b:c", "<d:e:f/>")).toBe("<d:e:f/>");
+  });
+});
+
+describe("L'état d'arrivée : la chaîne vide est une demande, `null` est l'absence de demande", () => {
+  // La distinction elle-même vit dans le câblage, famille [W13] : ce qui se
+  // teste ici est ce qui la REND nécessaire — une demande vide ENVOYÉE est une
+  // demande sans condition, et elle sert les dix-huit lignes. Confondre les
+  // deux, c'est répondre avant qu'on ait demandé.
+  it("une demande vide envoyée n'est pas un refus : elle sert tout le fichier", () => {
+    const read = filterRows("", FR, ROWS_FR);
+    expect(read.ok).toBe(true);
+    expect(read.rows).toHaveLength(18);
+    expect(read.total).toBe(18);
+  });
+
+  it("la règle de l'inerte tolère l'absence de demande sans la confondre avec une demande vide", () => {
+    // `sent ?? ""` : à l'arrivée le bouton dort, parce qu'il n'y a rien à
+    // envoyer — et non parce qu'une demande vide aurait déjà été envoyée.
+    const inerte = (champ, sent) => stripLineBreaks(champ) === (sent ?? "");
+    expect(inerte("", null)).toBe(true);                    // arrivée
+    expect(inerte("", "")).toBe(true);                      // demande vide envoyée
+    expect(inerte(`<${FR[0].property}:[=:DUR/>`, null)).toBe(false);  // écrit, pas envoyé
   });
 });
