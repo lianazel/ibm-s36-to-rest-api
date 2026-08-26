@@ -105,6 +105,15 @@
 > peintre.** Les quatre passages touchés sont corrigés **sur place** et signalés ; leurs
 > formulations précédentes sont conservées en **trace** en fin de prompt. Section `## Avenant 1`
 > ci-dessous.
+>
+> **⚠ AVENANT 3 — 26 août 2026, après la passe iPhone 14 du chef de projet. À lire avant
+> d'exécuter.** Quatre captures ont trouvé ce que trois revues et 310 tests n'avaient pas vu, et
+> aucun des trois points ne se lit dans un fichier : **(1)** le clic d'un exemple **détruisait** une
+> liaison composée au doigt — le prédicat `hasPendingLink` sort du module et **un seul porteur**
+> sert désormais ses trois appelants ; **(2)** la page **répondait à l'arrivée** à une demande que
+> personne n'avait faite — `sent` vaut `null` avant le premier envoi, distinct de la chaîne vide ;
+> **(3)** le signal d'état périmé **ne se voyait pas** sur l'appareil qu'il sert — le bouton actif
+> passe au plein. Section `## Avenant 3` ci-dessous, valeurs et comptes recalés.
 
 ## Satellites consultés
 
@@ -465,18 +474,34 @@ champ. **`render()` peint les deux zones, et lit chacune à sa source** *(recal�
   chef de projet se réalise — le lecteur a coupé sa ligne où il voulait, la page reconstruit
   l'expression au moment de la lire. `stripLineBreaks` a **deux sites d'appel, et deux
   seulement** : celui-ci, et la tête de `render()` (livrable B1).
-- **Cliquer un exemple n'envoie pas.** `field.value = exampleExpression(...)`, l'explication
-  paraît, le bouton « Envoyer » s'allume — et **aucun résultat ne bouge**. C'est le lecteur qui
-  envoie. *(Arbitrage du chef de projet, 25 août 2026 : « l'utilisateur doit découvrir le
-  fonctionnement un peu tout seul ». Il renverse le choix inverse, que l'exécutant avait fait à la
-  v6 pour économiser un appui.)*
+- **Cliquer un exemple n'envoie pas.** L'explication paraît, le bouton « Envoyer » s'allume — et
+  **aucun résultat ne bouge**. C'est le lecteur qui envoie. *(Arbitrage du chef de projet,
+  25 août 2026 : « l'utilisateur doit découvrir le fonctionnement un peu tout seul ». Il renverse
+  le choix inverse, que l'exécutant avait fait à la v6 pour économiser un appui.)*
+  **Et il n'écrase plus une liaison en attente** *(recalé par l'avenant 3, 26 août 2026 ;
+  formulation précédente en trace en fin de prompt)* : quand `hasPendingLink(field.value)` est
+  vrai, l'expression de l'exemple **s'ajoute** à la suite (`champ.trimEnd() + " " + expression`) ;
+  sinon elle **remplace**, comme avant. Sans liaison en attente, ajouter exigerait d'**inventer**
+  un `&&` que le lecteur n'a pas demandé — c'est deviner son intention, ce que la ligne gravée au
+  fil interdit. Avec liaison en attente, la page ne devine rien : elle lit une intention que le
+  lecteur **a posée de son doigt**.
 - **L'ancien résultat reste affiché**, il n'est jamais effacé : le lecteur clique l'exemple, l'état
   précédent est encore là, il envoie, et **il voit le chiffre changer**. Un avant-après enseigne
   mieux qu'un vide qui se remplit — et un écran qui se vide au moment précis où le lecteur vient
   d'agir se lit comme une panne. **Ne blanchis aucune zone au clic d'un exemple.**
-- **Au chargement**, `sent` vaut la chaîne vide, qui n'est pas un refus mais l'absence de
-  condition : la page s'ouvre donc sur ses dix-huit lignes, comme aujourd'hui, et « Envoyer » est
-  inerte. Rien ne change à l'état d'arrivée du lecteur.
+- **Au chargement, la zone de réponse ne répond à rien** *(recalé par l'avenant 3, 26 août 2026 ;
+  formulation précédente en trace en fin de prompt — **la valeur gelée était mauvaise**)*. `sent`
+  vaut **`null`** tant que rien n'a été envoyé, ce qui est **distinct de la chaîne vide** : celle-ci
+  est une demande sans condition, mais **envoyée**. Le premier envoi donne à `sent` sa valeur, et
+  `null` ne revient jamais — y compris quand le lecteur vide le champ et renvoie.
+  Tant que `sent` est `null` : le **statut**, le cadre **JSON** et le cadre **SQL** portent
+  `section4.champ.attente` (même chemin que `refusRien`, par `putMessage`) ; le **bloc des
+  valeurs** reste caché ; la **classe fabriquée reste affichée** — elle dépend des cases cochées,
+  pas de la demande, et c'est ce qui empêche la page de s'ouvrir sur un écran mort.
+  « Envoyer » est inerte. Motif : afficher « 18 lignes trouvées sur 18 » à l'arrivée, c'est
+  **répondre à une question que personne n'a posée** — exactement le « la réponse précède la
+  demande » que ce livrable existe pour retirer. **Ce point ne contredit pas la règle du dessus** :
+  celle-ci protège un résultat **déjà obtenu** ; à l'arrivée, il n'y en a jamais eu.
 - **Restent immédiats, et n'y touche pas** : cocher une colonne (la classe se réécrit sous la
   case — incrément 6, atterri) et modifier une commande (la jointure casse sous le doigt, avec
   l'extinction de teinte posée exprès parce que le message complet vit 618 px plus bas —
@@ -514,6 +539,13 @@ ne survit pas à un champ qui la contredit ». Parade, et elle ne coûte aucune 
   voit correspond à ce qu'il a écrit : bouton éteint, la réponse est à jour ; bouton allumé, elle
   date d'avant son dernier geste. C'est **le seul** signal d'état périmé de la page, et il doit
   donc être franc à l'œil.
+  **Et « franc à l'œil » se mesure sur l'appareil, pas dans la feuille** *(complété par l'avenant 3,
+  26 août 2026)* : le filet adouci de la première rédaction **ne se lit pas** sur un écran de
+  téléphone. C'est l'état **actif** qui se renforce, jamais l'inerte qui s'affaiblit — l'affaiblir
+  le ferait passer sous le AA. **Actif** : fond `--color-ink` (`#161616`), texte blanc, **18,10:1**.
+  Le bouton passe du contour au **plein**, donc la différence ne repose pas sur la teinte seule.
+  **Inerte** : l'état actuel, inchangé. Ce sera le **seul bouton plein du site**, et c'est
+  défendable : c'est la seule commande qui **envoie**.
 - **`heldExample` se compare à `field.value`**, comme aujourd'hui (l. 1144), et **non** à `sent` :
   l'explication décrit ce qui est **écrit**, pas ce qui a été envoyé. La comparer à `sent`
   effacerait l'explication au moment même où le lecteur vient de cliquer l'exemple. La comparaison
@@ -586,8 +618,9 @@ réserve.
 
 ## Les valeurs, gelées
 
-**Six clés neuves par langue sous `section4`**, aucune valeur existante réécrite. Parité attendue
-en fin d'incrément : `section4` **123 = 123**, total **241 = 241**. Elles entrent par **trois voies
+**Sept clés neuves par langue sous `section4`** *(six au gel, plus `champ.attente` à l'avenant 3 ;
+compte recalé le 26 août 2026)*, aucune valeur existante réécrite. Parité attendue
+en fin d'incrément : `section4` **124 = 124**, total **242 = 242**. Elles entrent par **trois voies
 différentes**, et les comptes bougent en conséquence : `champ.paysage` et `champ.envoyer` par
 `data-i18n` (`grep -c 'data-i18n="section4' index.html` passe de 37 à **39**) ; `champ.fermer`,
 `champ.et` et `champ.ou` par `data-i18n-attr`, en noms accessibles de boutons à signe
@@ -602,6 +635,7 @@ forme `<…:…:…/>`, aucun « Veuillez ».
 - `champ.et` : Fermer et enchaîner avec ET
 - `champ.ou` : Fermer et enchaîner avec OU
 - `champ.envoyer` : Envoyer la demande
+- `champ.attente` : Envoyez la demande pour voir la réponse. *(gelée à l'avenant 3, 26 août 2026 ; servie par le module, pas posée par `data-i18n` — les comptes `data-i18n` ne bougent donc pas)*
 - `exemples.donneesModifiees` : Vous avez modifié les données : les comptes de cette explication valent pour les données d'origine.
 
 **Anglais**
@@ -611,6 +645,7 @@ forme `<…:…:…/>`, aucun « Veuillez ».
 - `champ.et` : Close and chain with AND
 - `champ.ou` : Close and chain with OR
 - `champ.envoyer` : Send the request
+- `champ.attente` : Send the request to see the response. *(gelée à l'avenant 3, 26 août 2026)*
 - `exemples.donneesModifiees` : You have changed the data: the counts in this explanation hold for the original data.
 
 *(Fratries à vérifier alignées, dans les deux langues, **après** le geste et non valeur par valeur
@@ -822,6 +857,83 @@ restante — et c'est elle qui commande l'implémentation, elle ne se déduit pa
 livrable B1 (« Où l'appliquer »), livrable B3 (la locale `sent` et le point « Envoyer »), livrable
 B3 (l'écouteur `input`), critère 2 ter. Leurs formulations précédentes suivent.
 
+## Avenant 3 — ce que la passe d'appareil a trouvé, et qu'aucun fichier ne portait
+
+*Origine : passe du chef de projet sur **iPhone 14**, 26 août 2026, 14:40-14:44, **quatre
+captures**, sur le tunnel d'aperçu servant `df6158a`. **Arbitré le jour même.** Les trois points
+ci-dessous ont survécu à **quatre passes de revue indépendante** et à **310 tests verts** : un
+geste qui détruit le travail du lecteur, une réponse affichée avant toute demande, et un signal
+d'état invisible sur l'appareil qu'il sert. **Aucun des trois ne se lit dans un fichier.***
+
+**Ce que la passe a VALIDÉ, et qui ne se rejoue plus** : le marquage du dernier exemple **se voit**
+(l'écart de 1,32 passe le test de l'appareil — c'était la demande expresse du 25) · l'indication
+d'orientation est bien là en portrait · la requête paramétrée et ses valeurs sont justes
+(`like ?` / `= ?`, `"DUR%"` puis `"E"`, dans l'ordre) · les deux zones tiennent.
+
+### 1. Le clic d'exemple n'efface plus une liaison en attente
+
+**Le seul défaut franc de la passe.** Le lecteur compose `<…/> ||` au doigt, clique « contient »
+pour remplir le second membre, et **tout part** : `field.value = exampleExpression(…)` est un
+remplacement inconditionnel. **Le travail au doigt — le plus coûteux de la page — est détruit par
+le geste censé l'aider.** C'est une conséquence de la rangée que cet incrément vient d'ajouter :
+les boutons de liaison créent un état que les treize boutons d'exemple ignoraient.
+
+**Borne exacte** : ajoute **si et seulement si** une liaison attend. Champ `<a/> ||` + clic →
+`<a/> || <b/>` ; champ `<a/>` + clic → `<b/>` (remplacé) ; champ vide + clic → `<b/>`.
+
+**Et le geste qui compte, au delà du correctif : le prédicat sort du module.**
+`hasPendingLink(text)` → vrai quand `text.trimEnd()` finit par `&&` ou `||`. **Exportée, testée, et
+appelée par les TROIS sites qui en dépendent** : `closeSequence` (qui refuse alors de fermer —
+garde de l'avenant 1), `appendLink` (qui refuse alors d'empiler une seconde liaison), et le clic
+d'exemple (qui ajoute au lieu de remplacer). La même notion était écrite **trois fois, en trois
+endroits, dont un qui l'ignorait** — et c'est précisément l'endroit qui a mordu. Un seul porteur
+pour une règle qui en avait trois implicites : ici il ne coûte rien, il simplifie.
+
+### 2. L'état d'arrivée ne répond plus à une demande que personne n'a faite
+
+**La valeur gelée était mauvaise**, et le prompt la portait en toutes lettres (« rien ne change à
+l'état d'arrivée du lecteur »). Avec le bouton « Envoyer », afficher « 18 lignes trouvées sur 18 »
+à l'arrivée, c'est répondre à une question que personne n'a posée. Mécanisme et bornes : voir le
+point recalé au livrable B3. **Ce point ne contredit pas « ne blanchis aucune zone au clic d'un
+exemple »** : cette règle protège un résultat **déjà obtenu** ; à l'arrivée, il n'y en a jamais eu.
+Les deux cohabitent, et le prompt garde les deux.
+
+### 3. Le bouton « Envoyer » se voit
+
+Le prompt gelé exigeait qu'il soit « **franc à l'œil** » ; sur l'appareil, il ne l'était pas.
+C'est l'**actif** qui se renforce — fond encre, texte blanc, **18,10:1 rejoué le 26 août** —,
+jamais l'inerte qui s'affaiblit : l'affaiblir le ferait passer sous le AA. Variante pesée et
+**écartée** : le vert du registre API (`#198038`, 5,02:1 en blanc), correct mais **trois fois moins
+franc**, et il chargerait le bouton d'un sens de registre qu'il n'a pas. Si le chef de projet
+préfère le vert à une prochaine passe, **c'est un changement de valeur, pas de mécanisme.**
+
+### Tests neufs prescrits
+
+1. **`hasPendingLink`** : vide → faux ; `<a:b:c/>` → faux ; `<a:b:c/> &&` → vrai ; `<a:b:c/> ||` →
+   vrai ; espaces de fin absorbés → vrai ; `<a:b:c/> && <d:e:f/>` → **faux**, la liaison n'attend
+   plus.
+2. **Les trois appelants s'accordent** — le test qui vaut le correctif : sur le même texte,
+   `closeSequence` laisse inchangé, `appendLink` laisse inchangé, et la règle du clic d'exemple dit
+   « ajouter ». Un seul prédicat, trois comportements cohérents, vérifiés **ensemble**.
+3. **Le clic d'exemple** : liaison en attente → `champ + expression` ; sinon → `expression` seule.
+   Et **le cas mordu, nommément** : `<nomClient:[]:AR/> ||` + « commence par » → l'expression du
+   lecteur **est toujours là**.
+4. **L'état d'arrivée** : `sent === null` → texte d'attente ; après un premier envoi, `sent` ne
+   revient **jamais** à `null`, y compris quand le lecteur vide le champ et renvoie — c'est alors
+   une demande vide **envoyée**, donc dix-huit lignes. **C'est la distinction qui porte tout ce
+   point**, et le test l'exige.
+5. **Parité** : `section4` 124 = 124, total 242 = 242.
+
+### Preuve due, en plus des autres
+
+**Ce qui ne doit PAS avoir bougé** : cliquer un exemple **après** un envoi ne vide toujours aucune
+zone — la règle de la v7 tient, à montrer dans la même passe.
+
+**Validation d'appareil due AVANT merge**, et elle ne se délègue pas : le bouton plein se
+distingue-t-il de l'inerte à bout de bras · l'arrivée ne montre-t-elle plus de compte · une liaison
+en attente survit-elle au clic d'un exemple. Le tunnel du 26 août expire à 15:37 : il en faudra un
+nouveau, **et ce n'est pas une raison pour raccourcir la passe**.
+
 ## Formulations révoquées : trace, ne pas utiliser
 
 *Conservées parce qu'une formulation périmée laissée sans trace dans un prompt gelé expose au défaut
@@ -872,3 +984,22 @@ se fait alors entièrement au doigt, et la garde qu'il exigeait de `closeSequenc
 brouillons** : le composeur (il répondait faux au geste qu'il visait), l'avalement de la touche
 Entrée et le refus nommé du retour chariot (tous deux moins bons que de l'ignorer).
 Troisième incrément de la section « Le mini-langage ».*
+
+## Formulations révoquées par l'avenant 3 : trace, ne pas utiliser
+
+**B3, le clic d'exemple, avant l'avenant 3** : « **Cliquer un exemple n'envoie pas.**
+`field.value = exampleExpression(...)`, l'explication paraît… » — **Révoquée sur l'affectation
+seule** : le remplacement inconditionnel détruisait une liaison composée au doigt. Le reste du
+point (« il n'envoie pas », « le bouton s'allume », « aucun résultat ne bouge ») est inchangé et
+reste dû.
+
+**B3, l'état d'arrivée, avant l'avenant 3** : « **Au chargement**, `sent` vaut la chaîne vide, qui
+n'est pas un refus mais l'absence de condition : la page s'ouvre donc sur ses dix-huit lignes,
+comme aujourd'hui, et « Envoyer » est inerte. **Rien ne change à l'état d'arrivée du lecteur.** »
+— **Révoquée par son auteur après mesure sur appareil.** La valeur était mauvaise : avec un bouton
+d'envoi, un compte affiché à l'arrivée répond à une demande que personne n'a faite.
+
+**B3, la franchise du signal, avant l'avenant 3** : le point exigeait que le bouton soit « franc à
+l'œil » **sans dire comment**, et la première rédaction s'en est remise au filet et à l'encre
+douce. — **Complétée, non révoquée** : l'exigence était juste, sa réalisation ne l'était pas. Ce
+qui change est l'état **actif**, jamais l'inerte.
