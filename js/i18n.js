@@ -305,11 +305,11 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
           // elle n'était vraie que pour un cas sur cinq, et la page la servait
           // aux cinq.
           fautes: {
-            ouvrant: "il manque le chevron ouvrant",
-            fermant: "il manque la fermeture />",
-            deuxPoints: "il manque un deux-points",
+            ouvrant: "il manque le chevron ouvrant « < »",
+            fermant: "il manque la fermeture « /> »",
+            deuxPoints: "il manque un deux-points, une séquence en porte deux",
             operateurFin: "l'opérateur va au milieu, jamais à la fin",
-            generique: "la séquence ne suit pas le gabarit",
+            generique: "le membre ne tient pas dans le gabarit",
           },
         },
         // Un membre vide n'est pas raté, il est INACHEVÉ : c'est l'état que les
@@ -819,22 +819,22 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
           pourquoi:
             "a sequence is written <column:operator:value/>, in that order and with nothing around it. For example <customerLastName:=]:UR/>: the column first, then the test, then the value.",
           fautes: {
-            ouvrant: "the opening angle bracket is missing",
-            fermant: "the closing /> is missing",
-            deuxPoints: "a colon is missing",
+            ouvrant: "the opening angle bracket \"<\" is missing",
+            fermant: "the closing \"/>\" is missing",
+            deuxPoints: "a colon is missing; a sequence carries two",
             operateurFin: "the operator sits in the middle, never at the end",
-            generique: "the sequence does not follow the template",
+            generique: "the member does not fit the template",
           },
         },
         inacheve: {
           quoi: "Missing member",
           pourquoi:
-            "a link joins two members: one is missing. Write it, or remove the link.",
+            "the link joins two members: one is missing. Write it, or remove the link.",
         },
         colonneVide: {
           quoi: "Column name missing",
           pourquoi:
-            "a sequence starts with a column name. The nine exposed names are listed below.",
+            "a sequence begins with a column name. All nine exposed names are listed below.",
         },
         colonne: {
           quoi: "Column \"{nom}\" is not in the exposed list",

@@ -1708,3 +1708,27 @@ describe("Le catalogue de refus est total : chaque gabarit trouve ses paramètre
     }
   });
 });
+
+describe("La valeur : bords rognés, intérieur intact", () => {
+  it("garde ses espaces INTÉRIEURES et perd celles des bords", () => {
+    // La borne posée à l'incrément 6, jamais épinglée jusqu'ici. L'avenant 5 la
+    // prescrivait d'abord à l'envers (« valeur : jamais de trim ») ; mesure
+    // faite, le dépôt faisait déjà le bon geste, et la prescription a été
+    // corrigée. Ce test existe pour que la borne cesse d'être tacite.
+    //
+    // Elle est le pendant exact du point 1 : sur un téléphone, l'espace posée
+    // par l'appareil après les deux-points ne doit pas ramener zéro ligne pour
+    // une valeur qui a l'air juste. Mais une valeur reste une donnée, et ses
+    // espaces intérieures lui appartiennent.
+    const read = recognise(`<${FR[8].property}:[]:  LY  ON  />`, FR);
+    expect(read.ok).toBe(true);
+    expect(read.conditions[0].value).toBe("LY  ON");
+  });
+
+  it("l'injection garde les siennes, et c'est ce que la page démontre", () => {
+    const injection = EXAMPLES.find((example) => example.key === "injection");
+    const read = recognise(exampleExpression(injection, FR), FR);
+    expect(read.ok).toBe(true);
+    expect(read.conditions[0].value).toBe("D' OR '1'='1");
+  });
+});

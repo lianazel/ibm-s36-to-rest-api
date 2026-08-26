@@ -1058,9 +1058,14 @@ sens, on la garde là où elle en a un.
 
 - **Nom de colonne : `trim`.** Aucun des neuf noms exposés ne porte d'espace, dans aucune langue.
 - **Opérateur : `trim`.** Les six opérateurs sont deux caractères de ponctuation ; `!=` non plus.
-- **Valeur : JAMAIS.** Une donnée a le droit de commencer ou finir par une espace — c'est déjà
-  écrit au commentaire de `SEQUENCE` : « elle est une donnée, et une donnée n'a pas à être bien
-  élevée ».
+- **Valeur : INCHANGÉE, le dépôt fait déjà le bon geste** *(recalé le 26 août 2026 ; la rédaction
+  initiale disait « valeur : JAMAIS de trim », et **elle était fausse** — formulation précédente en
+  trace en fin de prompt)*. Mesuré par l'exécutant avant d'écrire une ligne : `value.trim()` est
+  présent depuis l'**incrément 6**, donc **les bords sont déjà rognés** et les espaces
+  **intérieures** conservées (`<villeClient:[]:  LY  ON  />` → `"LY  ON"`). C'est exactement la
+  bonne borne, et le test qui l'exigeait à l'envers est **retiré** : le retirer aurait fait
+  ramener zéro ligne à une valeur qui a l'air juste — **la faute invisible du point 1, déplacée du
+  nom vers la valeur**. Un test neuf **épingle** désormais cette borne, qui était tacite.
 
 **Ordre imposé dans le code** : le `trim` de l'opérateur passe **avant** le test de l'opérateur
 vide, sinon un opérateur réduit à une espace échappe au piège de la position.
@@ -1154,8 +1159,9 @@ mesuré** : point de départ, **et la valeur se juge à la passe d'appareil, pas
 1. **Les trois espaces** : `< nomClient:[=:DUR/>`, `<nomClient :[=:DUR/>` et `<nomClient: [=:DUR/>`
    sont **reconnus** et rendent **la même condition** que la forme serrée (comparaison d'objets,
    pas trois assertions qui se ressemblent).
-2. **La valeur garde ses espaces** : `<villeClient:==: LYON />` transmet `" LYON "`. **Garde-fou du
-   point 1** : sans lui, quelqu'un « simplifiera » en trimant tout.
+2. ~~**La valeur garde ses espaces**~~ — **test retiré le 26 août 2026** : il décrivait un
+   comportement qui n'existe pas. Remplacé par son inverse mesuré — **bords rognés, intérieur
+   intact** —, qui épingle une borne restée tacite depuis l'incrément 6.
 3. **Un opérateur réduit à une espace** tombe en `forme`/`operateurFin`, **pas** en `operateur` —
    c'est l'ordre imposé, et il se teste.
 4. **Les cinq fautes**, une entrée chacune, **plus les deux entrées d'ordre** : sans chevron **et**
@@ -1237,3 +1243,17 @@ d'envoi, un compte affiché à l'arrivée répond à une demande que personne n'
 l'œil » **sans dire comment**, et la première rédaction s'en est remise au filet et à l'encre
 douce. — **Complétée, non révoquée** : l'exigence était juste, sa réalisation ne l'était pas. Ce
 qui change est l'état **actif**, jamais l'inerte.
+
+## Formulation révoquée par l'avenant 5 : trace, ne pas utiliser
+
+**Point 1, la valeur, avant le recalage du 26 août 2026** : « **Valeur : JAMAIS.** Une donnée a le
+droit de commencer ou finir par une espace — c'est déjà écrit au commentaire de `SEQUENCE` : "elle
+est une donnée, et une donnée n'a pas à être bien élevée". » — **Révoquée par son auteur après
+mesure de l'exécutant.** Elle décrivait comme existant un comportement inverse de celui du dépôt :
+`value.trim()` rogne les bords depuis l'incrément 6. Le commentaire cité **existe** (l. 204) mais
+dit autre chose : la valeur peut **contenir** une espace, un point-virgule, une apostrophe — ce que
+la découpe sur les deux premiers deux-points garantit. Il ne dit rien des bords.
+
+*L'exécutant s'est arrêté et a signalé plutôt que d'implémenter l'un ou l'autre : appliquer la
+prescription aurait changé un comportement de l'incrément 6, hors du périmètre que l'avenant
+s'était donné (« les trois autres ne touchent qu'à ce qu'elle DIT »).*
