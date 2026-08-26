@@ -122,6 +122,16 @@
 > `findPropertyIndex` sort du module pour servir ses **deux** appelants — `recognise` et
 > `translateExpression`, qui portait la même comparaison stricte sans que personne l'ait vu.
 > Section `## Avenant 4` ci-dessous.
+>
+> **⚠ AVENANT 5 — 26 août 2026, troisième passe iPhone 14. À lire avant d'exécuter.** Une expression
+> refusée « alors que la syntaxe est correcte » : **le refus avait raison**, le second membre avait
+> perdu son chevron. **Le défaut n'est pas dans le reconnaisseur, il est dans ce que le
+> reconnaisseur DIT.** Quatre points : **(1)** les espaces autour du nom et de l'opérateur sont
+> absorbées — un nom précédé d'une espace posée par l'appareil se voyait reprocher une faute
+> **invisible**, et c'est le plus grave des quatre ; **(2)** le refus `forme` **nomme la faute**,
+> catalogue clos de cinq, ordonné ; **(3)** un membre pas encore écrit est `inacheve`, pas une faute
+> de forme — c'est l'état que les boutons `&&` et `||` de cet incrément produisent eux-mêmes ;
+> **(4)** un nom de colonne vide a son refus propre. Section `## Avenant 5` ci-dessous.
 
 ## Satellites consultés
 
@@ -1008,6 +1018,155 @@ toujours la copie oubliée qui mord.
 4. **La bascule de langue** : un nom tapé en bas de casse **se traduit** comme la graphie exacte —
    le gardien du second site.
 5. **Aucune leçon perdue** : l'exemple `colonneInconnue` (`motDePasse`) est toujours refusé.
+
+## Avenant 5 — le refus avait raison, et c'est le refus qui était le défaut
+
+*Origine : **troisième** passe d'appareil du chef de projet, iPhone 14, 26 août 2026, 20:00-20:04,
+neuf captures. Une expression refusée « alors que la syntaxe est correcte ». **Mesuré avant tout
+correctif** (règle absolue §3) : le refus avait raison, le second membre avait perdu son chevron
+ouvrant, et aucune fonction de la page ne l'avait mangé. **Le défaut n'est pas dans le
+reconnaisseur, il est dans ce qu'il DIT.***
+
+**Le geste qui l'a produit, dans les mots du chef de projet** : « J'ai cliqué sur "Contient", et
+j'ai effacé le nom de la colonne pour marquer la mienne. J'ai trop effacé. » **La page invite ce
+geste** — ses propres aides gelées disent « Essayez PARIS », « Remplacez EXP par STD ». Elle
+organise la retouche à la main, puis refuse **sans dire où**.
+
+**Quatre points.** Le premier élargit ce que la page **accepte** ; les trois autres ne touchent
+qu'à ce qu'elle **dit** quand elle refuse. **Aucun ne répare sous le doigt** : la ligne gravée au
+fil tient entière.
+
+### 1. Les espaces autour du nom et de l'opérateur sont absorbées
+
+**Ce point n'était pas dans le rapport de la passe : il sort du balayage du voisinage**, et c'est
+le plus grave des quatre. Mesuré sur la branche :
+
+| saisi | rendu avant l'avenant |
+|---|---|
+| `< nomClient:[=:DUR/>` | refus `colonne`, nom `" nomClient"` |
+| `<nomClient :[=:DUR/>` | refus `colonne`, nom `"nomClient "` |
+| `<nomClient: [=:DUR/>` | refus `operateur`, op `" [="` |
+
+Le message affichait alors « Colonne « nomClient » **hors de la liste exposée** » : le lecteur lit
+un nom qui est, **à l'œil, exactement celui de la liste**. La page lui reproche une faute
+**invisible** — pire que le défaut de casse de l'avenant 4, où il pouvait au moins voir la
+majuscule. Sur un clavier d'iPhone, **l'espace après ponctuation est posée par l'appareil, pas par
+le doigt**.
+
+**La borne rejoue exactement l'arbitrage du retour chariot** : on absorbe là où l'espace n'a aucun
+sens, on la garde là où elle en a un.
+
+- **Nom de colonne : `trim`.** Aucun des neuf noms exposés ne porte d'espace, dans aucune langue.
+- **Opérateur : `trim`.** Les six opérateurs sont deux caractères de ponctuation ; `!=` non plus.
+- **Valeur : JAMAIS.** Une donnée a le droit de commencer ou finir par une espace — c'est déjà
+  écrit au commentaire de `SEQUENCE` : « elle est une donnée, et une donnée n'a pas à être bien
+  élevée ».
+
+**Ordre imposé dans le code** : le `trim` de l'opérateur passe **avant** le test de l'opérateur
+vide, sinon un opérateur réduit à une espace échappe au piège de la position.
+
+**Ce point n'accepte pas un nom faux** : `< codelivraidon :[]:AR/>` reste refusé en `colonne`, avec
+son nom **nettoyé** au message.
+
+### 2. Le refus `forme` nomme la faute
+
+`refuse("forme")` ne portait **aucun paramètre**. Le message récitait la règle et laissait le
+lecteur chercher. Il nomme désormais la faute, dans un **catalogue clos de cinq**, **le premier qui
+mord** :
+
+| ordre | faute | condition | exemple |
+|---|---|---|---|
+| 1 | `ouvrant` | le membre ne commence pas par `<` | `codemodelivraison:[]:AR/>` |
+| 2 | `fermant` | le membre ne finit pas par `/>` | `<nomClient:==:LYON` |
+| 3 | `deuxPoints` | moins de deux `:` dans le membre | `<nomClient:LYON/>` |
+| 4 | `operateurFin` | le gabarit tient, l'opérateur est vide | `<nomClient::LYON/>` |
+| 5 | `generique` | tout le reste | un retour à la ligne **dans** le membre |
+
+**L'ordre dit le geste suivant, pas la liste des fautes.** Un membre qui a perdu son chevron *et*
+sa fermeture est nommé par sa **première** faute ; le refus suivant nommera la seconde. C'est la
+ligne gravée appliquée au message : on accompagne une phrase en train de s'écrire, **on ne dresse
+pas le procès-verbal de tout ce qui manque**.
+
+**Le catalogue est total**, cinquième cas compris : les quatre premiers couvrent tout ce qu'un
+champ sans retour à la ligne peut produire ; `generique` n'est atteint que par un membre portant un
+`\n` (le `.` de `SEQUENCE` ne traverse pas la ligne). **Un catalogue de refus qui laisse un trou
+n'est pas un catalogue.**
+
+**Divergence tranchée par le chef de projet le 26 août 2026 : la faute nommée SEULE, sans citation
+du membre.** L'exécutant proposait de citer le fragment fautif ; **il a retiré sa recommandation**
+devant trois objections mesurées : le membre est du texte de lecteur **sans borne** (illisible sur
+un iPhone en portrait) · **le tronquer coupe là où la faute vit** (chevron manquant en tête,
+fermeture manquante en queue) · et surtout, **une fois la faute nommée, la citation ne localise
+plus rien** — « il manque le chevron ouvrant » suffit à trouver, parmi deux membres, celui qui n'en
+a pas. **Le nom de la faute EST le localisateur.**
+
+### 3. Un membre pas encore écrit n'est pas une faute de forme
+
+Mesuré : `<nomClient:[=:DUR/> &&` et `&& <nomClient:[=:DUR/>` rendaient tous deux `forme`.
+**C'est l'état que les boutons `&&` et `||` de cet incrément produisent eux-mêmes** : la page écrit
+la liaison pour le lecteur, il envoie avant d'avoir écrit la suite, et **elle traite comme une
+faute une phrase qu'elle vient d'ouvrir**. Un membre absent n'est pas raté, il est **inachevé** —
+c'est exactement ce que la ligne gravée interdit.
+
+**Code propre `inacheve`**, rendu quand un membre est vide après découpe. Formulation **neutre par
+construction** : elle vaut pour le membre de gauche comme pour celui de droite.
+
+**Il reste dans la région de refus, en rouge, et c'est délibéré** : le lecteur a appuyé sur
+« Envoyer », donc il a posé une question, donc il a droit à une réponse **au même endroit que
+toutes les autres**. Une troisième couleur d'état — « en attente » à côté de « répondu » et
+« refusé » — est **un sujet du fil, pas de cet avenant**.
+
+### 4. Un nom de colonne vide a son propre refus
+
+`<:[]:AR/>` rendait `colonne` avec un nom vide, et le message affichait **« Colonne «  » hors de la
+liste exposée »**, deux guillemets autour de rien. C'est **le voisin immédiat du geste du chef de
+projet** : il a effacé un caractère de trop, le chevron ; un caractère de moins, et il tombait ici.
+**Code propre `colonneVide`**, dont le renvoi vers la liste est la même phrase que `colonne` : même
+remède, cause différente.
+
+### Ce que cela coûte, mesuré et non promis
+
+**+9 feuilles par langue** : `refus.forme.fautes` (5), `refus.inacheve` (`quoi`, `pourquoi`),
+`refus.colonneVide` (`quoi`, `pourquoi`). Plus **deux chaînes modifiées par langue** :
+`refus.forme.quoi` reçoit `{faute}`, et `refus.forme.pourquoi` **perd sa dernière phrase**
+(« L'opérateur va au milieu, jamais à la fin »), qui devient la phrase de `operateurFin` — elle
+n'était vraie **que pour un cas sur cinq** et la page la servait aux cinq.
+
+**Parité recalibrée depuis le dépôt par l'exécutant** (Cowork a refusé de la donner de mémoire, et
+il a eu raison) : `section4` **124 → 133**, total **242 → 251**. Les comptes `data-i18n` ne bougent
+pas : ces valeurs sont servies par le module.
+
+**Le rendu ne demande aucun mécanisme neuf** : `params.faute` se résout par
+`texts().refus.forme.fautes[…]` exactement comme `params.type` par `texts().types[…]`.
+
+### Le retour tactile du bouton « Envoyer » — arbitré le 26 août 2026
+
+**Le sens plein/contour NE BOUGE PAS** : plein = il reste quelque chose à envoyer, et c'est le seul
+signal d'état périmé de la page. Ce qui s'ajoute est un **retour à l'appui**.
+
+**Réserve du chef de projet, et elle commande l'implémentation** : *« pas un `:active` seul — sur un
+iPhone, le pouce couvre le bouton pendant l'appui, donc la couleur doit survivre au relâchement, le
+temps que l'œil la voie. »* L'ordre de grandeur, **200 ms, est un jugement de conception, non
+mesuré** : point de départ, **et la valeur se juge à la passe d'appareil, pas au fichier**.
+
+### Tests neufs prescrits
+
+1. **Les trois espaces** : `< nomClient:[=:DUR/>`, `<nomClient :[=:DUR/>` et `<nomClient: [=:DUR/>`
+   sont **reconnus** et rendent **la même condition** que la forme serrée (comparaison d'objets,
+   pas trois assertions qui se ressemblent).
+2. **La valeur garde ses espaces** : `<villeClient:==: LYON />` transmet `" LYON "`. **Garde-fou du
+   point 1** : sans lui, quelqu'un « simplifiera » en trimant tout.
+3. **Un opérateur réduit à une espace** tombe en `forme`/`operateurFin`, **pas** en `operateur` —
+   c'est l'ordre imposé, et il se teste.
+4. **Les cinq fautes**, une entrée chacune, **plus les deux entrées d'ordre** : sans chevron **et**
+   sans fermeture → `ouvrant` ; avec chevron, sans fermeture et sans deux-points → `fermant`.
+5. **`inacheve`** : `<a:b:c/> &&`, `<a:b:c/> && ` et `&& <a:b:c/>` les trois ; et
+   `<a:b:c/> && <d:e:f/>` reste reconnu à deux conditions.
+6. **`colonneVide`** : `<:[]:AR/>` et `< :[]:AR/>` ; `<codelivraidon:[]:AR/>` rend toujours
+   `colonne`. **La tolérance ne déplace pas la frontière du nom faux.**
+7. **Le catalogue est total** : pour chaque code de refus, le dictionnaire porte son couple dans les
+   deux langues, et **chaque `{…}` du gabarit trouve son paramètre**. Vaut pour les **onze** codes.
+8. **Parité** : `section4` 133 = 133, total 251 = 251.
 
 ## Formulations révoquées : trace, ne pas utiliser
 
