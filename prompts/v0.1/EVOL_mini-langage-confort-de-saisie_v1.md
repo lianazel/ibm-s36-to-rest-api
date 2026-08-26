@@ -114,6 +114,14 @@
 > personne n'avait faite — `sent` vaut `null` avant le premier envoi, distinct de la chaîne vide ;
 > **(3)** le signal d'état périmé **ne se voyait pas** sur l'appareil qu'il sert — le bouton actif
 > passe au plein. Section `## Avenant 3` ci-dessous, valeurs et comptes recalés.
+>
+> **⚠ AVENANT 4 — 26 août 2026, seconde passe iPhone 14. À lire avant d'exécuter.** La page
+> **pardonnait la casse sur les valeurs et la punissait sur les noms de colonnes**, sans le dire
+> nulle part, et son refus décrivait mal la faute (« hors de la liste exposée » pour une propriété
+> qui y est, à une majuscule près). Les noms s'apparient désormais **à la casse près**, et
+> `findPropertyIndex` sort du module pour servir ses **deux** appelants — `recognise` et
+> `translateExpression`, qui portait la même comparaison stricte sans que personne l'ait vu.
+> Section `## Avenant 4` ci-dessous.
 
 ## Satellites consultés
 
@@ -933,6 +941,73 @@ zone — la règle de la v7 tient, à montrer dans la même passe.
 distingue-t-il de l'inerte à bout de bras · l'arrivée ne montre-t-elle plus de compte · une liaison
 en attente survit-elle au clic d'un exemple. Le tunnel du 26 août expire à 15:37 : il en faudra un
 nouveau, **et ce n'est pas une raison pour raccourcir la passe**.
+
+## Avenant 4 — les noms de colonnes tolèrent la casse, comme les valeurs le font déjà
+
+*Origine : **seconde** passe d'appareil du chef de projet, iPhone 14, 26 août 2026, 16:33-16:37,
+cinq captures, sur le tunnel servant `bf6a230`. **Arbitré le jour même.** Trouvé en éprouvant la
+rangée que cet incrément ajoute : c'est elle qui l'a conduit à composer une expression longue au
+doigt, donc à **taper un nom de colonne au clavier mobile** — ce que personne n'avait fait avant.*
+
+### Le fait mesuré, et il n'est pas celui qu'on croit
+
+Le chef de projet a tapé `codeModelivraison` et lu « Colonne « codeModelivraison » **hors de la
+liste exposée** ». Le nom diffère bien de `codeModeLivraison` — **un `L` majuscule** —, donc le
+refus est conforme à la règle écrite. **C'est la règle qui est fautive**, et pour trois motifs
+mesurés :
+
+| | la casse |
+|---|---|
+| les **valeurs** (`DURAND` / `durand` / `DuRaNd`) | **tolérée** — trois lignes à chaque fois |
+| les **noms de colonnes** | **stricte** — comparaison `===` |
+
+1. **L'incohérence n'est écrite nulle part.** Balayage des 124 valeurs de `section4` : aucune ne
+   mentionne la casse. La page pardonne d'un côté et punit de l'autre, sans le dire.
+2. **Le message décrit mal la faute.** « Hors de la liste exposée » est faux en esprit : la
+   propriété **y est**, à une majuscule près. La page annonce un nom absent quand ce qui cloche est
+   une capitale.
+3. **Le camelCase est un geste coûteux au doigt.** Le champ porte `autocapitalize="off"`, posé
+   exprès pour que le clavier n'intervienne pas : chaque majuscule est donc **délibérée**. Et ce
+   que la page enseigne est le **pont de noms** (`LIZEPO` ↔ `codeModeLivraison`), pas la discipline
+   orthographique.
+
+### Ce qui est tranché
+
+**Les noms de colonnes s'apparient à la casse près.** `codemodelivraison`, `codeModelivraison` et
+`CODEMODELIVRAISON` passent ; **`codelivraidon` et `motDePasse` sont toujours refusés**, et
+l'exemple « colonne inconnue » continue de montrer son refus — **aucune leçon n'est affaiblie**.
+La thèse tient mot pour mot : « l'appelant ne choisit pas ce qu'il interroge, seules les propriétés
+du modèle sont acceptées ».
+
+**Le champ n'est pas réécrit** : le lecteur garde sa graphie, c'est l'**interprétation** qui
+tolère. En aval, tout repart de `entry.property`, donc la **graphie canonique** paraît dans le
+refus, dans la classe, dans le JSON et dans le SQL — la page enseigne la bonne orthographe sans
+corriger sous le doigt. C'est exactement ce que les valeurs font déjà.
+
+### Le second site, qui ne se voyait pas
+
+**`translateExpression` porte la MÊME comparaison stricte** (`entry.property === name`, l. 878).
+Corriger le seul reconnaisseur aurait produit un défaut de la famille déjà rencontrée deux fois :
+un nom tapé en bas de casse serait **accepté**, puis **non traduit** à la bascule de langue, donc
+**refusé** dans l'autre langue une seconde plus tard. Mesuré avant d'écrire :
+`<codemodelivraison:[]:AR/>` traduit FR→EN rend `<codemodelivraison:[]:AR/>` — inchangé.
+
+**Un seul porteur, deux appelants** : `findPropertyIndex(model, name)` sort du module, exportée et
+testée, et sert **`recognise` et `translateExpression`**. Même remède qu'à l'avenant 3 pour
+`hasPendingLink`, et pour la même raison : une règle écrite deux fois finit par diverger, et c'est
+toujours la copie oubliée qui mord.
+
+### Tests neufs prescrits
+
+1. **`findPropertyIndex`** : graphie exacte → l'indice ; toutes casses (`bas`, `HAUT`, mixte) → le
+   **même** indice ; nom inconnu → `-1` ; chaîne vide → `-1`.
+2. **`recognise`** : les trois variantes de casse de `codeModeLivraison` sont **acceptées et rendent
+   la même entrée canonique** ; `codelivraidon` et `motDePasse` restent **refusés** par `colonne`.
+3. **`filterRows`** : une demande en bas de casse sert **exactement les mêmes lignes** que la même
+   demande en graphie canonique.
+4. **La bascule de langue** : un nom tapé en bas de casse **se traduit** comme la graphie exacte —
+   le gardien du second site.
+5. **Aucune leçon perdue** : l'exemple `colonneInconnue` (`motDePasse`) est toujours refusé.
 
 ## Formulations révoquées : trace, ne pas utiliser
 
