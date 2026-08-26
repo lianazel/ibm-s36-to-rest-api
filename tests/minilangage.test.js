@@ -27,6 +27,7 @@ import {
   exampleExpression,
   filterRows,
   findOrphans,
+  findPropertyIndex,
   hasEdits,
   hasPendingLink,
   initialSelection,
@@ -1466,5 +1467,68 @@ describe("L'état d'arrivée : la chaîne vide est une demande, `null` est l'abs
     expect(inerte("", null)).toBe(true);                    // arrivée
     expect(inerte("", "")).toBe(true);                      // demande vide envoyée
     expect(inerte(`<${FR[0].property}:[=:DUR/>`, null)).toBe(false);  // écrit, pas envoyé
+  });
+});
+
+/* ---------------------------- AVENANT 4 : les noms de colonnes tolèrent la
+   casse, comme les valeurs le faisaient déjà (26 août 2026). */
+
+describe("findPropertyIndex : un seul porteur pour deux appariements", () => {
+  const MODE = 2;   // codeModeLivraison / deliveryModeCode
+
+  it("rend le même indice quelle que soit la casse", () => {
+    const exact = FR[MODE].property;
+    expect(findPropertyIndex(FR, exact)).toBe(MODE);
+    expect(findPropertyIndex(FR, exact.toLowerCase())).toBe(MODE);
+    expect(findPropertyIndex(FR, exact.toUpperCase())).toBe(MODE);
+    // La graphie du chef de projet, à un `L` près.
+    expect(findPropertyIndex(FR, "codeModelivraison")).toBe(MODE);
+  });
+
+  it("rend -1 sur ce qui n'est pas une propriété du modèle", () => {
+    expect(findPropertyIndex(FR, "codelivraidon")).toBe(-1);
+    expect(findPropertyIndex(FR, "motDePasse")).toBe(-1);
+    expect(findPropertyIndex(FR, "")).toBe(-1);
+  });
+});
+
+describe("La casse des noms de colonnes : tolérée à la lecture, canonique en aval", () => {
+  const exact = FR[2].property;
+  const variantes = [exact, exact.toLowerCase(), exact.toUpperCase(), "codeModelivraison"];
+
+  it("les quatre graphies sont acceptées et rendent la MÊME entrée canonique", () => {
+    for (const nom of variantes) {
+      const read = recognise(`<${nom}:[]:AR/>`, FR);
+      expect(read.ok, nom).toBe(true);
+      // Le champ garde ce que le lecteur a tapé ; l'aval repart de la graphie
+      // exacte, si bien que la page enseigne l'orthographe sans corriger.
+      expect(read.conditions[0].entry.property, nom).toBe(exact);
+    }
+  });
+
+  it("AUCUNE LEÇON PERDUE : un nom réellement absent est toujours refusé", () => {
+    // C'est la thèse de la section : l'appelant ne choisit pas ce qu'il
+    // interroge. Elle tient mot pour mot.
+    expect(recognise("<codelivraidon:[]:AR/>", FR).refusal.code).toBe("colonne");
+    const inconnue = EXAMPLES.find((example) => example.key === "colonneInconnue");
+    expect(recognise(exampleExpression(inconnue, FR), FR).refusal.code).toBe("colonne");
+  });
+
+  it("une demande en bas de casse sert exactement les mêmes lignes", () => {
+    const canonique = filterRows(`<${FR[0].property}:[=:DUR/>`, FR, ROWS_FR);
+    const basseCasse = filterRows(`<${FR[0].property.toLowerCase()}:[=:DUR/>`, FR, ROWS_FR);
+    expect(basseCasse.ok).toBe(true);
+    expect(basseCasse.rows).toHaveLength(canonique.rows.length);
+  });
+
+  it("GARDIEN DU SECOND SITE : un nom en bas de casse se traduit comme la graphie exacte", () => {
+    // `translateExpression` portait la même comparaison stricte, à un autre
+    // endroit. Corriger le seul reconnaisseur aurait fait ACCEPTER un nom en
+    // bas de casse, puis le laisser sans traduction à la bascule de langue,
+    // donc REFUSER une seconde plus tard ce qui venait de passer.
+    const attendu = `<${EN[2].property}:[]:AR/>`;
+    for (const nom of variantes) {
+      expect(translateExpression(`<${nom}:[]:AR/>`, FR, EN), nom).toBe(attendu);
+    }
   });
 });

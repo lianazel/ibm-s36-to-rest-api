@@ -250,10 +250,15 @@ export function recognise(text, model) {
     }
 
     const [, columnName, operator, value] = match;
-    const entry = model.find((candidate) => candidate.property === columnName);
-    if (entry === undefined) {
+    // Apparié à la casse près (avenant 4) : le champ garde la graphie du
+    // lecteur, mais tout ce qui suit repart de `entry.property`, donc la
+    // graphie CANONIQUE paraît dans le refus, la classe, le JSON et le SQL. La
+    // page enseigne l'orthographe exacte sans corriger sous le doigt.
+    const found = findPropertyIndex(model, columnName);
+    if (found === -1) {
       return refuse("colonne", { nom: columnName });
     }
+    const entry = model[found];
     if (FORBIDDEN_OPERATORS.includes(operator)) {
       return refuse("interdit", { op: operator });
     }
@@ -875,7 +880,7 @@ export function initialSelection() {
  */
 export function translateExpression(text, fromModel, toModel) {
   return String(text).replace(/<([^:<]*):/g, (whole, name) => {
-    const index = fromModel.findIndex((entry) => entry.property === name);
+    const index = findPropertyIndex(fromModel, name);
     return index === -1 ? whole : `<${toModel[index].property}:`;
   });
 }
@@ -898,6 +903,34 @@ export function translateExpression(text, fromModel, toModel) {
  */
 export function stripLineBreaks(text) {
   return String(text).replace(/\r\n?|\n/g, "");
+}
+
+/**
+ * L'indice d'une propriété du modèle, appariée À LA CASSE PRÈS.
+ *
+ * Les valeurs toléraient déjà la casse — `DURAND`, `durand` et `DuRaNd`
+ * trouvent les mêmes lignes —, les noms de colonnes non, et la page ne le
+ * disait nulle part. Le lecteur tapait `codeModelivraison` et lisait « hors de
+ * la liste exposée » d'une propriété qui y est, à une majuscule près (passe
+ * iPhone 14 du 26 août 2026). Sur un clavier mobile où le champ coupe la mise
+ * en capitale automatique, chaque majuscule d'un nom en camelCase est un geste
+ * délibéré : la page punissait ce qu'elle rend coûteux.
+ *
+ * Ce qu'elle n'affaiblit pas : un nom réellement absent du modèle est toujours
+ * refusé, et c'est la thèse de la section — l'appelant ne choisit pas ce qu'il
+ * interroge.
+ *
+ * UN SEUL PORTEUR, DEUX APPELANTS : `recognise` et `translateExpression`
+ * portaient la même comparaison stricte, à deux endroits. Corriger le premier
+ * seul aurait fait accepter un nom en bas de casse puis le laisser SANS
+ * TRADUCTION à la bascule de langue, donc refuser une seconde plus tard ce qui
+ * venait de passer. Même remède que `hasPendingLink`, et pour la même raison :
+ * une règle écrite deux fois finit par diverger, et c'est la copie oubliée qui
+ * mord.
+ */
+export function findPropertyIndex(model, name) {
+  const cible = String(name).toLowerCase();
+  return model.findIndex((entry) => entry.property.toLowerCase() === cible);
 }
 
 /**
