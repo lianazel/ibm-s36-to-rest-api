@@ -1540,11 +1540,26 @@ export function mountMiniLanguage({ dict, root }) {
 
   const rebuild = () => {
     const lang = root.documentElement.lang;
-    if (lang !== renderedLang && field.value.trim() !== "") {
+    if (lang !== renderedLang) {
       const before = buildModel(
         PHYSICAL_MODEL.map((entry) => (dict[renderedLang] ?? dict.fr).section4.modele[entry.key]),
       );
-      field.value = translateExpression(field.value, before, currentModel());
+      const after = currentModel();
+      if (field.value.trim() !== "") {
+        field.value = translateExpression(field.value, before, after);
+      }
+      // LA DEMANDE ENVOYÉE SE TRADUIT AUSSI, et les deux zones parlent donc la
+      // même langue. Sans cette ligne, la coupure en deux zones laissait la
+      // réponse sur l'expression d'AVANT la bascule : le champ montrait
+      // `customerCity` pendant que le statut refusait en citant `villeClient`,
+      // un nom de colonne que rien à l'écran ne portait plus.
+      //
+      // C'est la troisième zone dont l'état pouvait dater, et elle ne se voyait
+      // qu'à la bascule de langue : ni la frappe, ni l'envoi, ni une case
+      // cochée ne l'atteignaient. Trouvée à la revue indépendante.
+      if (sent.trim() !== "") {
+        sent = translateExpression(sent, before, after);
+      }
     }
     renderedLang = lang;
     fillTables();

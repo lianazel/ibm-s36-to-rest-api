@@ -1360,3 +1360,28 @@ describe("Le modèle d'envoi : la règle de l'inerte", () => {
     expect(inerte(`<${FR[0].property}:[=:DUR/>\n`, sent)).toBe(true);
   });
 });
+
+describe("La bascule de langue : les deux zones parlent la même langue", () => {
+  // Trouvée à la revue indépendante du 25 août 2026 : la coupure en deux zones
+  // traduisait le champ et laissait la demande ENVOYÉE dans la langue d'avant.
+  // La zone de réponse refusait alors sur un nom de colonne que rien à l'écran
+  // ne portait plus. Ni la frappe, ni l'envoi, ni une case cochée n'atteignaient
+  // ce défaut : seule la bascule le révélait.
+  const envoyee = `<${FR[8].property}:==:LYON/>`;
+
+  it("la demande envoyée, laissée dans la langue d'avant, refuse sur un nom absent de l'écran", () => {
+    const orpheline = filterRows(envoyee, EN, ROWS_EN);
+    expect(orpheline.ok).toBe(false);
+    expect(orpheline.refusal.code).toBe("colonne");
+    // Le champ, lui, montre déjà le nom anglais : les deux zones se contredisent.
+    expect(translateExpression(envoyee, FR, EN)).toBe(`<${EN[8].property}:==:LYON/>`);
+  });
+
+  it("traduite avec le champ, elle sert exactement les mêmes lignes", () => {
+    const avant = filterRows(envoyee, FR, ROWS_FR);
+    const apres = filterRows(translateExpression(envoyee, FR, EN), EN, ROWS_EN);
+    expect(avant.ok).toBe(true);
+    expect(apres.ok).toBe(true);
+    expect(apres.rows).toHaveLength(avant.rows.length);
+  });
+});
