@@ -38,6 +38,7 @@ import {
   recognise,
   renderClass,
   renderJson,
+  shapeFault,
   stripLineBreaks,
   translateExpression,
 } from "../js/minilangage.js";
@@ -124,10 +125,13 @@ describe("le reconnaisseur : une forme close, et rien autour", () => {
     expect(refusalOf(expression).code).toBe(code);
   });
 
-  it("les neuf refus ont tous leur couple de valeurs, dans les deux langues", () => {
+  it("les onze refus ont tous leur couple de valeurs, dans les deux langues", () => {
+    // Onze depuis l'avenant 5 : `inacheve` et `colonneVide` s'ajoutent aux neuf.
+    // Un catalogue de refus qui laisse un trou n'est pas un catalogue.
     const codes = [
       "forme", "colonne", "operateur", "interdit", "type",
       "valeurVide", "tropCourt", "bornes", "liaison",
+      "inacheve", "colonneVide",
     ];
     for (const lang of ["fr", "en"]) {
       for (const code of codes) {
@@ -622,9 +626,10 @@ describe("avenant 2 : ce que la page affirme doit être vrai", () => {
     const en = cles(dict.en.section4);
     // 94 au sortir de l'incrément 6, plus les 23 clés du second sous-incrément,
     // plus les 7 du confort de saisie : six `champ.*` (dont `attente`, gelée à
-    // l'avenant 3) et `exemples.donneesModifiees`.
-    expect(fr).toHaveLength(124);
-    expect(en).toHaveLength(124);
+    // l'avenant 3) et `exemples.donneesModifiees` ; plus les 9 de l'avenant 5 :
+    // les cinq `refus.forme.fautes`, et les couples `inacheve` et `colonneVide`.
+    expect(fr).toHaveLength(133);
+    expect(en).toHaveLength(133);
     expect(fr).toEqual(en);
   });
 });
@@ -1529,6 +1534,177 @@ describe("La casse des noms de colonnes : tolérée à la lecture, canonique en 
     const attendu = `<${EN[2].property}:[]:AR/>`;
     for (const nom of variantes) {
       expect(translateExpression(`<${nom}:[]:AR/>`, FR, EN), nom).toBe(attendu);
+    }
+  });
+});
+
+/* ------------------------- AVENANT 5 : le refus avait raison, et c'est le
+   refus qui était le défaut (26 août 2026, troisième passe d'appareil). */
+
+describe("Les espaces autour du nom et de l'opérateur sont absorbées", () => {
+  // Sur un clavier d'iPhone, l'espace après ponctuation est posée par
+  // L'APPAREIL, pas par le doigt. Sans ce point, la page reprochait au lecteur
+  // un nom qui est, à l'œil, exactement celui de la liste : une faute
+  // INVISIBLE, pire que celle de casse — là il pouvait au moins voir la
+  // majuscule.
+  const serree = `<${FR[0].property}:[=:DUR/>`;
+
+  it("les trois positions d'espace rendent LA MÊME condition que la forme serrée", () => {
+    const attendu = recognise(serree, FR);
+    expect(attendu.ok).toBe(true);
+    for (const texte of [
+      `< ${FR[0].property}:[=:DUR/>`,
+      `<${FR[0].property} :[=:DUR/>`,
+      `<${FR[0].property}: [=:DUR/>`,
+    ]) {
+      const read = recognise(texte, FR);
+      expect(read.ok, texte).toBe(true);
+      // Comparaison d'objets, et non trois assertions qui se ressemblent :
+      // c'est l'identité du résultat qui compte, pas la seule acceptation.
+      expect(read.conditions, texte).toEqual(attendu.conditions);
+    }
+  });
+
+  it("elle n'accepte pas un nom faux : la frontière ne bouge pas", () => {
+    const read = recognise("< codelivraidon :[]:AR/>", FR);
+    expect(read.ok).toBe(false);
+    expect(read.refusal.code).toBe("colonne");
+    // Et le nom paraît NETTOYÉ au message, sans les espaces de l'appareil.
+    expect(read.refusal.params.nom).toBe("codelivraidon");
+  });
+
+  it("un opérateur réduit à une espace tombe en `forme`/`operateurFin`, jamais en `operateur`", () => {
+    // C'est l'ordre imposé : le `trim` de l'opérateur passe AVANT le test du
+    // vide, sinon l'opérateur-espace échapperait au piège de la position et
+    // recevrait un message qui ne nomme pas sa faute.
+    const read = recognise(`<${FR[0].property}: :LYON/>`, FR);
+    expect(read.ok).toBe(false);
+    expect(read.refusal.code).toBe("forme");
+    expect(read.refusal.params.faute).toBe("operateurFin");
+  });
+});
+
+describe("Le refus `forme` nomme la faute : catalogue clos de cinq, ordonné", () => {
+  const fauteDe = (texte) => {
+    const read = recognise(texte, FR);
+    expect(read.ok, texte).toBe(false);
+    expect(read.refusal.code, texte).toBe("forme");
+    return read.refusal.params.faute;
+  };
+
+  it("nomme chacune des cinq fautes", () => {
+    expect(fauteDe("codemodelivraison:[]:AR/>")).toBe("ouvrant");
+    expect(fauteDe(`<${FR[0].property}:==:LYON`)).toBe("fermant");
+    expect(fauteDe(`<${FR[0].property}:LYON/>`)).toBe("deuxPoints");
+    expect(fauteDe(`<${FR[0].property}::LYON/>`)).toBe("operateurFin");
+    // `generique` n'est atteint que par un retour à la ligne DANS le membre :
+    // le `.` de SEQUENCE ne traverse pas la ligne. C'est le cinquième cas, et
+    // un catalogue qui laisse un trou n'est pas un catalogue.
+    expect(fauteDe(`<${FR[0].property}:==:LY\nON/>`)).toBe("generique");
+  });
+
+  it("L'ORDRE DIT LE GESTE SUIVANT, pas la liste de tout ce qui manque", () => {
+    // Sans chevron ET sans fermeture : c'est la PREMIÈRE faute qui est nommée.
+    expect(fauteDe("nomClient:==:LYON")).toBe("ouvrant");
+    // Avec chevron, sans fermeture et sans deux-points : `fermant` d'abord.
+    expect(fauteDe("<nomClient")).toBe("fermant");
+  });
+
+  it("`shapeFault` est pure et ne rend que des codes du catalogue", () => {
+    const catalogue = ["ouvrant", "fermant", "deuxPoints", "generique"];
+    for (const texte of ["a", "<a", "<a/>", "<a:b/>", "<a:b:c\nd/>", "", "   "]) {
+      expect(catalogue, texte).toContain(shapeFault(texte));
+    }
+  });
+});
+
+describe("Un membre pas encore écrit est inachevé, pas raté", () => {
+  // C'est l'état que les boutons `&&` et `||` de CET incrément produisent
+  // eux-mêmes : la page ouvre la liaison, le lecteur envoie avant d'avoir
+  // écrit la suite, et lui reprocher sa « forme » reviendrait à traiter comme
+  // ratée une phrase qu'elle vient elle-même d'ouvrir.
+  const inacheve = (texte) => {
+    const read = recognise(texte, FR);
+    expect(read.ok, texte).toBe(false);
+    return read.refusal.code;
+  };
+
+  it("les trois états de liaison en attente rendent `inacheve`", () => {
+    expect(inacheve(`<${FR[0].property}:[=:DUR/> &&`)).toBe("inacheve");
+    expect(inacheve(`<${FR[0].property}:[=:DUR/> && `)).toBe("inacheve");
+    // Neutre par construction : vaut à gauche comme à droite.
+    expect(inacheve(`&& <${FR[0].property}:[=:DUR/>`)).toBe("inacheve");
+  });
+
+  it("les deux membres écrits, la demande passe à deux conditions", () => {
+    const read = recognise(
+      `<${FR[0].property}:[=:DUR/> && <${FR[8].property}:==:LYON/>`,
+      FR,
+    );
+    expect(read.ok).toBe(true);
+    expect(read.conditions).toHaveLength(2);
+  });
+});
+
+describe("Un nom de colonne vide a son propre refus", () => {
+  it("`<:[]:AR/>` et `< :[]:AR/>` rendent `colonneVide`", () => {
+    // Le message montrait deux guillemets autour de rien. C'est le voisin
+    // immédiat du geste qui a fondé l'avenant : un caractère de moins effacé,
+    // et le lecteur tombait ici.
+    expect(recognise("<:[]:AR/>", FR).refusal.code).toBe("colonneVide");
+    expect(recognise("< :[]:AR/>", FR).refusal.code).toBe("colonneVide");
+  });
+
+  it("LA TOLÉRANCE NE DÉPLACE PAS LA FRONTIÈRE DU NOM FAUX", () => {
+    expect(recognise("<codelivraidon:[]:AR/>", FR).refusal.code).toBe("colonne");
+    expect(recognise("<motDePasse:==:toto/>", FR).refusal.code).toBe("colonne");
+  });
+});
+
+describe("Le catalogue de refus est total : chaque gabarit trouve ses paramètres", () => {
+  // Le test 7 de l'avenant 5, et il vaut pour les ONZE codes : un `{…}` sans
+  // paramètre s'afficherait tel quel au lecteur, accolades comprises.
+  // La table MIROITE les appels réels à `refuse()` dans le module : c'est la
+  // seule façon de mesurer un gabarit contre ce qui le sert vraiment. Elle m'a
+  // d'ailleurs mordu à l'écriture — j'avais supposé `{n}` pour `tropCourt`, qui
+  // reçoit `{operateur}`.
+  const CODES = {
+    forme: { faute: "ouvrant" },
+    colonne: { nom: "x" },
+    operateur: { op: "~~", colonne: "nomClient" },
+    interdit: { op: "!=" },
+    type: { operateur: "><", colonne: "nomClient", type: "texte", types: "nombre" },
+    valeurVide: {},
+    tropCourt: { operateur: "[]" },
+    bornes: { colonne: "montantCommande" },
+    liaison: {},
+    inacheve: {},
+    colonneVide: {},
+  };
+
+  it.each(["fr", "en"])("les onze refus sont servis sans accolade orpheline (%s)", (lang) => {
+    const refus = dict[lang].section4.refus;
+    expect(Object.keys(refus)).toHaveLength(11);
+    for (const [code, params] of Object.entries(CODES)) {
+      for (const cle of ["quoi", "pourquoi"]) {
+        const gabarit = refus[code][cle];
+        expect(typeof gabarit, `${lang}.${code}.${cle}`).toBe("string");
+        expect(gabarit.trim(), `${lang}.${code}.${cle}`).not.toBe("");
+        const servi = gabarit.replace(/\{(\w+)\}/g, (whole, nom) =>
+          Object.hasOwn(params, nom) ? String(params[nom]) : whole);
+        expect(servi, `${lang}.${code}.${cle}`).not.toMatch(/\{\w+\}/);
+      }
+    }
+  });
+
+  it.each(["fr", "en"])("les cinq fautes de forme sont toutes servies (%s)", (lang) => {
+    const fautes = dict[lang].section4.refus.forme.fautes;
+    expect(Object.keys(fautes).sort()).toEqual(
+      ["deuxPoints", "fermant", "generique", "operateurFin", "ouvrant"],
+    );
+    for (const [nom, phrase] of Object.entries(fautes)) {
+      expect(phrase.trim(), `${lang}.${nom}`).not.toBe("");
+      expect(phrase, `${lang}.${nom}`).not.toMatch(/\{\w+\}/);
     }
   });
 });

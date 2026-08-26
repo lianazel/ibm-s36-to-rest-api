@@ -241,15 +241,54 @@ export function recognise(text, model) {
 
   for (const part of parts) {
     const piece = part.trim();
-    const match = SEQUENCE.exec(piece);
-    // Opérateur vide : c'est le piège de la position (« l'opérateur à la fin »).
-    // Il tombe dans « forme » et non dans « opérateur hors liste », parce que
-    // seul le message de forme montre un exemple et nomme cette position.
-    if (match === null || match[2] === "") {
-      return refuse("forme");
+
+    // UN MEMBRE VIDE N'EST PAS RATÉ, IL EST INACHEVÉ (avenant 5). C'est l'état
+    // que les boutons `&&` et `||` de cet incrément produisent EUX-MÊMES : la
+    // page écrit la liaison pour le lecteur, il envoie avant d'avoir écrit la
+    // suite, et lui reprocher sa « forme » reviendrait à traiter comme ratée
+    // une phrase qu'elle vient elle-même d'ouvrir.
+    if (piece === "") {
+      return refuse("inacheve");
     }
 
-    const [, columnName, operator, value] = match;
+    const match = SEQUENCE.exec(piece);
+    if (match === null) {
+      return refuse("forme", { faute: shapeFault(piece) });
+    }
+
+    // LES ESPACES AUTOUR DU NOM ET DE L'OPÉRATEUR SONT ABSORBÉES, JAMAIS CELLES
+    // DE LA VALEUR (avenant 5). Même arbitrage que le retour chariot : on
+    // absorbe là où l'espace n'a aucun sens, on la garde là où elle en a un.
+    // Aucun des neuf noms exposés ne porte d'espace, et les six opérateurs sont
+    // deux caractères de ponctuation ; une valeur, elle, est une donnée, et une
+    // donnée a le droit de commencer ou de finir par une espace.
+    //
+    // Sans cela, une espace posée par le clavier de l'appareil — pas par le
+    // doigt — faisait reprocher au lecteur un nom qui est, à l'œil, exactement
+    // celui de la liste. Une faute INVISIBLE, pire que celle de casse.
+    const columnName = match[1].trim();
+    const operator = match[2].trim();
+    const value = match[3];
+
+    // Un nom effacé a son refus propre : le message montrait deux guillemets
+    // autour de rien. C'est le voisin immédiat du geste qui a fondé l'avenant —
+    // un caractère de moins, et le lecteur tombait ici.
+    //
+    // Il passe AVANT le piège de l'opérateur : les deux fautes se lisent de
+    // gauche à droite, et le nom vient en premier. Choix de l'exécutant,
+    // l'avenant étant muet sur l'ordre entre ces deux-là.
+    if (columnName === "") {
+      return refuse("colonneVide");
+    }
+
+    // Le piège de la position (« l'opérateur à la fin »). Le `trim` ci-dessus
+    // passe AVANT ce test, et l'ordre est imposé : sinon un opérateur réduit à
+    // une espace échapperait au piège et tomberait en « opérateur hors liste »,
+    // ce qui ne nomme pas sa faute.
+    if (operator === "") {
+      return refuse("forme", { faute: "operateurFin" });
+    }
+
     // Apparié à la casse près (avenant 4) : le champ garde la graphie du
     // lecteur, mais tout ce qui suit repart de `entry.property`, donc la
     // graphie CANONIQUE paraît dans le refus, la classe, le JSON et le SQL. La
@@ -906,6 +945,41 @@ export function stripLineBreaks(text) {
 }
 
 /**
+ * Laquelle des cinq fautes de forme ce membre porte-t-il ?
+ *
+ * Le refus « forme » récitait la règle et laissait le lecteur chercher : sur un
+ * champ replié en trois lignes, repérer un chevron absent est un travail d'œil
+ * que le message ne lui épargnait pas (passe iPhone 14 du 26 août 2026).
+ *
+ * LE CATALOGUE EST CLOS ET ORDONNÉ, et l'ordre dit LE GESTE SUIVANT, pas la
+ * liste de tout ce qui manque : un membre qui a perdu son chevron ET sa
+ * fermeture est nommé par sa PREMIÈRE faute ; le refus d'après nommera la
+ * seconde. C'est la ligne gravée au fil appliquée au message — on accompagne
+ * une phrase en train de s'écrire, on ne dresse pas son procès-verbal.
+ *
+ * `operateurFin` n'est pas rendu ici : il se constate quand le gabarit TIENT et
+ * que l'opérateur est vide, donc après appariement. Les cinq fautes sont bien
+ * toutes servies, mais par deux chemins.
+ *
+ * Le cinquième cas, `generique`, n'est atteint que par un membre portant un
+ * retour à la ligne — le `.` de `SEQUENCE` ne traverse pas la ligne. Un
+ * catalogue de refus qui laisse un trou n'est pas un catalogue.
+ */
+export function shapeFault(text) {
+  const piece = String(text).trim();
+  if (!piece.startsWith("<")) {
+    return "ouvrant";
+  }
+  if (!piece.endsWith("/>")) {
+    return "fermant";
+  }
+  if ((piece.match(/:/g) ?? []).length < 2) {
+    return "deuxPoints";
+  }
+  return "generique";
+}
+
+/**
  * L'indice d'une propriété du modèle, appariée À LA CASSE PRÈS.
  *
  * Les valeurs toléraient déjà la casse — `DURAND`, `durand` et `DuRaNd`
@@ -1473,6 +1547,11 @@ export function mountMiniLanguage({ dict, root }) {
       if (Object.hasOwn(params, "type")) {
         params.type = texts().types[params.type] ?? params.type;
       }
+      // Même chemin que `type` juste au-dessus : un code de faute se résout en
+      // phrase par le dictionnaire, et rien de neuf n'est inventé pour lui.
+      if (Object.hasOwn(params, "faute")) {
+        params.faute = texts().refus.forme.fautes[params.faute] ?? params.faute;
+      }
       if (Object.hasOwn(params, "types")) {
         params.types = params.types.map((type) => texts().types[type] ?? type).join(", ");
       }
@@ -1710,9 +1789,31 @@ export function mountMiniLanguage({ dict, root }) {
   // L'ENVOI — le second et dernier site d'appel de `stripLineBreaks`. Le
   // lecteur a coupé ses lignes où il voulait ; la page reconstruit l'expression
   // au moment de la LIRE, et ne touche jamais au champ.
+  /**
+   * Combien de temps le retour d'appui survit au relâchement, en millisecondes.
+   *
+   * PAS un `:active` seul : sur un iPhone, LE POUCE COUVRE LE BOUTON pendant
+   * l'appui, donc la couleur doit survivre au relâchement le temps que l'œil la
+   * voie (réserve du chef de projet, 26 août 2026).
+   *
+   * 200 ms est un JUGEMENT DE CONCEPTION, non mesuré : c'est un point de
+   * départ, et la valeur se juge à la passe d'appareil, jamais au fichier.
+   */
+  const RETOUR_APPUI_MS = 200;
+  let retourAppui = null;
+
+  // Le sens plein/contour NE BOUGE PAS — plein veut toujours dire « il reste
+  // quelque chose à envoyer ». Ce qui s'ajoute est le retour du geste : sans
+  // lui, appuyer faisait PÂLIR le bouton, qui devient inerte au même instant,
+  // et cela se lisait comme une extinction plutôt que comme un envoi réussi.
   sendButton.addEventListener("click", () => {
     sent = stripLineBreaks(field.value);
     render();
+    sendButton.classList.add("envoi");
+    root.defaultView.clearTimeout(retourAppui);
+    retourAppui = root.defaultView.setTimeout(() => {
+      sendButton.classList.remove("envoi");
+    }, RETOUR_APPUI_MS);
   });
 
 

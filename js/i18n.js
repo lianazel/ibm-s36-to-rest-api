@@ -293,9 +293,39 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
       },
       refus: {
         forme: {
-          quoi: "Forme non reconnue",
+          quoi: "Forme non reconnue : {faute}",
           pourquoi:
-            "une séquence s'écrit <colonne:opérateur:valeur/>, dans cet ordre et sans rien autour. Par exemple <nomClient:=]:UR/> : d'abord la colonne, puis le test, puis la valeur. L'opérateur va au milieu, jamais à la fin.",
+            "une séquence s'écrit <colonne:opérateur:valeur/>, dans cet ordre et sans rien autour. Par exemple <nomClient:=]:UR/> : d'abord la colonne, puis le test, puis la valeur.",
+          // Les cinq fautes, servies par {faute} dans le titre. La page NOMME
+          // la faute au lieu de réciter la règle : le nom de la faute EST le
+          // localisateur, et il évite de citer un fragment de lecteur sans
+          // borne, illisible sur un téléphone en portrait.
+          //
+          // La dernière phrase de `pourquoi` a migré ici, dans `operateurFin` :
+          // elle n'était vraie que pour un cas sur cinq, et la page la servait
+          // aux cinq.
+          fautes: {
+            ouvrant: "il manque le chevron ouvrant",
+            fermant: "il manque la fermeture />",
+            deuxPoints: "il manque un deux-points",
+            operateurFin: "l'opérateur va au milieu, jamais à la fin",
+            generique: "la séquence ne suit pas le gabarit",
+          },
+        },
+        // Un membre vide n'est pas raté, il est INACHEVÉ : c'est l'état que les
+        // boutons de liaison produisent eux-mêmes.
+        inacheve: {
+          quoi: "Membre manquant",
+          pourquoi:
+            "la liaison relie deux membres : il en manque un. Écrivez-le, ou retirez la liaison.",
+        },
+        // Le voisin immédiat du geste qui a fondé l'avenant 5 : un caractère de
+        // moins effacé, et le lecteur tombait ici. Le renvoi vers la liste est
+        // la même phrase que `colonne` : même remède, cause différente.
+        colonneVide: {
+          quoi: "Nom de colonne absent",
+          pourquoi:
+            "une séquence commence par le nom d'une colonne. Les neuf noms exposés sont listés plus bas.",
         },
         colonne: {
           quoi: "Colonne « {nom} » hors de la liste exposée",
@@ -785,9 +815,26 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
       },
       refus: {
         forme: {
-          quoi: "Shape not recognised",
+          quoi: "Shape not recognised: {faute}",
           pourquoi:
-            "a sequence is written <column:operator:value/>, in that order and with nothing around it. For example <customerLastName:=]:UR/>: the column first, then the test, then the value. The operator sits in the middle, never at the end.",
+            "a sequence is written <column:operator:value/>, in that order and with nothing around it. For example <customerLastName:=]:UR/>: the column first, then the test, then the value.",
+          fautes: {
+            ouvrant: "the opening angle bracket is missing",
+            fermant: "the closing /> is missing",
+            deuxPoints: "a colon is missing",
+            operateurFin: "the operator sits in the middle, never at the end",
+            generique: "the sequence does not follow the template",
+          },
+        },
+        inacheve: {
+          quoi: "Missing member",
+          pourquoi:
+            "a link joins two members: one is missing. Write it, or remove the link.",
+        },
+        colonneVide: {
+          quoi: "Column name missing",
+          pourquoi:
+            "a sequence starts with a column name. The nine exposed names are listed below.",
         },
         colonne: {
           quoi: "Column \"{nom}\" is not in the exposed list",

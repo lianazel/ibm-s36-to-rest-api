@@ -1269,3 +1269,19 @@ section {
    déjà une rangée dès le premier pixel, et la largeur de lecture est tenue par
    `--measure` : il n'y a rien à enrichir ici. Le jour où « À propos » trouve un
    second domicile, la rangée de navigation revient à cette place. */
+
+/* LE RETOUR DU GESTE. Appuyer faisait pâlir le bouton, qui devient inerte au
+   même instant : cela se lisait comme une extinction, pas comme un envoi
+   réussi. Le sens plein/contour ne bouge pas ; ce qui s'ajoute est la trace de
+   l'appui.
+
+   Elle SURVIT AU RELÂCHEMENT, et c'est la réserve qui commande : sur un
+   iPhone, le pouce couvre le bouton pendant l'appui, donc une couleur qui ne
+   vit que sous le doigt ne se voit jamais. La durée est posée par le module,
+   pas ici : c'est un jugement de conception qui se juge sur l'appareil. */
+.champ .actions .envoyer.envoi,
+.champ .actions .envoyer.envoi:disabled {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: var(--color-bg);
+}
