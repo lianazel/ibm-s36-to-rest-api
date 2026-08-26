@@ -1557,6 +1557,17 @@ export function mountMiniLanguage({ dict, root }) {
       // C'est la troisième zone dont l'état pouvait dater, et elle ne se voyait
       // qu'à la bascule de langue : ni la frappe, ni l'envoi, ni une case
       // cochée ne l'atteignaient. Trouvée à la revue indépendante.
+      //
+      // LIMITE DITE PLUTÔT QUE MASQUÉE. Les deux traductions ne restent
+      // d'accord que tant que le retrait des retours à la ligne et la
+      // réécriture de langue COMMUTENT — `sent` a déjà perdu ses retours
+      // chariot à l'envoi, le champ non. Elles cessent de commuter quand une
+      // coupure tombe DANS un nom de colonne (`<villeCl⏎ient:` n'est plus
+      // reconnu) : le champ garde alors son nom français quand `sent` prend
+      // l'anglais, et « Envoyer » se rallume à tort. Mesuré le 26 août 2026 sur
+      // cinq positions de coupure : les quatre autres commutent. La réponse
+      // servie reste juste dans tous les cas — seul le signal d'état périmé
+      // ment, et il ment dans le sens prudent.
       if (sent.trim() !== "") {
         sent = translateExpression(sent, before, after);
       }
