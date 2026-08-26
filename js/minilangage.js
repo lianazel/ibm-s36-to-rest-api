@@ -1561,13 +1561,17 @@ export function mountMiniLanguage({ dict, root }) {
       // LIMITE DITE PLUTÔT QUE MASQUÉE. Les deux traductions ne restent
       // d'accord que tant que le retrait des retours à la ligne et la
       // réécriture de langue COMMUTENT — `sent` a déjà perdu ses retours
-      // chariot à l'envoi, le champ non. Elles cessent de commuter quand une
-      // coupure tombe DANS un nom de colonne (`<villeCl⏎ient:` n'est plus
-      // reconnu) : le champ garde alors son nom français quand `sent` prend
-      // l'anglais, et « Envoyer » se rallume à tort. Mesuré le 26 août 2026 sur
-      // cinq positions de coupure : les quatre autres commutent. La réponse
-      // servie reste juste dans tous les cas — seul le signal d'état périmé
-      // ment, et il ment dans le sens prudent.
+      // chariot à l'envoi, le champ non. Elles cessent de commuter dès qu'une
+      // coupure tombe DANS LE JETON `<nom:`, c'est-à-dire n'importe où entre le
+      // chevron et le premier deux-points, bornes comprises :
+      // `translateExpression` capture par /<([^:<]*):/ et ne reconnaît plus le
+      // nom. Mesuré le 26 août 2026 sur six positions — trois cassent (juste
+      // après le chevron, dans le nom, juste avant les deux-points), trois
+      // commutent (dans l'opérateur, dans la valeur, entre deux séquences). Le
+      // champ garde alors son nom français quand `sent` prend l'anglais, et
+      // « Envoyer » se rallume à tort. La réponse servie reste juste dans tous
+      // les cas — seul le signal d'état périmé ment, et il ment dans le sens
+      // prudent.
       if (sent.trim() !== "") {
         sent = translateExpression(sent, before, after);
       }
