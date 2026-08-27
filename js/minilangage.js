@@ -1005,7 +1005,7 @@ export function shapeFault(text) {
 }
 
 /**
- * L'indice d'une propriété du modèle, appariée À LA CASSE PRÈS.
+ * L'indice d'une propriété du modèle, appariée À LA CASSE ET AUX ESPACES PRÈS.
  *
  * Les valeurs toléraient déjà la casse — `DURAND`, `durand` et `DuRaNd`
  * trouvent les mêmes lignes —, les noms de colonnes non, et la page ne le
@@ -1026,9 +1026,26 @@ export function shapeFault(text) {
  * venait de passer. Même remède que `hasPendingLink`, et pour la même raison :
  * une règle écrite deux fois finit par diverger, et c'est la copie oubliée qui
  * mord.
+ *
+ * ET C'EST ARRIVÉ UNE SECONDE FOIS, sur ce même porteur, deux avenants plus
+ * tard : l'avenant 5 a posé la tolérance aux espaces dans `recognise` au lieu
+ * de la poser ici, et la bascule de langue s'est remise à refuser ce qui venait
+ * de passer — le défaut que ce commentaire décrit, reproduit à l'identique par
+ * qui l'avait sous les yeux. Les deux tolérances vivent donc DEDANS. Toute
+ * règle d'appariement à venir se pose ici, et nulle part ailleurs.
  */
 export function findPropertyIndex(model, name) {
-  const cible = String(name).toLowerCase();
+  // `trim` ICI, et non chez l'appelant : `recognise` rognait déjà le nom avant
+  // d'appeler, mais `translateExpression` non — si bien que la tolérance aux
+  // espaces de l'avenant 5 s'arrêtait à la porte de la bascule de langue.
+  // Mesuré : `< villeClient:[]:LY/>` — le cas fondateur, l'espace posée par le
+  // clavier après le chevron — passait en français, n'était pas traduit, et
+  // était refusé en anglais sur `colonne`. Deux graphies mordaient : l'espace
+  // avant le nom et celle après.
+  //
+  // Le porteur unique n'a de valeur que si la règle vit DEDANS. La sortir dans
+  // un seul de ses deux appelants, c'était n'avoir qu'un porteur de nom.
+  const cible = String(name).trim().toLowerCase();
   return model.findIndex((entry) => entry.property.toLowerCase() === cible);
 }
 
@@ -1241,6 +1258,34 @@ export function mountMiniLanguage({ dict, root }) {
    * compris quand le lecteur vide le champ et renvoie.
    */
   let sent = null;
+
+  /**
+   * LES DEUX SEULS LECTEURS DE `sent`. Rien d'autre ne le lit à cru.
+   *
+   * Cet incrément a livré TROIS fois le même défaut : une règle écrite à N
+   * endroits en oublie un. La liaison en attente (trois copies), l'appariement
+   * d'un nom de colonne (deux sites, et le porteur s'est fait contourner une
+   * seconde fois deux avenants plus tard), puis `sent` — quatre lectures, dont
+   * une oubliée quand la valeur d'arrivée est passée de `""` à `null`. Deux
+   * fois sur trois le remède retenu a été le porteur unique ; le troisième cas
+   * ne l'a pas eu, et c'est lui qui a mordu. Il l'a maintenant.
+   *
+   * ET LA MESURE DIT POURQUOI ÇA NE POUVAIT PAS ÊTRE UNE PORTE. La garde du
+   * `null` retirée du module, la suite reste verte à 346/346 : ces lectures
+   * vivent dans le câblage, qu'aucun test ne monte (famille [W13], aucun DOM
+   * sous Vitest). Faute de témoin mécanique, la seule défense disponible est
+   * qu'il n'y ait qu'un endroit à ne pas oublier.
+   *
+   * DEUX PORTEURS ET NON UN, parce que les lectures posent deux questions
+   * différentes. `sentText` demande « quel texte a été envoyé » et répond `""`
+   * pour l'absence comme pour la demande vide — c'est ce qu'il faut au calcul
+   * en aval. `hasSent` demande « quelque chose est-il parti », et c'est
+   * exactement la distinction que `sentText` efface. Les faire passer par un
+   * seul porteur rendrait `null` indiscernable de la chaîne vide, donc
+   * rallumerait la réponse-avant-la-demande que l'avenant 3 a retirée.
+   */
+  const sentText = () => sent ?? "";
+  const hasSent = () => sent !== null;
 
   const texts = () => dict[root.documentElement.lang]?.section4 ?? dict.fr.section4;
 
@@ -1480,7 +1525,7 @@ export function mountMiniLanguage({ dict, root }) {
 
     /* ---- UN SEUL PEINTRE, DEUX SOURCES (avenant 1, 25 août 2026).
        `render()` peint les deux zones : celle où l'on ÉCRIT se lit sur `typed`,
-       celle qui RÉPOND se lit sur `sent`. Un second peintre de la même zone est
+       celle qui RÉPOND se lit sur `sentText()`. Un second peintre d'une zone est
        exactement la façon dont une zone finit par montrer un état que l'autre a
        déjà quitté — défaut mesuré deux fois sur ce projet.
 
@@ -1524,9 +1569,9 @@ export function mountMiniLanguage({ dict, root }) {
     closeButton.disabled = !placeable || closeSequence(beforeCaret) === beforeCaret;
     andButton.disabled = !placeable || appendLink(beforeCaret, "&&") === beforeCaret;
     orButton.disabled = !placeable || appendLink(beforeCaret, "||") === beforeCaret;
-    // `sent ?? ""` : à l'arrivée, champ vide et rien d'envoyé, le bouton dort —
-    // il n'y a effectivement rien à envoyer.
-    sendButton.disabled = typed === (sent ?? "");
+    // À l'arrivée, champ vide et rien d'envoyé, le bouton dort — il n'y a
+    // effectivement rien à envoyer.
+    sendButton.disabled = typed === sentText();
 
     // Le marquage, DÉRIVÉ de `heldExample` : aucun second état, donc un seul
     // bouton marqué par construction, et le marquage tombe au même rendu que
@@ -1542,14 +1587,16 @@ export function mountMiniLanguage({ dict, root }) {
     });
 
     const rows = joinFiles(texts().modes, orders);
-    // LA ZONE DE RÉPONSE lit `sent`, et elle seule.
+    // LA ZONE DE RÉPONSE lit la demande envoyée, et elle seule.
     //
-    // `sent ?? ""` sert à garder tout le calcul en aval valide avant le premier
+    // `sentText()` sert à garder tout le calcul en aval valide avant le premier
     // envoi — la jointure et l'extinction de teinte doivent continuer de
     // répondre au doigt qui édite une commande, qui est resté immédiat. Ce que
-    // l'attente change, ce sont les trois SURFACES de réponse, plus bas.
-    const awaiting = sent === null;
-    const result = filterRows(sent ?? "", model, rows);
+    // l'attente change, ce sont les trois SURFACES de réponse, plus bas ; et
+    // c'est `hasSent()` qui porte cette question-là, parce que `sentText()`
+    // l'efface par construction.
+    const awaiting = !hasSent();
+    const result = filterRows(sentText(), model, rows);
 
     // Le texte entre élément par élément, par `textContent` seul : un motif de
     // refus cite ce que le lecteur vient de taper, et cette chaîne ne doit
@@ -1784,8 +1831,21 @@ export function mountMiniLanguage({ dict, root }) {
       // « Envoyer » se rallume à tort. La réponse servie reste juste dans tous
       // les cas — seul le signal d'état périmé ment, et il ment dans le sens
       // prudent.
-      if (sent.trim() !== "") {
-        sent = translateExpression(sent, before, after);
+      //
+      // `sent` vaut `null` tant que rien n'est parti (avenant 3) : le lire sans
+      // garde jetait une `TypeError` à toute bascule de langue faite AVANT le
+      // premier envoi — c'est-à-dire dans l'état d'arrivée que l'avenant 3
+      // venait justement d'instituer. `renderedLang` n'étant mis à jour
+      // qu'après, la page restait entière dans la langue d'avant.
+      //
+      // La garde passe par `sentText()`, comme les trois autres lectures : la
+      // graphie n'est plus à retenir, elle est au porteur. C'est un oubli qui a
+      // créé ce défaut — la valeur d'arrivée est passée de `""` à `null` sans
+      // que tous les chemins qui la consomment soient relus — et le porteur
+      // unique est ici la seule défense possible, la mesure de mutation ayant
+      // montré qu'aucune porte ne surveille ce câblage.
+      if (sentText().trim() !== "") {
+        sent = translateExpression(sentText(), before, after);
       }
     }
     renderedLang = lang;

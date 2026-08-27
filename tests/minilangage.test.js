@@ -1474,6 +1474,30 @@ describe("L'état d'arrivée : la chaîne vide est une demande, `null` est l'abs
     expect(inerte("", "")).toBe(true);                      // demande vide envoyée
     expect(inerte(`<${FR[0].property}:[=:DUR/>`, null)).toBe(false);  // écrit, pas envoyé
   });
+
+  it("GARDIEN DE LA BASCULE À VIDE : traduire une demande absente ne fait rien, et ne jette pas", () => {
+    // La quatrième lecture de `sent`, oubliée quand la valeur d'arrivée est
+    // passée de `""` à `null`. Non gardée, `sent.trim()` jetait une
+    // `TypeError` à toute bascule de langue faite AVANT le premier envoi —
+    // c'est-à-dire depuis l'état d'arrivée que l'avenant 3 venait d'instituer.
+    // Le jet tombait AVANT la mise à jour de `renderedLang` : la page entière
+    // restait dans la langue d'avant, et le désaccord `lang`/`renderedLang`
+    // interdisait ensuite la traduction au retour.
+    //
+    // Le câblage vit dans `mountMiniLanguage` ([W13]) ; ce qui se garde ici est
+    // la RÈGLE que la garde applique. `sentText` est une fermeture du montage,
+    // donc non importable : la porte rejoue ce qu'il rend, elle ne l'appelle
+    // pas. Elle documente, elle ne garde pas — mesuré, et non supposé : la
+    // garde retirée du module, la suite reste verte.
+    const sentText = (sent) => sent ?? "";
+    const traduire = (sent) =>
+      sentText(sent).trim() !== "" ? translateExpression(sentText(sent), FR, EN) : sent;
+
+    expect(traduire(null)).toBe(null);   // arrivée : rien n'est parti, rien ne bouge
+    expect(traduire("")).toBe("");       // demande vide envoyée : rien à réécrire
+    expect(traduire("   ")).toBe("   "); // et une demande d'espaces n'est pas une demande
+    expect(traduire(`<${FR[0].property}:[=:DUR/>`)).toBe(`<${EN[0].property}:[=:DUR/>`);
+  });
 });
 
 /* ---------------------------- AVENANT 4 : les noms de colonnes tolèrent la
@@ -1549,21 +1573,50 @@ describe("Les espaces autour du nom et de l'opérateur sont absorbées", () => {
   // INVISIBLE, pire que celle de casse — là il pouvait au moins voir la
   // majuscule.
   const serree = `<${FR[0].property}:[=:DUR/>`;
+  const positions = [
+    `< ${FR[0].property}:[=:DUR/>`,
+    `<${FR[0].property} :[=:DUR/>`,
+    `<${FR[0].property}: [=:DUR/>`,
+  ];
 
   it("les trois positions d'espace rendent LA MÊME condition que la forme serrée", () => {
     const attendu = recognise(serree, FR);
     expect(attendu.ok).toBe(true);
-    for (const texte of [
-      `< ${FR[0].property}:[=:DUR/>`,
-      `<${FR[0].property} :[=:DUR/>`,
-      `<${FR[0].property}: [=:DUR/>`,
-    ]) {
+    for (const texte of positions) {
       const read = recognise(texte, FR);
       expect(read.ok, texte).toBe(true);
       // Comparaison d'objets, et non trois assertions qui se ressemblent :
       // c'est l'identité du résultat qui compte, pas la seule acceptation.
       expect(read.conditions, texte).toEqual(attendu.conditions);
     }
+  });
+
+  it("GARDIEN DU SECOND SITE : les trois positions se traduisent comme la forme serrée", () => {
+    // Même porte que pour les quatre graphies de casse, et pour la même raison
+    // — mais elle a dû être écrite DEUX FOIS, à deux avenants d'écart, parce
+    // que la tolérance aux espaces a été posée dans `recognise` au lieu de
+    // l'être dans `findPropertyIndex`. `< nomClient:[=:DUR/>` passait donc en
+    // français, n'était pas traduit, et se faisait refuser sur `colonne` une
+    // bascule plus tard : la page reprochait au lecteur un nom qu'elle venait
+    // d'accepter, et que son propre clavier avait écrit.
+    //
+    // Ce que la porte juge n'est pas la seule réécriture, mais le RÉSULTAT en
+    // langue d'arrivée : c'est le refus qui était le défaut, pas la chaîne.
+    const attendu = filterRows(translateExpression(serree, FR, EN), EN, ROWS_EN);
+    expect(attendu.ok).toBe(true);
+    for (const texte of positions) {
+      const traduit = translateExpression(texte, FR, EN);
+      const read = filterRows(traduit, EN, ROWS_EN);
+      expect(read.ok, texte).toBe(true);
+      expect(read.rows.length, texte).toBe(attendu.rows.length);
+    }
+    // Et la réécriture NORMALISE le jeton, comme elle le fait pour la casse :
+    // les deux espaces qui bordent le nom sont dans le jeton `<nom:` que
+    // `translateExpression` reconstruit, celle qui suit les deux-points est
+    // hors capture — elle appartient à l'opérateur, et elle survit.
+    expect(translateExpression(positions[0], FR, EN)).toBe(`<${EN[0].property}:[=:DUR/>`);
+    expect(translateExpression(positions[1], FR, EN)).toBe(`<${EN[0].property}:[=:DUR/>`);
+    expect(translateExpression(positions[2], FR, EN)).toBe(`<${EN[0].property}: [=:DUR/>`);
   });
 
   it("elle n'accepte pas un nom faux : la frontière ne bouge pas", () => {
