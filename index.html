@@ -326,8 +326,36 @@
 
         <p class="champ">
           <label for="mini-filtre" data-i18n="section4.champ.filtre"></label>
-          <input type="text" id="mini-filtre" autocomplete="off" autocapitalize="off"
-                 autocorrect="off" spellcheck="false">
+          <!-- Une zone REPLIÉE, et non plus une ligne : la plus longue expression
+               que la page écrit fait 83 caractères en anglais, quand aucune largeur
+               disponible n'en montre plus de 66. Sur une ligne, le champ cachait
+               forcément une partie de ce que le lecteur venait de poser. -->
+          <textarea id="mini-filtre" rows="3" autocomplete="off" autocapitalize="off"
+                    autocorrect="off" spellcheck="false"></textarea>
+          <!-- Les trois signes de structure du langage, et EUX SEULS : ils achèvent
+               un geste commencé, ils n'apprennent pas à taper. Leur étiquette est le
+               signe lui-même (il montre ce qu'il insère), et leur nom accessible
+               vient du dictionnaire, comme le bouton de menu plus haut.
+
+               LE NOM ACCESSIBLE COMMENCE PAR LE SIGNE AFFICHÉ (WCAG 2.5.3 « Label
+               in Name », niveau A) : sans cela, un nom entièrement disjoint de
+               l'étiquette visible rend ces trois boutons inatteignables à la
+               commande vocale — qui dit ce qu'elle voit. Le quatrième ne pose pas
+               la question : son libellé visible EST son nom. -->
+          <span class="actions">
+            <button type="button" id="mini-fermer" class="signe"
+                    aria-label="/&gt; Fermer la séquence"
+                    data-i18n-attr="aria-label:section4.champ.fermer">/&gt;</button>
+            <button type="button" id="mini-et" class="signe"
+                    aria-label="&amp;&amp; Fermer et enchaîner avec ET"
+                    data-i18n-attr="aria-label:section4.champ.et">&amp;&amp;</button>
+            <button type="button" id="mini-ou" class="signe"
+                    aria-label="|| Fermer et enchaîner avec OU"
+                    data-i18n-attr="aria-label:section4.champ.ou">||</button>
+            <button type="button" id="mini-envoyer" class="envoyer"
+                    data-i18n="section4.champ.envoyer"></button>
+          </span>
+          <small class="paysage" data-i18n="section4.champ.paysage"></small>
         </p>
         <p id="mini-statut" class="statut" aria-live="polite"></p>
 

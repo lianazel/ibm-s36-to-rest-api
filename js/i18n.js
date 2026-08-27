@@ -293,9 +293,39 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
       },
       refus: {
         forme: {
-          quoi: "Forme non reconnue",
+          quoi: "Forme non reconnue : {faute}",
           pourquoi:
-            "une séquence s'écrit <colonne:opérateur:valeur/>, dans cet ordre et sans rien autour. Par exemple <nomClient:=]:UR/> : d'abord la colonne, puis le test, puis la valeur. L'opérateur va au milieu, jamais à la fin.",
+            "une séquence s'écrit <colonne:opérateur:valeur/>, dans cet ordre et sans rien autour. Par exemple <nomClient:=]:UR/> : d'abord la colonne, puis le test, puis la valeur.",
+          // Les cinq fautes, servies par {faute} dans le titre. La page NOMME
+          // la faute au lieu de réciter la règle : le nom de la faute EST le
+          // localisateur, et il évite de citer un fragment de lecteur sans
+          // borne, illisible sur un téléphone en portrait.
+          //
+          // La dernière phrase de `pourquoi` a migré ici, dans `operateurFin` :
+          // elle n'était vraie que pour un cas sur cinq, et la page la servait
+          // aux cinq.
+          fautes: {
+            ouvrant: "il manque le chevron ouvrant « < »",
+            fermant: "il manque la fermeture « /> »",
+            deuxPoints: "il manque un deux-points, une séquence en porte deux",
+            operateurFin: "l'opérateur va au milieu, jamais à la fin",
+            generique: "le membre ne tient pas dans le gabarit",
+          },
+        },
+        // Un membre vide n'est pas raté, il est INACHEVÉ : c'est l'état que les
+        // boutons de liaison produisent eux-mêmes.
+        inacheve: {
+          quoi: "Membre manquant",
+          pourquoi:
+            "la liaison relie deux membres : il en manque un. Écrivez-le, ou retirez la liaison.",
+        },
+        // Le voisin immédiat du geste qui a fondé l'avenant 5 : un caractère de
+        // moins effacé, et le lecteur tombait ici. Le renvoi vers la liste est
+        // la même phrase que `colonne` : même remède, cause différente.
+        colonneVide: {
+          quoi: "Nom de colonne absent",
+          pourquoi:
+            "une séquence commence par le nom d'une colonne. Les neuf noms exposés sont listés plus bas.",
         },
         colonne: {
           quoi: "Colonne « {nom} » hors de la liste exposée",
@@ -335,7 +365,22 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
       },
       zone1: { titre: "Ce que l'appelant demande" },
       zone2: { titre: "La classe que la machine vient de fabriquer" },
-      champ: { filtre: "Filtre" },
+      champ: {
+        filtre: "Filtre",
+        // Le contournement mesuré cesse d'être un secret. Elle ne dit PAS
+        // pourquoi le paysage aide : seul le contournement a été mesuré, pas
+        // son mécanisme.
+        paysage: "Sur téléphone, le mode paysage donne plus de place pour lire une expression longue.",
+        // Noms accessibles des trois boutons à signe : jamais affichés, donc
+        // invisibles à une relecture d'écran. Leur fratrie se vérifie alignée.
+        fermer: "/> Fermer la séquence",
+        et: "&& Fermer et enchaîner avec ET",
+        ou: "|| Fermer et enchaîner avec OU",
+        envoyer: "Envoyer la demande",
+        // Servie par le module aux trois surfaces de réponse tant que rien
+        // n'est parti : la page ne répond pas à une demande qu'on n'a pas faite.
+        attente: "Envoyez la demande pour voir la réponse.",
+      },
       colonnes: {
         titre: "Colonnes voulues",
         note: "Ces noms sont ceux que le modèle C# expose (voir la sous-section « Avec un modèle de données C# », à la section 3). Le fichier, lui, garde les siens : ils sont rappelés en gris, avec le fichier d'où chacun sort.",
@@ -343,6 +388,9 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
       exemples: {
         note: "Des exemples à cliquer : chacun remplit le champ « Filtre » à votre place. Les gris passent ; les rouges tentent une demande interdite, et c'est leur refus qu'ils servent à montrer.",
         repos: "Survolez un exemple, ou touchez-le, pour lire ce qu'il démontre.",
+        // La réserve qui rend l'explication falsifiable : les aides gelées
+        // annoncent des comptes ("2 commandes ici") que l'édition peut démentir.
+        donneesModifiees: "Vous avez modifié les données : les comptes de cette explication valent pour les données d'origine.",
       },
       morale: "Aucune de ces classes n'existe dans le code.",
       json: {
@@ -767,9 +815,26 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
       },
       refus: {
         forme: {
-          quoi: "Shape not recognised",
+          quoi: "Shape not recognised: {faute}",
           pourquoi:
-            "a sequence is written <column:operator:value/>, in that order and with nothing around it. For example <customerLastName:=]:UR/>: the column first, then the test, then the value. The operator sits in the middle, never at the end.",
+            "a sequence is written <column:operator:value/>, in that order and with nothing around it. For example <customerLastName:=]:UR/>: the column first, then the test, then the value.",
+          fautes: {
+            ouvrant: "the opening angle bracket \"<\" is missing",
+            fermant: "the closing \"/>\" is missing",
+            deuxPoints: "a colon is missing; a sequence carries two",
+            operateurFin: "the operator sits in the middle, never at the end",
+            generique: "the member does not fit the template",
+          },
+        },
+        inacheve: {
+          quoi: "Missing member",
+          pourquoi:
+            "the link joins two members: one is missing. Write it, or remove the link.",
+        },
+        colonneVide: {
+          quoi: "Column name missing",
+          pourquoi:
+            "a sequence begins with a column name. All nine exposed names are listed below.",
         },
         colonne: {
           quoi: "Column \"{nom}\" is not in the exposed list",
@@ -808,7 +873,15 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
       },
       zone1: { titre: "What the caller asks for" },
       zone2: { titre: "The class the machine has just built" },
-      champ: { filtre: "Filter" },
+      champ: {
+        filtre: "Filter",
+        paysage: "On a phone, landscape gives more room to read a long expression.",
+        fermer: "/> Close the sequence",
+        et: "&& Close and chain with AND",
+        ou: "|| Close and chain with OR",
+        envoyer: "Send the request",
+        attente: "Send the request to see the response.",
+      },
       colonnes: {
         titre: "Columns wanted",
         note: "These names are the ones the C# model exposes (see the subsection \"With a C# data model\", in section 3). The file keeps its own: they are recalled in grey, with the file each one comes from.",
@@ -816,6 +889,7 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
       exemples: {
         note: "Examples to click: each one fills the Filter field for you. The grey ones go through; the red ones attempt a forbidden request, and it is their refusal they are there to show.",
         repos: "Hover over an example, or tap it, to read what it demonstrates.",
+        donneesModifiees: "You have changed the data: the counts in this explanation hold for the original data.",
       },
       morale: "None of these classes exists in the code.",
       json: {

@@ -8,22 +8,31 @@
  * une valeur renommée d'un côté sans l'autre fait rougir la famille « agnostique
  * de la langue », qui exige les mêmes comptes des deux côtés.
  */
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { dict } from "../js/i18n.js";
 import { parseImplicitDecimal } from "../js/s36.js";
 import {
+  appendLink,
+  applyExample,
   buildModel,
   buildNaiveQuery,
   buildParameterisedQuery,
+  caretAllowsStructure,
   CDEMST,
   CLIMST,
+  closeSequence,
   CMLIV,
   className,
   DEFAULT_SELECTION,
   EXAMPLES,
   exampleExpression,
+  fill,
   filterRows,
   findOrphans,
+  findPropertyIndex,
+  hasEdits,
+  hasPendingLink,
   initialSelection,
   joinFiles,
   MODLIV_CODES,
@@ -32,6 +41,8 @@ import {
   recognise,
   renderClass,
   renderJson,
+  shapeFault,
+  stripLineBreaks,
   translateExpression,
 } from "../js/minilangage.js";
 
@@ -117,10 +128,13 @@ describe("le reconnaisseur : une forme close, et rien autour", () => {
     expect(refusalOf(expression).code).toBe(code);
   });
 
-  it("les neuf refus ont tous leur couple de valeurs, dans les deux langues", () => {
+  it("les onze refus ont tous leur couple de valeurs, dans les deux langues", () => {
+    // Onze depuis l'avenant 5 : `inacheve` et `colonneVide` s'ajoutent aux neuf.
+    // Un catalogue de refus qui laisse un trou n'est pas un catalogue.
     const codes = [
       "forme", "colonne", "operateur", "interdit", "type",
       "valeurVide", "tropCourt", "bornes", "liaison",
+      "inacheve", "colonneVide",
     ];
     for (const lang of ["fr", "en"]) {
       for (const code of codes) {
@@ -613,9 +627,12 @@ describe("avenant 2 : ce que la page affirme doit être vrai", () => {
     };
     const fr = cles(dict.fr.section4);
     const en = cles(dict.en.section4);
-    // 94 au sortir de l'incrément 6, plus les 23 clés du second sous-incrément.
-    expect(fr).toHaveLength(117);
-    expect(en).toHaveLength(117);
+    // 94 au sortir de l'incrément 6, plus les 23 clés du second sous-incrément,
+    // plus les 7 du confort de saisie : six `champ.*` (dont `attente`, gelée à
+    // l'avenant 3) et `exemples.donneesModifiees` ; plus les 9 de l'avenant 5 :
+    // les cinq `refus.forme.fautes`, et les couples `inacheve` et `colonneVide`.
+    expect(fr).toHaveLength(133);
+    expect(en).toHaveLength(133);
     expect(fr).toEqual(en);
   });
 });
@@ -1135,5 +1152,825 @@ describe("l'avertissement de périmètre vit sur la fonction, pas seulement en t
       expect(commentaire, nom).toMatch(/exécuté|EXÉCUT/);
       expect(commentaire, nom).toMatch(/ni base|aucune base|ni pilote/);
     }
+  });
+});
+
+/* ------------------------------------- LE CONFORT DE SAISIE (incrément 9)
+
+   Quatre fonctions pures, et rien du câblage : l'écouteur, l'état des boutons
+   et la coupure en deux zones vivent dans `mountMiniLanguage`, sous [W13]
+   (aucun DOM sous Vitest). Ce que ces suites gardent, ce sont les RÈGLES. */
+
+describe("stripLineBreaks : le retour chariot est ignoré à la lecture, jamais retiré du champ", () => {
+  it("rend un texte sans retour à la ligne inchangé, à l'octet près", () => {
+    const texte = `<${FR[0].property}:[=:DUR/> && <${FR[2].property}:==:EXP/>`;
+    expect(stripLineBreaks(texte)).toBe(texte);
+  });
+
+  it("retire les trois formes, et compte le `\\r\\n` de Windows une seule fois", () => {
+    expect(stripLineBreaks("a\nb")).toBe("ab");
+    expect(stripLineBreaks("a\rb")).toBe("ab");
+    // Un texte collé depuis Windows porte DEUX caractères pour une seule
+    // coupure : les traiter séparément mangerait un cran de trop.
+    expect(stripLineBreaks("a\r\nb")).toBe("ab");
+    expect(stripLineBreaks("a\r\nb")).toHaveLength(2);
+  });
+
+  it("ne touche jamais aux espaces ordinaires : dans ce langage une espace compte", () => {
+    // La valeur d'injection en porte deux, et elles font partie de la
+    // démonstration : les avaler changerait ce que la page prouve.
+    expect(stripLineBreaks("D' OR '1'='1")).toBe("D' OR '1'='1");
+    expect(stripLineBreaks("  <a:b:c/>  ")).toBe("  <a:b:c/>  ");
+  });
+});
+
+describe("stripLineBreaks : les cinq positions, jugées sur ce qui est LU", () => {
+  // Le test porte sur le RÉSULTAT de la lecture, jamais sur la chaîne
+  // nettoyée : c'est la demande lue par la page qui doit être la bonne.
+  const NOM = FR[0].property;
+  const MODE = FR[2].property;
+  const lire = (texte) => filterRows(stripLineBreaks(texte), FR, ROWS_FR);
+
+  it("entre deux séquences : sans effet, les deux conditions sont lues", () => {
+    const read = lire(`<${NOM}:[=:DUR/>\n && <${MODE}:==:EXP/>`);
+    expect(read.ok).toBe(true);
+    expect(read.conditions).toHaveLength(2);
+  });
+
+  it("juste avant `&&`, sans espace : sans effet", () => {
+    const read = lire(`<${NOM}:[=:DUR/>\n&& <${MODE}:==:EXP/>`);
+    expect(read.ok).toBe(true);
+    expect(read.conditions).toHaveLength(2);
+  });
+
+  it("collé depuis Windows (`\\r\\n`) : sans effet", () => {
+    const read = lire(`<${NOM}:[=:DUR/>\r\n && <${MODE}:==:EXP/>`);
+    expect(read.ok).toBe(true);
+    expect(read.conditions).toHaveLength(2);
+  });
+
+  it("dans l'opérateur : l'opérateur est lu, la demande passe", () => {
+    // L'espace de remplacement, elle, donnait un opérateur `[= ` que rien à
+    // l'écran ne distingue de `[=` — et un refus incompréhensible.
+    const read = lire(`<${NOM}:[=\n:DUR/>`);
+    expect(read.ok).toBe(true);
+    expect(read.conditions[0].operator).toBe("[=");
+  });
+
+  it("dans une valeur : la valeur est recollée, et les lignes sont trouvées", () => {
+    const read = lire(`<${NOM}:==:DU\nRAND/>`);
+    expect(read.ok).toBe(true);
+    expect(read.conditions[0].value).toBe("DURAND");
+    // L'espace de remplacement donnait `DU RAND`, et aucune ligne.
+    expect(read.rows.length).toBeGreaterThan(0);
+    expect(read.rows.every((row) => row.NOMCLI === "DURAND")).toBe(true);
+  });
+});
+
+describe("closeSequence : elle complète, elle ne répare pas", () => {
+  it("ne touche pas à ce qui n'a rien à fermer", () => {
+    expect(closeSequence("")).toBe("");
+    expect(closeSequence("   ")).toBe("   ");
+    expect(closeSequence("<a:b:c/>")).toBe("<a:b:c/>");
+  });
+
+  it("ne ferme pas une liaison en attente de sa séquence", () => {
+    // Sans cette garde, `<a:b:c/> && ` donnait `<a:b:c/> &&/>` — une absurdité
+    // atteignable dès que le lecteur appuie sur `/>` après un bouton de liaison.
+    expect(closeSequence("<a:b:c/> && ")).toBe("<a:b:c/> && ");
+    expect(closeSequence("<a:b:c/> || ")).toBe("<a:b:c/> || ");
+  });
+
+  it("ferme une séquence ouverte, et absorbe les espaces de fin", () => {
+    expect(closeSequence("<a:b:c")).toBe("<a:b:c/>");
+    expect(closeSequence("<a:b:c   ")).toBe("<a:b:c/>");
+  });
+
+  it("GARDIEN DE LA LIGNE GRAVÉE : la séquence fermée reste refusée", () => {
+    // Le cas mesuré sur iPhone 14 : le lecteur a tapé un opérateur de trop.
+    // Le bouton ferme ce qu'il n'avait pas fini d'écrire — il ne redresse PAS
+    // le `===` qu'il a fini et raté. Si ce test devient vert en rendant une
+    // expression VALIDE, c'est que quelqu'un a fait de ce bouton un correcteur.
+    //
+    // Le refus se DÉPLACE en se fermant, et c'est la démonstration même :
+    // `forme` tant que la séquence est ouverte, `operateur` une fois fermée,
+    // parce que la page peut enfin voir la vraie faute. (Le prompt gelé
+    // annonçait `forme` après fermeture : mesuré ici, c'est `operateur` —
+    // l'invariant qui compte, « toujours refusée », est intact.)
+    const ouvert = `<${FR[8].property}:===:l`;
+    expect(recognise(ouvert, FR).refusal.code).toBe("forme");
+
+    const ferme = closeSequence(ouvert);
+    expect(ferme).toBe(`<${FR[8].property}:===:l/>`);
+    const read = recognise(ferme, FR);
+    expect(read.ok).toBe(false);
+    expect(read.refusal.code).toBe("operateur");
+  });
+});
+
+describe("appendLink : elle ferme d'abord, puis enchaîne", () => {
+  it("ne fait rien quand il n'y a rien à lier", () => {
+    expect(appendLink("", "&&")).toBe("");
+    expect(appendLink("   ", "||")).toBe("   ");
+  });
+
+  it("ferme la séquence en cours avant d'ajouter la liaison", () => {
+    expect(appendLink("<a:b:c", "&&")).toBe("<a:b:c/> && ");
+    expect(appendLink("<a:b:c/>", "&&")).toBe("<a:b:c/> && ");
+    expect(appendLink("<a:b:c/>", "||")).toBe("<a:b:c/> || ");
+  });
+
+  it("reste inerte quand une liaison attend déjà sa séquence", () => {
+    expect(appendLink("<a:b:c/> && ", "&&")).toBe("<a:b:c/> && ");
+    expect(appendLink("<a:b:c/> && ", "||")).toBe("<a:b:c/> && ");
+  });
+
+  it("GARDIEN DE LA LEÇON : le mélange de ET et de OU reste atteignable", () => {
+    // La rangée n'empêche jamais le lecteur d'atteindre ce refus : l'exemple
+    // « ET mêlé à OU » existe pour le montrer. Une prévenance qui désactiverait
+    // `||` en présence d'un `&&` lui volerait ce qu'il vient voir.
+    const mele = appendLink(
+      `<${FR[0].property}:[=:DUR/> && <${FR[8].property}:==:LYON/>`,
+      "||",
+    );
+    expect(mele).toBe(
+      `<${FR[0].property}:[=:DUR/> && <${FR[8].property}:==:LYON/> || `,
+    );
+    const read = recognise(`${mele}<${FR[0].property}:[=:MAR/>`, FR);
+    expect(read.ok).toBe(false);
+    expect(read.refusal.code).toBe("liaison");
+  });
+});
+
+describe("hasEdits : le lecteur a-t-il modifié les commandes ?", () => {
+  const copie = () => CDEMST.map((order) => ({ ...order }));
+
+  it("l'origine n'est pas une modification", () => {
+    expect(hasEdits(copie())).toBe(false);
+  });
+
+  it("une cellule changée suffit", () => {
+    const orders = copie();
+    orders[0].NOMCLI = "DURANT";
+    expect(hasEdits(orders)).toBe(true);
+  });
+
+  it("retapée à l'identique, elle ne l'est plus", () => {
+    const orders = copie();
+    orders[0].NOMCLI = "DURANT";
+    orders[0].NOMCLI = "DURAND";
+    expect(hasEdits(orders)).toBe(false);
+  });
+
+  it("la casse compte : ce détecteur constate, il ne juge pas la jointure", () => {
+    // La jointure, elle, tolère la casse. Les deux règles sont distinctes et
+    // c'est voulu : la donnée n'est plus celle d'origine, même si le lien tient.
+    const orders = copie();
+    orders[0].NOMCLI = "durand";
+    expect(hasEdits(orders)).toBe(true);
+  });
+
+  it("les dix-huit commandes sont parcourues, pas seulement la première", () => {
+    const orders = copie();
+    orders[17].MTTCDE = "000000001";
+    expect(hasEdits(orders)).toBe(true);
+    expect(orders).toHaveLength(18);
+  });
+});
+
+describe("Le modèle d'envoi : la règle de l'inerte", () => {
+  // Le câblage est sous [W13] ; ce qui se garde ici, c'est la RÈGLE qui protège
+  // du défaut d'état périmé — « Envoyer » éteint veut dire « la réponse
+  // affichée correspond à ce que vous lisez ».
+  const inerte = (champ, sent) => stripLineBreaks(champ) === sent;
+
+  it("à l'arrivée : champ vide, rien d'envoyé, bouton inerte", () => {
+    expect(inerte("", "")).toBe(true);
+  });
+
+  it("le champ rempli par un exemple, sans envoi : bouton ACTIF", () => {
+    // C'est l'arbitrage du 25 août : cliquer écrit la demande, le lecteur
+    // l'envoie. Le résultat doit rester sa découverte.
+    const exemple = exampleExpression(EXAMPLES[0], FR);
+    expect(inerte(exemple, "")).toBe(false);
+  });
+
+  it("deux frappes sans envoi ne changent pas ce qui a été envoyé", () => {
+    const sent = `<${FR[0].property}:[=:DUR/>`;
+    expect(inerte(`${sent}X`, sent)).toBe(false);
+    expect(inerte(`${sent}XY`, sent)).toBe(false);
+  });
+
+  it("un envoi remplace la demande lue, et rendort le bouton", () => {
+    const champ = `<${FR[0].property}:[=:DUR/>`;
+    const sent = stripLineBreaks(champ);
+    expect(inerte(champ, sent)).toBe(true);
+  });
+
+  it("un retour chariot ajouté ne réveille pas le bouton : rien de neuf à envoyer", () => {
+    const sent = `<${FR[0].property}:[=:DUR/>`;
+    expect(inerte(`<${FR[0].property}:[=:DUR/>\n`, sent)).toBe(true);
+  });
+});
+
+describe("La bascule de langue : les deux zones parlent la même langue", () => {
+  // Trouvée à la revue indépendante du 25 août 2026 : la coupure en deux zones
+  // traduisait le champ et laissait la demande ENVOYÉE dans la langue d'avant.
+  // La zone de réponse refusait alors sur un nom de colonne que rien à l'écran
+  // ne portait plus. Ni la frappe, ni l'envoi, ni une case cochée n'atteignaient
+  // ce défaut : seule la bascule le révélait.
+  const envoyee = `<${FR[8].property}:==:LYON/>`;
+
+  it("la demande envoyée, laissée dans la langue d'avant, refuse sur un nom absent de l'écran", () => {
+    const orpheline = filterRows(envoyee, EN, ROWS_EN);
+    expect(orpheline.ok).toBe(false);
+    expect(orpheline.refusal.code).toBe("colonne");
+    // Le champ, lui, montre déjà le nom anglais : les deux zones se contredisent.
+    expect(translateExpression(envoyee, FR, EN)).toBe(`<${EN[8].property}:==:LYON/>`);
+  });
+
+  it("traduite avec le champ, elle sert exactement les mêmes lignes", () => {
+    const avant = filterRows(envoyee, FR, ROWS_FR);
+    const apres = filterRows(translateExpression(envoyee, FR, EN), EN, ROWS_EN);
+    expect(avant.ok).toBe(true);
+    expect(apres.ok).toBe(true);
+    expect(apres.rows).toHaveLength(avant.rows.length);
+  });
+});
+
+/* ------------------------------- AVENANT 3 : ce que la passe d'appareil a
+   trouvé, et qu'aucun fichier ne portait (26 août 2026). */
+
+describe("hasPendingLink : un seul porteur pour une règle qui en avait trois", () => {
+  it("dit vrai quand, et seulement quand, une liaison attend sa séquence", () => {
+    expect(hasPendingLink("")).toBe(false);
+    expect(hasPendingLink("   ")).toBe(false);
+    expect(hasPendingLink("<a:b:c/>")).toBe(false);
+    expect(hasPendingLink("<a:b:c/> &&")).toBe(true);
+    expect(hasPendingLink("<a:b:c/> ||")).toBe(true);
+    // Les espaces de fin sont absorbées : le bouton laisse « <a/> && ».
+    expect(hasPendingLink("<a:b:c/> &&   ")).toBe(true);
+    // La liaison n'attend plus : elle a reçu sa séquence.
+    expect(hasPendingLink("<a:b:c/> && <d:e:f/>")).toBe(false);
+  });
+
+  it("LE TEST QUI VAUT LE CORRECTIF : les trois appelants s'accordent sur le même texte", () => {
+    // La même notion était écrite trois fois, et l'endroit qui l'ignorait est
+    // celui qui a mordu. Un seul prédicat, trois comportements cohérents —
+    // vérifiés ensemble, jamais séparément.
+    const enAttente = "<a:b:c/> && ";
+    expect(hasPendingLink(enAttente)).toBe(true);
+    expect(closeSequence(enAttente)).toBe(enAttente);          // rien à fermer
+    expect(appendLink(enAttente, "||")).toBe(enAttente);       // rien à empiler
+    expect(applyExample(enAttente, "<d:e:f/>")).toBe("<a:b:c/> && <d:e:f/>"); // on ajoute
+
+    const fini = "<a:b:c/>";
+    expect(hasPendingLink(fini)).toBe(false);
+    expect(closeSequence(fini)).toBe(fini);
+    expect(appendLink(fini, "||")).toBe("<a:b:c/> || ");
+    expect(applyExample(fini, "<d:e:f/>")).toBe("<d:e:f/>");   // on remplace
+  });
+});
+
+describe("applyExample : le clic complète, il ne détruit pas", () => {
+  it("LE CAS MORDU sur iPhone 14 : la liaison composée au doigt survit", () => {
+    // Le lecteur avait composé `<nomClient:[]:AR/> ||` au doigt — le geste le
+    // plus coûteux de la page — puis cliqué « commence par » pour remplir le
+    // second membre. Tout partait.
+    const compose = `<${FR[0].property}:[]:AR/> ||`;
+    const exemple = exampleExpression(EXAMPLES[0], FR);
+    const apres = applyExample(compose, exemple);
+    expect(apres).toBe(`<${FR[0].property}:[]:AR/> || ${exemple}`);
+    // L'expression du lecteur est toujours là, à l'octet près.
+    expect(apres.startsWith(`<${FR[0].property}:[]:AR/>`)).toBe(true);
+    // Et le tout se lit : le refus du mélange n'est pas en cause ici.
+    expect(recognise(apres, FR).ok).toBe(true);
+  });
+
+  it("remplace quand aucune liaison n'attend, y compris sur champ vide", () => {
+    // Sans liaison en attente, ajouter exigerait d'INVENTER un `&&` que le
+    // lecteur n'a pas demandé : ce serait deviner son intention.
+    expect(applyExample("", "<d:e:f/>")).toBe("<d:e:f/>");
+    expect(applyExample("<a:b:c/>", "<d:e:f/>")).toBe("<d:e:f/>");
+    expect(applyExample("<a:b:c", "<d:e:f/>")).toBe("<d:e:f/>");
+  });
+});
+
+describe("L'état d'arrivée : la chaîne vide est une demande, `null` est l'absence de demande", () => {
+  // La distinction elle-même vit dans le câblage, famille [W13] : ce qui se
+  // teste ici est ce qui la REND nécessaire — une demande vide ENVOYÉE est une
+  // demande sans condition, et elle sert les dix-huit lignes. Confondre les
+  // deux, c'est répondre avant qu'on ait demandé.
+  it("une demande vide envoyée n'est pas un refus : elle sert tout le fichier", () => {
+    const read = filterRows("", FR, ROWS_FR);
+    expect(read.ok).toBe(true);
+    expect(read.rows).toHaveLength(18);
+    expect(read.total).toBe(18);
+  });
+
+  it("la règle de l'inerte tolère l'absence de demande sans la confondre avec une demande vide", () => {
+    // `sent ?? ""` : à l'arrivée le bouton dort, parce qu'il n'y a rien à
+    // envoyer — et non parce qu'une demande vide aurait déjà été envoyée.
+    const inerte = (champ, sent) => stripLineBreaks(champ) === (sent ?? "");
+    expect(inerte("", null)).toBe(true);                    // arrivée
+    expect(inerte("", "")).toBe(true);                      // demande vide envoyée
+    expect(inerte(`<${FR[0].property}:[=:DUR/>`, null)).toBe(false);  // écrit, pas envoyé
+  });
+
+  it("GARDIEN DE LA BASCULE À VIDE : traduire une demande absente ne fait rien, et ne jette pas", () => {
+    // La quatrième lecture de `sent`, oubliée quand la valeur d'arrivée est
+    // passée de `""` à `null`. Non gardée, `sent.trim()` jetait une
+    // `TypeError` à toute bascule de langue faite AVANT le premier envoi —
+    // c'est-à-dire depuis l'état d'arrivée que l'avenant 3 venait d'instituer.
+    // Le jet tombait AVANT la mise à jour de `renderedLang` : la page entière
+    // restait dans la langue d'avant, et le désaccord `lang`/`renderedLang`
+    // interdisait ensuite la traduction au retour.
+    //
+    // Le câblage vit dans `mountMiniLanguage` ([W13]) ; ce qui se garde ici est
+    // la RÈGLE que la garde applique. `sentText` est une fermeture du montage,
+    // donc non importable : la porte rejoue ce qu'il rend, elle ne l'appelle
+    // pas. Elle documente, elle ne garde pas — mesuré, et non supposé : la
+    // garde retirée du module, la suite reste verte.
+    const sentText = (sent) => sent ?? "";
+    const traduire = (sent) =>
+      sentText(sent).trim() !== "" ? translateExpression(sentText(sent), FR, EN) : sent;
+
+    expect(traduire(null)).toBe(null);   // arrivée : rien n'est parti, rien ne bouge
+    expect(traduire("")).toBe("");       // demande vide envoyée : rien à réécrire
+    expect(traduire("   ")).toBe("   "); // et une demande d'espaces n'est pas une demande
+    expect(traduire(`<${FR[0].property}:[=:DUR/>`)).toBe(`<${EN[0].property}:[=:DUR/>`);
+  });
+});
+
+/* ---------------------------- AVENANT 4 : les noms de colonnes tolèrent la
+   casse, comme les valeurs le faisaient déjà (26 août 2026). */
+
+describe("findPropertyIndex : un seul porteur pour deux appariements", () => {
+  const MODE = 2;   // codeModeLivraison / deliveryModeCode
+
+  it("rend le même indice quelle que soit la casse", () => {
+    const exact = FR[MODE].property;
+    expect(findPropertyIndex(FR, exact)).toBe(MODE);
+    expect(findPropertyIndex(FR, exact.toLowerCase())).toBe(MODE);
+    expect(findPropertyIndex(FR, exact.toUpperCase())).toBe(MODE);
+    // La graphie du chef de projet, à un `L` près.
+    expect(findPropertyIndex(FR, "codeModelivraison")).toBe(MODE);
+  });
+
+  it("rend -1 sur ce qui n'est pas une propriété du modèle", () => {
+    expect(findPropertyIndex(FR, "codelivraidon")).toBe(-1);
+    expect(findPropertyIndex(FR, "motDePasse")).toBe(-1);
+    expect(findPropertyIndex(FR, "")).toBe(-1);
+  });
+});
+
+describe("La casse des noms de colonnes : tolérée à la lecture, canonique en aval", () => {
+  const exact = FR[2].property;
+  const variantes = [exact, exact.toLowerCase(), exact.toUpperCase(), "codeModelivraison"];
+
+  it("les quatre graphies sont acceptées et rendent la MÊME entrée canonique", () => {
+    for (const nom of variantes) {
+      const read = recognise(`<${nom}:[]:AR/>`, FR);
+      expect(read.ok, nom).toBe(true);
+      // Le champ garde ce que le lecteur a tapé ; l'aval repart de la graphie
+      // exacte, si bien que la page enseigne l'orthographe sans corriger.
+      expect(read.conditions[0].entry.property, nom).toBe(exact);
+    }
+  });
+
+  it("AUCUNE LEÇON PERDUE : un nom réellement absent est toujours refusé", () => {
+    // C'est la thèse de la section : l'appelant ne choisit pas ce qu'il
+    // interroge. Elle tient mot pour mot.
+    expect(recognise("<codelivraidon:[]:AR/>", FR).refusal.code).toBe("colonne");
+    const inconnue = EXAMPLES.find((example) => example.key === "colonneInconnue");
+    expect(recognise(exampleExpression(inconnue, FR), FR).refusal.code).toBe("colonne");
+  });
+
+  it("une demande en bas de casse sert exactement les mêmes lignes", () => {
+    const canonique = filterRows(`<${FR[0].property}:[=:DUR/>`, FR, ROWS_FR);
+    const basseCasse = filterRows(`<${FR[0].property.toLowerCase()}:[=:DUR/>`, FR, ROWS_FR);
+    expect(basseCasse.ok).toBe(true);
+    expect(basseCasse.rows).toHaveLength(canonique.rows.length);
+  });
+
+  it("GARDIEN DU SECOND SITE : un nom en bas de casse se traduit comme la graphie exacte", () => {
+    // `translateExpression` portait la même comparaison stricte, à un autre
+    // endroit. Corriger le seul reconnaisseur aurait fait ACCEPTER un nom en
+    // bas de casse, puis le laisser sans traduction à la bascule de langue,
+    // donc REFUSER une seconde plus tard ce qui venait de passer.
+    const attendu = `<${EN[2].property}:[]:AR/>`;
+    for (const nom of variantes) {
+      expect(translateExpression(`<${nom}:[]:AR/>`, FR, EN), nom).toBe(attendu);
+    }
+  });
+});
+
+/* ------------------------- AVENANT 5 : le refus avait raison, et c'est le
+   refus qui était le défaut (26 août 2026, troisième passe d'appareil). */
+
+describe("Les espaces autour du nom et de l'opérateur sont absorbées", () => {
+  // Sur un clavier d'iPhone, l'espace après ponctuation est posée par
+  // L'APPAREIL, pas par le doigt. Sans ce point, la page reprochait au lecteur
+  // un nom qui est, à l'œil, exactement celui de la liste : une faute
+  // INVISIBLE, pire que celle de casse — là il pouvait au moins voir la
+  // majuscule.
+  const serree = `<${FR[0].property}:[=:DUR/>`;
+  const positions = [
+    `< ${FR[0].property}:[=:DUR/>`,
+    `<${FR[0].property} :[=:DUR/>`,
+    `<${FR[0].property}: [=:DUR/>`,
+  ];
+
+  it("les trois positions d'espace rendent LA MÊME condition que la forme serrée", () => {
+    const attendu = recognise(serree, FR);
+    expect(attendu.ok).toBe(true);
+    for (const texte of positions) {
+      const read = recognise(texte, FR);
+      expect(read.ok, texte).toBe(true);
+      // Comparaison d'objets, et non trois assertions qui se ressemblent :
+      // c'est l'identité du résultat qui compte, pas la seule acceptation.
+      expect(read.conditions, texte).toEqual(attendu.conditions);
+    }
+  });
+
+  it("GARDIEN DU SECOND SITE : les trois positions se traduisent comme la forme serrée", () => {
+    // Même porte que pour les quatre graphies de casse, et pour la même raison
+    // — mais elle a dû être écrite DEUX FOIS, à deux avenants d'écart, parce
+    // que la tolérance aux espaces a été posée dans `recognise` au lieu de
+    // l'être dans `findPropertyIndex`. `< nomClient:[=:DUR/>` passait donc en
+    // français, n'était pas traduit, et se faisait refuser sur `colonne` une
+    // bascule plus tard : la page reprochait au lecteur un nom qu'elle venait
+    // d'accepter, et que son propre clavier avait écrit.
+    //
+    // Ce que la porte juge n'est pas la seule réécriture, mais le RÉSULTAT en
+    // langue d'arrivée : c'est le refus qui était le défaut, pas la chaîne.
+    const attendu = filterRows(translateExpression(serree, FR, EN), EN, ROWS_EN);
+    expect(attendu.ok).toBe(true);
+    for (const texte of positions) {
+      const traduit = translateExpression(texte, FR, EN);
+      const read = filterRows(traduit, EN, ROWS_EN);
+      expect(read.ok, texte).toBe(true);
+      expect(read.rows.length, texte).toBe(attendu.rows.length);
+    }
+    // Et la réécriture NORMALISE le jeton, comme elle le fait pour la casse :
+    // les deux espaces qui bordent le nom sont dans le jeton `<nom:` que
+    // `translateExpression` reconstruit, celle qui suit les deux-points est
+    // hors capture — elle appartient à l'opérateur, et elle survit.
+    expect(translateExpression(positions[0], FR, EN)).toBe(`<${EN[0].property}:[=:DUR/>`);
+    expect(translateExpression(positions[1], FR, EN)).toBe(`<${EN[0].property}:[=:DUR/>`);
+    expect(translateExpression(positions[2], FR, EN)).toBe(`<${EN[0].property}: [=:DUR/>`);
+  });
+
+  it("elle n'accepte pas un nom faux : la frontière ne bouge pas", () => {
+    const read = recognise("< codelivraidon :[]:AR/>", FR);
+    expect(read.ok).toBe(false);
+    expect(read.refusal.code).toBe("colonne");
+    // Et le nom paraît NETTOYÉ au message, sans les espaces de l'appareil.
+    expect(read.refusal.params.nom).toBe("codelivraidon");
+  });
+
+  it("L'ORDRE DES DEUX FAUTES : nom vide ET opérateur vide se nomme par le nom", () => {
+    // Le seul membre qui porte les deux fautes à la fois. Sans cette porte,
+    // intervertir les deux blocs du module laissait la suite verte et faisait
+    // passer `<::LYON/>` de `colonneVide` à `forme`/`operateurFin` en silence.
+    //
+    // Le nom d'abord, parce que les deux fautes se lisent de gauche à droite et
+    // que le message dit LE GESTE SUIVANT, pas la liste de tout ce qui manque :
+    // le refus d'après nommera l'opérateur.
+    const read = recognise("<::LYON/>", FR);
+    expect(read.ok).toBe(false);
+    expect(read.refusal.code).toBe("colonneVide");
+  });
+
+  it("un opérateur réduit à une espace tombe en `forme`/`operateurFin`, jamais en `operateur`", () => {
+    // C'est l'ordre imposé : le `trim` de l'opérateur passe AVANT le test du
+    // vide, sinon l'opérateur-espace échapperait au piège de la position et
+    // recevrait un message qui ne nomme pas sa faute.
+    const read = recognise(`<${FR[0].property}: :LYON/>`, FR);
+    expect(read.ok).toBe(false);
+    expect(read.refusal.code).toBe("forme");
+    expect(read.refusal.params.faute).toBe("operateurFin");
+  });
+});
+
+describe("Le refus `forme` nomme la faute : catalogue clos de cinq, ordonné", () => {
+  const fauteDe = (texte) => {
+    const read = recognise(texte, FR);
+    expect(read.ok, texte).toBe(false);
+    expect(read.refusal.code, texte).toBe("forme");
+    return read.refusal.params.faute;
+  };
+
+  it("nomme chacune des cinq fautes", () => {
+    expect(fauteDe("codemodelivraison:[]:AR/>")).toBe("ouvrant");
+    expect(fauteDe(`<${FR[0].property}:==:LYON`)).toBe("fermant");
+    expect(fauteDe(`<${FR[0].property}:LYON/>`)).toBe("deuxPoints");
+    expect(fauteDe(`<${FR[0].property}::LYON/>`)).toBe("operateurFin");
+    // `generique` n'est atteint que par un retour à la ligne DANS le membre :
+    // le `.` de SEQUENCE ne traverse pas la ligne. C'est le cinquième cas, et
+    // un catalogue qui laisse un trou n'est pas un catalogue.
+    expect(fauteDe(`<${FR[0].property}:==:LY\nON/>`)).toBe("generique");
+  });
+
+  it("L'ORDRE DIT LE GESTE SUIVANT, pas la liste de tout ce qui manque", () => {
+    // Sans chevron ET sans fermeture : c'est la PREMIÈRE faute qui est nommée.
+    expect(fauteDe("nomClient:==:LYON")).toBe("ouvrant");
+    // Avec chevron, sans fermeture et sans deux-points : `fermant` d'abord.
+    expect(fauteDe("<nomClient")).toBe("fermant");
+  });
+
+  it("`shapeFault` est pure et ne rend que des codes du catalogue", () => {
+    const catalogue = ["ouvrant", "fermant", "deuxPoints", "generique"];
+    for (const texte of ["a", "<a", "<a/>", "<a:b/>", "<a:b:c\nd/>", "", "   "]) {
+      expect(catalogue, texte).toContain(shapeFault(texte));
+    }
+  });
+});
+
+describe("Un membre pas encore écrit est inachevé, pas raté", () => {
+  // C'est l'état que les boutons `&&` et `||` de CET incrément produisent
+  // eux-mêmes : la page ouvre la liaison, le lecteur envoie avant d'avoir
+  // écrit la suite, et lui reprocher sa « forme » reviendrait à traiter comme
+  // ratée une phrase qu'elle vient elle-même d'ouvrir.
+  const inacheve = (texte) => {
+    const read = recognise(texte, FR);
+    expect(read.ok, texte).toBe(false);
+    return read.refusal.code;
+  };
+
+  it("les trois états de liaison en attente rendent `inacheve`", () => {
+    expect(inacheve(`<${FR[0].property}:[=:DUR/> &&`)).toBe("inacheve");
+    expect(inacheve(`<${FR[0].property}:[=:DUR/> && `)).toBe("inacheve");
+    // Neutre par construction : vaut à gauche comme à droite.
+    expect(inacheve(`&& <${FR[0].property}:[=:DUR/>`)).toBe("inacheve");
+  });
+
+  it("les deux membres écrits, la demande passe à deux conditions", () => {
+    const read = recognise(
+      `<${FR[0].property}:[=:DUR/> && <${FR[8].property}:==:LYON/>`,
+      FR,
+    );
+    expect(read.ok).toBe(true);
+    expect(read.conditions).toHaveLength(2);
+  });
+});
+
+describe("Un nom de colonne vide a son propre refus", () => {
+  it("`<:[]:AR/>` et `< :[]:AR/>` rendent `colonneVide`", () => {
+    // Le message montrait deux guillemets autour de rien. C'est le voisin
+    // immédiat du geste qui a fondé l'avenant : un caractère de moins effacé,
+    // et le lecteur tombait ici.
+    expect(recognise("<:[]:AR/>", FR).refusal.code).toBe("colonneVide");
+    expect(recognise("< :[]:AR/>", FR).refusal.code).toBe("colonneVide");
+  });
+
+  it("LA TOLÉRANCE NE DÉPLACE PAS LA FRONTIÈRE DU NOM FAUX", () => {
+    expect(recognise("<codelivraidon:[]:AR/>", FR).refusal.code).toBe("colonne");
+    expect(recognise("<motDePasse:==:toto/>", FR).refusal.code).toBe("colonne");
+  });
+});
+
+describe("Le catalogue de refus est total : chaque gabarit trouve ses paramètres", () => {
+  // Le test 7 de l'avenant 5, et il vaut pour les ONZE codes : un `{…}` sans
+  // paramètre s'afficherait tel quel au lecteur, accolades comprises.
+  //
+  // LA TABLE NE TRANSCRIT PLUS, ELLE DÉCLENCHE. Elle portait des paramètres
+  // recopiés à la main depuis les appels à `refuse()` — et une transcription ne
+  // mord que dans un sens : elle attrapait un gabarit vide ou un `{…}` renommé
+  // au dictionnaire, jamais un code neuf émis par `refuse()` sans entrée au
+  // dictionnaire (la page jetterait à la peinture du refus), ni une dérive où
+  // l'on corrige la table sans corriger `refuse()`.
+  //
+  // Chaque code est donc atteint par une EXPRESSION RÉELLE, et les paramètres
+  // viennent du module. La porte mord maintenant dans les deux sens : un code
+  // qui change de paramètres, ou qui disparaît de `recognise`, la fait rougir.
+  const ENTREES = {
+    forme: "codemodelivraison:[]:AR/>",
+    colonne: "<codelivraidon:[]:AR/>",
+    operateur: "<nomClient:~~:LYON/>",
+    interdit: "<nomClient:!=:LYON/>",
+    type: "<nomClient:><:LYON/>",
+    valeurVide: "<nomClient:==:/>",
+    tropCourt: "<nomClient:[]:A/>",
+    bornes: "<montantCommande:><:5/>",
+    liaison: "<nomClient:[=:DUR/> && || <nomClient:[=:DUR/>",
+    inacheve: "<nomClient:[=:DUR/> &&",
+    colonneVide: "<:[]:AR/>",
+  };
+
+  it("les onze entrées déclenchent bien les onze codes, un pour un", () => {
+    // La porte de la porte : si une entrée cessait de produire le code qu'elle
+    // vise, la totalité ci-dessous resterait verte en ne mesurant plus rien.
+    const obtenus = Object.entries(ENTREES).map(([code, texte]) => {
+      const read = recognise(texte, FR);
+      expect(read.ok, texte).toBe(false);
+      return [code, read.refusal.code];
+    });
+    for (const [vise, obtenu] of obtenus) {
+      expect(obtenu, `entrée de \`${vise}\``).toBe(vise);
+    }
+    expect(new Set(obtenus.map(([, obtenu]) => obtenu)).size).toBe(11);
+  });
+
+  it.each(["fr", "en"])("les onze refus sont servis sans accolade orpheline (%s)", (lang) => {
+    const refus = dict[lang].section4.refus;
+    expect(Object.keys(refus)).toHaveLength(11);
+    for (const [code, texte] of Object.entries(ENTREES)) {
+      // Les paramètres sont ceux du MODULE, jamais une recopie : c'est ce qui
+      // rend la mesure rejouable au lieu de la rendre seulement vraie ce jour.
+      const { params } = recognise(texte, FR).refusal;
+      for (const cle of ["quoi", "pourquoi"]) {
+        const gabarit = refus[code][cle];
+        expect(typeof gabarit, `${lang}.${code}.${cle}`).toBe("string");
+        expect(gabarit.trim(), `${lang}.${code}.${cle}`).not.toBe("");
+        // `fill` du module, et non une copie : le remplisseur mesuré est celui
+        // qui sert le lecteur.
+        expect(fill(gabarit, params), `${lang}.${code}.${cle}`).not.toMatch(/\{\w+\}/);
+      }
+    }
+  });
+
+  it("aucun code émis par `refuse()` n'est absent du dictionnaire", () => {
+    // LA LISTE EST LUE DANS LE MODULE, PAS ÉCRITE ICI.
+    //
+    // Première rédaction : cette porte parcourait `ENTREES`, une liste écrite à
+    // la main — elle ne pouvait donc vérifier que les codes que quelqu'un avait
+    // déjà pensé à lister, et son NOM promettait le contraire. Mesuré par la
+    // revue : une douzième branche `refuse("valeurTropLongue", …)` insérée dans
+    // `recognise`, ATTEIGNABLE et absente des deux dictionnaires, laissait la
+    // suite à 355/355 — pendant que la page, elle, jetait à la peinture du
+    // refus (`texts().refus[code]` vaut `undefined`) et que la zone de réponse
+    // mourait.
+    //
+    // La technique est celle de `tests/i18n-html.test.js`, qui lit `index.html`
+    // plutôt que de décrire son contenu : on lit la source de vérité.
+    const source = readFileSync(new URL("../js/minilangage.js", import.meta.url), "utf8");
+    const emis = [...new Set(
+      [...source.matchAll(/\brefuse\(\s*"([A-Za-z]+)"/g)].map(([, code]) => code),
+    )].sort();
+
+    // Garde de cécité : une extraction vide rendrait la porte verte en ne
+    // mesurant rien. Même geste que le plancher de `i18n-html.test.js`.
+    expect(emis.length, "porte AVEUGLE : aucun appel à refuse() relevé").toBeGreaterThanOrEqual(11);
+
+    for (const code of emis) {
+      for (const lang of ["fr", "en"]) {
+        expect(dict[lang].section4.refus, `${lang}.${code}`).toHaveProperty(code);
+      }
+    }
+
+    // Et le catalogue est CLOS des deux côtés : ce que le module émet est
+    // exactement ce que les dictionnaires portent, sans code mort de part ni
+    // d'autre.
+    expect(emis).toEqual(Object.keys(dict.fr.section4.refus).sort());
+    expect(emis).toEqual(Object.keys(ENTREES).sort());
+  });
+
+  it.each(["fr", "en"])("les cinq fautes de forme sont toutes servies (%s)", (lang) => {
+    const fautes = dict[lang].section4.refus.forme.fautes;
+    expect(Object.keys(fautes).sort()).toEqual(
+      ["deuxPoints", "fermant", "generique", "operateurFin", "ouvrant"],
+    );
+    for (const [nom, phrase] of Object.entries(fautes)) {
+      expect(phrase.trim(), `${lang}.${nom}`).not.toBe("");
+      expect(phrase, `${lang}.${nom}`).not.toMatch(/\{\w+\}/);
+    }
+  });
+});
+
+describe("La valeur : bords rognés, intérieur intact", () => {
+  it("garde ses espaces INTÉRIEURES et perd celles des bords", () => {
+    // La borne posée à l'incrément 6, jamais épinglée jusqu'ici. L'avenant 5 la
+    // prescrivait d'abord à l'envers (« valeur : jamais de trim ») ; mesure
+    // faite, le dépôt faisait déjà le bon geste, et la prescription a été
+    // corrigée. Ce test existe pour que la borne cesse d'être tacite.
+    //
+    // Elle est le pendant exact du point 1 : sur un téléphone, l'espace posée
+    // par l'appareil après les deux-points ne doit pas ramener zéro ligne pour
+    // une valeur qui a l'air juste. Mais une valeur reste une donnée, et ses
+    // espaces intérieures lui appartiennent.
+    const read = recognise(`<${FR[8].property}:[]:  LY  ON  />`, FR);
+    expect(read.ok).toBe(true);
+    expect(read.conditions[0].value).toBe("LY  ON");
+  });
+
+  it("l'injection garde les siennes, et c'est ce que la page démontre", () => {
+    const injection = EXAMPLES.find((example) => example.key === "injection");
+    const read = recognise(exampleExpression(injection, FR), FR);
+    expect(read.ok).toBe(true);
+    expect(read.conditions[0].value).toBe("D' OR '1'='1");
+  });
+});
+
+/* ------------------------------- AVENANT 6 : les boutons de structure suivent
+   le curseur (27 août 2026, quatrième passe d'appareil). */
+
+describe("caretAllowsStructure : la garde sans laquelle le correctif serait pire que le bug", () => {
+  const champ = "<nomClient:[=:DUR/> <codemodelivraison:[]:AR/>";
+
+  it("REFUSE les trois positions qui couperaient l'expression en deux", () => {
+    // Mesuré : sans cette garde, le bouton `&&` produisait
+    // `<nomClient:[=:DUR/> <codemodeliv/> && raison:[]:AR/>`.
+    expect(caretAllowsStructure(champ, 32)).toBe(false);   // au milieu du nom
+    expect(caretAllowsStructure(champ, 21)).toBe(false);   // après le chevron
+    expect(caretAllowsStructure(champ, 40)).toBe(false);   // dans la valeur
+  });
+
+  it("accepte la fin de champ et les frontières de séquence", () => {
+    expect(caretAllowsStructure(champ, champ.length)).toBe(true);   // fin
+    expect(caretAllowsStructure(champ, 20)).toBe(true);             // entre les membres
+    expect(caretAllowsStructure(champ, 0)).toBe(true);              // au début
+    // Les espaces de fin ne comptent pas comme du texte à couper.
+    expect(caretAllowsStructure("<a:b:c/>   ", 8)).toBe(true);
+  });
+
+  it("tolère un curseur hors bornes sans se plaindre", () => {
+    expect(caretAllowsStructure("<a:b:c/>", 999)).toBe(true);
+    expect(caretAllowsStructure("<a:b:c/>", -5)).toBe(true);
+  });
+
+  it("LE POINT D'APPLICATION FAIT FOI : la règle est rejouée au geste, pas héritée d'un repeint", () => {
+    // `disabled` est un ÉTAT D'AFFICHAGE : il ne vaut que tant que le dernier
+    // `render()` a tourné avec le curseur courant. Tant que la garde ne vivait
+    // que là, elle était écrite à un endroit et appliquée à un autre — la
+    // quatrième fois de cet incrément, et la seule qui porte sur une règle et
+    // non sur une valeur.
+    //
+    // Le câblage vit dans `mountMiniLanguage` ([W13]) ; ce qui se garde ici est
+    // la RÈGLE que `completeWith` rejoue désormais en tête, dans sa graphie
+    // exacte : le geste ne s'exécute que si la position le permet.
+    const champ = "<nomClient:[=:DUR/> && <villeClient:[]:LY/>";
+    const completeWith = (texte, curseur, rewrite) =>
+      caretAllowsStructure(texte, curseur)
+        ? rewrite(texte.slice(0, curseur)) + texte.slice(curseur)
+        : texte;
+
+    // Curseur 5, au milieu du premier nom : la garde refuse, et le champ ne
+    // bouge pas. Sans la garde rejouée, le résultat mesuré était
+    // `<nomC/> && lient:[=:DUR/> && …` — l'expression coupée en deux.
+    expect(caretAllowsStructure(champ, 5)).toBe(false);
+    expect(completeWith(champ, 5, (gauche) => appendLink(gauche, "&&"))).toBe(champ);
+
+    // Et le cas courant ne bouge pas : curseur en fin, le geste s'exécute.
+    const fin = champ.length;
+    expect(completeWith(champ, fin, (gauche) => appendLink(gauche, "&&")))
+      .toBe(appendLink(champ, "&&"));
+  });
+
+  it("LA LIMITE DE LA GARDE : un `/>` dans une valeur la trompe, et la coupure passe", () => {
+    // La garde lit la PONCTUATION, pas la structure. `SEQUENCE` autorise `/>`
+    // à l'intérieur d'une valeur, et le bouton `/>` permet de fabriquer ce cas
+    // au doigt : la garde croit alors voir une fin de séquence là où elle est
+    // au milieu d'une valeur.
+    //
+    // La porte tient le trou OUVERT et mesuré, elle ne le referme pas — la
+    // garde exacte s'appuierait sur `recognise` au lieu de la ponctuation, et
+    // c'est un arbitrage du chef de projet. Ce qu'elle interdit, c'est que le
+    // trou change de taille sans que personne le voie.
+    const piege = "<villeClient:[]:A/>B/>";
+    const lu = recognise(piege, FR);
+    expect(lu.ok).toBe(true);                          // une condition VALIDE...
+    expect(lu.conditions[0].value).toBe("A/>B");       // ...de valeur `A/>B`
+
+    const curseur = piege.indexOf("/>") + 2;           // 19, juste après le faux `/>`
+    expect(caretAllowsStructure(piege, curseur)).toBe(true);   // la garde se laisse tromper
+
+    const coupee = appendLink(piege.slice(0, curseur), "&&") + piege.slice(curseur);
+    expect(coupee).toBe("<villeClient:[]:A/> && B/>");
+    // Et voilà l'expression du lecteur coupée en deux — ce que cette garde
+    // existe pour empêcher. Le reste n'est plus lisible.
+    expect(recognise(coupee, FR).refusal.code).toBe("tropCourt");
+  });
+});
+
+describe("L'insertion au curseur : le cas courant ne bouge pas", () => {
+  // La règle est « travailler sur le texte à gauche ». Quand le curseur est en
+  // fin de champ — l'usage normal — cela redonne EXACTEMENT le comportement
+  // d'avant l'avenant 6, et ce test est là pour l'exiger.
+  const poser = (champ, curseur, lien) =>
+    appendLink(champ.slice(0, curseur), lien) + champ.slice(curseur);
+
+  it("curseur en fin : identique à l'ajout en fin de champ", () => {
+    for (const champ of ["", "<a:b:c", "<a:b:c/>", "<a:b:c/> && <d:e:f/>"]) {
+      expect(poser(champ, champ.length, "&&"), champ).toBe(appendLink(champ, "&&"));
+    }
+  });
+
+  it("LE CAS DU CHEF DE PROJET : la liaison va là où le curseur est", () => {
+    const champ = "<nomClient:[=:DUR/> <codemodelivraison:[]:AR/> && <montantCommande:><:1000;4000/>";
+    expect(poser(champ, 20, "&&")).toBe(
+      "<nomClient:[=:DUR/> && <codemodelivraison:[]:AR/> && <montantCommande:><:1000;4000/>",
+    );
+  });
+
+  it("L'INERTIE SUIT LE CURSEUR : le bouton vit là où le geste est bon", () => {
+    // Mesuré : un champ finissant par `&&` éteignait le bouton `&&` calculé sur
+    // le champ entier, alors qu'au curseur 9 l'insertion est légitime.
+    const champ = "<a:b:c/> <d:e:f/> &&";
+    expect(appendLink(champ, "&&")).toBe(champ);                    // inerte sur le tout
+    const gauche = champ.slice(0, 9);
+    expect(caretAllowsStructure(champ, 9)).toBe(true);
+    expect(appendLink(gauche, "&&")).not.toBe(gauche);              // actif au curseur
+    expect(poser(champ, 9, "&&")).toBe("<a:b:c/> && <d:e:f/> &&");
   });
 });

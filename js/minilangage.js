@@ -241,19 +241,66 @@ export function recognise(text, model) {
 
   for (const part of parts) {
     const piece = part.trim();
-    const match = SEQUENCE.exec(piece);
-    // Opérateur vide : c'est le piège de la position (« l'opérateur à la fin »).
-    // Il tombe dans « forme » et non dans « opérateur hors liste », parce que
-    // seul le message de forme montre un exemple et nomme cette position.
-    if (match === null || match[2] === "") {
-      return refuse("forme");
+
+    // UN MEMBRE VIDE N'EST PAS RATÉ, IL EST INACHEVÉ (avenant 5). C'est l'état
+    // que les boutons `&&` et `||` de cet incrément produisent EUX-MÊMES : la
+    // page écrit la liaison pour le lecteur, il envoie avant d'avoir écrit la
+    // suite, et lui reprocher sa « forme » reviendrait à traiter comme ratée
+    // une phrase qu'elle vient elle-même d'ouvrir.
+    if (piece === "") {
+      return refuse("inacheve");
     }
 
-    const [, columnName, operator, value] = match;
-    const entry = model.find((candidate) => candidate.property === columnName);
-    if (entry === undefined) {
+    const match = SEQUENCE.exec(piece);
+    if (match === null) {
+      return refuse("forme", { faute: shapeFault(piece) });
+    }
+
+    // LES ESPACES AUTOUR DU NOM ET DE L'OPÉRATEUR SONT ABSORBÉES, JAMAIS CELLES
+    // DE LA VALEUR (avenant 5). Même arbitrage que le retour chariot : on
+    // absorbe là où l'espace n'a aucun sens, on la garde là où elle en a un.
+    // Aucun des neuf noms exposés ne porte d'espace, et les six opérateurs sont
+    // deux caractères de ponctuation ; une valeur, elle, est une donnée, et une
+    // donnée a le droit de commencer ou de finir par une espace.
+    //
+    // Sans cela, une espace posée par le clavier de l'appareil — pas par le
+    // doigt — faisait reprocher au lecteur un nom qui est, à l'œil, exactement
+    // celui de la liste. Une faute INVISIBLE, pire que celle de casse.
+    const columnName = match[1].trim();
+    const operator = match[2].trim();
+    const value = match[3];
+
+    // Un nom effacé a son refus propre : le message montrait deux guillemets
+    // autour de rien. C'est le voisin immédiat du geste qui a fondé l'avenant —
+    // un caractère de moins, et le lecteur tombait ici.
+    //
+    // Il passe AVANT le piège de l'opérateur : les deux fautes se lisent de
+    // gauche à droite, et le nom vient en premier. Choix de l'exécutant,
+    // l'avenant étant muet sur l'ordre entre ces deux-là — et l'ordre est tenu
+    // par une porte (`<::LYON/>`, le seul membre qui porte les DEUX fautes),
+    // sans quoi l'intervertir laisserait la suite verte. Une addition que rien
+    // ne tient devient une valeur gelée par accident.
+    if (columnName === "") {
+      return refuse("colonneVide");
+    }
+
+    // Le piège de la position (« l'opérateur à la fin »). Le `trim` ci-dessus
+    // passe AVANT ce test, et l'ordre est imposé : sinon un opérateur réduit à
+    // une espace échapperait au piège et tomberait en « opérateur hors liste »,
+    // ce qui ne nomme pas sa faute.
+    if (operator === "") {
+      return refuse("forme", { faute: "operateurFin" });
+    }
+
+    // Apparié à la casse près (avenant 4) : le champ garde la graphie du
+    // lecteur, mais tout ce qui suit repart de `entry.property`, donc la
+    // graphie CANONIQUE paraît dans le refus, la classe, le JSON et le SQL. La
+    // page enseigne l'orthographe exacte sans corriger sous le doigt.
+    const found = findPropertyIndex(model, columnName);
+    if (found === -1) {
       return refuse("colonne", { nom: columnName });
     }
+    const entry = model[found];
     if (FORBIDDEN_OPERATORS.includes(operator)) {
       return refuse("interdit", { op: operator });
     }
@@ -875,15 +922,270 @@ export function initialSelection() {
  */
 export function translateExpression(text, fromModel, toModel) {
   return String(text).replace(/<([^:<]*):/g, (whole, name) => {
-    const index = fromModel.findIndex((entry) => entry.property === name);
+    const index = findPropertyIndex(fromModel, name);
     return index === -1 ? whole : `<${toModel[index].property}:`;
+  });
+}
+
+/**
+ * Retire les retours à la ligne d'un texte LU — jamais du champ lui-même.
+ *
+ * Le champ est une zone repliée : le lecteur y coupe ses lignes pour lire une
+ * expression de 83 caractères qu'aucune largeur disponible ne montre d'un seul
+ * trait (37 caractères en portrait, 66 en paysage, plafond de 42 rem compris).
+ * Ce découpage est une MISE EN PAGE, pas une faute de langue — le retour
+ * chariot n'est pas un caractère de ce mini-langage. On l'ignore donc à la
+ * lecture, et la page ne réécrit rien sous le doigt du lecteur.
+ *
+ * Retiré, et non remplacé par une espace : dans ce langage une espace COMPTE,
+ * et des valeurs en portent (`D' OR '1'='1`). La remplacer donnerait au retour
+ * chariot un sens qu'il n'a pas — `<nomClient:[=⏎:DUR/>` se lirait alors sur un
+ * opérateur `[= ` que rien à l'écran ne distingue de `[=`, et `DU⏎RAND` sur une
+ * valeur `DU RAND` qui ne trouve rien.
+ */
+export function stripLineBreaks(text) {
+  return String(text).replace(/\r\n?|\n/g, "");
+}
+
+/**
+ * Le curseur est-il posé là où une insertion de structure est légitime ?
+ *
+ * LA RÈGLE « travailler sur le texte à gauche du curseur » EST INCOMPLÈTE SANS
+ * CETTE GARDE. Mesuré : curseur au milieu d'un nom, le bouton `&&` produisait
+ * `<nomClient:[=:DUR/> <codemodeliv/> && raison:[]:AR/>` — il coupait
+ * l'expression en deux. Une moitié de correctif aurait été pire que le défaut.
+ *
+ * Deux situations sont tenues pour légitimes :
+ *  - le curseur est **en fin de champ**, ce qui est le cas courant, et le
+ *    comportement y est alors identique à celui d'avant l'avenant 6 ;
+ *  - il est **à une frontière de séquence** : le texte de gauche est vide, ou
+ *    il finit par `/>`.
+ *
+ * LIMITE DITE PLUTÔT QUE MASQUÉE — `/>` N'EST PAS UNE FRONTIÈRE NON AMBIGUË.
+ * La garde lit la PONCTUATION, pas la structure : elle croit voir une fin de
+ * séquence partout où le texte de gauche finit par `/>`. Or le gabarit
+ * `SEQUENCE` autorise `/>` À L'INTÉRIEUR d'une valeur, et le bouton `/>`
+ * lui-même permet de fabriquer ce cas au doigt.
+ *
+ * Mesuré : `<villeClient:[]:A/>B/>` est une expression VALIDE — une condition,
+ * de valeur `A/>B`. Curseur en 19, la garde rend `true`, et le bouton `&&`
+ * produit `<villeClient:[]:A/> && B/>`, que la page refuse ensuite en
+ * `tropCourt` : l'expression du lecteur coupée en deux, ce que cette garde
+ * existe pour empêcher. La porte `LA LIMITE DE LA GARDE` tient le cas.
+ *
+ * Le trou est étroit — il faut avoir tapé un `/>` dans une valeur —, et il est
+ * laissé ouvert sciemment. La garde exacte existe : n'autoriser l'insertion
+ * qu'aux frontières des membres réellement reconnus à gauche, en s'appuyant sur
+ * `recognise` plutôt que sur la ponctuation. Elle coûte un découpage de plus,
+ * et c'est un arbitrage du chef de projet, pas un geste d'exécution.
+ */
+export function caretAllowsStructure(text, caret) {
+  const value = String(text);
+  const position = Math.max(0, Math.min(Number(caret) || 0, value.length));
+  // En fin de champ : rien à couper derrière, tout est permis.
+  if (value.slice(position).trim() === "") {
+    return true;
+  }
+  const left = value.slice(0, position).trimEnd();
+  return left === "" || left.endsWith("/>");
+}
+
+/**
+ * Laquelle des cinq fautes de forme ce membre porte-t-il ?
+ *
+ * Le refus « forme » récitait la règle et laissait le lecteur chercher : sur un
+ * champ replié en trois lignes, repérer un chevron absent est un travail d'œil
+ * que le message ne lui épargnait pas (passe iPhone 14 du 26 août 2026).
+ *
+ * LE CATALOGUE EST CLOS ET ORDONNÉ, et l'ordre dit LE GESTE SUIVANT, pas la
+ * liste de tout ce qui manque : un membre qui a perdu son chevron ET sa
+ * fermeture est nommé par sa PREMIÈRE faute ; le refus d'après nommera la
+ * seconde. C'est la ligne gravée au fil appliquée au message — on accompagne
+ * une phrase en train de s'écrire, on ne dresse pas son procès-verbal.
+ *
+ * `operateurFin` n'est pas rendu ici : il se constate quand le gabarit TIENT et
+ * que l'opérateur est vide, donc après appariement. Les cinq fautes sont bien
+ * toutes servies, mais par deux chemins.
+ *
+ * Le cinquième cas, `generique`, n'est atteint que par un membre portant un
+ * retour à la ligne — le `.` de `SEQUENCE` ne traverse pas la ligne. Un
+ * catalogue de refus qui laisse un trou n'est pas un catalogue.
+ */
+export function shapeFault(text) {
+  const piece = String(text).trim();
+  if (!piece.startsWith("<")) {
+    return "ouvrant";
+  }
+  if (!piece.endsWith("/>")) {
+    return "fermant";
+  }
+  if ((piece.match(/:/g) ?? []).length < 2) {
+    return "deuxPoints";
+  }
+  return "generique";
+}
+
+/**
+ * L'indice d'une propriété du modèle, appariée À LA CASSE ET AUX ESPACES PRÈS.
+ *
+ * Les valeurs toléraient déjà la casse — `DURAND`, `durand` et `DuRaNd`
+ * trouvent les mêmes lignes —, les noms de colonnes non, et la page ne le
+ * disait nulle part. Le lecteur tapait `codeModelivraison` et lisait « hors de
+ * la liste exposée » d'une propriété qui y est, à une majuscule près (passe
+ * iPhone 14 du 26 août 2026). Sur un clavier mobile où le champ coupe la mise
+ * en capitale automatique, chaque majuscule d'un nom en camelCase est un geste
+ * délibéré : la page punissait ce qu'elle rend coûteux.
+ *
+ * Ce qu'elle n'affaiblit pas : un nom réellement absent du modèle est toujours
+ * refusé, et c'est la thèse de la section — l'appelant ne choisit pas ce qu'il
+ * interroge.
+ *
+ * UN SEUL PORTEUR, DEUX APPELANTS : `recognise` et `translateExpression`
+ * portaient la même comparaison stricte, à deux endroits. Corriger le premier
+ * seul aurait fait accepter un nom en bas de casse puis le laisser SANS
+ * TRADUCTION à la bascule de langue, donc refuser une seconde plus tard ce qui
+ * venait de passer. Même remède que `hasPendingLink`, et pour la même raison :
+ * une règle écrite deux fois finit par diverger, et c'est la copie oubliée qui
+ * mord.
+ *
+ * ET C'EST ARRIVÉ UNE SECONDE FOIS, sur ce même porteur, deux avenants plus
+ * tard : l'avenant 5 a posé la tolérance aux espaces dans `recognise` au lieu
+ * de la poser ici, et la bascule de langue s'est remise à refuser ce qui venait
+ * de passer — le défaut que ce commentaire décrit, reproduit à l'identique par
+ * qui l'avait sous les yeux. Les deux tolérances vivent donc DEDANS. Toute
+ * règle d'appariement à venir se pose ici, et nulle part ailleurs.
+ */
+export function findPropertyIndex(model, name) {
+  // `trim` ICI, et non chez l'appelant : `recognise` rognait déjà le nom avant
+  // d'appeler, mais `translateExpression` non — si bien que la tolérance aux
+  // espaces de l'avenant 5 s'arrêtait à la porte de la bascule de langue.
+  // Mesuré : `< villeClient:[]:LY/>` — le cas fondateur, l'espace posée par le
+  // clavier après le chevron — passait en français, n'était pas traduit, et
+  // était refusé en anglais sur `colonne`. Deux graphies mordaient : l'espace
+  // avant le nom et celle après.
+  //
+  // Le porteur unique n'a de valeur que si la règle vit DEDANS. La sortir dans
+  // un seul de ses deux appelants, c'était n'avoir qu'un porteur de nom.
+  const cible = String(name).trim().toLowerCase();
+  return model.findIndex((entry) => entry.property.toLowerCase() === cible);
+}
+
+/**
+ * Une liaison attend-elle sa séquence ?
+ *
+ * UN SEUL PORTEUR pour une règle qui en avait trois implicites. La même notion
+ * était écrite trois fois — dans `closeSequence`, dans `appendLink`, et nulle
+ * part dans le clic d'un exemple. C'est justement l'endroit qui l'ignorait qui
+ * a mordu : le lecteur composait `<…/> ||` au doigt, cliquait un exemple pour
+ * remplir le second membre, et perdait tout (passe iPhone 14 du 26 août 2026).
+ *
+ * Ses trois appelants s'accordent désormais par construction : on ne ferme pas
+ * une liaison, on n'en empile pas une seconde, et un exemple cliqué complète au
+ * lieu d'effacer.
+ */
+export function hasPendingLink(text) {
+  const tail = String(text).trimEnd();
+  return tail.endsWith("&&") || tail.endsWith("||");
+}
+
+/**
+ * Ce que le clic d'un exemple pose dans le champ.
+ *
+ * Il AJOUTE quand une liaison attend — le lecteur a posé cette intention de son
+ * doigt en appuyant sur `&&` ou `||` —, il REMPLACE sinon. Sans liaison en
+ * attente, ajouter exigerait d'inventer un `&&` que personne n'a demandé :
+ * ce serait deviner l'intention du lecteur, ce que la ligne gravée au fil
+ * interdit. Ici la page ne devine rien, elle lit.
+ */
+export function applyExample(text, expression) {
+  return hasPendingLink(text)
+    ? `${String(text).trimEnd()} ${expression}`
+    : String(expression);
+}
+
+/**
+ * Ferme la séquence en cours par `/>`, et ne vérifie rien d'autre.
+ *
+ * Sur clavier iOS, `/` et `>` vivent sur deux pages de symboles différentes :
+ * fermer une séquence à la main coûte huit changements de page (mesuré sur
+ * iPhone 14, le 22 août 2026). Ce bouton COMPLÈTE ce que le lecteur n'a pas
+ * fini d'écrire ; il ne répare jamais ce qu'il a fini et raté.
+ * `<villeClient:===:l` devient donc `<villeClient:===:l/>`, que le
+ * reconnaisseur refuse toujours sur son opérateur — et c'est le refus qui
+ * enseigne. Un bouton qui redresserait `===` en `==` volerait au lecteur
+ * l'erreur qui allait lui apprendre quelque chose.
+ */
+export function closeSequence(text) {
+  const value = String(text);
+  const tail = value.trimEnd();
+  // Rien à fermer dans trois cas : champ vide, séquence déjà close, et liaison
+  // en attente de sa séquence — sans ce dernier, `<a:b:c/> && ` donnerait
+  // `<a:b:c/> &&/>`, atteignable dès que le lecteur appuie sur `/>` après un
+  // bouton de liaison.
+  if (tail === "" || tail.endsWith("/>") || hasPendingLink(value)) {
+    return value;
+  }
+  return `${tail}/>`;
+}
+
+/**
+ * Ferme la séquence en cours, puis enchaîne sur `&&` ou `||`.
+ *
+ * Le scénario est celui du chef de projet : le lecteur tape sa séquence,
+ * appuie sur `/>` pour la terminer, puis enchaîne. Le `&` est l'un des huit
+ * caractères qui vivent hors de la page des lettres du clavier iOS ; sans ce
+ * bouton, fermer ne supprimait que le premier obstacle des deux.
+ *
+ * L'espace finale est voulue : le lecteur enchaîne sans avoir à la poser.
+ */
+export function appendLink(text, link) {
+  const value = String(text);
+  const tail = value.trimEnd();
+  // Inchangé sur champ vide et sur liaison déjà en attente : deux liaisons de
+  // suite ne veulent rien dire, et le bouton n'a alors rien à compléter.
+  if (tail === "" || hasPendingLink(value)) {
+    return value;
+  }
+  // `trimEnd` sur le résultat : `closeSequence` absorbe déjà les espaces de fin
+  // quand elle ferme, et l'omettre donnerait deux espaces sur une séquence
+  // DÉJÀ close suivie d'une espace — `<a:b:c/> ` deviendrait `<a:b:c/>  && `.
+  return `${closeSequence(value).trimEnd()} ${link} `;
+}
+
+/**
+ * Le lecteur a-t-il modifié les commandes ?
+ *
+ * Sert à rendre FALSIFIABLE une explication gelée : `ex.jointure.aide` affirme
+ * « 2 commandes ici » pendant que le statut peut en compter une, parce que le
+ * lecteur vient de casser une jointure. La page ne réécrit pas l'aide — c'est
+ * une valeur gelée — elle ajoute une réserve, et cette fonction en décide.
+ *
+ * Comparaison à l'octet près : celui qui retape DURAND à l'identique n'a rien
+ * modifié. La casse compte donc (`durand` est une modification), et c'est
+ * voulu : ce détecteur ne juge pas la jointure — qui, elle, tolère la casse —
+ * il constate que la donnée affichée n'est plus celle d'origine.
+ */
+export function hasEdits(orders, origin = CDEMST) {
+  return orders.some((order, index) => {
+    const source = origin[index];
+    if (source === undefined) {
+      return true;
+    }
+    return Object.keys(source).some((name) => String(order[name]) !== String(source[name]));
   });
 }
 
 /* ------------------------------------------------- CÂBLAGE (hors logique) */
 
-/** Remplace `{nom}` par sa valeur. Le texte reste du texte : jamais de HTML. */
-function fill(template, params) {
+/**
+ * Remplace `{nom}` par sa valeur. Le texte reste du texte : jamais de HTML.
+ *
+ * Exportée bien qu'elle vive sous la bannière du câblage : elle est pure, et la
+ * porte de totalité du catalogue de refus doit mesurer LE remplisseur, pas une
+ * copie de lui. Elle en avait une — transcrite à la main dans la suite —, et
+ * une règle écrite deux fois est le défaut que cet incrément a livré trois fois.
+ */
+export function fill(template, params) {
   return String(template).replace(/\{(\w+)\}/g, (whole, name) =>
     Object.hasOwn(params, name) ? String(params[name]) : whole,
   );
@@ -905,6 +1207,10 @@ export function mountMiniLanguage({ dict, root }) {
   }
 
   const field = root.getElementById("mini-filtre");
+  const closeButton = root.getElementById("mini-fermer");
+  const andButton = root.getElementById("mini-et");
+  const orButton = root.getElementById("mini-ou");
+  const sendButton = root.getElementById("mini-envoyer");
   const status = root.getElementById("mini-statut");
   const columns = root.getElementById("mini-colonnes");
   const examples = root.getElementById("mini-exemples");
@@ -928,6 +1234,8 @@ export function mountMiniLanguage({ dict, root }) {
     MODLIV: root.getElementById("mini-modliv"),
   };
 
+  /** Les treize boutons d'exemple, dans l'ordre du modèle : `render()` y pose le marquage. */
+  let exampleButtons = [];
   /** Les cases cochées, par indice de propriété. */
   let selection = initialSelection();
   /**
@@ -950,6 +1258,62 @@ export function mountMiniLanguage({ dict, root }) {
    * son explication dans la langue courante après un basculement.
    */
   let heldExample = null;
+  /**
+   * L'exemple SURVOLÉ, distinct de celui qui est retenu.
+   *
+   * Il est ici, et non dans une peinture à part, parce que la surface
+   * d'explication est peinte par `render()` comme tout le reste : le survol
+   * change un ÉTAT, il ne repeint rien lui-même (avenant 1 — un seul peintre).
+   */
+  let hovered = null;
+  /**
+   * La dernière demande LUE, jamais le contenu du champ.
+   *
+   * C'est la coupure en deux zones : le lecteur écrit dans le champ, et rien ne
+   * répond tant qu'il n'a pas envoyé. La page explique une API REST, où une
+   * demande part et où la réponse arrive APRÈS ; réécrire le JSON à chaque
+   * touche faisait précéder la demande par sa réponse, et faisait défiler des
+   * refus pour une demande que le lecteur n'avait pas fini d'écrire.
+   *
+   * `null` TANT QUE RIEN N'A ÉTÉ ENVOYÉ, et c'est distinct de la chaîne vide :
+   * celle-ci est une demande sans condition, mais ENVOYÉE. La distinction porte
+   * tout l'état d'arrivée — afficher « 18 lignes trouvées sur 18 » avant le
+   * premier envoi, c'est répondre à une question que personne n'a posée, soit
+   * exactement la réponse-avant-la-demande que cette coupure existe pour
+   * retirer (passe iPhone 14 du chef de projet, 26 août 2026).
+   *
+   * Le premier envoi lui donne sa valeur, et `null` ne revient JAMAIS — y
+   * compris quand le lecteur vide le champ et renvoie.
+   */
+  let sent = null;
+
+  /**
+   * LES DEUX SEULS LECTEURS DE `sent`. Rien d'autre ne le lit à cru.
+   *
+   * Cet incrément a livré TROIS fois le même défaut : une règle écrite à N
+   * endroits en oublie un. La liaison en attente (trois copies), l'appariement
+   * d'un nom de colonne (deux sites, et le porteur s'est fait contourner une
+   * seconde fois deux avenants plus tard), puis `sent` — quatre lectures, dont
+   * une oubliée quand la valeur d'arrivée est passée de `""` à `null`. Deux
+   * fois sur trois le remède retenu a été le porteur unique ; le troisième cas
+   * ne l'a pas eu, et c'est lui qui a mordu. Il l'a maintenant.
+   *
+   * ET LA MESURE DIT POURQUOI ÇA NE POUVAIT PAS ÊTRE UNE PORTE. La garde du
+   * `null` retirée du module, la suite reste verte à 346/346 : ces lectures
+   * vivent dans le câblage, qu'aucun test ne monte (famille [W13], aucun DOM
+   * sous Vitest). Faute de témoin mécanique, la seule défense disponible est
+   * qu'il n'y ait qu'un endroit à ne pas oublier.
+   *
+   * DEUX PORTEURS ET NON UN, parce que les lectures posent deux questions
+   * différentes. `sentText` demande « quel texte a été envoyé » et répond `""`
+   * pour l'absence comme pour la demande vide — c'est ce qu'il faut au calcul
+   * en aval. `hasSent` demande « quelque chose est-il parti », et c'est
+   * exactement la distinction que `sentText` efface. Les faire passer par un
+   * seul porteur rendrait `null` indiscernable de la chaîne vide, donc
+   * rallumerait la réponse-avant-la-demande que l'avenant 3 a retirée.
+   */
+  const sentText = () => sent ?? "";
+  const hasSent = () => sent !== null;
 
   const texts = () => dict[root.documentElement.lang]?.section4 ?? dict.fr.section4;
 
@@ -1098,40 +1462,105 @@ export function mountMiniLanguage({ dict, root }) {
     const model = currentModel();
     const labels = texts().ex;
     examples.replaceChildren();
-    for (const example of EXAMPLES) {
+    exampleButtons = EXAMPLES.map((example) => {
       const item = root.createElement("li");
       const button = root.createElement("button");
       button.type = "button";
       button.className = `exemple ${example.tone}`;
-      button.textContent = labels[example.key].nom;
-      const explain = () => showHelp(labels[example.key].aide);
-      button.addEventListener("mouseenter", explain);
-      button.addEventListener("focus", explain);
-      button.addEventListener("mouseleave", restoreHelp);
-      button.addEventListener("blur", restoreHelp);
+      // Le nom est posé DEUX fois : une fois visible, une fois en attribut. La
+      // feuille s'en sert pour réserver dès le repos la largeur que le bouton
+      // aura une fois marqué en gras, sans quoi le marquage pousse les voisins
+      // (4 px mesurés au navigateur le 25 août 2026).
+      const nom = labels[example.key].nom;
+      button.dataset.nom = nom;
+      const label = root.createElement("span");
+      label.className = "nom";
+      label.textContent = nom;
+      button.append(label);
+      // Le survol montre sans engager ; le clic retient. Ni l'un ni l'autre ne
+      // peint : ils posent un état, et `render()` peint (avenant 1).
+      const enter = () => {
+        hovered = example;
+        render();
+      };
+      const leave = () => {
+        hovered = null;
+        render();
+      };
+      button.addEventListener("mouseenter", enter);
+      button.addEventListener("focus", enter);
+      button.addEventListener("mouseleave", leave);
+      button.addEventListener("blur", leave);
       button.addEventListener("click", () => {
-        heldExample = example;
-        field.value = exampleExpression(example, model);
-        showHelp(labels[example.key].aide);
+        // Cliquer ÉCRIT la demande, il ne l'envoie pas : le résultat doit
+        // rester la découverte du lecteur. L'ancien résultat demeure affiché —
+        // un avant-après enseigne mieux qu'un vide qui se remplit, et un écran
+        // qui se vide au moment où l'on vient d'agir se lit comme une panne.
+        //
+        // Et il COMPLÈTE au lieu d'effacer quand une liaison attend : le
+        // lecteur qui a composé `<…/> ||` au doigt puis clique un exemple
+        // remplit son second membre, il ne perd pas son travail.
+        const expression = exampleExpression(example, model);
+        // Quand l'exemple s'ajoute, le champ ne porte plus l'exemple SEUL :
+        // aucun exemple n'est donc retenu, et ni l'explication ni le marquage
+        // ne peuvent prétendre décrire ce qui est écrit.
+        heldExample = hasPendingLink(field.value) ? null : example;
+        field.value = applyExample(field.value, expression);
         render();
       });
       item.append(button);
       examples.append(item);
-    }
+      return button;
+    });
   };
 
-  /** Le survol montre sans engager ; le clic retient. Une seule surface. */
-  const showHelp = (text) => {
-    help.textContent = text;
-  };
-  const restoreHelp = () => {
-    help.textContent = heldExample === null
-      ? texts().exemples.repos
-      : texts().ex[heldExample.key].aide;
+  /**
+   * La surface d'explication, peinte depuis l'ÉTAT et jamais depuis un
+   * événement : le survol l'emporte sur l'exemple retenu, et le texte de repos
+   * ne paraît que si aucun des deux n'est là.
+   *
+   * Le texte entre élément par élément, `textContent` seul.
+   */
+  const paintHelp = () => {
+    const subject = hovered ?? heldExample;
+    help.replaceChildren();
+    if (subject === null) {
+      help.textContent = texts().exemples.repos;
+      return;
+    }
+    const labels = texts().ex;
+    // Le nom repris en tête : treize boutons se ressemblent, et l'aide seule ne
+    // dit pas lequel le lecteur vient de toucher.
+    const name = root.createElement("strong");
+    name.textContent = labels[subject.key].nom;
+    const aide = root.createElement("span");
+    aide.textContent = labels[subject.key].aide;
+    help.append(name, root.createTextNode(" "), aide);
+    // L'explication devient FALSIFIABLE dès que le lecteur édite : l'aide de la
+    // jointure affirme « 2 commandes ici » pendant que le statut peut en
+    // compter une. La valeur gelée n'est pas réécrite — une réserve s'ajoute.
+    // Jamais sur le texte de repos : il n'affirme aucun compte.
+    if (hasEdits(orders)) {
+      const reserve = root.createElement("span");
+      reserve.className = "reserve";
+      reserve.textContent = texts().exemples.donneesModifiees;
+      help.append(root.createTextNode(" "), reserve);
+    }
   };
 
   const render = () => {
     const model = currentModel();
+
+    /* ---- UN SEUL PEINTRE, DEUX SOURCES (avenant 1, 25 août 2026).
+       `render()` peint les deux zones : celle où l'on ÉCRIT se lit sur `typed`,
+       celle qui RÉPOND se lit sur `sentText()`. Un second peintre d'une zone est
+       exactement la façon dont une zone finit par montrer un état que l'autre a
+       déjà quitté — défaut mesuré deux fois sur ce projet.
+
+       `stripLineBreaks` n'a que DEUX sites d'appel : ici, et à l'envoi. Le
+       champ, lui, n'est JAMAIS réaffecté depuis l'une ni l'autre : le retrait
+       vit dans la lecture, et ce que le lecteur a tapé reste à l'écran. */
+    const typed = stripLineBreaks(field.value);
 
     // Une explication ne survit pas à un champ qui la contredit : le lecteur
     // avait sous les yeux « 3 commandes sur 18 » pendant que la page refusait
@@ -1141,19 +1570,75 @@ export function mountMiniLanguage({ dict, root }) {
     // COURANTE, jamais sur la chaîne mémorisée au clic : le basculement de
     // langue réécrit le champ, et comparer à la chaîne d'origine effacerait
     // l'explication d'un exemple qui est pourtant toujours celui affiché.
-    if (heldExample !== null && field.value !== exampleExpression(heldExample, model)) {
+    // La comparaison porte sur `typed`, jamais sur `sent` : l'explication décrit
+    // ce qui est ÉCRIT, pas ce qui a été envoyé — la comparer à `sent`
+    // effacerait l'explication à l'instant même où le lecteur clique l'exemple.
+    // Et elle porte sur le texte SANS retours à la ligne, pour qu'une coupure
+    // de ligne ne fasse pas tomber l'aide d'un exemple qu'il est en train de
+    // lire.
+    if (heldExample !== null && typed !== exampleExpression(heldExample, model)) {
       heldExample = null;
-      restoreHelp();
     }
+    paintHelp();
+
+    // Les quatre boutons se dérivent du CHAMP : ils s'allument quand ils ont
+    // quelque chose à compléter. Celui d'envoi s'allume quand ce qui est écrit
+    // n'est plus ce qui est affiché — c'est le SEUL signal d'état périmé de la
+    // page, et le lecteur sait donc toujours si la réponse qu'il voit
+    // correspond à la demande qu'il lit.
+    // L'INERTIE SUIT LE CURSEUR, PAS LE CHAMP ENTIER (avenant 6). Mesuré : un
+    // champ finissant par `&&` éteignait le bouton `&&`, alors qu'au curseur
+    // posé entre deux membres l'insertion est parfaitement légitime. Sans ce
+    // point, le bouton serait mort là où le geste est bon — et une moitié de
+    // correctif serait pire que le défaut.
+    const caret = caretPosition();
+    const beforeCaret = field.value.slice(0, caret);
+    const placeable = caretAllowsStructure(field.value, caret);
+    closeButton.disabled = !placeable || closeSequence(beforeCaret) === beforeCaret;
+    andButton.disabled = !placeable || appendLink(beforeCaret, "&&") === beforeCaret;
+    orButton.disabled = !placeable || appendLink(beforeCaret, "||") === beforeCaret;
+    // À l'arrivée, champ vide et rien d'envoyé, le bouton dort — il n'y a
+    // effectivement rien à envoyer.
+    sendButton.disabled = typed === sentText();
+
+    // Le marquage, DÉRIVÉ de `heldExample` : aucun second état, donc un seul
+    // bouton marqué par construction, et le marquage tombe au même rendu que
+    // l'explication.
+    exampleButtons.forEach((button, index) => {
+      const held = heldExample !== null && EXAMPLES[index].key === heldExample.key;
+      button.classList.toggle("retenu", held);
+      if (held) {
+        button.setAttribute("aria-current", "true");
+      } else {
+        button.removeAttribute("aria-current");
+      }
+    });
+
     const rows = joinFiles(texts().modes, orders);
-    const result = filterRows(field.value, model, rows);
+    // LA ZONE DE RÉPONSE lit la demande envoyée, et elle seule.
+    //
+    // `sentText()` sert à garder tout le calcul en aval valide avant le premier
+    // envoi — la jointure et l'extinction de teinte doivent continuer de
+    // répondre au doigt qui édite une commande, qui est resté immédiat. Ce que
+    // l'attente change, ce sont les trois SURFACES de réponse, plus bas ; et
+    // c'est `hasSent()` qui porte cette question-là, parce que `sentText()`
+    // l'efface par construction.
+    const awaiting = !hasSent();
+    const result = filterRows(sentText(), model, rows);
 
     // Le texte entre élément par élément, par `textContent` seul : un motif de
     // refus cite ce que le lecteur vient de taper, et cette chaîne ne doit
     // jamais avoir la moindre chance d'être lue comme du balisage. C'est cette
     // pose, et non l'encodage des chevrons, qui rend l'injection impossible.
     status.replaceChildren();
-    if (result.ok) {
+    if (awaiting) {
+      // Aucune demande n'est partie : la page n'a rien à répondre, et elle le
+      // dit au lieu d'afficher un compte que personne n'a demandé.
+      const line = root.createElement("span");
+      line.textContent = texts().champ.attente;
+      status.append(line);
+      status.className = "statut attente";
+    } else if (result.ok) {
       const found = result.rows.length;
       const template = found === 0
         ? texts().compte.aucune
@@ -1169,6 +1654,11 @@ export function mountMiniLanguage({ dict, root }) {
       const params = { ...result.refusal.params };
       if (Object.hasOwn(params, "type")) {
         params.type = texts().types[params.type] ?? params.type;
+      }
+      // Même chemin que `type` juste au-dessus : un code de faute se résout en
+      // phrase par le dictionnaire, et rien de neuf n'est inventé pour lui.
+      if (Object.hasOwn(params, "faute")) {
+        params.faute = texts().refus.forme.fautes[params.faute] ?? params.faute;
       }
       if (Object.hasOwn(params, "types")) {
         params.types = params.types.map((type) => texts().types[type] ?? type).join(", ");
@@ -1221,7 +1711,9 @@ export function mountMiniLanguage({ dict, root }) {
     };
 
     const json = refused ? null : renderJson(result.rows, chosen);
-    if (refused) {
+    if (awaiting) {
+      putMessage(jsonBox, texts().champ.attente);
+    } else if (refused) {
       putMessage(jsonBox, texts().refusRien);
     } else if (json === null) {
       putMessage(jsonBox, texts().json.vide);
@@ -1233,7 +1725,9 @@ export function mountMiniLanguage({ dict, root }) {
     // même absence. Ni vis-à-vis ni bloc de valeurs alors — ce bloc accompagne
     // une requête, et aucune valeur ne voyage puisque rien ne part (arbitrage
     // du chef de projet, session 19).
-    if (refused) {
+    if (awaiting) {
+      putMessage(sqlBox, texts().champ.attente);
+    } else if (refused) {
       putMessage(sqlBox, texts().refusRien);
     } else if (query.sql === null) {
       putMessage(sqlBox, texts().json.vide);
@@ -1241,13 +1735,13 @@ export function mountMiniLanguage({ dict, root }) {
       putCode(sqlBox, query.sql);
     }
 
-    naiveBlock.hidden = naive === null;
-    parametreePhrase.hidden = naive === null;
+    naiveBlock.hidden = awaiting || naive === null;
+    parametreePhrase.hidden = awaiting || naive === null;
     if (naive !== null) {
       naiveBox.textContent = naive;
     }
 
-    valuesBlock.hidden = refused || query.sql === null;
+    valuesBlock.hidden = awaiting || refused || query.sql === null;
     valuesList.replaceChildren();
     if (!valuesBlock.hidden) {
       valuesIntro.textContent = query.params.length > 0
@@ -1333,21 +1827,205 @@ export function mountMiniLanguage({ dict, root }) {
 
   const rebuild = () => {
     const lang = root.documentElement.lang;
-    if (lang !== renderedLang && field.value.trim() !== "") {
+    if (lang !== renderedLang) {
       const before = buildModel(
         PHYSICAL_MODEL.map((entry) => (dict[renderedLang] ?? dict.fr).section4.modele[entry.key]),
       );
-      field.value = translateExpression(field.value, before, currentModel());
+      const after = currentModel();
+      if (field.value.trim() !== "") {
+        field.value = translateExpression(field.value, before, after);
+      }
+      // LA DEMANDE ENVOYÉE SE TRADUIT AUSSI, et les deux zones parlent donc la
+      // même langue. Sans cette ligne, la coupure en deux zones laissait la
+      // réponse sur l'expression d'AVANT la bascule : le champ montrait
+      // `customerCity` pendant que le statut refusait en citant `villeClient`,
+      // un nom de colonne que rien à l'écran ne portait plus.
+      //
+      // C'est la troisième zone dont l'état pouvait dater, et elle ne se voyait
+      // qu'à la bascule de langue : ni la frappe, ni l'envoi, ni une case
+      // cochée ne l'atteignaient. Trouvée à la revue indépendante.
+      //
+      // LIMITE DITE PLUTÔT QUE MASQUÉE. Les deux traductions ne restent
+      // d'accord que tant que le retrait des retours à la ligne et la
+      // réécriture de langue COMMUTENT — `sent` a déjà perdu ses retours
+      // chariot à l'envoi, le champ non. Elles cessent de commuter dès qu'une
+      // coupure tombe DANS LE JETON `<nom:`, c'est-à-dire n'importe où entre le
+      // chevron et le premier deux-points, bornes comprises :
+      // `translateExpression` capture par /<([^:<]*):/ et ne reconnaît plus le
+      // nom. Mesuré le 26 août 2026 sur six positions — trois cassent (juste
+      // après le chevron, dans le nom, juste avant les deux-points), trois
+      // commutent (dans l'opérateur, dans la valeur, entre deux séquences). Le
+      // champ garde alors son nom français quand `sent` prend l'anglais, et
+      // « Envoyer » se rallume à tort. La réponse servie reste juste dans tous
+      // les cas — seul le signal d'état périmé ment, et il ment dans le sens
+      // prudent.
+      //
+      // `sent` vaut `null` tant que rien n'est parti (avenant 3) : le lire sans
+      // garde jetait une `TypeError` à toute bascule de langue faite AVANT le
+      // premier envoi — c'est-à-dire dans l'état d'arrivée que l'avenant 3
+      // venait justement d'instituer. `renderedLang` n'étant mis à jour
+      // qu'après, la page restait entière dans la langue d'avant.
+      //
+      // La garde passe par `sentText()`, comme les trois autres lectures : la
+      // graphie n'est plus à retenir, elle est au porteur. C'est un oubli qui a
+      // créé ce défaut — la valeur d'arrivée est passée de `""` à `null` sans
+      // que tous les chemins qui la consomment soient relus — et le porteur
+      // unique est ici la seule défense possible, la mesure de mutation ayant
+      // montré qu'aucune porte ne surveille ce câblage.
+      if (sentText().trim() !== "") {
+        sent = translateExpression(sentText(), before, after);
+      }
     }
     renderedLang = lang;
     fillTables();
     buildColumns();
     buildExamples();
-    restoreHelp();
     render();
   };
 
+  // L'écouteur APPELLE le peintre, il ne peint rien lui-même : l'état des
+  // quatre boutons, la chute de `heldExample` et le retrait du marquage vivent
+  // dans `render()` (avenant 1). Recalculer dix-huit lignes à chaque touche ne
+  // coûte rien ; un second peintre coûterait la garantie.
   field.addEventListener("input", render);
+
+  // Le curseur bouge sans qu'aucune touche ne soit frappée — un appui dans le
+  // texte, une flèche, une sélection. L'inertie des trois boutons en dépend
+  // désormais, donc le peintre doit repasser. C'est le même peintre : l'écouteur
+  // appelle `render()`, il ne repeint rien lui-même.
+  //
+  // DEUX POSES, ET LA SECONDE EST UNE HYPOTHÈSE DE PORTABILITÉ RETIRÉE. Poser
+  // l'écouteur sur `root` seul — le DOCUMENT — suppose que `selectionchange`
+  // remonte depuis un `<textarea>`. La spécification HTML le déclenche sur
+  // L'ÉLÉMENT ; la remontée au document pour les contrôles de texte est un
+  // comportement historique qui n'est pas uniforme d'un moteur à l'autre, et
+  // rien ici ne l'avait mesuré : la page n'a jamais été ouverte hors Chromium
+  // et WebKit. La pose sur le champ est sans effet là où le document délivre
+  // déjà l'événement, et décisive là où il ne le délivre pas.
+  //
+  // Le double appel est sans conséquence : `render()` est idempotent, c'est
+  // tout l'objet du peintre unique.
+  const repaintOnCaretMove = () => {
+    if (root.activeElement === field) {
+      render();
+    }
+  };
+  root.addEventListener("selectionchange", repaintOnCaretMove);
+  field.addEventListener("selectionchange", repaintOnCaretMove);
+
+  /**
+   * Les trois boutons de structure COMPLÈTENT le champ, puis rendent la main.
+   *
+   * Ils n'envoient rien : la zone de réponse relit `sent`, qui n'a pas bougé —
+   * c'est pourquoi appeler `render()` ici est sans risque. Et `||` reste offert
+   * même quand l'expression porte déjà des `&&` : mêler les deux liaisons est
+   * refusé par le reconnaisseur, et ce refus est une LEÇON de la page. Une
+   * rangée qui empêcherait le mélange volerait au lecteur ce qu'il vient voir.
+   */
+  /**
+   * Où le curseur se trouve, du point de vue des boutons de structure.
+   *
+   * Hors édition, il vaut LA FIN DU CHAMP : c'est le comportement d'avant
+   * l'avenant 6, et il ne doit pas changer parce que le lecteur a cliqué
+   * ailleurs. La conscience du curseur ne vaut que pendant qu'il écrit.
+   */
+  const caretPosition = () =>
+    (root.activeElement === field ? field.selectionStart : null) ?? field.value.length;
+
+  /**
+   * Les trois boutons travaillent sur le texte À GAUCHE DU CURSEUR et insèrent
+   * là, au lieu d'ajouter en fin de champ.
+   *
+   * Le lecteur qui remplace un `||` par un `&&` pose son curseur entre deux
+   * membres et appuie : la liaison doit aller LÀ, pas à la fin (mesuré sur
+   * iPhone 14 le 27 août 2026). Curseur en fin — le cas courant — le résultat
+   * est identique à celui d'avant, et un test l'exige.
+   */
+  const completeWith = (rewrite) => () => {
+    const position = caretPosition();
+    // LE POINT D'APPLICATION QUI FAIT FOI, et il est ici — au geste.
+    //
+    // La garde vivait à un seul endroit, l'attribut `disabled` posé par
+    // `render()`, c'est-à-dire dans un ÉTAT D'AFFICHAGE : elle ne tenait que
+    // tant que le dernier repeint avait tourné avec le curseur courant. Une
+    // règle écrite à un endroit et appliquée à un autre est la même forme de
+    // défaut que les trois porteurs de cet incrément — la quatrième, et la
+    // seule qui porte sur une règle plutôt que sur une valeur.
+    //
+    // Mesuré : curseur 5 dans `<nomClient:[=:DUR/> && <villeClient:[]:LY/>`,
+    // la garde dit `false` ; le bouton néanmoins cliquable produisait
+    // `<nomC/> && lient:[=:DUR/> && …`, refusé en `forme` — l'expression du
+    // lecteur coupée en deux, ce que l'avenant 6 existe pour empêcher, et dont
+    // il écrit qu'« une moitié de correctif aurait été pire que le défaut ».
+    //
+    // `disabled` REDEVIENT CE QU'IL AURAIT TOUJOURS DÛ ÊTRE : le signal qui
+    // DIT la règle au lecteur. Ce test-ci est ce qui la TIENT.
+    if (!caretAllowsStructure(field.value, position)) {
+      return;
+    }
+    const left = field.value.slice(0, position);
+    const right = field.value.slice(position);
+    const rewritten = rewrite(left);
+    field.value = rewritten + right;
+    render();
+    field.focus();
+    // Le curseur suit son insertion : sans cela il repartirait en fin de champ
+    // et le lecteur perdrait l'endroit où il travaillait.
+    field.setSelectionRange(rewritten.length, rewritten.length);
+  };
+  // LE CHAMP NE DOIT JAMAIS PERDRE LE FOCUS QUAND ON TOUCHE CES BOUTONS.
+  //
+  // Toucher un bouton blure le champ AVANT que le clic ne s'exécute : le geste
+  // arrivait donc avec un champ inactif, `caretPosition()` retombait sur la fin
+  // du champ, et tout l'avenant 6 était annulé — sur l'appareil qu'il sert, et
+  // seulement là. Mesuré sur iPhone 14 le 27 août 2026 par le chef de projet,
+  // puis reproduit au navigateur en simulant la perte de focus.
+  //
+  // C'est [W13] en un seul fait : le test focalise le champ à la main,
+  // l'appareil non. Un `preventDefault` sur `mousedown` empêche le changement
+  // de focus, si bien que le curseur reste où le lecteur l'a posé — et que le
+  // clavier ne se referme pas entre deux appuis.
+  //
+  // Le repli sur la fin du champ reste correct pour un vrai clic ailleurs.
+  for (const bouton of [closeButton, andButton, orButton]) {
+    bouton.addEventListener("mousedown", (event) => {
+      event.preventDefault();
+    });
+  }
+  closeButton.addEventListener("click", completeWith(closeSequence));
+  andButton.addEventListener("click", completeWith((text) => appendLink(text, "&&")));
+  orButton.addEventListener("click", completeWith((text) => appendLink(text, "||")));
+
+  // L'ENVOI — le second et dernier site d'appel de `stripLineBreaks`. Le
+  // lecteur a coupé ses lignes où il voulait ; la page reconstruit l'expression
+  // au moment de la LIRE, et ne touche jamais au champ.
+  /**
+   * Combien de temps le retour d'appui survit au relâchement, en millisecondes.
+   *
+   * PAS un `:active` seul : sur un iPhone, LE POUCE COUVRE LE BOUTON pendant
+   * l'appui, donc la couleur doit survivre au relâchement le temps que l'œil la
+   * voie (réserve du chef de projet, 26 août 2026).
+   *
+   * 200 ms est un JUGEMENT DE CONCEPTION, non mesuré : c'est un point de
+   * départ, et la valeur se juge à la passe d'appareil, jamais au fichier.
+   */
+  const RETOUR_APPUI_MS = 200;
+  let retourAppui = null;
+
+  // Le sens plein/contour NE BOUGE PAS — plein veut toujours dire « il reste
+  // quelque chose à envoyer ». Ce qui s'ajoute est le retour du geste : sans
+  // lui, appuyer faisait PÂLIR le bouton, qui devient inerte au même instant,
+  // et cela se lisait comme une extinction plutôt que comme un envoi réussi.
+  sendButton.addEventListener("click", () => {
+    sent = stripLineBreaks(field.value);
+    render();
+    sendButton.classList.add("envoi");
+    root.defaultView.clearTimeout(retourAppui);
+    retourAppui = root.defaultView.setTimeout(() => {
+      sendButton.classList.remove("envoi");
+    }, RETOUR_APPUI_MS);
+  });
+
 
   // Le tableau se refait — les cellules changent de nature — puis tout se
   // rejoue. Une modification, elle, ne refait PAS le tableau : le champ en

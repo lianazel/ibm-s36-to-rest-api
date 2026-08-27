@@ -196,3 +196,78 @@ describe("couverture de l'extraction", () => {
     expect(collectRefs(stripComments(commented))).toEqual([]);
   });
 });
+
+/* ------------------------------------------------------- WCAG 2.5.3 « Label
+   in Name » (niveau A) — relevé par la cinquième revue, tranché par le chef de
+   projet le 27 août 2026. */
+
+/**
+ * Les entités des trois attributs et étiquettes en jeu, et elles seules.
+ *
+ * Un décodeur général serait une seconde implémentation du navigateur ; ici on
+ * a besoin de trois entités, et les nommer rend la porte lisible. Si une
+ * quatrième entre dans ces boutons, l'assertion rougit plutôt que de se
+ * taire — c'est le bon sens de l'échec.
+ */
+function decodeEntities(text) {
+  return text
+    .replace(/&gt;/g, ">")
+    .replace(/&lt;/g, "<")
+    .replace(/&amp;/g, "&");
+}
+
+/** Les boutons à signe : étiquette visible, nom accessible statique, clé i18n. */
+function collectSignButtons(html) {
+  const buttons = [...html.matchAll(/<button\b[^>]*class="signe"[^>]*>([\s\S]*?)<\/button>/g)];
+  return buttons.map(([whole, inner]) => ({
+    visible: decodeEntities(inner.trim()),
+    ariaLabel: decodeEntities((whole.match(/aria-label="([^"]*)"/) ?? [, ""])[1]),
+    key: (whole.match(/data-i18n-attr="aria-label:([^"]*)"/) ?? [, ""])[1],
+  }));
+}
+
+describe("WCAG 2.5.3 « Label in Name » : les boutons à signe s'atteignent à la voix", () => {
+  // Les trois boutons affichent `/>`, `&&`, `||` et portaient un nom accessible
+  // ENTIÈREMENT DISJOINT de ce texte. Un utilisateur de commande vocale dit ce
+  // qu'il voit : il ne pouvait atteindre aucun des trois. Le quatrième bouton
+  // (« Envoyer ») ne pose pas la question — son libellé visible EST son nom.
+  //
+  // La porte tient les DEUX domiciles du nom : l'attribut statique d'`index.html`
+  // (ce que lit un lecteur d'écran avant que `applyI18n` ne passe) et la valeur
+  // du dictionnaire dans les deux langues (ce qu'il lit après). Une correction
+  // qui n'aurait touché qu'un des deux laisserait la faute vivante la moitié du
+  // temps, et c'est exactement la forme de défaut que cet incrément a livrée
+  // trois fois.
+  const boutons = collectSignButtons(stripComments(readHtml()));
+
+  it("porte non vide : les trois boutons à signe sont bien relevés", () => {
+    expect(boutons).toHaveLength(3);
+    expect(boutons.map((bouton) => bouton.visible)).toEqual(["/>", "&&", "||"]);
+    for (const { key } of boutons) {
+      expect(key).not.toBe("");
+    }
+  });
+
+  it("le nom accessible STATIQUE commence par l'étiquette visible", () => {
+    for (const { visible, ariaLabel } of boutons) {
+      expect(ariaLabel, visible).not.toBe("");
+      expect(ariaLabel.startsWith(visible), `${visible} → « ${ariaLabel} »`).toBe(true);
+    }
+  });
+
+  it.each(["fr", "en"])("le nom accessible TRADUIT commence par l'étiquette visible (%s)", (lang) => {
+    for (const { visible, key } of boutons) {
+      const valeur = key.split(".").reduce((noeud, part) => noeud?.[part], dict[lang]);
+      expect(typeof valeur, `${lang}.${key}`).toBe("string");
+      expect(valeur.startsWith(visible), `${lang}.${key} → « ${valeur} »`).toBe(true);
+    }
+  });
+
+  it("le décodage d'entités couvre ce que ces boutons portent réellement", () => {
+    // Sans ce témoin, un décodeur muet rendrait la comparaison vraie par
+    // accident : `&amp;&amp;` ne commence par rien de ce qu'on croit lire.
+    expect(decodeEntities("/&gt;")).toBe("/>");
+    expect(decodeEntities("&amp;&amp;")).toBe("&&");
+    expect(decodeEntities("&lt;a&gt;")).toBe("<a>");
+  });
+});
