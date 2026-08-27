@@ -17,6 +17,7 @@ import {
   buildModel,
   buildNaiveQuery,
   buildParameterisedQuery,
+  caretAllowsStructure,
   CDEMST,
   CLIMST,
   closeSequence,
@@ -1730,5 +1731,65 @@ describe("La valeur : bords rognés, intérieur intact", () => {
     const read = recognise(exampleExpression(injection, FR), FR);
     expect(read.ok).toBe(true);
     expect(read.conditions[0].value).toBe("D' OR '1'='1");
+  });
+});
+
+/* ------------------------------- AVENANT 6 : les boutons de structure suivent
+   le curseur (27 août 2026, quatrième passe d'appareil). */
+
+describe("caretAllowsStructure : la garde sans laquelle le correctif serait pire que le bug", () => {
+  const champ = "<nomClient:[=:DUR/> <codemodelivraison:[]:AR/>";
+
+  it("REFUSE les trois positions qui couperaient l'expression en deux", () => {
+    // Mesuré : sans cette garde, le bouton `&&` produisait
+    // `<nomClient:[=:DUR/> <codemodeliv/> && raison:[]:AR/>`.
+    expect(caretAllowsStructure(champ, 32)).toBe(false);   // au milieu du nom
+    expect(caretAllowsStructure(champ, 21)).toBe(false);   // après le chevron
+    expect(caretAllowsStructure(champ, 40)).toBe(false);   // dans la valeur
+  });
+
+  it("accepte la fin de champ et les frontières de séquence", () => {
+    expect(caretAllowsStructure(champ, champ.length)).toBe(true);   // fin
+    expect(caretAllowsStructure(champ, 20)).toBe(true);             // entre les membres
+    expect(caretAllowsStructure(champ, 0)).toBe(true);              // au début
+    // Les espaces de fin ne comptent pas comme du texte à couper.
+    expect(caretAllowsStructure("<a:b:c/>   ", 8)).toBe(true);
+  });
+
+  it("tolère un curseur hors bornes sans se plaindre", () => {
+    expect(caretAllowsStructure("<a:b:c/>", 999)).toBe(true);
+    expect(caretAllowsStructure("<a:b:c/>", -5)).toBe(true);
+  });
+});
+
+describe("L'insertion au curseur : le cas courant ne bouge pas", () => {
+  // La règle est « travailler sur le texte à gauche ». Quand le curseur est en
+  // fin de champ — l'usage normal — cela redonne EXACTEMENT le comportement
+  // d'avant l'avenant 6, et ce test est là pour l'exiger.
+  const poser = (champ, curseur, lien) =>
+    appendLink(champ.slice(0, curseur), lien) + champ.slice(curseur);
+
+  it("curseur en fin : identique à l'ajout en fin de champ", () => {
+    for (const champ of ["", "<a:b:c", "<a:b:c/>", "<a:b:c/> && <d:e:f/>"]) {
+      expect(poser(champ, champ.length, "&&"), champ).toBe(appendLink(champ, "&&"));
+    }
+  });
+
+  it("LE CAS DU CHEF DE PROJET : la liaison va là où le curseur est", () => {
+    const champ = "<nomClient:[=:DUR/> <codemodelivraison:[]:AR/> && <montantCommande:><:1000;4000/>";
+    expect(poser(champ, 20, "&&")).toBe(
+      "<nomClient:[=:DUR/> && <codemodelivraison:[]:AR/> && <montantCommande:><:1000;4000/>",
+    );
+  });
+
+  it("L'INERTIE SUIT LE CURSEUR : le bouton vit là où le geste est bon", () => {
+    // Mesuré : un champ finissant par `&&` éteignait le bouton `&&` calculé sur
+    // le champ entier, alors qu'au curseur 9 l'insertion est légitime.
+    const champ = "<a:b:c/> <d:e:f/> &&";
+    expect(appendLink(champ, "&&")).toBe(champ);                    // inerte sur le tout
+    const gauche = champ.slice(0, 9);
+    expect(caretAllowsStructure(champ, 9)).toBe(true);
+    expect(appendLink(gauche, "&&")).not.toBe(gauche);              // actif au curseur
+    expect(poser(champ, 9, "&&")).toBe("<a:b:c/> && <d:e:f/> &&");
   });
 });

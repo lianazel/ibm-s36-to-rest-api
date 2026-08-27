@@ -945,6 +945,31 @@ export function stripLineBreaks(text) {
 }
 
 /**
+ * Le curseur est-il posé là où une insertion de structure est légitime ?
+ *
+ * LA RÈGLE « travailler sur le texte à gauche du curseur » EST INCOMPLÈTE SANS
+ * CETTE GARDE. Mesuré : curseur au milieu d'un nom, le bouton `&&` produisait
+ * `<nomClient:[=:DUR/> <codemodeliv/> && raison:[]:AR/>` — il coupait
+ * l'expression en deux. Une moitié de correctif aurait été pire que le défaut.
+ *
+ * Deux situations seulement sont légitimes :
+ *  - le curseur est **en fin de champ**, ce qui est le cas courant, et le
+ *    comportement y est alors identique à celui d'avant l'avenant 6 ;
+ *  - il est **à une frontière de séquence** : le texte de gauche est vide, ou
+ *    il finit par `/>`.
+ */
+export function caretAllowsStructure(text, caret) {
+  const value = String(text);
+  const position = Math.max(0, Math.min(Number(caret) || 0, value.length));
+  // En fin de champ : rien à couper derrière, tout est permis.
+  if (value.slice(position).trim() === "") {
+    return true;
+  }
+  const left = value.slice(0, position).trimEnd();
+  return left === "" || left.endsWith("/>");
+}
+
+/**
  * Laquelle des cinq fautes de forme ce membre porte-t-il ?
  *
  * Le refus « forme » récitait la règle et laissait le lecteur chercher : sur un
@@ -1488,9 +1513,17 @@ export function mountMiniLanguage({ dict, root }) {
     // n'est plus ce qui est affiché — c'est le SEUL signal d'état périmé de la
     // page, et le lecteur sait donc toujours si la réponse qu'il voit
     // correspond à la demande qu'il lit.
-    closeButton.disabled = closeSequence(field.value) === field.value;
-    andButton.disabled = appendLink(field.value, "&&") === field.value;
-    orButton.disabled = appendLink(field.value, "||") === field.value;
+    // L'INERTIE SUIT LE CURSEUR, PAS LE CHAMP ENTIER (avenant 6). Mesuré : un
+    // champ finissant par `&&` éteignait le bouton `&&`, alors qu'au curseur
+    // posé entre deux membres l'insertion est parfaitement légitime. Sans ce
+    // point, le bouton serait mort là où le geste est bon — et une moitié de
+    // correctif serait pire que le défaut.
+    const caret = caretPosition();
+    const beforeCaret = field.value.slice(0, caret);
+    const placeable = caretAllowsStructure(field.value, caret);
+    closeButton.disabled = !placeable || closeSequence(beforeCaret) === beforeCaret;
+    andButton.disabled = !placeable || appendLink(beforeCaret, "&&") === beforeCaret;
+    orButton.disabled = !placeable || appendLink(beforeCaret, "||") === beforeCaret;
     // `sent ?? ""` : à l'arrivée, champ vide et rien d'envoyé, le bouton dort —
     // il n'y a effectivement rien à envoyer.
     sendButton.disabled = typed === (sent ?? "");
@@ -1768,6 +1801,16 @@ export function mountMiniLanguage({ dict, root }) {
   // coûte rien ; un second peintre coûterait la garantie.
   field.addEventListener("input", render);
 
+  // Le curseur bouge sans qu'aucune touche ne soit frappée — un appui dans le
+  // texte, une flèche, une sélection. L'inertie des trois boutons en dépend
+  // désormais, donc le peintre doit repasser. C'est le même peintre : l'écouteur
+  // appelle `render()`, il ne repeint rien lui-même.
+  root.addEventListener("selectionchange", () => {
+    if (root.activeElement === field) {
+      render();
+    }
+  });
+
   /**
    * Les trois boutons de structure COMPLÈTENT le champ, puis rendent la main.
    *
@@ -1777,10 +1820,36 @@ export function mountMiniLanguage({ dict, root }) {
    * refusé par le reconnaisseur, et ce refus est une LEÇON de la page. Une
    * rangée qui empêcherait le mélange volerait au lecteur ce qu'il vient voir.
    */
+  /**
+   * Où le curseur se trouve, du point de vue des boutons de structure.
+   *
+   * Hors édition, il vaut LA FIN DU CHAMP : c'est le comportement d'avant
+   * l'avenant 6, et il ne doit pas changer parce que le lecteur a cliqué
+   * ailleurs. La conscience du curseur ne vaut que pendant qu'il écrit.
+   */
+  const caretPosition = () =>
+    (root.activeElement === field ? field.selectionStart : null) ?? field.value.length;
+
+  /**
+   * Les trois boutons travaillent sur le texte À GAUCHE DU CURSEUR et insèrent
+   * là, au lieu d'ajouter en fin de champ.
+   *
+   * Le lecteur qui remplace un `||` par un `&&` pose son curseur entre deux
+   * membres et appuie : la liaison doit aller LÀ, pas à la fin (mesuré sur
+   * iPhone 14 le 27 août 2026). Curseur en fin — le cas courant — le résultat
+   * est identique à celui d'avant, et un test l'exige.
+   */
   const completeWith = (rewrite) => () => {
-    field.value = rewrite(field.value);
+    const position = caretPosition();
+    const left = field.value.slice(0, position);
+    const right = field.value.slice(position);
+    const rewritten = rewrite(left);
+    field.value = rewritten + right;
     render();
     field.focus();
+    // Le curseur suit son insertion : sans cela il repartirait en fin de champ
+    // et le lecteur perdrait l'endroit où il travaillait.
+    field.setSelectionRange(rewritten.length, rewritten.length);
   };
   closeButton.addEventListener("click", completeWith(closeSequence));
   andButton.addEventListener("click", completeWith((text) => appendLink(text, "&&")));

@@ -1244,6 +1244,38 @@ l'œil » **sans dire comment**, et la première rédaction s'en est remise au f
 douce. — **Complétée, non révoquée** : l'exigence était juste, sa réalisation ne l'était pas. Ce
 qui change est l'état **actif**, jamais l'inerte.
 
+## Avenant 6 — les boutons de structure suivent le curseur
+
+*Origine : **quatrième** passe d'appareil du chef de projet, iPhone 14, 27 août 2026. « Lorsque je
+reviens pour remplacer les `||` par `&&`, le bouton `&&` insère à la fin du code, pas entre les deux
+expressions. » **C'est une conséquence de la rangée que cet incrément a ajoutée, donc l'incrément la
+finit** — arbitrage du chef de projet.*
+
+**La règle** : les trois boutons travaillent sur le texte **à gauche du curseur** et insèrent là.
+**Curseur en fin de champ — le cas courant — le résultat est identique à celui d'avant, et un test
+l'exige.** Le comportement d'hier devient le cas particulier de la règle d'aujourd'hui.
+
+**Mais la règle seule est incomplète, et le chef de projet l'a mesuré** : sans garde, un curseur au
+milieu d'un mot coupe l'expression en deux — `<nomClient:[=:DUR/> <codemodeliv/> && raison:[]:AR/>`.
+**Deux conditions, pas une. La moitié — (a) sans (b), ou l'insertion sans garde — serait pire que le
+défaut.**
+
+**(a) Une garde de position, fonction pure et testée.** `caretAllowsStructure(text, caret)` : le
+curseur doit être **en fin de champ**, ou à une **frontière de séquence** (texte de gauche vide, ou
+finissant par `/>`). **Les trois cas fautifs sont en test** : au milieu du nom, juste après le
+chevron, dans la valeur.
+
+**(b) L'inertie des trois boutons suit le curseur, pas le champ entier.** Mesuré : un champ
+finissant par `&&` éteignait le bouton `&&`, alors qu'au curseur posé entre deux membres
+l'insertion est légitime. Sans (b), **bouton mort là où le geste est bon**.
+
+**Deux conséquences que l'exécutant déclare** : le curseur **suit son insertion** (sans quoi il
+repartirait en fin de champ et le lecteur perdrait l'endroit où il travaillait) ; et l'inertie
+dépendant désormais du curseur, un écouteur `selectionchange` **appelle `render()`** quand le champ
+a le focus — un curseur qui bouge sans frappe ne déclenche aucun `input`. C'est le **même peintre**,
+appelé une fois de plus. *Hors édition, le curseur vaut la fin du champ : la conscience du curseur
+ne vaut que pendant que le lecteur écrit, et le comportement d'avant est préservé partout ailleurs.*
+
 ## Formulation révoquée par l'avenant 5 : trace, ne pas utiliser
 
 **Point 1, la valeur, avant le recalage du 26 août 2026** : « **Valeur : JAMAIS.** Une donnée a le
