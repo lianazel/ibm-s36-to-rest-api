@@ -648,20 +648,20 @@ forme `<…:…:…/>`, aucun « Veuillez ».
 
 **Français**
 
-- `champ.paysage` : Sur téléphone, passez en mode paysage pour taper une condition double.
-- `champ.fermer` : Fermer la séquence
-- `champ.et` : Fermer et enchaîner avec ET
-- `champ.ou` : Fermer et enchaîner avec OU
+- `champ.paysage` : Sur téléphone, le mode paysage donne plus de place pour lire une expression longue. *(réécrite sur place à l'avenant 7, 27 août 2026 — trace de la précédente : « Sur téléphone, passez en mode paysage pour taper une condition double. », devenue fausse le jour où la rangée `/>` `&&` `||` a supprimé la friction qu'elle contournait. Elle n'était pas fausse en entier : `<`, `:`, `[`, `]`, `=` restent hors clavier, et c'est la lecture d'une expression longue qui reste le service rendu)*
+- `champ.fermer` : /> Fermer la séquence *(réécrite sur place à l'avenant 7 — trace : « Fermer la séquence »)*
+- `champ.et` : && Fermer et enchaîner avec ET *(réécrite sur place à l'avenant 7 — trace : « Fermer et enchaîner avec ET »)*
+- `champ.ou` : || Fermer et enchaîner avec OU *(réécrite sur place à l'avenant 7 — trace : « Fermer et enchaîner avec OU »)*
 - `champ.envoyer` : Envoyer la demande
 - `champ.attente` : Envoyez la demande pour voir la réponse. *(gelée à l'avenant 3, 26 août 2026 ; servie par le module, pas posée par `data-i18n` — les comptes `data-i18n` ne bougent donc pas)*
 - `exemples.donneesModifiees` : Vous avez modifié les données : les comptes de cette explication valent pour les données d'origine.
 
 **Anglais**
 
-- `champ.paysage` : On a phone, switch to landscape to type a double condition.
-- `champ.fermer` : Close the sequence
-- `champ.et` : Close and chain with AND
-- `champ.ou` : Close and chain with OR
+- `champ.paysage` : On a phone, landscape gives more room to read a long expression. *(réécrite sur place à l'avenant 7, 27 août 2026 — trace : « On a phone, switch to landscape to type a double condition. »)*
+- `champ.fermer` : /> Close the sequence *(réécrite sur place à l'avenant 7 — trace : « Close the sequence »)*
+- `champ.et` : && Close and chain with AND *(réécrite sur place à l'avenant 7 — trace : « Close and chain with AND »)*
+- `champ.ou` : || Close and chain with OR *(réécrite sur place à l'avenant 7 — trace : « Close and chain with OR »)*
 - `champ.envoyer` : Send the request
 - `champ.attente` : Send the request to see the response. *(gelée à l'avenant 3, 26 août 2026)*
 - `exemples.donneesModifiees` : You have changed the data: the counts in this explanation hold for the original data.
@@ -1309,3 +1309,32 @@ la découpe sur les deux premiers deux-points garantit. Il ne dit rien des bords
 *L'exécutant s'est arrêté et a signalé plutôt que d'implémenter l'un ou l'autre : appliquer la
 prescription aurait changé un comportement de l'incrément 6, hors du périmètre que l'avenant
 s'était donné (« les trois autres ne touchent qu'à ce qu'elle DIT »).*
+
+## Avenant 7 — les deux FAIL de la cinquième revue, et deux valeurs gelées rouvertes
+
+Le `reviewer` rend `NEEDS_WORK` sur `f52f43d` : deux FAIL P3, tous deux sur **le chemin de la
+bascule de langue** — quatrième fois de cet incrément.
+
+1. `rebuild()` déréférençait `sent` sans garde alors qu'il vaut `null` avant tout envoi : toute
+   bascule FR/EN faite depuis l'état d'arrivée jetait une `TypeError`, et la page restait entière
+   dans la langue d'avant.
+2. La tolérance aux espaces de l'avenant 5 vivait dans `recognise` seul : `< villeClient:[]:LY/>`
+   passait en français, n'était pas traduit, et se faisait refuser sur `colonne` une bascule plus
+   tard. Le `trim` entre dans `findPropertyIndex`, à côté de la casse.
+
+**Le porteur unique, troisième application.** `sentText()` et `hasSent()` sont désormais les deux
+seuls lecteurs de `sent`. Trois fois dans cet incrément une règle écrite à N endroits en a oublié
+un — la liaison en attente, l'appariement d'un nom, le `null` de `sent` — et deux fois sur trois le
+remède retenu a été le porteur unique. Deux porteurs et non un : `sentText` répond `""` pour
+l'absence comme pour la demande vide ; `hasSent` porte exactement la distinction que `sentText`
+efface, et sans laquelle la réponse-avant-la-demande revient.
+
+**Deux valeurs gelées rouvertes par le chef de projet** (les deux réserves qui lui revenaient) :
+`champ.paysage`, dont la prescription était devenue fausse le jour où les boutons de liaison ont
+supprimé la friction qu'elle contournait ; et les trois noms accessibles des boutons à signe, qui
+violaient **WCAG 2.5.3 « Label in Name »** (niveau A) — nom entièrement disjoint de l'étiquette
+visible, donc trois boutons inatteignables à la commande vocale. Réécrites sur place, avec trace de
+la précédente, section « Les valeurs, gelées ».
+
+**Reste due, et elle attend un humain** : la mesure sous VoiceOver iOS des trois régions
+`aria-live`, dont l'avenant 6 a élargi le déclencheur de la frappe au simple mouvement de curseur.

@@ -370,12 +370,12 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
         // Le contournement mesuré cesse d'être un secret. Elle ne dit PAS
         // pourquoi le paysage aide : seul le contournement a été mesuré, pas
         // son mécanisme.
-        paysage: "Sur téléphone, passez en mode paysage pour taper une condition double.",
+        paysage: "Sur téléphone, le mode paysage donne plus de place pour lire une expression longue.",
         // Noms accessibles des trois boutons à signe : jamais affichés, donc
         // invisibles à une relecture d'écran. Leur fratrie se vérifie alignée.
-        fermer: "Fermer la séquence",
-        et: "Fermer et enchaîner avec ET",
-        ou: "Fermer et enchaîner avec OU",
+        fermer: "/> Fermer la séquence",
+        et: "&& Fermer et enchaîner avec ET",
+        ou: "|| Fermer et enchaîner avec OU",
         envoyer: "Envoyer la demande",
         // Servie par le module aux trois surfaces de réponse tant que rien
         // n'est parti : la page ne répond pas à une demande qu'on n'a pas faite.
@@ -875,10 +875,10 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
       zone2: { titre: "The class the machine has just built" },
       champ: {
         filtre: "Filter",
-        paysage: "On a phone, switch to landscape to type a double condition.",
-        fermer: "Close the sequence",
-        et: "Close and chain with AND",
-        ou: "Close and chain with OR",
+        paysage: "On a phone, landscape gives more room to read a long expression.",
+        fermer: "/> Close the sequence",
+        et: "&& Close and chain with AND",
+        ou: "|| Close and chain with OR",
         envoyer: "Send the request",
         attente: "Send the request to see the response.",
       },
