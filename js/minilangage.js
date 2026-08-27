@@ -276,7 +276,10 @@ export function recognise(text, model) {
     //
     // Il passe AVANT le piège de l'opérateur : les deux fautes se lisent de
     // gauche à droite, et le nom vient en premier. Choix de l'exécutant,
-    // l'avenant étant muet sur l'ordre entre ces deux-là.
+    // l'avenant étant muet sur l'ordre entre ces deux-là — et l'ordre est tenu
+    // par une porte (`<::LYON/>`, le seul membre qui porte les DEUX fautes),
+    // sans quoi l'intervertir laisserait la suite verte. Une addition que rien
+    // ne tient devient une valeur gelée par accident.
     if (columnName === "") {
       return refuse("colonneVide");
     }
@@ -952,11 +955,29 @@ export function stripLineBreaks(text) {
  * `<nomClient:[=:DUR/> <codemodeliv/> && raison:[]:AR/>` — il coupait
  * l'expression en deux. Une moitié de correctif aurait été pire que le défaut.
  *
- * Deux situations seulement sont légitimes :
+ * Deux situations sont tenues pour légitimes :
  *  - le curseur est **en fin de champ**, ce qui est le cas courant, et le
  *    comportement y est alors identique à celui d'avant l'avenant 6 ;
  *  - il est **à une frontière de séquence** : le texte de gauche est vide, ou
  *    il finit par `/>`.
+ *
+ * LIMITE DITE PLUTÔT QUE MASQUÉE — `/>` N'EST PAS UNE FRONTIÈRE NON AMBIGUË.
+ * La garde lit la PONCTUATION, pas la structure : elle croit voir une fin de
+ * séquence partout où le texte de gauche finit par `/>`. Or le gabarit
+ * `SEQUENCE` autorise `/>` À L'INTÉRIEUR d'une valeur, et le bouton `/>`
+ * lui-même permet de fabriquer ce cas au doigt.
+ *
+ * Mesuré : `<villeClient:[]:A/>B/>` est une expression VALIDE — une condition,
+ * de valeur `A/>B`. Curseur en 19, la garde rend `true`, et le bouton `&&`
+ * produit `<villeClient:[]:A/> && B/>`, que la page refuse ensuite en
+ * `tropCourt` : l'expression du lecteur coupée en deux, ce que cette garde
+ * existe pour empêcher. La porte `LA LIMITE DE LA GARDE` tient le cas.
+ *
+ * Le trou est étroit — il faut avoir tapé un `/>` dans une valeur —, et il est
+ * laissé ouvert sciemment. La garde exacte existe : n'autoriser l'insertion
+ * qu'aux frontières des membres réellement reconnus à gauche, en s'appuyant sur
+ * `recognise` plutôt que sur la ponctuation. Elle coûte un découpage de plus,
+ * et c'est un arbitrage du chef de projet, pas un geste d'exécution.
  */
 export function caretAllowsStructure(text, caret) {
   const value = String(text);
@@ -1156,8 +1177,15 @@ export function hasEdits(orders, origin = CDEMST) {
 
 /* ------------------------------------------------- CÂBLAGE (hors logique) */
 
-/** Remplace `{nom}` par sa valeur. Le texte reste du texte : jamais de HTML. */
-function fill(template, params) {
+/**
+ * Remplace `{nom}` par sa valeur. Le texte reste du texte : jamais de HTML.
+ *
+ * Exportée bien qu'elle vive sous la bannière du câblage : elle est pure, et la
+ * porte de totalité du catalogue de refus doit mesurer LE remplisseur, pas une
+ * copie de lui. Elle en avait une — transcrite à la main dans la suite —, et
+ * une règle écrite deux fois est le défaut que cet incrément a livré trois fois.
+ */
+export function fill(template, params) {
   return String(template).replace(/\{(\w+)\}/g, (whole, name) =>
     Object.hasOwn(params, name) ? String(params[name]) : whole,
   );

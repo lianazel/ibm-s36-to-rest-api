@@ -26,6 +26,7 @@ import {
   DEFAULT_SELECTION,
   EXAMPLES,
   exampleExpression,
+  fill,
   filterRows,
   findOrphans,
   findPropertyIndex,
@@ -1627,6 +1628,19 @@ describe("Les espaces autour du nom et de l'opérateur sont absorbées", () => {
     expect(read.refusal.params.nom).toBe("codelivraidon");
   });
 
+  it("L'ORDRE DES DEUX FAUTES : nom vide ET opérateur vide se nomme par le nom", () => {
+    // Le seul membre qui porte les deux fautes à la fois. Sans cette porte,
+    // intervertir les deux blocs du module laissait la suite verte et faisait
+    // passer `<::LYON/>` de `colonneVide` à `forme`/`operateurFin` en silence.
+    //
+    // Le nom d'abord, parce que les deux fautes se lisent de gauche à droite et
+    // que le message dit LE GESTE SUIVANT, pas la liste de tout ce qui manque :
+    // le refus d'après nommera l'opérateur.
+    const read = recognise("<::LYON/>", FR);
+    expect(read.ok).toBe(false);
+    expect(read.refusal.code).toBe("colonneVide");
+  });
+
   it("un opérateur réduit à une espace tombe en `forme`/`operateurFin`, jamais en `operateur`", () => {
     // C'est l'ordre imposé : le `trim` de l'opérateur passe AVANT le test du
     // vide, sinon l'opérateur-espace échapperait au piège de la position et
@@ -1718,36 +1732,72 @@ describe("Un nom de colonne vide a son propre refus", () => {
 describe("Le catalogue de refus est total : chaque gabarit trouve ses paramètres", () => {
   // Le test 7 de l'avenant 5, et il vaut pour les ONZE codes : un `{…}` sans
   // paramètre s'afficherait tel quel au lecteur, accolades comprises.
-  // La table MIROITE les appels réels à `refuse()` dans le module : c'est la
-  // seule façon de mesurer un gabarit contre ce qui le sert vraiment. Elle m'a
-  // d'ailleurs mordu à l'écriture — j'avais supposé `{n}` pour `tropCourt`, qui
-  // reçoit `{operateur}`.
-  const CODES = {
-    forme: { faute: "ouvrant" },
-    colonne: { nom: "x" },
-    operateur: { op: "~~", colonne: "nomClient" },
-    interdit: { op: "!=" },
-    type: { operateur: "><", colonne: "nomClient", type: "texte", types: "nombre" },
-    valeurVide: {},
-    tropCourt: { operateur: "[]" },
-    bornes: { colonne: "montantCommande" },
-    liaison: {},
-    inacheve: {},
-    colonneVide: {},
+  //
+  // LA TABLE NE TRANSCRIT PLUS, ELLE DÉCLENCHE. Elle portait des paramètres
+  // recopiés à la main depuis les appels à `refuse()` — et une transcription ne
+  // mord que dans un sens : elle attrapait un gabarit vide ou un `{…}` renommé
+  // au dictionnaire, jamais un code neuf émis par `refuse()` sans entrée au
+  // dictionnaire (la page jetterait à la peinture du refus), ni une dérive où
+  // l'on corrige la table sans corriger `refuse()`.
+  //
+  // Chaque code est donc atteint par une EXPRESSION RÉELLE, et les paramètres
+  // viennent du module. La porte mord maintenant dans les deux sens : un code
+  // qui change de paramètres, ou qui disparaît de `recognise`, la fait rougir.
+  const ENTREES = {
+    forme: "codemodelivraison:[]:AR/>",
+    colonne: "<codelivraidon:[]:AR/>",
+    operateur: "<nomClient:~~:LYON/>",
+    interdit: "<nomClient:!=:LYON/>",
+    type: "<nomClient:><:LYON/>",
+    valeurVide: "<nomClient:==:/>",
+    tropCourt: "<nomClient:[]:A/>",
+    bornes: "<montantCommande:><:5/>",
+    liaison: "<nomClient:[=:DUR/> && || <nomClient:[=:DUR/>",
+    inacheve: "<nomClient:[=:DUR/> &&",
+    colonneVide: "<:[]:AR/>",
   };
+
+  it("les onze entrées déclenchent bien les onze codes, un pour un", () => {
+    // La porte de la porte : si une entrée cessait de produire le code qu'elle
+    // vise, la totalité ci-dessous resterait verte en ne mesurant plus rien.
+    const obtenus = Object.entries(ENTREES).map(([code, texte]) => {
+      const read = recognise(texte, FR);
+      expect(read.ok, texte).toBe(false);
+      return [code, read.refusal.code];
+    });
+    for (const [vise, obtenu] of obtenus) {
+      expect(obtenu, `entrée de \`${vise}\``).toBe(vise);
+    }
+    expect(new Set(obtenus.map(([, obtenu]) => obtenu)).size).toBe(11);
+  });
 
   it.each(["fr", "en"])("les onze refus sont servis sans accolade orpheline (%s)", (lang) => {
     const refus = dict[lang].section4.refus;
     expect(Object.keys(refus)).toHaveLength(11);
-    for (const [code, params] of Object.entries(CODES)) {
+    for (const [code, texte] of Object.entries(ENTREES)) {
+      // Les paramètres sont ceux du MODULE, jamais une recopie : c'est ce qui
+      // rend la mesure rejouable au lieu de la rendre seulement vraie ce jour.
+      const { params } = recognise(texte, FR).refusal;
       for (const cle of ["quoi", "pourquoi"]) {
         const gabarit = refus[code][cle];
         expect(typeof gabarit, `${lang}.${code}.${cle}`).toBe("string");
         expect(gabarit.trim(), `${lang}.${code}.${cle}`).not.toBe("");
-        const servi = gabarit.replace(/\{(\w+)\}/g, (whole, nom) =>
-          Object.hasOwn(params, nom) ? String(params[nom]) : whole);
-        expect(servi, `${lang}.${code}.${cle}`).not.toMatch(/\{\w+\}/);
+        // `fill` du module, et non une copie : le remplisseur mesuré est celui
+        // qui sert le lecteur.
+        expect(fill(gabarit, params), `${lang}.${code}.${cle}`).not.toMatch(/\{\w+\}/);
       }
+    }
+  });
+
+  it("aucun code émis par `refuse()` n'est absent du dictionnaire", () => {
+    // Le sens que la transcription ne pouvait pas tenir. Un douzième code
+    // atteint par `recognise` sans entrée aux deux dictionnaires ferait jeter
+    // la peinture du refus ; la porte le dit ici, en amont de l'écran.
+    for (const [code, texte] of Object.entries(ENTREES)) {
+      for (const lang of ["fr", "en"]) {
+        expect(dict[lang].section4.refus, `${lang}.${code}`).toHaveProperty(code);
+      }
+      expect(recognise(texte, FR).refusal.code).toBe(code);
     }
   });
 
@@ -1812,6 +1862,31 @@ describe("caretAllowsStructure : la garde sans laquelle le correctif serait pire
   it("tolère un curseur hors bornes sans se plaindre", () => {
     expect(caretAllowsStructure("<a:b:c/>", 999)).toBe(true);
     expect(caretAllowsStructure("<a:b:c/>", -5)).toBe(true);
+  });
+
+  it("LA LIMITE DE LA GARDE : un `/>` dans une valeur la trompe, et la coupure passe", () => {
+    // La garde lit la PONCTUATION, pas la structure. `SEQUENCE` autorise `/>`
+    // à l'intérieur d'une valeur, et le bouton `/>` permet de fabriquer ce cas
+    // au doigt : la garde croit alors voir une fin de séquence là où elle est
+    // au milieu d'une valeur.
+    //
+    // La porte tient le trou OUVERT et mesuré, elle ne le referme pas — la
+    // garde exacte s'appuierait sur `recognise` au lieu de la ponctuation, et
+    // c'est un arbitrage du chef de projet. Ce qu'elle interdit, c'est que le
+    // trou change de taille sans que personne le voie.
+    const piege = "<villeClient:[]:A/>B/>";
+    const lu = recognise(piege, FR);
+    expect(lu.ok).toBe(true);                          // une condition VALIDE...
+    expect(lu.conditions[0].value).toBe("A/>B");       // ...de valeur `A/>B`
+
+    const curseur = piege.indexOf("/>") + 2;           // 19, juste après le faux `/>`
+    expect(caretAllowsStructure(piege, curseur)).toBe(true);   // la garde se laisse tromper
+
+    const coupee = appendLink(piege.slice(0, curseur), "&&") + piege.slice(curseur);
+    expect(coupee).toBe("<villeClient:[]:A/> && B/>");
+    // Et voilà l'expression du lecteur coupée en deux — ce que cette garde
+    // existe pour empêcher. Le reste n'est plus lisible.
+    expect(recognise(coupee, FR).refusal.code).toBe("tropCourt");
   });
 });
 
