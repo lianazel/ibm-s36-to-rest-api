@@ -621,3 +621,51 @@ assertion de vivacité se pose par chemin bloquant, pas par contrôle » (9 aoû
 lit une ressource à chemin fixe est improuvable » (10 août 2026). Ce qu'elle ajoute, s'il y a lieu :
 l'opposition explicite entre la preuve **jetée** et le témoin **committé**. À arbitrer par le chef de
 projet ; promotion = geste dédié (entrée A-1).
+
+---
+
+## 2026-08-27 — Changer une variable d'état oblige à relire TOUS les chemins qui la consomment
+**Type** : Erreur
+**Contexte** : Incrément 9, session 21. L'avenant 3 fait passer la valeur d'arrivée de `sent` de la
+chaîne vide à `null`. Trois lectures étaient gardées, une quatrième — dans la bascule de langue — ne
+l'était pas. Toute bascule FR/EN faite avant le premier envoi jetait une `TypeError`, depuis l'état
+d'arrivée que l'avenant venait précisément d'instituer.
+**Erreur** : avoir traité un changement de valeur d'état comme une retouche locale, alors qu'il
+invalide chaque site de lecture. Quatre défauts de cet incrément sont tombés sur **le même chemin**,
+la bascule de langue, qu'aucune des cinq passes n'a relu après trois avenants successifs sur l'état
+qu'il consomme.
+**Correction** : tout avenant qui change une variable d'état oblige à relire les chemins qui la
+consomment, la bascule de langue en tête. Et quand aucun test ne peut monter ces chemins — ici,
+aucun DOM sous Vitest —, la seule défense est le **porteur unique** : non pas surveiller les N
+endroits, mais faire qu'il n'y en ait qu'un.
+**Applicable globalement ?** : **Oui**. Ni le langage ni la stack n'entrent dans l'énoncé.
+
+## 2026-08-27 — Une règle écrite à un endroit et appliquée à un autre n'est pas tenue
+**Type** : Erreur
+**Contexte** : `caretAllowsStructure` n'avait qu'un point d'application, l'attribut `disabled` posé
+par le peintre — un état d'affichage, qui ne vaut que tant que le dernier repeint a tourné avec le
+curseur courant. Le geste lui-même ne rejouait jamais la garde.
+**Erreur** : avoir pris un **signal** pour une **protection**. C'est la quatrième fois de l'incrément
+qu'une règle vit à N endroits, et la première où elle porte sur une règle et non sur une valeur —
+les trois précédentes ont toutes été soldées par un porteur unique.
+**Correction** : le point d'application qui fait foi est **le geste**, jamais l'affichage qui le
+précède. L'attribut `disabled` DIT la règle au lecteur ; le test au clic la TIENT. Corollaire : si
+une garde n'est appliquée que par un état recalculé, demander « que se passe-t-il si ce calcul
+date ? » — la réponse est le défaut.
+**Applicable globalement ?** : **Oui** (UI toutes stacks : WinDev, WPF, React).
+
+## 2026-08-27 — Écrire une certitude qu'on n'a pas mesurée
+**Type** : Erreur
+**Contexte** : Sept revues sur un même incrément. Trois de mes affirmations ont été **réfutées par
+mesure** : « aucun des dix défauts ne se lit dans un fichier » (les deux FAIL suivants se lisaient au
+grep), « le double appel est sans conséquence, `render()` est idempotent » (idempotent en sortie, pas
+en nombre de mutations du DOM), et « aucune valeur existante n'a été réécrite » (six réécritures
+mesurées). Une quatrième — « aucune porte ne surveille ce câblage » — a été vérifiée **exacte**.
+**Erreur** : poser des absolus sans réserve dans des artefacts que quelqu'un d'autre lit pour décider.
+C'est l'endroit exact où une phrase trop large voyage le plus loin.
+**Correction** : dans un dossier, un absolu se mesure ou se borne. Trois formes acceptables : la
+mesure au dossier, la réserve explicite (« vérifié sur X, non vérifié sur Y »), ou le retrait de
+l'absolu. Aucune n'est plus coûteuse que la réfutation qui suit. Et le fait que la quatrième
+affirmation ait tenu ne rachète pas les trois autres : c'est la mesure qui les distingue, pas
+l'assurance avec laquelle elles ont été écrites.
+**Applicable globalement ?** : **Oui** — porte sur la façon de rendre compte, pas sur une stack.

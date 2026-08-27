@@ -1526,3 +1526,117 @@ publiés** — c'est là que le onzième domicile a survécu à deux passages.
 | Trailer `Co-Authored-By` aux commits | **Non**, écart déclaré | L'historique du dépôt n'en porte aucun ; en introduire un en silence dans un dépôt public changerait une convention établie | cas d'espèce |
 | Niveau de bump | **Patch** 0.1.17 → 0.1.18, **sans redemander** | Règle en portée `précédent` depuis la session 12. Le défaut `feat/*` vaut minor, soit 0.2.0 ; la cible de fin de jalon est 1.0.0 depuis le 20 août. **Dix-huitième** inscription | précédent |
 | L'ordre de la promotion d'une leçon vers le registre global — **arbitrage rendu après la clôture**, sur demande du chef de projet | **Deux commits, et l'ordre est contraint** : le commit de clôture d'abord, qui fige la jumelle locale ; l'entrée globale ensuite, citant son empreinte ; puis la **mention réciproque** dans un commit distinct `docs(lessons): mention réciproque`. Le dépôt se termine donc sur un commit qui n'est pas celui de clôture, et c'est correct | J'avais proposé l'inverse — absorber la mention dans la clôture en citant le **hash de merge** — et le chef de projet l'avait validé. Vérification faite avant d'écrire : la proposition était **fausse**, et l'usage en place meilleur. Les leçons écrites à l'ÉTAPE 5 du `/land` **n'existent pas dans le commit de merge** : l'empreinte aurait été **antérieure à la leçon qu'elle prétend figer**, ce que la règle de promotion interdit en propre. Et la mention réciproque ne peut être écrite qu'**après** le commit qu'elle doit citer — contrainte d'ordre, pas défaut de méthode. L'usage était déjà appliqué aux sessions 16 et 17 (`f62b0b2`, `124d6f6`, ce dernier huit minutes après sa clôture) **sans avoir jamais été écrit** : c'est ce silence qui a permis de le prendre pour une anomalie, et c'est lui que cette ligne ferme | **précédent** |
+
+---
+
+## Session 21 — 25/27 août 2026 — EVOL `mini-langage-confort-de-saisie` (merge `249226b`, 0.1.18 → 0.1.19)
+
+**Sept avenants** · **cinq passes d'appareil** · **sept revues indépendantes** ·
+**356/356**.
+
+L'incrément le plus long du projet, et ce n'est pas le code qui l'a fait durer.
+
+### Ce qui a été livré
+
+La section 4 devient praticable au doigt : champ replié en trois lignes, envoi explicite (la réponse
+cesse de précéder la demande), rangée `/>` `&&` `||` qui suit le curseur, dernier exemple marqué,
+fond du bloc de refus, explication rendue falsifiable par l'édition. Le refus nomme désormais sa
+faute au lieu de réciter la règle, et les espaces posées par le clavier de l'appareil ne sont plus
+comptées comme des fautes.
+
+### Le fait de la session, et il est désagréable
+
+**Le chemin de la bascule de langue a livré QUATRE défauts** — le FAIL de la première revue, la
+limite de commutation, le second site de l'avenant 4, et les deux FAIL de la sixième. Aucune passe
+ne l'a relu après que trois avenants successifs eurent modifié l'état qu'il consomme.
+
+Et **trois fois** une règle écrite à N endroits en a oublié un : la liaison en attente (trois
+copies), l'appariement d'un nom de colonne (deux sites — et le porteur s'est fait contourner une
+seconde fois deux avenants plus tard, par qui avait le commentaire sous les yeux), le `null` de
+`sent` (quatre lectures, une non gardée). Le remède retenu est le **porteur unique**, appliqué trois
+fois : `hasPendingLink`, `findPropertyIndex`, puis `sentText()` / `hasSent()`.
+
+**Deux porteurs et non un** pour le dernier, et le motif compte : `sentText` répond `""` pour
+l'absence comme pour la demande vide ; `hasSent` porte exactement la distinction que `sentText`
+efface. Les confondre rallumait la réponse-avant-la-demande que l'avenant 3 venait de retirer.
+
+### Une affirmation que j'avais écrite, et que la revue a réfutée
+
+J'avais conclu du dossier : « la revue trouve ce qui se lit dans un fichier, la passe d'appareil
+trouve ce qui ne s'y lit pas », et « aucun des dix ne se lit dans un fichier ». La sixième revue l'a
+réfutée **par l'exemple** : ses deux FAIL se lisent dans un fichier, ont été trouvés à la lecture,
+et se reproduisent sans appareil. Le premier est un déréférencement de `null` visible au grep.
+
+Publier cette division du travail risquait de la rendre vraie — un reviewer qui admet que son
+domaine est la prose cesse de chercher les défauts d'état. La formulation est retirée des deux
+dossiers. **La leçon vérifiable est l'autre** : *tout avenant qui change une variable d'état oblige
+à relire les chemins qui la consomment, la bascule de langue en tête.*
+
+### [W13] a cessé d'être théorique
+
+La table de mutation gagne une **cinquième entrée**, et elle change ce qu'elle démontre : les quatre
+premières décrivaient des comportements justes que la suite ne tenait pas ; celle-ci décrit un
+**défaut réel, livré**, que la suite n'a pas vu — la garde du `null` retirée, 346/346 vert. Faute de
+témoin mécanique possible (aucun DOM sous Vitest), la seule défense disponible n'est pas de
+surveiller les N endroits : c'est de faire qu'il n'y en ait qu'un.
+
+### Les portes, vues mordre avant d'être crues
+
+Chaque porte neuve a son témoin de mutation au dossier. La plus instructive est celle du catalogue de
+refus : la table des paramètres se déclarait « miroir des appels réels à `refuse()` » et c'était une
+transcription à la main. **Mesuré** : la même mutation (`{ nom }` renommé dans `refuse()`) laisse
+l'ancienne table **verte** — deux autres portes rougissent, jamais celle-là. Elle ne transcrit plus,
+elle déclenche : onze expressions réelles, paramètres pris au module, `fill` exportée pour que la
+porte mesure **le** remplisseur au lieu d'une copie de lui.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| `champ.paysage`, portée cinq passes sans être tranchée | **Recalée sur la friction restante** | La prescription est devenue fausse pendant l'incrément — la rangée de boutons a supprimé la friction que le paysage contournait. Mais pas fausse en entier : `<`, `:`, `[`, `]`, `=` restent hors clavier, et ce que le paysage sert encore est la **lecture** d'une expression de 83 caractères. La formulation d'origine avait déjà été révoquée deux fois | **précédent** |
+| WCAG 2.5.3 sur les trois boutons à signe | **Le nom accessible commence par le signe affiché** | Nom entièrement disjoint de l'étiquette visible : qui pilote à la voix dit ce qu'il voit, aucun des trois n'était atteignable. Porte tenant les **deux domiciles** du nom | **précédent** |
+| La limite de `caretAllowsStructure` | **Trou laissé ouvert, mais DIT et épinglé** | `/>` n'est pas une frontière non ambiguë ; le commentaire annonçait « deux situations seulement », c'était faux. Dans un module dont la culture est « limite dite plutôt que masquée », c'est la limite qui manquait plus que le trou. La garde exacte via `recognise` reste disponible et appartient au chef de projet | cas d'espèce |
+| Les six valeurs gelées rouvertes | **Réécrites sur place, avec trace de la précédente** | Précédent de l'avenant 2 : une valeur périmée laissée dans « Les valeurs gelées » est ce qui a coûté l'écart `him`/`his` — un extracteur y reprend l'ancienne | **précédent** |
+| Niveau de bump | **Patch** 0.1.18 → 0.1.19, **sans redemander** | Règle en portée `précédent` depuis la session 12. **Dix-neuvième** inscription | précédent |
+
+### Dettes qui partent ouvertes, et inscrites
+
+- **`RETOUR_APPUI_MS = 200`** : déclaré non mesuré, échéance « la passe d'appareil » — franchie sans
+  verdict. Inscrit explicitement **non validé**, à mesurer à la prochaine passe. Une dette déclarée
+  dont personne ne dit si elle est payée redevient une dette silencieuse.
+- **La mesure sous VoiceOver iOS** des trois régions `aria-live` : l'avenant 6 a élargi leur
+  déclencheur de la frappe au **simple mouvement de curseur**. Reportée de cinq passes, **aggravée**
+  par celle-ci, et **elle attend un humain**.
+
+
+### Quatre dettes inscrites au fil, et pourquoi elles n'ont pas retenu l'atterrissage
+
+La septième revue rend **SHIP, 0 FAIL, 8 WARN**. La règle du projet est « SHIP + WARN seulement →
+atterrissage », et le chef de projet s'y est tenu explicitement. Les quatre constats neufs partent
+donc **nommés au fil**, pas enfouis :
+
+1. **L'ordre des trois dernières lignes de `completeWith`.** `field.value = …` remet le curseur en
+   fin, `render()` est appelé juste après, et `setSelectionRange` ne vient qu'ensuite, **sans
+   repeint**. Mesuré : curseur voulu 23, curseur lu par le peintre 47 — deux boutons sur trois
+   peints à l'inverse de la garde, juste après le geste que l'avenant 6 sert. **Ce n'est plus un
+   défaut de sûreté depuis `3adaafd`** : la garde étant rejouée au geste, un bouton mal peint ne
+   peut plus rien couper — il a l'air cliquable et ne fait rien, puis se corrige au mouvement
+   suivant. Scintillement, non plus coupure. Trois lignes réordonnées.
+2. **Un commentaire que j'ai écrit et qui est faux.** « Le double appel est sans conséquence :
+   `render()` est idempotent » — il l'est **en sortie**, pas en **nombre de mutations du DOM**.
+   Trois régions `aria-live` mutées deux fois par mouvement de curseur : c'est l'objet même de la
+   réserve VoiceOver, doublé. À corriger dans le texte, et la réserve les absorbe.
+3. **La porte de totalité reste aveugle à une famille de littéraux**, et silencieusement :
+   `refuse('code', …)` en apostrophes simples, ou un code à souligné, passent au vert. Mon plancher
+   `>= 11` ne rattrape rien puisque onze sont bien reconnus — un appel non reconnu n'est pas
+   signalé, il est **écarté**. Une garde de cécité qui ne mord que sur le vide ne mord pas sur
+   l'incomplet.
+4. **Le test qui garde le nouveau point d'application retranscrit `completeWith`** au lieu de
+   l'appeler — la forme exacte que le même commit retire de la table de refus trente lignes plus
+   haut.
+
+**Ce que ces quatre ont en commun avec le reste de la session** : trois sur quatre sont des
+affirmations que j'ai posées **sans les mesurer**, dans un fichier dont la culture déclarée est
+« limite dite plutôt que masquée ». Le défaut de la session n'est pas d'avoir écrit du code faux,
+c'est d'avoir écrit des **certitudes** que rien ne tenait — et c'est la revue, pas moi, qui les a
+mesurées à chaque fois.
