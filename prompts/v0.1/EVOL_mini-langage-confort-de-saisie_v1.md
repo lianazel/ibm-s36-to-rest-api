@@ -1269,6 +1269,26 @@ chevron, dans la valeur.
 finissant par `&&` éteignait le bouton `&&`, alors qu'au curseur posé entre deux membres
 l'insertion est légitime. Sans (b), **bouton mort là où le geste est bon**.
 
+**Correctif du 27 août 2026, trouvé par le chef de projet sur appareil — et sans lui, l'avenant 6
+était annulé là où il sert.** La première rédaction lisait le curseur **au moment du clic**, avec un
+repli sur la fin du champ quand le champ n'était pas actif. Or **toucher un bouton blure le champ
+avant que le clic ne s'exécute** : le geste arrivait donc toujours avec un champ inactif, et le
+`&&` repartait à la fin. **C'est [W13] en un seul fait — le test focalise le champ à la main,
+l'appareil non** : la vérification de l'exécutant cliquait par script sans jamais quitter le champ,
+donc elle ne pouvait pas le voir.
+
+**Remède prescrit** : `mousedown` + `preventDefault()` sur les trois boutons de structure, pour que
+le champ ne perde jamais le focus. Le repli en fin de champ reste correct pour un vrai clic
+ailleurs. *Il a un second effet, qui compte autant : le clavier de l'appareil ne se referme pas
+entre deux appuis.* **Une variante de l'exécutant — mémoriser le curseur pendant la frappe plutôt
+que le relire au clic — a été écartée : elle corrigeait le symptôme mais laissait le clavier
+tomber.**
+
+**Et une conséquence de méthode, relevée par le chef de projet** : sa passe du matin **n'avait pas
+exercé la garde**, puisque tout partait à la fin. Les cas « curseur au milieu d'un nom » et
+« curseur après un `<` » ont donc été **rejoués après le correctif**, avec la vraie séquence
+tactile (`mousedown` puis `click`), et non plus par un clic scripté.
+
 **Deux conséquences que l'exécutant déclare** : le curseur **suit son insertion** (sans quoi il
 repartirait en fin de champ et le lecteur perdrait l'endroit où il travaillait) ; et l'inertie
 dépendant désormais du curseur, un écouteur `selectionchange` **appelle `render()`** quand le champ

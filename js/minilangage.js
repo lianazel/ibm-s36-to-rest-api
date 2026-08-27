@@ -1851,6 +1851,25 @@ export function mountMiniLanguage({ dict, root }) {
     // et le lecteur perdrait l'endroit où il travaillait.
     field.setSelectionRange(rewritten.length, rewritten.length);
   };
+  // LE CHAMP NE DOIT JAMAIS PERDRE LE FOCUS QUAND ON TOUCHE CES BOUTONS.
+  //
+  // Toucher un bouton blure le champ AVANT que le clic ne s'exécute : le geste
+  // arrivait donc avec un champ inactif, `caretPosition()` retombait sur la fin
+  // du champ, et tout l'avenant 6 était annulé — sur l'appareil qu'il sert, et
+  // seulement là. Mesuré sur iPhone 14 le 27 août 2026 par le chef de projet,
+  // puis reproduit au navigateur en simulant la perte de focus.
+  //
+  // C'est [W13] en un seul fait : le test focalise le champ à la main,
+  // l'appareil non. Un `preventDefault` sur `mousedown` empêche le changement
+  // de focus, si bien que le curseur reste où le lecteur l'a posé — et que le
+  // clavier ne se referme pas entre deux appuis.
+  //
+  // Le repli sur la fin du champ reste correct pour un vrai clic ailleurs.
+  for (const bouton of [closeButton, andButton, orButton]) {
+    bouton.addEventListener("mousedown", (event) => {
+      event.preventDefault();
+    });
+  }
   closeButton.addEventListener("click", completeWith(closeSequence));
   andButton.addEventListener("click", completeWith((text) => appendLink(text, "&&")));
   orButton.addEventListener("click", completeWith((text) => appendLink(text, "||")));
