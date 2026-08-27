@@ -8,6 +8,7 @@
  * une valeur renommée d'un côté sans l'autre fait rougir la famille « agnostique
  * de la langue », qui exige les mêmes comptes des deux côtés.
  */
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { dict } from "../js/i18n.js";
 import { parseImplicitDecimal } from "../js/s36.js";
@@ -1790,15 +1791,39 @@ describe("Le catalogue de refus est total : chaque gabarit trouve ses paramètre
   });
 
   it("aucun code émis par `refuse()` n'est absent du dictionnaire", () => {
-    // Le sens que la transcription ne pouvait pas tenir. Un douzième code
-    // atteint par `recognise` sans entrée aux deux dictionnaires ferait jeter
-    // la peinture du refus ; la porte le dit ici, en amont de l'écran.
-    for (const [code, texte] of Object.entries(ENTREES)) {
+    // LA LISTE EST LUE DANS LE MODULE, PAS ÉCRITE ICI.
+    //
+    // Première rédaction : cette porte parcourait `ENTREES`, une liste écrite à
+    // la main — elle ne pouvait donc vérifier que les codes que quelqu'un avait
+    // déjà pensé à lister, et son NOM promettait le contraire. Mesuré par la
+    // revue : une douzième branche `refuse("valeurTropLongue", …)` insérée dans
+    // `recognise`, ATTEIGNABLE et absente des deux dictionnaires, laissait la
+    // suite à 355/355 — pendant que la page, elle, jetait à la peinture du
+    // refus (`texts().refus[code]` vaut `undefined`) et que la zone de réponse
+    // mourait.
+    //
+    // La technique est celle de `tests/i18n-html.test.js`, qui lit `index.html`
+    // plutôt que de décrire son contenu : on lit la source de vérité.
+    const source = readFileSync(new URL("../js/minilangage.js", import.meta.url), "utf8");
+    const emis = [...new Set(
+      [...source.matchAll(/\brefuse\(\s*"([A-Za-z]+)"/g)].map(([, code]) => code),
+    )].sort();
+
+    // Garde de cécité : une extraction vide rendrait la porte verte en ne
+    // mesurant rien. Même geste que le plancher de `i18n-html.test.js`.
+    expect(emis.length, "porte AVEUGLE : aucun appel à refuse() relevé").toBeGreaterThanOrEqual(11);
+
+    for (const code of emis) {
       for (const lang of ["fr", "en"]) {
         expect(dict[lang].section4.refus, `${lang}.${code}`).toHaveProperty(code);
       }
-      expect(recognise(texte, FR).refusal.code).toBe(code);
     }
+
+    // Et le catalogue est CLOS des deux côtés : ce que le module émet est
+    // exactement ce que les dictionnaires portent, sans code mort de part ni
+    // d'autre.
+    expect(emis).toEqual(Object.keys(dict.fr.section4.refus).sort());
+    expect(emis).toEqual(Object.keys(ENTREES).sort());
   });
 
   it.each(["fr", "en"])("les cinq fautes de forme sont toutes servies (%s)", (lang) => {
@@ -1862,6 +1887,34 @@ describe("caretAllowsStructure : la garde sans laquelle le correctif serait pire
   it("tolère un curseur hors bornes sans se plaindre", () => {
     expect(caretAllowsStructure("<a:b:c/>", 999)).toBe(true);
     expect(caretAllowsStructure("<a:b:c/>", -5)).toBe(true);
+  });
+
+  it("LE POINT D'APPLICATION FAIT FOI : la règle est rejouée au geste, pas héritée d'un repeint", () => {
+    // `disabled` est un ÉTAT D'AFFICHAGE : il ne vaut que tant que le dernier
+    // `render()` a tourné avec le curseur courant. Tant que la garde ne vivait
+    // que là, elle était écrite à un endroit et appliquée à un autre — la
+    // quatrième fois de cet incrément, et la seule qui porte sur une règle et
+    // non sur une valeur.
+    //
+    // Le câblage vit dans `mountMiniLanguage` ([W13]) ; ce qui se garde ici est
+    // la RÈGLE que `completeWith` rejoue désormais en tête, dans sa graphie
+    // exacte : le geste ne s'exécute que si la position le permet.
+    const champ = "<nomClient:[=:DUR/> && <villeClient:[]:LY/>";
+    const completeWith = (texte, curseur, rewrite) =>
+      caretAllowsStructure(texte, curseur)
+        ? rewrite(texte.slice(0, curseur)) + texte.slice(curseur)
+        : texte;
+
+    // Curseur 5, au milieu du premier nom : la garde refuse, et le champ ne
+    // bouge pas. Sans la garde rejouée, le résultat mesuré était
+    // `<nomC/> && lient:[=:DUR/> && …` — l'expression coupée en deux.
+    expect(caretAllowsStructure(champ, 5)).toBe(false);
+    expect(completeWith(champ, 5, (gauche) => appendLink(gauche, "&&"))).toBe(champ);
+
+    // Et le cas courant ne bouge pas : curseur en fin, le geste s'exécute.
+    const fin = champ.length;
+    expect(completeWith(champ, fin, (gauche) => appendLink(gauche, "&&")))
+      .toBe(appendLink(champ, "&&"));
   });
 
   it("LA LIMITE DE LA GARDE : un `/>` dans une valeur la trompe, et la coupure passe", () => {

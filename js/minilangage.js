@@ -1893,11 +1893,25 @@ export function mountMiniLanguage({ dict, root }) {
   // texte, une flèche, une sélection. L'inertie des trois boutons en dépend
   // désormais, donc le peintre doit repasser. C'est le même peintre : l'écouteur
   // appelle `render()`, il ne repeint rien lui-même.
-  root.addEventListener("selectionchange", () => {
+  //
+  // DEUX POSES, ET LA SECONDE EST UNE HYPOTHÈSE DE PORTABILITÉ RETIRÉE. Poser
+  // l'écouteur sur `root` seul — le DOCUMENT — suppose que `selectionchange`
+  // remonte depuis un `<textarea>`. La spécification HTML le déclenche sur
+  // L'ÉLÉMENT ; la remontée au document pour les contrôles de texte est un
+  // comportement historique qui n'est pas uniforme d'un moteur à l'autre, et
+  // rien ici ne l'avait mesuré : la page n'a jamais été ouverte hors Chromium
+  // et WebKit. La pose sur le champ est sans effet là où le document délivre
+  // déjà l'événement, et décisive là où il ne le délivre pas.
+  //
+  // Le double appel est sans conséquence : `render()` est idempotent, c'est
+  // tout l'objet du peintre unique.
+  const repaintOnCaretMove = () => {
     if (root.activeElement === field) {
       render();
     }
-  });
+  };
+  root.addEventListener("selectionchange", repaintOnCaretMove);
+  field.addEventListener("selectionchange", repaintOnCaretMove);
 
   /**
    * Les trois boutons de structure COMPLÈTENT le champ, puis rendent la main.
@@ -1929,6 +1943,26 @@ export function mountMiniLanguage({ dict, root }) {
    */
   const completeWith = (rewrite) => () => {
     const position = caretPosition();
+    // LE POINT D'APPLICATION QUI FAIT FOI, et il est ici — au geste.
+    //
+    // La garde vivait à un seul endroit, l'attribut `disabled` posé par
+    // `render()`, c'est-à-dire dans un ÉTAT D'AFFICHAGE : elle ne tenait que
+    // tant que le dernier repeint avait tourné avec le curseur courant. Une
+    // règle écrite à un endroit et appliquée à un autre est la même forme de
+    // défaut que les trois porteurs de cet incrément — la quatrième, et la
+    // seule qui porte sur une règle plutôt que sur une valeur.
+    //
+    // Mesuré : curseur 5 dans `<nomClient:[=:DUR/> && <villeClient:[]:LY/>`,
+    // la garde dit `false` ; le bouton néanmoins cliquable produisait
+    // `<nomC/> && lient:[=:DUR/> && …`, refusé en `forme` — l'expression du
+    // lecteur coupée en deux, ce que l'avenant 6 existe pour empêcher, et dont
+    // il écrit qu'« une moitié de correctif aurait été pire que le défaut ».
+    //
+    // `disabled` REDEVIENT CE QU'IL AURAIT TOUJOURS DÛ ÊTRE : le signal qui
+    // DIT la règle au lecteur. Ce test-ci est ce qui la TIENT.
+    if (!caretAllowsStructure(field.value, position)) {
+      return;
+    }
     const left = field.value.slice(0, position);
     const right = field.value.slice(position);
     const rewritten = rewrite(left);
