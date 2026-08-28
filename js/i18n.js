@@ -518,7 +518,62 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
     annexe: {
       title: "Annexe : un fichier S/36 de près",
       intro: "Ce chapitre est un détour technique, un petit voyage dans les contraintes de l'époque. Il n'est pas nécessaire pour suivre la suite.",
-      attente: "La suite de ce chapitre arrive.",
+      memoire: "Ce chapitre s'appuie sur ma mémoire. L'essentiel de ma carrière s'est déroulé sur IBM i ; par avance, pardon pour les erreurs ou les oublis.",
+      ouverture: "Un grossiste fictif et ses cinq fichiers suffisent à le montrer.",
+      ruban: {
+        title: "Un fichier plat, c'est un ruban",
+        p1: "Un enregistrement est une suite de caractères de longueur fixe, et chaque donnée y occupe des positions : de la première à la septième, le numéro de commande ; de la huitième à la onzième, le nombre d'articles ; et ainsi de suite jusqu'au bout de la ligne. Rien ne sépare les champs, aucun nom ne les précède. Le fichier des commandes du grossiste, CDEMST, fait soixante-dix caractères par enregistrement. Lu tel quel, il ressemble à ceci : 00012340012000012550DURAND… Une ligne collée, que seul un programme sait découper.",
+        p2: "Le découpage existe bien, mais il n'est pas dans le fichier. Il vit dans les programmes qui le lisent, déclaré à chaque fois dans leurs spécifications d'entrée. IBM le dit en toutes lettres : pour ces fichiers, l'information sur les champs doit être fournie par les programmes qui les traitent. Le ruban est parfaitement ordonné, et il ne sait rien de son ordre.",
+      },
+      redessine: "Aucun document IBM n'est reproduit ici. La carte à colonnes est redessinée, dans les caractères et les couleurs de ce site, à partir de sa description technique.",
+      lettres: {
+        title: "Six lettres pour tout dire",
+        p1: "Les langages de l'époque laissaient peu de place à un nom de zone : six caractères au plus en RPG II, que l'on appelait GAP en France. On abrège donc, et IBM recommande comment : MASTER devient MST ou MSTR. NOMCLI, c'est le nom du client ; NUMCDE, le numéro de commande ; TOTHTG, le total hors taxes. On s'y fait vite, et ces noms sont précis pour qui les pratique.",
+        p2: "Puis il y a LIZEPO. Six lettres, et rien qui laisse deviner qu'il s'agit du mode de livraison choisi par un client. Ce n'est pas un défaut de l'époque : c'est ce qu'un nom si court finit par devenir quand l'application grandit et que les mots courts sont pris. Le nom est exact. Il n'est pas parlant, et le fichier n'a aucun endroit où écrire ce qu'il veut dire.",
+      },
+      silence: {
+        title: "Ce que le fichier ne dit pas",
+        p1: "Les décimales, d'abord. Le total hors taxes d'une commande est stocké 000012550, et il vaut 125,50. Aucun séparateur : le System/36 est une machine à décimal zoné, un chiffre par octet, et le nombre de décimales est déclaré dans le programme, pas dans le fichier. Lisez le ruban sans le programme, vous lirez douze mille cinq cent cinquante.",
+        p2: "La même donnée sous deux noms, ensuite. Le code du mode de livraison s'appelle LIZEPO dans le fichier des clients livrés, CMLIV, et CODLIV dans le référentiel des modes, MODLIV. Les deux fichiers se joignent sur cette valeur, et rien, dans aucun des deux, ne dit qu'il s'agit de la même chose. Seuls les programmes le savent.",
+        p3: "Aucune clé, enfin. Ces fichiers ne portent pas d'identifiant technique : une commande retrouve son client par le nom et le prénom, écrits dans les deux fichiers. Deux personnes distinctes au même nom et au même prénom se confondraient : l'unicité, quand il en fallait une, se construisait dans l'application, jamais dans le fichier. Indexer sur des positions n'est pas relier des fichiers, et c'est un fait d'époque, pas une négligence.",
+        p4: "J'ai connu ces fichiers vus depuis le SQL : les colonnes étaient là, nommées, visibles. Et pourtant muettes. Sans accès aux programmes, j'ai reconstruit les liens par déduction, une colonne après l'autre, en croisant les valeurs. Le savoir était dans les programmes et dans les mémoires, jamais dans le fichier.",
+      },
+      vivant: {
+        title: "Muet, mais pas mort",
+        p1: "Rien de tout cela n'est une panne. Les données sont justes, les programmes tournent, les commandes partent. Ce qui manque n'est pas l'information, c'est sa description : ce que chaque position veut dire, ce que chaque nom désigne, combien de décimales se cachent dans un montant. Cette description existe, éparpillée dans des programmes et des mémoires. Il reste à l'écrire à un seul endroit, et à la mettre au service de ce qu'on veut exposer. C'est la solution.",
+      },
+      tab1: {
+        legende: "Structure de CDEMST : cinq colonnes, soixante-dix positions",
+        col1: "Colonne", col2: "Positions", col3: "Type", col4: "Contenu",
+        l1: "Numéro de commande", l2: "Nombre d'articles", l3: "Total hors taxes, deux décimales implicites", l4: "Nom du client", l5: "Prénom du client",
+      },
+      tab2: {
+        legende: "Brut contre interprété : ce que le programme sait et que le fichier tait",
+        col1: "Colonne", col2: "Dans le fichier", col3: "Ce que ça veut dire",
+        l1: "125,50", l2: "la commande 1234", l3: "12 articles",
+      },
+      tab3: {
+        legende: "La même donnée sous deux noms : LIZEPO dans CMLIV, CODLIV dans MODLIV",
+        note: "La valeur EXP est la même dans les deux fichiers. Aucun des deux ne le dit.",
+      },
+      feuilleI: {
+        legende: "Carte I, spécifications d'entrée : le fichier CDEMST décrit par le programme qui le lit",
+        colType: "Type", colFichier: "Fichier", colInd: "Ind.", colDe: "De", colA: "À", colDec: "Déc.", colNom: "Nom de zone",
+        c1: "Six cases pour un nom de zone, colonnes 53 à 58 : voilà les six lettres.",
+        c2: "Un 2 en colonne 52 face à TOTHTG : voilà les décimales que 000012550 ne montre pas. La description du fichier n'est pas dans le fichier ; elle est sur cette carte, dans le programme.",
+      },
+      feuilleC: {
+        legende: "Carte C, spécifications de calcul : trois lignes, trois mécanismes",
+        colType: "Type", colCond: "Cond.", colF1: "Facteur 1", colOp: "Opération", colF2: "Facteur 2", colRes: "Résultat", colLong: "Long.", colDec: "Déc.", colH: "H", colHi: "Hi", colLo: "Lo", colEq: "Eq",
+        c1: "Ligne 1 : MULT range le produit dans TFACT, et c'est ici que TFACT naît, longueur 9, deux décimales. La colonne 52 est la même que sur la carte I : les décimales se déclarent sur la carte, jamais dans la donnée. Le H demande l'arrondi.",
+        c2: "Ligne 2 : CHAIN cherche dans CLIMST la fiche dont la clé vaut CLECLI. L'indicateur 51, en colonne High, s'allume si la fiche n'existe pas.",
+        c3: "Ligne 3 : le 51 à gauche conditionne la ligne. Elle ne s'exécute que si l'interrupteur est allumé, et elle appelle CRECLI, la sous-routine qui crée la fiche.",
+      },
+      voix: {
+        p1: "Les indicateurs de résultat sont aux colonnes d'extrême droite, High, Low, Equal. On peut y inscrire un indicateur, de 1 à 99. Chaque indicateur fonctionne comme un interrupteur : il est allumé, ou pas, selon le résultat de l'opération faite sur le facteur 1, l'opération et le facteur 2.",
+        p2: "À gauche, les indicateurs de condition disent si la ligne s'exécute. J'écrivais N51 si l'enregistrement avait été trouvé, 51 s'il ne l'avait pas été.",
+        p3: "L'exemple que j'ai en tête : créer une fiche client si elle n'existe pas. On cherche la fiche, l'interrupteur s'allume si elle manque, et la ligne suivante appelle la sous-routine qui la crée.",
+      },
       retour: "Retour au problème",
     },
     about: {
@@ -1013,7 +1068,62 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
     annexe: {
       title: "Appendix: an S/36 file up close",
       intro: "This chapter is a technical detour, a short trip into the constraints of the day. It is not needed to follow what comes next.",
-      attente: "This chapter is coming soon.",
+      memoire: "This chapter draws on my memory. Most of my career took place on IBM i; my apologies in advance for any errors or omissions.",
+      ouverture: "A fictional wholesaler and its five files are enough to show it.",
+      ruban: {
+        title: "A flat file is a ribbon",
+        p1: "A record is a run of characters of fixed length, and every piece of data lives at positions: the first seven hold the order number; the next four, the number of items; and so on to the end of the line. Nothing separates the fields, no name precedes them. The wholesaler's order file, CDEMST, is seventy characters per record. Read as it is, it looks like this: 00012340012000012550DURAND… One glued line, which only a program knows how to cut.",
+        p2: "The cut exists, but it is not in the file. It lives in the programs that read it, declared each time in their input specifications. IBM says so in plain words: for these files, field-level information must be provided by the programs that process them. The ribbon is perfectly ordered, and knows nothing of its own order.",
+      },
+      redessine: "No IBM document is reproduced here. The columned sheet is redrawn, in this site's typefaces and colors, from its technical description.",
+      lettres: {
+        title: "Six letters to say it all",
+        p1: "The languages of the day left little room for a field name: six characters or fewer in RPG II. So you abbreviate, and IBM tells you how: MASTER becomes MST or MSTR. NOMCLI is the customer's last name; NUMCDE, the order number; TOTHTG, the total before tax. You get used to it quickly, and these names are precise for those who work with them.",
+        p2: "Then there is LIZEPO. Six letters, and nothing that hints it is the delivery mode a customer has chosen. That is not a flaw of the era: it is what such a short name ends up being when the application grows and the short words are taken. The name is exact. It is not telling, and the file has nowhere to write down what it means.",
+      },
+      silence: {
+        title: "What the file does not say",
+        p1: "Decimals, first. The total before tax of an order is stored as 000012550, and it is worth 125.50. No separator: the System/36 is a zoned-decimal machine, one digit per byte, and the number of decimal places is declared in the program, not in the file. Read the ribbon without the program and you will read twelve thousand five hundred and fifty.",
+        p2: "The same piece of data under two names, next. The delivery mode code is called LIZEPO in the file of delivered customers, CMLIV, and CODLIV in the reference table of modes, MODLIV. The two files join on that value, and nothing, in either of them, says it is the same thing. Only the programs know.",
+        p3: "No key, finally. These files carry no technical identifier: an order finds its customer by last name and first name, written in both files. Two distinct people with the same last and first name would blur into one: uniqueness, where it was needed, was built in the application, never in the file. Indexing on positions is not linking files, and that is a fact of the era, not carelessness.",
+        p4: "I have known these files as seen from SQL: the columns were there, named, visible. And yet mute. Without access to the programs, I rebuilt the links by deduction, one column after another, by cross-checking the values. The knowledge lived in the programs and in people's memories, never in the file.",
+      },
+      vivant: {
+        title: "Mute, but not dead",
+        p1: "None of this is a breakdown. The data is right, the programs run, the orders go out. What is missing is not the information, it is its description: what each position means, what each name stands for, how many decimal places hide in an amount. That description exists, scattered across programs and memories. What remains is to write it in one place, and put it to work for what we want to expose. That is the solution.",
+      },
+      tab1: {
+        legende: "Structure of CDEMST: five columns, seventy positions",
+        col1: "Column", col2: "Positions", col3: "Type", col4: "Content",
+        l1: "Order number", l2: "Number of items", l3: "Total before tax, two implied decimals", l4: "Customer's last name", l5: "Customer's first name",
+      },
+      tab2: {
+        legende: "Raw versus interpreted: what the program knows and the file keeps quiet",
+        col1: "Column", col2: "In the file", col3: "What it means",
+        l1: "125.50", l2: "order 1234", l3: "12 items",
+      },
+      tab3: {
+        legende: "The same piece of data under two names: LIZEPO in CMLIV, CODLIV in MODLIV",
+        note: "The value EXP is the same in both files. Neither of them says so.",
+      },
+      feuilleI: {
+        legende: "Sheet I, input specifications: the CDEMST file as described by the program that reads it",
+        colType: "Type", colFichier: "File", colInd: "Ind.", colDe: "From", colA: "To", colDec: "Dec.", colNom: "Field name",
+        c1: "Six boxes for a field name, columns 53 to 58: there are the six letters.",
+        c2: "A 2 in column 52 next to TOTHTG: there are the decimals that 000012550 does not show. The description of the file is not in the file; it is on this sheet, in the program.",
+      },
+      feuilleC: {
+        legende: "Sheet C, calculation specifications: three lines, three mechanisms",
+        colType: "Type", colCond: "Cond.", colF1: "Factor 1", colOp: "Operation", colF2: "Factor 2", colRes: "Result", colLong: "Len.", colDec: "Dec.", colH: "H", colHi: "Hi", colLo: "Lo", colEq: "Eq",
+        c1: "Line 1: MULT stores the product in TFACT, and this is where TFACT is born, length 9, two decimals. Column 52 is the same column as on sheet I: decimals are declared on the sheet, never in the data. The H asks for rounding.",
+        c2: "Line 2: CHAIN looks in CLIMST for the record whose key equals CLECLI. Indicator 51, in the High column, turns on if the record does not exist.",
+        c3: "Line 3: the 51 on the left conditions the line. It runs only if the switch is on, and it calls CRECLI, the subroutine that creates the record.",
+      },
+      voix: {
+        p1: "The resulting indicators sit in the rightmost columns, High, Low, Equal. You can write an indicator there, from 1 to 99. Each indicator works like a switch: it is on, or it is not, depending on the result of the operation performed on factor 1, the operation and factor 2.",
+        p2: "On the left, the conditioning indicators say whether the line runs. I would write N51 if the record had been found, 51 if it had not.",
+        p3: "The example I have in mind: create a customer record if it does not exist. You look the record up, the switch turns on if it is missing, and the next line calls the subroutine that creates it.",
+      },
       retour: "Back to the problem",
     },
     about: {

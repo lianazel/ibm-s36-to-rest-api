@@ -408,7 +408,7 @@ section {
   font-size: 0.8125rem;
 }
 
-.dessin .conclusion {
+.dessin .conclusion, .fichier .conclusion {
   margin: calc(var(--space) / 2) 0 0;
   text-align: center;
   font-size: 0.9375rem;
@@ -783,6 +783,57 @@ section {
 .fichier td.lien-valeurs.lien-eteint {
   background: var(--color-bg);
   border-style: dashed;
+}
+
+/* ---- La feuille de codage : le motif de tableau, plus ce qui fait le carton.
+   Établi par l'annexe (incrément 10). La règle de colonnes en bleu S/36 est
+   la cote du relevé d'ingénierie ; les cases pivot (colonne 52, colonnes
+   53-58) sont celles que les phrases de conclusion nomment. Contrastes
+   mesurés le 27 août 2026, formule WCAG, sur #edf5ff : #161616 16,46:1,
+   #525252 7,11:1, #0f62fe 4,55:1. */
+.fichier .regle td {
+  padding-top: 0;
+  border-top: 0;
+  color: var(--color-s36);
+  font-size: 0.6875rem;
+  text-align: center;
+}
+
+.fichier td.type {
+  color: var(--color-s36);
+  font-weight: 700;
+  text-align: center;
+}
+
+.fichier td.num {
+  text-align: right;
+}
+
+.fichier th.pivot,
+.fichier td.pivot {
+  background: #edf5ff;
+}
+
+.fichier td.cases {
+  letter-spacing: 0.35em;
+}
+
+.fichier td.vide {
+  color: var(--color-line);
+}
+
+/* Une cellule de phrase n'est pas une cellule positionnelle : la prose retombe. */
+.fichier th.prose,
+.fichier td.prose {
+  white-space: normal;
+}
+
+/* Le tableau 3 : deux fichiers côte à côte quand la place le permet, l'un
+   sous l'autre sinon. Le conteneur défile déjà ; ici on ne fait que ranger. */
+.fichier .deux {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space);
 }
 
 .pastille.lien-valeurs {
