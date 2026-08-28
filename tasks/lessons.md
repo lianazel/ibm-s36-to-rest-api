@@ -669,3 +669,31 @@ l'absolu. Aucune n'est plus coûteuse que la réfutation qui suit. Et le fait qu
 affirmation ait tenu ne rachète pas les trois autres : c'est la mesure qui les distingue, pas
 l'assurance avec laquelle elles ont été écrites.
 **Applicable globalement ?** : **Oui** — porte sur la façon de rendre compte, pas sur une stack.
+
+---
+
+## 2026-08-28 — Une doctrine de réécriture sur place vaut pour les valeurs ET pour les règles
+**Type** : Erreur
+**Contexte** : Incrément 10, avenant 1. J'ai réécrit sur place les six valeurs gelées que l'avenant
+changeait, avec une section « Formulations révoquées » — le geste correct, précédent de l'avenant 2
+de la session 20. Mais le même prompt gelé affirme à deux endroits que le « je » « vit à deux
+endroits et deux seulement », alors que l'avenant en ajoute un troisième.
+**Erreur** : avoir appliqué la doctrine aux **valeurs** et pas aux **énoncés qui les gouvernent**.
+Ma section de trace liste six valeurs et zéro règle. Or un futur exécutant lit la règle **avant**
+d'écrire la valeur : c'est elle qui l'arrêtera, ou pas.
+**Correction** : quand un avenant révoque une valeur, chercher aussi l'énoncé qui la prescrivait —
+compte, règle, interdiction, invariant — et le réécrire sur place avec sa trace. Un prompt gelé qui
+se contredit est pire qu'un prompt périmé : les deux versions y font autorité.
+**Applicable globalement ?** : **Oui** — porte sur la tenue d'un document normatif, pas sur une stack.
+
+## 2026-08-28 — Un relevé de réserves reportées qui en oublie une les tue en silence
+**Type** : Erreur
+**Contexte** : En rendant compte de la seconde revue, j'ai annoncé que **deux** WARN de la passe
+précédente restaient ouverts. Il y en avait **trois** — j'avais omis celui sur le motif du
+`aria-hidden` généralisé de la carte I à la carte C. La revue l'a relevé en propre.
+**Erreur** : avoir recompté de mémoire au lieu de relire la liste. Le compte rendu est ce que le
+chef de projet arbitre ; une réserve absente du relevé n'est pas reportée, elle est **perdue**.
+**Correction** : un relevé de réserves reportées se **dérive** de l'artefact précédent, jamais de la
+mémoire — et se termine par le compte, confronté à celui de la passe d'avant. « Trois de quatre
+restent ouverts » est vérifiable ; « deux restent ouverts » ne l'est pas.
+**Applicable globalement ?** : **Oui**.

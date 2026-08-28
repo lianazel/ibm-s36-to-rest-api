@@ -1640,3 +1640,86 @@ affirmations que j'ai posées **sans les mesurer**, dans un fichier dont la cult
 « limite dite plutôt que masquée ». Le défaut de la session n'est pas d'avoir écrit du code faux,
 c'est d'avoir écrit des **certitudes** que rien ne tenait — et c'est la revue, pas moi, qui les a
 mesurées à chaque fois.
+
+---
+
+## Session 22 — 27/28 août 2026 — EVOL `annexe-s36` (merge `caded42`, 0.1.19 → 0.1.20)
+
+**Un avenant · une passe d'appareil · deux revues · 356/356.** L'Annexe cesse d'être un texte
+d'attente : quatre blocs de prose, trois tableaux, deux cartes de codage RPG redessinées, la voix du
+chef de projet au « je », le GAP nommé côté français.
+
+### Le geste qui a le plus rapporté : l'arrêt à l'ÉTAPE 0
+
+Deux prérequis sur douze étaient faux, et l'un était un piège. Le prompt annonçait
+`grep -c 'attente' js/i18n.js` = 2 avant, et exigeait **0 après**. La réalité était **4** : deux
+`annexe.attente` à retirer, et deux `section4.champ.attente` — les clés de l'état d'arrivée du
+mini-langage, nées **la veille**. Poursuivre le 0 supprimait deux clés du simulateur et cassait ce
+que sept revues venaient de stabiliser.
+
+Le prompt avait senti le voisinage — il met en garde contre `section5.intro` — mais il a nommé le
+mauvais voisin. **Corrigé sur place, sans avenant** : aucune branche n'existait, le gel n'était
+ancré nulle part. Le prompt porte désormais sa propre garde : « si tu lis 0, tu as supprimé des clés
+du mini-langage : ARRÊTE-TOI ».
+
+### Ce qui a été fait, et comment
+
+**Les valeurs ont été extraites du prompt par programme, jamais retapées.** Le critère disait
+« exactement comme ici » ; recopier 62 valeurs à la main dans deux langues est le geste qui produit
+l'écart invisible. La revue l'a vérifié : **124 valeurs comparées octet par octet, 0 divergence**.
+
+**Le rendu a été mesuré, pas supposé** — Chromium, 320 et 390 px, les deux langues. C'est cette
+mesure qui a trouvé que les tableaux 1 et 2 défilaient alors que le prompt annonçait le contraire.
+
+### L'avenant, né d'une passe d'appareil servie par tunnel
+
+Cinq annotations du chef de projet sur iPhone 14. `READY` **retiré à la réception** — la revue
+portait sur `828033b` et ne couvrait plus le HEAD. Cinq gestes : « Feuille » devient **« Carte »
+côté français seulement** (l'anglais garde *sheet*, le mot ne traverse pas, même famille que le
+GAP) ; une introduction de mémoire au « je » ; la mention que **rien n'est reproduit** ; les
+homonymes bornés par l'unicité applicative ; et la prose qui retombe dans les tableaux 1 et 2.
+
+**Une réserve portée contre la dictée, et retenue.** Le chef de projet avait dit « le document a été
+reproduit par IA ». La valeur ne l'écrit pas ainsi : dire qu'un document est *reproduit* décrit
+exactement ce dont il faut se défendre, et l'outil qui l'aurait fait n'y change rien. Ce qui protège
+est que **rien n'est reproduit** — le dessin est refait d'après la description technique.
+
+### Ce que la seconde revue a trouvé, et qui vise mes artefacts
+
+Trois WARN neufs, tous sur ma documentation, aucun sur le code. **Le prompt gelé se contredit sur la
+règle du « je »** : il affirme encore qu'elle vit « à deux endroits et deux seulement » quand
+l'avenant en ajoute un troisième. Ma section « Formulations révoquées » liste **six valeurs et zéro
+règle** : j'ai appliqué la doctrine de réécriture sur place aux valeurs, pas aux **énoncés qui les
+gouvernent** — or c'est un énoncé qu'un futur exécutant lit avant d'écrire. Leçon inscrite.
+
+Et une correction que je dois porter : mon relevé annonçait **deux** WARN reportés, il y en avait
+**trois**. Un relevé de réserves reportées qui en oublie une est le mécanisme par lequel une réserve
+meurt sans avoir été tranchée.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| Deux prérequis faux, découverts à l'ÉTAPE 0 | **Arrêt avant le premier enregistrement**, prompt corrigé sur place **sans avenant** | Aucune branche n'existait : le gel n'était ancré nulle part, il n'y avait donc rien à amender. L'avenant est le geste d'après le premier commit, pas d'avant | **précédent** |
+| Les feuilles de codage : SVG ou HTML ? | **Tableaux HTML/CSS**, contre la lettre du fil | Précédent des dessins de la section 3 : bilingue par le dictionnaire, empilable, texte sélectionnable. Une feuille de codage EST une grille à colonnes numérotées | **précédent** |
+| « Feuille » ou « Carte » ? | **Carte côté français, Sheet côté anglais** | S-4, même famille que le GAP : chaque langue garde son terme d'usage. En France on codait sur la carte ; en anglais IBM, *card* désigne la carte perforée — le mot ne traverse pas | **précédent** |
+| « Le document a été reproduit par IA » | **Non écrit** : « Aucun document IBM n'est reproduit ici » | Dire *reproduit* décrit ce dont il faut se défendre. Ce qui protège est que rien ne l'est. Réserve de l'exécutant portée contre la dictée du chef de projet, et retenue par le Tech Lead | **précédent** |
+| L'avenant, hors dépôt, doit-il entrer au prompt gelé ? | **Oui**, valeurs réécrites sur place + section « Formulations révoquées » | Non demandé par le HANDOFF de l'avenant. Sans lui, le prompt commité disait « Feuille I » quand le site dit « Carte I » — le défaut exact qui a coûté l'écart `him`/`his` | **précédent** |
+| L'écart `CDEMST` entre la section 4 et l'étude | **Non tranché, inscrit au fil** comme troisième trou | Antérieur à l'incrément, né avec les maquettes du mini-langage. Se tranche à la ligne 11 ou 12, dans un sens ou dans l'autre, **jamais en passant** | **précédent** |
+| Niveau de bump | **Patch** 0.1.19 → 0.1.20, sans redemander | Règle en portée `précédent` depuis la session 12. Le défaut `feat/*` vaut minor, soit 0.2.0 ; la cible de fin de jalon est 1.0.0. **Vingtième** inscription | précédent |
+
+### Dettes qui partent ouvertes, et nommées
+
+**Sept WARN**, aucun FAIL. Trois viennent de la première passe et n'ont **pas** été traités :
+l'exposition inversée aux technologies d'assistance (32 cellules de remplissage annoncées, les cotes
+masquées), `--color-line` qui sert d'encre sans figurer à la liste de contrastes, et le motif du
+`aria-hidden` généralisé à tort de la carte I à la carte C. Quatre sont neufs : les deux
+contradictions du prompt gelé, l'avenant qui ne se rejoue pas, et le nom `prose` porteur de deux
+jeux de déclarations.
+
+**La mesure sous VoiceOver porte désormais quatre objets** — les trois régions `aria-live`, les
+lignes de cotes masquées, les 32 cellules de remplissage exposées, et les trois noms accessibles
+WCAG. Elle attend un humain depuis l'incrément 9.
+
+**Quatre gestes sur cinq de l'avenant n'ont aucun témoin mécanique**, prouvé par mutation : remettre
+les formulations révoquées laisse la suite verte. C'est la famille [W13], et elle a grandi.
