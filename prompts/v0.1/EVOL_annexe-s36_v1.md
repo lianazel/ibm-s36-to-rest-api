@@ -107,7 +107,7 @@ silence: {
   title: "Ce que le fichier ne dit pas",
   p1: "Les décimales, d'abord. Le total hors taxes d'une commande est stocké 000012550, et il vaut 125,50. Aucun séparateur : le System/36 est une machine à décimal zoné, un chiffre par octet, et le nombre de décimales est déclaré dans le programme, pas dans le fichier. Lisez le ruban sans le programme, vous lirez douze mille cinq cent cinquante.",
   p2: "La même donnée sous deux noms, ensuite. Le code du mode de livraison s'appelle LIZEPO dans le fichier des clients livrés, CMLIV, et CODLIV dans le référentiel des modes, MODLIV. Les deux fichiers se joignent sur cette valeur, et rien, dans aucun des deux, ne dit qu'il s'agit de la même chose. Seuls les programmes le savent.",
-  p3: "Aucune clé, enfin. Ces fichiers ne portent pas d'identifiant technique : une commande retrouve son client par le nom et le prénom, écrits dans les deux fichiers. Deux clients homonymes se confondent. Indexer sur des positions n'est pas relier des fichiers, et c'est un fait d'époque, pas une négligence.",
+  p3: "Aucune clé, enfin. Ces fichiers ne portent pas d'identifiant technique : une commande retrouve son client par le nom et le prénom, écrits dans les deux fichiers. Deux personnes distinctes au même nom et au même prénom se confondraient : l'unicité, quand il en fallait une, se construisait dans l'application, jamais dans le fichier. Indexer sur des positions n'est pas relier des fichiers, et c'est un fait d'époque, pas une négligence.",
   p4: "J'ai connu ces fichiers vus depuis le SQL : les colonnes étaient là, nommées, visibles. Et pourtant muettes. Sans accès aux programmes, j'ai reconstruit les liens par déduction, une colonne après l'autre, en croisant les valeurs. Le savoir était dans les programmes et dans les mémoires, jamais dans le fichier.",
 },
 vivant: {
@@ -134,7 +134,7 @@ silence: {
   title: "What the file does not say",
   p1: "Decimals, first. The total before tax of an order is stored as 000012550, and it is worth 125.50. No separator: the System/36 is a zoned-decimal machine, one digit per byte, and the number of decimal places is declared in the program, not in the file. Read the ribbon without the program and you will read twelve thousand five hundred and fifty.",
   p2: "The same piece of data under two names, next. The delivery mode code is called LIZEPO in the file of delivered customers, CMLIV, and CODLIV in the reference table of modes, MODLIV. The two files join on that value, and nothing, in either of them, says it is the same thing. Only the programs know.",
-  p3: "No key, finally. These files carry no technical identifier: an order finds its customer by last name and first name, written in both files. Two customers with the same name blur into one. Indexing on positions is not linking files, and that is a fact of the era, not carelessness.",
+  p3: "No key, finally. These files carry no technical identifier: an order finds its customer by last name and first name, written in both files. Two distinct people with the same last and first name would blur into one: uniqueness, where it was needed, was built in the application, never in the file. Indexing on positions is not linking files, and that is a fact of the era, not carelessness.",
   p4: "I have known these files as seen from SQL: the columns were there, named, visible. And yet mute. Without access to the programs, I rebuilt the links by deduction, one column after another, by cross-checking the values. The knowledge lived in the programs and in people's memories, never in the file.",
 },
 vivant: {
@@ -265,15 +265,15 @@ Deux figures `class="fichier feuille"`. La classe `feuille` ajoute au motif de t
 
 ```
 feuilleI: {
-  legende: "Feuille I, spécifications d'entrée : le fichier CDEMST décrit par le programme qui le lit",
+  legende: "Carte I, spécifications d'entrée : le fichier CDEMST décrit par le programme qui le lit",   // réécrite sur place à l'avenant 1 — trace : « Feuille I, … »
   colType: "Type", colFichier: "Fichier", colInd: "Ind.", colDe: "De", colA: "À", colDec: "Déc.", colNom: "Nom de zone",
   c1: "Six cases pour un nom de zone, colonnes 53 à 58 : voilà les six lettres.",
-  c2: "Un 2 en colonne 52 face à TOTHTG : voilà les décimales que 000012550 ne montre pas. La description du fichier n'est pas dans le fichier ; elle est sur cette feuille, dans le programme.",
+  c2: "Un 2 en colonne 52 face à TOTHTG : voilà les décimales que 000012550 ne montre pas. La description du fichier n'est pas dans le fichier ; elle est sur cette carte, dans le programme.",
 },
 feuilleC: {
-  legende: "Feuille C, spécifications de calcul : trois lignes, trois mécanismes",
+  legende: "Carte C, spécifications de calcul : trois lignes, trois mécanismes",   // réécrite sur place à l'avenant 1 — trace : « Feuille C, … »
   colType: "Type", colCond: "Cond.", colF1: "Facteur 1", colOp: "Opération", colF2: "Facteur 2", colRes: "Résultat", colLong: "Long.", colDec: "Déc.", colH: "H", colHi: "Hi", colLo: "Lo", colEq: "Eq",
-  c1: "Ligne 1 : MULT range le produit dans TFACT, et c'est ici que TFACT naît, longueur 9, deux décimales. La colonne 52 est la même que sur la feuille I : les décimales se déclarent sur la feuille, jamais dans la donnée. Le H demande l'arrondi.",
+  c1: "Ligne 1 : MULT range le produit dans TFACT, et c'est ici que TFACT naît, longueur 9, deux décimales. La colonne 52 est la même que sur la carte I : les décimales se déclarent sur la carte, jamais dans la donnée. Le H demande l'arrondi.",
   c2: "Ligne 2 : CHAIN cherche dans CLIMST la fiche dont la clé vaut CLECLI. L'indicateur 51, en colonne High, s'allume si la fiche n'existe pas.",
   c3: "Ligne 3 : le 51 à gauche conditionne la ligne. Elle ne s'exécute que si l'interrupteur est allumé, et elle appelle CRECLI, la sous-routine qui crée la fiche.",
 },
@@ -549,3 +549,109 @@ Le chef de projet a demandé que ces points soient vérifiés à sa place, sa m�
 | — | `CRECLI` : six caractères ? | **Retenu, réserve dite.** Le facteur 2 de `EXSR` fait dix positions (33-42) ; la limite de six vient de la règle des noms RPG II, que les pages lisibles du manuel ne citent pas en toutes lettres. `CRECLI` est valide dans les deux cas ; la phrase des notes « il n'y a que six positions » était inexacte pour le facteur 2 et n'est **pas** reprise dans le site. | SC09-1818 p. 763 (« Coding Subroutines », nom en facteur 2) ; limite de six : non lue |
 | (h) | Place des feuilles ? | **Sous la prose qui les appelle** (décision de forme n° 2 du prompt). | — |
 | (i) | Le « je » à deux endroits ? | **Oui**, témoignage et `voix` : la décision du 19 août (« ta voix qui le raconte, comme le témoignage ») étend celle du 15. Inscrit ici. | Session 14, notes v6 |
+
+## Avenant 1 — retours de la passe d'appareil du 28 août 2026 (iPhone 14, tunnel)
+
+**Prompt amendé** : `prompts/v0.1/EVOL_annexe-s36_v1.md` · **Revue de référence** : SHIP sur `828033b`,
+**READY retiré** par Claude Code à la réception des captures (motif inscrit — geste conforme, la revue
+ne couvrira plus le HEAD). **Coût assumé** : un commit, une revue entière relancée sur le nouveau
+commit. Les cinq gestes entrent dans **ce seul commit**.
+
+Sources : cinq annotations du chef de projet sur captures (28 août 2026) ; propositions de Claude Code
+du même jour, arbitrées par le Tech Lead ; réserve UX de la revue sur `.fichier`/`nowrap`. Rien d'autre.
+
+### Geste 1 — « Feuille » devient « Carte » côté FRANÇAIS ; l'anglais garde « Sheet »
+
+Arbitrage S-4, même famille que le GAP : **chaque langue garde son terme d'usage**. En France on
+codait sur la carte (le mot couvrait le formulaire à colonnes et la carte perforée qu'on en
+frappait) ; en anglais IBM, le formulaire est le *coding sheet*, et *card* y désigne la carte
+perforée — le mot ne traverse pas, comme GAP ne traverse pas. Donc : valeurs **françaises** de
+`feuilleI`/`feuilleC` réécrites avec « carte » ; valeurs **anglaises inchangées** (« Sheet I »,
+« sheet »). Les clés, la classe HTML `feuille` et le CSS sont du code : inchangés.
+
+Valeurs FR touchées, texte exact :
+
+- `feuilleI.legende` : « Carte I, spécifications d'entrée : le fichier CDEMST décrit par le programme qui le lit »
+- `feuilleI.c2` : « Un 2 en colonne 52 face à TOTHTG : voilà les décimales que 000012550 ne montre pas. La description du fichier n'est pas dans le fichier ; elle est sur cette carte, dans le programme. »
+- `feuilleC.legende` : « Carte C, spécifications de calcul : trois lignes, trois mécanismes »
+- `feuilleC.c1` : « Ligne 1 : MULT range le produit dans TFACT, et c'est ici que TFACT naît, longueur 9, deux décimales. La colonne 52 est la même que sur la carte I : les décimales se déclarent sur la carte, jamais dans la donnée. Le H demande l'arrondi. »
+
+Contrôle : côté FR, plus aucune valeur ne porte « feuille » ; côté EN, « sheet » conservé tel quel.
+
+### Geste 2 — L'introduction de mémoire, voix du chef de projet
+
+Nouvelle clé `annexe.memoire`, après `annexe.intro`, avant `annexe.ouverture`. **Troisième domicile
+du « je »** — la règle du 15 août s'étend une seconde fois, arbitrage du chef de projet à confirmer
+au gel de cet avenant. Formulation de Claude Code, retenue :
+
+- FR : « Ce chapitre s'appuie sur ma mémoire. L'essentiel de ma carrière s'est déroulé sur IBM i ; par avance, pardon pour les erreurs ou les oublis. »
+- EN : « This chapter draws on my memory. Most of my career took place on IBM i; my apologies in advance for any errors or omissions. »
+
+### Geste 3 — Rien n'est reproduit, tout est redessiné
+
+Nouvelle clé `annexe.redessine`, juste avant la carte I (après `ruban.p2`). Formulation de Claude
+Code, retenue, et sa réserve avec elle : on n'écrit pas « reproduit par IA » — dire *reproduit*
+décrirait ce dont il faut précisément se défendre ; ce qui protège est que **rien n'est reproduit**,
+le dessin est refait d'après la description technique des colonnes.
+
+- FR : « Aucun document IBM n'est reproduit ici. La carte à colonnes est redessinée, dans les caractères et les couleurs de ce site, à partir de sa description technique. »
+- EN : « No IBM document is reproduced here. The columned sheet is redrawn, in this site's typefaces and colors, from its technical description. »
+
+### Geste 4 — Les homonymes : la précision du chef de projet, puis la phrase d'unicité
+
+`annexe.silence.p3` réécrite (valeur de cet incrément, non atterrie). Fusion des deux propositions :
+la clarification demandée par le chef de projet (deux personnes distinctes), puis la phrase de
+Claude Code qui porte sa mise en garde sans sortir du sujet :
+
+- FR : « Aucune clé, enfin. Ces fichiers ne portent pas d'identifiant technique : une commande retrouve son client par le nom et le prénom, écrits dans les deux fichiers. Deux personnes distinctes au même nom et au même prénom se confondraient : l'unicité, quand il en fallait une, se construisait dans l'application, jamais dans le fichier. Indexer sur des positions n'est pas relier des fichiers, et c'est un fait d'époque, pas une négligence. »
+- EN : « No key, finally. These files carry no technical identifier: an order finds its customer by last name and first name, written in both files. Two distinct people with the same last and first name would blur into one: uniqueness, where it was needed, was built in the application, never in the file. Indexing on positions is not linking files, and that is a fact of the era, not carelessness. »
+
+### Geste 5 — La prose retombe dans les tableaux 1 et 2 (réserve UX de la revue)
+
+Cause mesurée par la revue : `.fichier` impose `white-space: nowrap`, règle taillée pour des cellules
+positionnelles, et la dernière colonne des tableaux 1 et 2 est une **phrase**. Le défilement constaté
+par le chef de projet à la passe vient de là. Correctif **scopé**, pas global : une classe
+`prose` posée sur les cellules de phrase (les cinq `td` « Contenu » du tableau 1, les trois `td`
+« Ce que ça veut dire » du tableau 2, et leurs deux `th` d'en-tête), et une seule règle CSS ajoutée
+à la famille de l'annexe :
+
+```css
+/* Une cellule de phrase n'est pas une cellule positionnelle : la prose retombe. */
+.fichier th.prose,
+.fichier td.prose {
+  white-space: normal;
+}
+```
+
+Les cartes et le tableau 3 ne changent pas (cellules positionnelles, le défilement y est le
+comportement voulu). Le mode paysage redevient un confort, pas un contournement — **aucun indice de
+paysage ajouté** (écarté, dit pour trace).
+
+### Comptages, après les cinq gestes (delta sur l'état revu en `828033b`)
+
+- `js/i18n.js` : clés sous `annexe` **65 → 67** par langue ; « feuille » absent des valeurs FR ;
+  « sheet » conservé côté EN ; consigne `grep -c 'carte\|Carte' js/i18n.js` et la valeur EN.
+- `index.html` : `data-i18n="annexe` **65 → 67** ; `data-i18n="` **212 → 214** ; `class="prose"` :
+  **10** occurrences (2 th + 8 td) ; aucun cadratin ajouté.
+- `css/styles.css` : **une** règle ajoutée (`.fichier th.prose, .fichier td.prose`), rien d'autre ;
+  `grep -c 'prose' css/styles.css` = consigne (attendu 2, le sélecteur porte deux lignes).
+- Suite verte **356/356**, aucun test touché.
+- Rendu à re-mesurer au navigateur : tableaux 1 et 2 **sans défilement** à 390 px, cartes défilantes.
+
+### HANDOFF
+
+Un commit : `feat(annexe): retours de passe d'appareil — carte côté FR, introduction de mémoire, rien
+n'est reproduit, homonymes bornés par l'unicité applicative, la prose retombe dans les tableaux 1 et 2`.
+Puis **revue entière relancée** (nouvelle ancre `review.json`), READY réécrit en dernier. STOP avant
+merge et push.
+
+### Formulations révoquées par l'avenant 1 : trace, ne pas utiliser
+
+- `feuilleI.legende` FR : « Feuille I, spécifications d'entrée : … »
+- `feuilleI.c2` FR : « … elle est sur cette **feuille**, dans le programme. »
+- `feuilleC.legende` FR : « Feuille C, spécifications de calcul : … »
+- `feuilleC.c1` FR : « … la même que sur la **feuille** I : les décimales se déclarent sur la **feuille**, … »
+- `silence.p3` FR : « … Deux clients homonymes se confondent. … » — affirme un défaut que la pratique
+  résolvait (« on trouvait toujours le moyen de créer une clé unique », chef de projet, 28 août 2026),
+  et ouvrait la question des clés dupliquées, hors sujet ici.
+- `silence.p3` EN : « … Two customers with the same name blur into one. … »
