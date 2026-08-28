@@ -518,12 +518,14 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
     annexe: {
       title: "Annexe : un fichier S/36 de près",
       intro: "Ce chapitre est un détour technique, un petit voyage dans les contraintes de l'époque. Il n'est pas nécessaire pour suivre la suite.",
+      memoire: "Ce chapitre s'appuie sur ma mémoire. L'essentiel de ma carrière s'est déroulé sur IBM i ; par avance, pardon pour les erreurs ou les oublis.",
       ouverture: "Un grossiste fictif et ses cinq fichiers suffisent à le montrer.",
       ruban: {
         title: "Un fichier plat, c'est un ruban",
         p1: "Un enregistrement est une suite de caractères de longueur fixe, et chaque donnée y occupe des positions : de la première à la septième, le numéro de commande ; de la huitième à la onzième, le nombre d'articles ; et ainsi de suite jusqu'au bout de la ligne. Rien ne sépare les champs, aucun nom ne les précède. Le fichier des commandes du grossiste, CDEMST, fait soixante-dix caractères par enregistrement. Lu tel quel, il ressemble à ceci : 00012340012000012550DURAND… Une ligne collée, que seul un programme sait découper.",
         p2: "Le découpage existe bien, mais il n'est pas dans le fichier. Il vit dans les programmes qui le lisent, déclaré à chaque fois dans leurs spécifications d'entrée. IBM le dit en toutes lettres : pour ces fichiers, l'information sur les champs doit être fournie par les programmes qui les traitent. Le ruban est parfaitement ordonné, et il ne sait rien de son ordre.",
       },
+      redessine: "Aucun document IBM n'est reproduit ici. La carte à colonnes est redessinée, dans les caractères et les couleurs de ce site, à partir de sa description technique.",
       lettres: {
         title: "Six lettres pour tout dire",
         p1: "Les langages de l'époque laissaient peu de place à un nom de zone : six caractères au plus en RPG II, que l'on appelait GAP en France. On abrège donc, et IBM recommande comment : MASTER devient MST ou MSTR. NOMCLI, c'est le nom du client ; NUMCDE, le numéro de commande ; TOTHTG, le total hors taxes. On s'y fait vite, et ces noms sont précis pour qui les pratique.",
@@ -533,7 +535,7 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
         title: "Ce que le fichier ne dit pas",
         p1: "Les décimales, d'abord. Le total hors taxes d'une commande est stocké 000012550, et il vaut 125,50. Aucun séparateur : le System/36 est une machine à décimal zoné, un chiffre par octet, et le nombre de décimales est déclaré dans le programme, pas dans le fichier. Lisez le ruban sans le programme, vous lirez douze mille cinq cent cinquante.",
         p2: "La même donnée sous deux noms, ensuite. Le code du mode de livraison s'appelle LIZEPO dans le fichier des clients livrés, CMLIV, et CODLIV dans le référentiel des modes, MODLIV. Les deux fichiers se joignent sur cette valeur, et rien, dans aucun des deux, ne dit qu'il s'agit de la même chose. Seuls les programmes le savent.",
-        p3: "Aucune clé, enfin. Ces fichiers ne portent pas d'identifiant technique : une commande retrouve son client par le nom et le prénom, écrits dans les deux fichiers. Deux clients homonymes se confondent. Indexer sur des positions n'est pas relier des fichiers, et c'est un fait d'époque, pas une négligence.",
+        p3: "Aucune clé, enfin. Ces fichiers ne portent pas d'identifiant technique : une commande retrouve son client par le nom et le prénom, écrits dans les deux fichiers. Deux personnes distinctes au même nom et au même prénom se confondraient : l'unicité, quand il en fallait une, se construisait dans l'application, jamais dans le fichier. Indexer sur des positions n'est pas relier des fichiers, et c'est un fait d'époque, pas une négligence.",
         p4: "J'ai connu ces fichiers vus depuis le SQL : les colonnes étaient là, nommées, visibles. Et pourtant muettes. Sans accès aux programmes, j'ai reconstruit les liens par déduction, une colonne après l'autre, en croisant les valeurs. Le savoir était dans les programmes et dans les mémoires, jamais dans le fichier.",
       },
       vivant: {
@@ -555,15 +557,15 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
         note: "La valeur EXP est la même dans les deux fichiers. Aucun des deux ne le dit.",
       },
       feuilleI: {
-        legende: "Feuille I, spécifications d'entrée : le fichier CDEMST décrit par le programme qui le lit",
+        legende: "Carte I, spécifications d'entrée : le fichier CDEMST décrit par le programme qui le lit",
         colType: "Type", colFichier: "Fichier", colInd: "Ind.", colDe: "De", colA: "À", colDec: "Déc.", colNom: "Nom de zone",
         c1: "Six cases pour un nom de zone, colonnes 53 à 58 : voilà les six lettres.",
-        c2: "Un 2 en colonne 52 face à TOTHTG : voilà les décimales que 000012550 ne montre pas. La description du fichier n'est pas dans le fichier ; elle est sur cette feuille, dans le programme.",
+        c2: "Un 2 en colonne 52 face à TOTHTG : voilà les décimales que 000012550 ne montre pas. La description du fichier n'est pas dans le fichier ; elle est sur cette carte, dans le programme.",
       },
       feuilleC: {
-        legende: "Feuille C, spécifications de calcul : trois lignes, trois mécanismes",
+        legende: "Carte C, spécifications de calcul : trois lignes, trois mécanismes",
         colType: "Type", colCond: "Cond.", colF1: "Facteur 1", colOp: "Opération", colF2: "Facteur 2", colRes: "Résultat", colLong: "Long.", colDec: "Déc.", colH: "H", colHi: "Hi", colLo: "Lo", colEq: "Eq",
-        c1: "Ligne 1 : MULT range le produit dans TFACT, et c'est ici que TFACT naît, longueur 9, deux décimales. La colonne 52 est la même que sur la feuille I : les décimales se déclarent sur la feuille, jamais dans la donnée. Le H demande l'arrondi.",
+        c1: "Ligne 1 : MULT range le produit dans TFACT, et c'est ici que TFACT naît, longueur 9, deux décimales. La colonne 52 est la même que sur la carte I : les décimales se déclarent sur la carte, jamais dans la donnée. Le H demande l'arrondi.",
         c2: "Ligne 2 : CHAIN cherche dans CLIMST la fiche dont la clé vaut CLECLI. L'indicateur 51, en colonne High, s'allume si la fiche n'existe pas.",
         c3: "Ligne 3 : le 51 à gauche conditionne la ligne. Elle ne s'exécute que si l'interrupteur est allumé, et elle appelle CRECLI, la sous-routine qui crée la fiche.",
       },
@@ -1066,12 +1068,14 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
     annexe: {
       title: "Appendix: an S/36 file up close",
       intro: "This chapter is a technical detour, a short trip into the constraints of the day. It is not needed to follow what comes next.",
+      memoire: "This chapter draws on my memory. Most of my career took place on IBM i; my apologies in advance for any errors or omissions.",
       ouverture: "A fictional wholesaler and its five files are enough to show it.",
       ruban: {
         title: "A flat file is a ribbon",
         p1: "A record is a run of characters of fixed length, and every piece of data lives at positions: the first seven hold the order number; the next four, the number of items; and so on to the end of the line. Nothing separates the fields, no name precedes them. The wholesaler's order file, CDEMST, is seventy characters per record. Read as it is, it looks like this: 00012340012000012550DURAND… One glued line, which only a program knows how to cut.",
         p2: "The cut exists, but it is not in the file. It lives in the programs that read it, declared each time in their input specifications. IBM says so in plain words: for these files, field-level information must be provided by the programs that process them. The ribbon is perfectly ordered, and knows nothing of its own order.",
       },
+      redessine: "No IBM document is reproduced here. The columned sheet is redrawn, in this site's typefaces and colors, from its technical description.",
       lettres: {
         title: "Six letters to say it all",
         p1: "The languages of the day left little room for a field name: six characters or fewer in RPG II. So you abbreviate, and IBM tells you how: MASTER becomes MST or MSTR. NOMCLI is the customer's last name; NUMCDE, the order number; TOTHTG, the total before tax. You get used to it quickly, and these names are precise for those who work with them.",
@@ -1081,7 +1085,7 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
         title: "What the file does not say",
         p1: "Decimals, first. The total before tax of an order is stored as 000012550, and it is worth 125.50. No separator: the System/36 is a zoned-decimal machine, one digit per byte, and the number of decimal places is declared in the program, not in the file. Read the ribbon without the program and you will read twelve thousand five hundred and fifty.",
         p2: "The same piece of data under two names, next. The delivery mode code is called LIZEPO in the file of delivered customers, CMLIV, and CODLIV in the reference table of modes, MODLIV. The two files join on that value, and nothing, in either of them, says it is the same thing. Only the programs know.",
-        p3: "No key, finally. These files carry no technical identifier: an order finds its customer by last name and first name, written in both files. Two customers with the same name blur into one. Indexing on positions is not linking files, and that is a fact of the era, not carelessness.",
+        p3: "No key, finally. These files carry no technical identifier: an order finds its customer by last name and first name, written in both files. Two distinct people with the same last and first name would blur into one: uniqueness, where it was needed, was built in the application, never in the file. Indexing on positions is not linking files, and that is a fact of the era, not carelessness.",
         p4: "I have known these files as seen from SQL: the columns were there, named, visible. And yet mute. Without access to the programs, I rebuilt the links by deduction, one column after another, by cross-checking the values. The knowledge lived in the programs and in people's memories, never in the file.",
       },
       vivant: {

@@ -822,6 +822,12 @@ section {
   color: var(--color-line);
 }
 
+/* Une cellule de phrase n'est pas une cellule positionnelle : la prose retombe. */
+.fichier th.prose,
+.fichier td.prose {
+  white-space: normal;
+}
+
 /* Le tableau 3 : deux fichiers côte à côte quand la place le permet, l'un
    sous l'autre sinon. Le conteneur défile déjà ; ici on ne fait que ranger. */
 .fichier .deux {
