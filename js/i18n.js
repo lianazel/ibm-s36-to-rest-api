@@ -513,7 +513,15 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
     },
     section5: {
       title: "La méthode",
-      intro: "La suite de ce chapitre arrive.",
+      intro: "Ce site n'a pas été tapé à la main, ni dicté à une IA en lui faisant confiance. Il a été construit sous un harnais de travail : TWAIM.",
+      comment: "Chaque étape commence par un prompt écrit avant le code. Un agent l'exécute, un autre le relit et rend un verdict. Aucun agent ne fusionne, aucun ne publie : c'est mon geste.",
+      preuve: "La preuve n'est pas dans ce texte, elle est dans le dépôt, qui est public. Les prompts qui ont piloté chaque étape y sont entiers, avec le journal des atterrissages et le registre des leçons.",
+      depot: "Le dépôt de ce site, sur GitHub",
+      // Même adresse que la version anglaise, volontairement : le dépôt n'a pas
+      // de version anglaise. Ce n'est pas un défaut de parité à « corriger ».
+      depotUrl: "https://github.com/lianazel/ibm-s36-to-rest-api",
+      lien: "La méthode, en détail, sur son propre site",
+      lienUrl: "https://twaim-web.vercel.app/",
     },
     annexe: {
       title: "Annexe : un fichier S/36 de près",
@@ -1063,7 +1071,15 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
     },
     section5: {
       title: "The method",
-      intro: "This chapter is coming soon.",
+      intro: "This site was not hand-typed, nor dictated to an AI on trust. It was built under a working harness: TWAIM.",
+      comment: "Every step starts with a prompt written before any code. One agent carries it out, another reviews it and returns a verdict. No agent merges, no agent publishes — that step is mine.",
+      preuve: "The proof is not in this text. It is in the repository, which is public. The prompts that drove every step are there in full, along with the landing journal and the lessons register.",
+      depot: "This site's repository, on GitHub",
+      // Même adresse que la version française, volontairement : le dépôt n'a pas
+      // de version anglaise. Ce n'est pas un défaut de parité à « corriger ».
+      depotUrl: "https://github.com/lianazel/ibm-s36-to-rest-api",
+      lien: "The method, in full, on its own site",
+      lienUrl: "https://twaim-web.vercel.app/en",
     },
     annexe: {
       title: "Appendix: an S/36 file up close",
