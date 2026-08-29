@@ -733,3 +733,9 @@ remède le plus durable n'est pas la correction elle-même, mais l'arbitre : le 
 ajouté un paragraphe « Le compte qui fait foi » qui désigne à l'avance la formulation qui l'emporte
 si le prompt se contredit ailleurs.
 **Applicable globalement ?** : **Oui** — vaut pour toute spécification exécutable par un tiers.
+**Promue en global le 29 août 2026 (validation du chef de projet)**, sous un titre **resserré sur la
+règle transférable** — « Un chiffre de garde doit être invariant sous le travail qu'il garde, et le
+moment de le vérifier est avant le gel » — entrée datée 2026-08-29 de `~/.claude/lessons.md`. Le
+titre local dit *quand* faire le geste, le titre global dit *ce qu'on vérifie* : c'est ce second
+énoncé qui voyage hors de ce projet. Les deux se retrouvent par l'empreinte `62ea3e5`, portée par la
+provenance de l'entrée globale.
