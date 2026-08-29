@@ -697,3 +697,39 @@ chef de projet arbitre ; une réserve absente du relevé n'est pas reportée, el
 mémoire — et se termine par le compte, confronté à celui de la passe d'avant. « Trois de quatre
 restent ouverts » est vérifiable ; « deux restent ouverts » ne l'est pas.
 **Applicable globalement ?** : **Oui**.
+
+## 2026-08-29 — Une réserve plus large que son objet use la même crédibilité qu'une réserve tue
+**Type** : Erreur
+**Contexte** : Avant d'exécuter l'incrément 11, j'ai porté au chef de projet une réserve sur la
+phrase publiée « les prompts qui ont piloté chaque étape y sont entiers » : les avenants, disais-je,
+« vivent hors dépôt ». Je l'ai reconduite dans `spec.md` puis dans `changes.md`. La revue l'a
+mesurée : **faux**. Les avenants sont réécrits sur place dans les prompts gelés — six sections
+`## Avenant` dans le prompt de l'incrément 9, une dans celui du 10, avec la trace des formulations
+révoquées. La phrase publiée tenait.
+**Erreur** : avoir déduit la réserve d'une dette voisine — celle de la session 22, « le prompt gelé
+se contredit sur la règle du « je » » — au lieu de la mesurer. La dette réelle était bien plus
+étroite, et **déjà nommée au fil**. J'ai fabriqué une réserve neuve là où il y avait un report.
+**Correction** : une réserve se mesure **sur son objet** avant d'être portée, exactement comme une
+affirmation de code. Une réserve trop large coûte deux fois : elle fait douter d'une chose saine, et
+la passe suivante la relit et la reconduit sans la remesurer — c'est ainsi qu'une fausse réserve
+survit plus longtemps qu'une vraie. Vérifier d'abord si la dette n'est pas **déjà nommée ailleurs,
+plus précisément**.
+**Applicable globalement ?** : **Oui** — porte sur la tenue d'un registre de réserves, pas sur une stack.
+
+## 2026-08-29 — Un prompt se confronte au dépôt avant d'être gelé, pas seulement avant d'être exécuté
+**Type** : Succès
+**Contexte** : Le chef de projet a demandé un examen du prompt de l'incrément 11 **avant** de le
+faire exécuter. Ses bases ont été confrontées au dépôt une par une plutôt que lues. Quatre défauts
+sont tombés, dont un grave : la preuve 7 annonçait un comptage de 2, la mesure rendait 7 — le motif
+attrapait cinq mots de prose, et **l'un des sept était la valeur même que l'incrément réécrit**. La
+garde aurait bougé avec la prose et n'aurait jamais mordu sur son objet.
+**Approche** : lancer les commandes du prompt sur le dépôt réel au moment de l'examen, y compris
+celles qui paraissent évidentes, et vérifier que chaque comptage est **invariant sous l'incrément
+qu'il garde** — un chiffre de garde qui bouge quand le travail avance ne garde rien.
+**Pattern extrait** : le bon moment pour trouver un défaut de prompt est **avant le gel**, parce
+qu'aucune branche n'existe et que le gel n'est ancré nulle part : la correction ne coûte alors aucun
+avenant. Trouvé après, le même défaut coûte un arrêt à l'ÉTAPE 0 (session 22) ou un avenant. Et le
+remède le plus durable n'est pas la correction elle-même, mais l'arbitre : le chef de projet a
+ajouté un paragraphe « Le compte qui fait foi » qui désigne à l'avance la formulation qui l'emporte
+si le prompt se contredit ailleurs.
+**Applicable globalement ?** : **Oui** — vaut pour toute spécification exécutable par un tiers.

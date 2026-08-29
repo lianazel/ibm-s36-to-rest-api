@@ -1723,3 +1723,112 @@ WCAG. Elle attend un humain depuis l'incrément 9.
 
 **Quatre gestes sur cinq de l'avenant n'ont aucun témoin mécanique**, prouvé par mutation : remettre
 les formulations révoquées laisse la suite verte. C'est la famille [W13], et elle a grandi.
+
+## Session 23 — 29 août 2026 — EVOL `section5-la-methode` (merge `d795333`, 0.1.20 → 0.1.21)
+
+**Aucun avenant · une revue · 356/356 · SHIP, 0 FAIL, sept WARN.** La section 5 cesse d'être un
+texte d'attente : trois paragraphes de prose et deux liens. **Le dernier des cinq chapitres est
+écrit** — le premier des trois trous du fil se ferme, et le jalon 1 peut désormais atteindre sa
+porte de sortie.
+
+### Le geste qui a le plus rapporté : avoir revu le prompt avant de l'exécuter
+
+Le chef de projet a demandé un examen du prompt **avant** de le faire exécuter. Ses bases ont été
+confrontées au dépôt une par une plutôt que lues. **Une preuve sur dix était fausse, et c'était la
+garde.** La preuve 7 annonçait `grep -o 'attente\|arrive' js/i18n.js | wc -l` = 2 ; la mesure
+rendait **7**. Le motif attrapait cinq `arrive` de prose — et **l'un des sept était
+`section5.intro` lui-même**, la valeur que l'incrément réécrit. L'exécutant aurait lu 7 avant, 6
+après, jamais 2 : la garde « si tu lis 0, ARRÊTE-TOI » n'aurait jamais mordu sur son objet.
+
+Trois autres défauts au même examen : le prompt **se contredisait sur son propre compte** de
+paragraphes (« quatre » au titre, trois partout ailleurs) ; la règle 3 (`depotUrl` identique FR/EN)
+n'avait **aucune preuve qui la mesure** ; et le geste 4 sur le fil disait « s'il y en a » là où il y
+en avait exactement un, nommable.
+
+**Les quatre sont revenus corrigés**, et le chef de projet a ajouté mieux que la correction demandée :
+un paragraphe **« Le compte qui fait foi »** qui désigne l'arbitre à l'avance. C'est le remède
+général à la dette de la session 22 — un prompt gelé qui se contredit ne se règle pas au cas par
+cas, il se règle en nommant qui tranche. Symétrie avec la session 22, où l'arrêt était survenu à
+l'ÉTAPE 0, après le gel : ici le défaut est mort **avant** le gel, et n'a coûté aucun avenant.
+
+### Ce qui a été fait, et comment
+
+**Les seize valeurs n'ont pas été relues, elles ont été comparées.** Un script les extrait du prompt
+gelé et les confronte au fichier livré : **16 valeurs, 0 écart, ordre des clés conforme dans les deux
+langues**. Je les avais tapées à la main — c'est exactement le geste qui produit l'écart invisible,
+et une relecture ne le voit pas.
+
+**La porte a été vue mordre.** Renommer `data-i18n="section5.preuve"` en `section5.preuveXX` fait
+passer la suite à 1 failed | 355 passed. Les six clés livrées ne sont donc pas gardées par croyance.
+
+**Le balayage a porté sur la famille, pas sur l'objet cité.** Le prompt affirmait « c'est le seul
+renvoi de ce genre — mesuré, il y en a exactement un ». Vérifié sur les dix-neuf renvois à une
+position du fil : il avait raison, un seul vise une position ≥ 11.
+
+### Ce que la revue a trouvé, et qui vise mes artefacts
+
+**Sept WARN, aucun FAIL.** Le `reviewer` a refait la comparaison des seize valeurs et **ajouté le
+contrôle qui manquait** : dictionnaires aplatis `main` contre `HEAD`, **628 → 640 clés, 12 ajoutées,
+0 retirée, 2 modifiées**. C'est cela qui fonde « aucune autre valeur n'a bougé » ; ma comparaison ne
+regardait que les valeurs dictées.
+
+**Quatre invariants sans porteur**, tous mesurés par mutation en bac à sable : retirer
+`rel="noopener noreferrer"` laisse la suite verte, retirer `target="_blank"` aussi, faire diverger
+`depotUrl` EN aussi, publier un chiffre dans `preuve` aussi. Le `rel` est le plus sérieux : **les
+liens `_blank` de la page passent de 1 à 3 du seul fait de cet incrément**, et le seul porteur de
+l'invariant est une phrase du prompt gelé — suivie à la lettre ici, mais qui ne se rejoue pas.
+
+**Et un constat qu'aucune mutation ne révèle** : les deux ancres sont **vides** dans la source,
+`applyI18n` remplit le `textContent`. Sans JavaScript, le `href` de repli porte l'adresse mais
+l'ancre n'a **aucun nom accessible**. La dette [W5] est nommée « le site exige JavaScript pour ses
+textes », ce qui laisse croire que le repli compense pour les liens. Il ne compense pas.
+
+**Deux corrections que je porte.** Mon relevé annonçait **un** renvoi périmé préexistant : il y en a
+**deux** (`ROADMAP.md` l. 225 et l. 377). Mon balayage était juste sur son critère, mais j'ai
+présenté son résultat comme couvrant la **classe** des renvois périmés, qu'il ne mesurait pas — la
+leçon du 20 août 2026, revenue. Et ma réserve sur les avenants était **fausse** : mesurés, ils sont
+réécrits sur place dans les prompts gelés (six sections `## Avenant` dans l'incrément 9, une dans le
+10). La phrase publiée tient. Les deux artefacts ont été recalés avant l'écriture de `READY`.
+
+### Un objet d'anonymisation que cet incrément fait naître
+
+La section 5 **invite** le lecteur dans l'arbre committé : « la preuve est dans le dépôt, qui est
+public ». Or la relecture d'anonymisation de la ligne 14 est écrite « page par page » — pour les
+pages du site. Le balayage du tronc committé n'a rien trouvé de sensible, à **un objet près** :
+`CLAUDE.md` l. 15 publie le chemin absolu du référentiel central sur la machine du chef de projet.
+Préexistant, hors du diff, mais c'est cet incrément qui le rend consultable sur invitation. **À
+arbitrer au plus tard à la ligne 14**, et le périmètre de cette relecture est à élargir à l'arbre.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| Le prompt, examiné avant exécution, portait quatre défauts | **Corrigés avant le gel**, par le chef de projet, sur le fichier hors dépôt | Aucune branche n'existait : il n'y avait rien à amender. Le défaut est mort sans coûter d'avenant — inverse de la session 22, où l'arrêt était venu après le gel | **précédent** |
+| Deux commentaires non dictés dans `js/i18n.js`, un en HTML | **Écrits**, et validés par la revue comme geste juste | Ils disent le *pourquoi* et rien d'autre : la règle 3 était sinon un invariant sans porteur **sous les yeux du prochain lecteur du fichier**. C'est la politique de commentaires, pas un ajout | **précédent** |
+| L'énoncé de [W25] portait un comptage devenu faux | **Corrigé sur place**, énoncé d'origine conservé, attributions mesurées (`193a064`, `828033b`) | Le prompt m'envoyait dans cet énoncé. Y ajouter deux duplications neuves en laissant à côté un comptage faux de deux unités aurait été de la dette silencieuse | **précédent** |
+| Deux renvois du fil déjà périmés avant l'incrément | **Non corrigés**, signalés, partent en dette | L'ÉTAPE 5 réserve au chef de projet les gestes sur le fil qu'elle ne nomme pas. Ils se corrigent d'un seul geste | cas d'espèce |
+| Deux artefacts de handoff rendus faux par la revue | **Recalés avant `READY`**, sans toucher au code | La règle d'arrêt porte sur le code, pas sur le compte rendu. `.pipeline/` n'est pas commité : le `commit` de `review.json` reste valide. Un artefact faux lu par Cowork vaut une réserve perdue | **précédent** |
+| Niveau de bump | **Patch** 0.1.20 → 0.1.21, sans redemander | Règle en portée `précédent` depuis la session 12. Le défaut `feat/*` vaut minor, soit 0.2.0 ; la cible de fin de jalon est 1.0.0. **Vingt-et-unième** inscription | précédent |
+
+### Dettes qui partent ouvertes, et nommées
+
+**Sept WARN, aucun FAIL**, tous reportés à la ligne 12 ou 13 du fil :
+
+1. **`rel="noopener noreferrer"` sans porteur**, sur une surface qui triple (1 → 3 liens `_blank`).
+2. **Les quatre règles de forme** vraies aujourd'hui, gardées par rien — deux mutées, suite verte.
+3. **Le `href` de repli ne rend pas le lien atteignable** : ancres vides, aucun nom accessible sans
+   JavaScript. L'énoncé de [W5] est à recaler sur ce que le repli sauve réellement.
+4. **Deux renvois périmés du fil** (l. 225 et l. 377), à corriger d'un seul geste.
+5. **L'anonymisation à élargir à l'arbre committé**, et le chemin absolu de `CLAUDE.md` l. 15 à
+   trancher.
+6. **Une réserve reconduite plus large que son objet** — recalée dans les artefacts, inscrite ici
+   pour mémoire.
+7. **Trois liens s'ouvrent en nouvel onglet sans préavis**, contre un avant : le motif est à trancher
+   une fois à la « Mise en scène » plutôt qu'à chaque lien neuf.
+
+Le `reviewer` propose **une porte unique** (format B) qui fermerait les réserves 1, 3 et 7 d'un seul
+coup, sur `index.html`, à côté de la porte i18n-HTML qui lit déjà ce fichier — les trois mutations
+sont déjà mesurées.
+
+**La mesure sous VoiceOver reste due**, quatre objets, depuis l'incrément 9. La réserve 3 lui en
+ajoute un cinquième : ce qu'un lecteur d'écran annonce réellement sur une ancre vide.
