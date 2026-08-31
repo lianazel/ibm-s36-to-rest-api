@@ -155,7 +155,12 @@ avant de compter.
   de cette entrée était imprécise : l'exécutant a suivi l'énumération, pas la prose, et il a eu raison.
   Mesuré au livré : `role="region"` 0 → 4, `aria-labelledby` 0 → 11, 21 `id` tous distincts.
 
-- **[W20]** L'extrait du temps 3 déréférence `colonne.Value.GetType()` sans garde, et le site ne le dit
+- **[W20]** Remboursée le 31 août 2026 par l'incrément 12 : le remède inscrit ci-dessous — « une phrase
+  de légende » — est remplacé par la sous-section `section3.limites`, qui dit les trois comportements
+  (l'exception qui crie, le `DBNull` qui passe, le zéro muet) **en prose et non en légende d'extrait**,
+  et les rattache à leur cause commune, le schéma déduit de la première ligne. Énoncé d'origine
+  conservé tel quel ci-dessous.
+  L'extrait du temps 3 déréférence `colonne.Value.GetType()` sans garde, et le site ne le dit
   nulle part (revue de session 14, réserve 3 ; choix du prototype assumé dans les notes v15, pas dans le
   produit). **Énoncé corrigé le 20 août 2026 après spike C#** : l'entrée disait qu'une valeur nulle
   « lèverait une exception », ce qui ne décrit qu'un tiers du comportement réel, et pas le pire.
