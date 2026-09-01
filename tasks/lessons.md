@@ -767,3 +767,26 @@ moment de le vérifier est avant le gel » — entrée datée 2026-08-29 de `~/.
 titre local dit *quand* faire le geste, le titre global dit *ce qu'on vérifie* : c'est ce second
 énoncé qui voyage hors de ce projet. Les deux se retrouvent par l'empreinte `62ea3e5`, portée par la
 provenance de l'entrée globale.
+
+## 2026-09-01 — Un commentaire qui désigne son voisin par sa place se périme à la première insertion
+**Type** : Erreur
+**Contexte** : L'incrément 12 bis a glissé `section5.prive` entre `<p data-i18n="section5.preuve">`
+et le commentaire qui le suivait : « Le dépôt d'abord : le paragraphe `preuve` vient de l'annoncer. »
+Le commentaire est resté vrai sur le fond et faux sur la forme — « vient de » ne désigne plus le
+paragraphe qui précède. Le `reviewer` l'a relevé, [W46]. **Deuxième occurrence dans le même
+incrément, autre fichier** : le commentaire de `.boite` (`css/styles.css`) décrit un client unique
+et son tableau qui défile, alors que la classe en a deux depuis ce commit, le second sans tableau —
+[W47].
+**Erreur** : insérer entre un élément et le commentaire qui le désigne sans relire ce que ce
+commentaire dit ; et, symétriquement, ajouter un porteur à une classe dont le commentaire énumère
+ses porteurs. Dans les deux cas j'ai relu le diff, qui était juste, et pas le voisinage, qui ne
+l'était plus.
+**Correction** : un commentaire **nomme sa cible**, il ne la désigne ni par sa position
+(« ci-dessus », « vient de », « le paragraphe qui précède ») ni par un inventaire de ses clients.
+Ces deux formes portent une hypothèse sur le voisinage, et le voisinage change à chaque incrément.
+**Le geste qui va avec** : quand un incrément **insère** du contenu, la relecture porte aussi sur
+les commentaires voisins **non modifiés**. Ils sont hors du diff par construction — c'est
+exactement pourquoi ils échappent à une revue de diff, et pourquoi il a fallu un relecteur qui
+ouvre les fichiers pour les voir.
+**Applicable globalement ?** : **Oui** — la règle ne tient à aucun langage. Elle s'est manifestée
+ici en HTML et en CSS dans le même incrément, et vaut partout où du code se commente.
