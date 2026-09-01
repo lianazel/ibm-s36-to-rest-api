@@ -160,6 +160,12 @@ avant de compter.
   (l'exception qui crie, le `DBNull` qui passe, le zéro muet) **en prose et non en légende d'extrait**,
   et les rattache à leur cause commune, le schéma déduit de la première ligne. Énoncé d'origine
   conservé tel quel ci-dessous.
+  **Arbitrage de la réserve 4 rendu le 1er septembre 2026** (avenant 1) : les quatre voies passent en
+  liste et **chacune dit sa nature** — commande système sur IBM i, commande du client psql sous
+  PostgreSQL, procédure appelable depuis le code sous SQL Server, vue standard interrogeable en SQL.
+  Deux de ces quatre voies ne s'appellent pas depuis le chemin .Net que la section décrit, et la liste
+  le dit désormais au lieu de les mettre au même rang. **Aucun renvoi à la ligne 13** : la réserve est
+  close, pas reportée. La dissymétrie des quatre gloses est le contenu, elle ne s'harmonise pas.
   L'extrait du temps 3 déréférence `colonne.Value.GetType()` sans garde, et le site ne le dit
   nulle part (revue de session 14, réserve 3 ; choix du prototype assumé dans les notes v15, pas dans le
   produit). **Énoncé corrigé le 20 août 2026 après spike C#** : l'entrée disait qu'une valeur nulle
@@ -347,6 +353,9 @@ avant de compter.
   change est son statut — l'exception devient la forme normale des liens externes. Remède : trancher le
   motif **une fois** à la **ligne 13** — mention bilingue visuellement masquée ajoutée au motif, ou
   abandon de `target="_blank"` — plutôt que le reconduire à chaque lien neuf.
+  **Le compte passe de trois à quatre le 1er septembre 2026** (avenant 1 de l'incrément 12, le lien
+  vers la fabrique du modèle sous la boîte à outils). Le motif reste à trancher une fois à la ligne 13 :
+  chaque lien neuf le reconduit, et c'est précisément ce que la dette dit qu'il ne faut pas faire.
 
 - **Points de vigilance recopiés de `.pipeline/` avant qu'il ne s'écrase** (sessions 14 et 15) :
   `attribut?.Nom` rend une valeur nulle pour une propriété sans attribut, comportement du prototype

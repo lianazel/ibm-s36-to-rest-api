@@ -237,3 +237,184 @@ Lance chaque commande, ne suppose aucun résultat, y compris ceux qui te paraiss
 - **L'écart `CDEMST`** (troisième trou) : se tranche à la ligne 13 ou 14 par arbitrage inscrit au fil.
 - **Les dettes [W33]-[W39]** et celles des sessions 21 et 22 : lignes 13 et 14.
 - **L'état de la ligne 12 au fil** : geste manuel du chef de projet à l'atterrissage.
+
+---
+
+## Avenant 1 — 31 août 2026, après la passe iPhone 14 et la revue SHIP
+
+**Motif.** Trois demandes du chef de projet à la lecture du rendu, plus deux réserves de la revue
+(`review.json` sur `790e6ca`, réserves 4 et 5) qui lui revenaient. Un seul avenant, un seul commit :
+un avenant après revue coûte une revue entière, on n'en paie qu'une.
+
+**Le READY se retire d'abord** (`.pipeline/STATUS.md`), puis tu travailles, puis tu relances le
+`reviewer` sur le nouveau commit et tu réécris READY en dernier.
+
+### A — Les quatre voies passent en liste, et sortent du dictionnaire
+
+`section3.limites.parade` est **réécrite sur place**, amputée de son énumération, qui devient une
+liste sous le paragraphe. Motif imposé, déjà en place dans le site : `<ul class="arguments"
+role="list">` (cf. `index.html` l. 234) et, dans chaque `li`, le nom de la commande **en dur** dans
+un `<code>`, suivi d'un `<span data-i18n>` pour la glose — exactement le motif de la boîte à outils
+(`<p><code>Dictionary&lt;&gt;</code> <span data-i18n="section3.boite.hors1"></span></p>`, l. 210).
+
+**Trois problèmes se ferment d'un coup, et c'est le but** : les noms de commande ne se traduisent
+pas, donc ils quittent le dictionnaire ; la barre oblique inverse de `\d` **disparaît des valeurs
+JS** — la réserve 2 de la revue (« l'échappement n'a aucun porteur ») devient sans objet ; et chaque
+voie peut enfin dire **sa nature**, ce que la réserve 4 demandait.
+
+Nouvelle valeur FR de `section3.limites.parade` :
+
+`La parade est connue, et elle vaut partout : demander la description à la base plutôt qu'à la donnée. Chaque base sait décrire ses tables, et rend le type et la nullabilité de chaque colonne, table vide ou pleine :`
+
+Nouvelle valeur EN :
+
+`The remedy is known, and it holds everywhere: ask the database for the description rather than the data. Every database can describe its tables, returning the type and nullability of every column, whether the table is empty or full:`
+
+Puis, **après** la liste, un dernier `p`, `section3.limites.reste`, qui reprend la fin de l'ancienne
+valeur — FR :
+
+`Puis donner aux propriétés le droit d'être absentes, pour qu'un NULL reste un NULL et ne devienne jamais un zéro. Le prototype ne l'a pas fait. C'est une limite connue, pas une limite cachée.`
+
+EN :
+
+`Then give the properties the right to be absent, so that a NULL stays a NULL and never turns into a zero. The prototype did not do it. That is a known limit, not a hidden one.`
+
+**Les quatre gloses** — groupe `section3.limites.voies`, clés `ibmi`, `postgres`, `sqlserver`,
+`standard`, dans cet ordre. FR :
+
+- `ibmi` : `sur IBM i, la vue catalogue de Db2 for i, interrogeable en SQL comme une table — là où la commande système DSPFFD demande un fichier de sortie pour être exploitable`
+- `postgres` : `sous PostgreSQL, commande du client psql`
+- `sqlserver` : `sous SQL Server, procédure appelable depuis le code`
+- `standard` : `la vue standard, que la plupart des bases exposent, interrogeable en SQL`
+
+EN :
+
+- `ibmi` : `on IBM i, the Db2 for i catalog view, queried in SQL like any table — where the DSPFFD system command needs an output file before a program can use it`
+- `postgres` : `in PostgreSQL, a psql client command`
+- `sqlserver` : `in SQL Server, a stored procedure callable from code`
+- `standard` : `the standard view, exposed by most databases, queried in SQL`
+
+**La nature dite est l'arbitrage de la réserve 4.** Décision du chef de projet du 31 août 2026 :
+côté IBM i, la voie publiée est la **vue catalogue interrogeable en SQL**, `QSYS2.SYSCOLUMNS`, et non
+la commande `DSPFFD` — parce que la section décrit un chemin de code, et qu'une commande dont la
+sortie va à l'écran n'automatise rien. Vérifié à la documentation IBM : les vues catalogue de
+Db2 for i vivent dans `QSYS2` et s'interrogent « comme n'importe quelle autre table ». Il ne reste
+donc qu'**une** voie non appelable depuis du code, `\d`, et la liste le dit. **Ne réécris pas ces
+gloses** pour les « harmoniser » : leur dissymétrie est le contenu.
+
+HTML, entre le `p` de la parade et le `p` de `reste` :
+
+```html
+      <ul class="arguments" role="list">
+        <li><code>QSYS2.SYSCOLUMNS</code> — <span data-i18n="section3.limites.voies.ibmi"></span></li>
+        <li><code>\d</code> — <span data-i18n="section3.limites.voies.postgres"></span></li>
+        <li><code>sp_help</code> — <span data-i18n="section3.limites.voies.sqlserver"></span></li>
+        <li><code>INFORMATION_SCHEMA.COLUMNS</code> — <span data-i18n="section3.limites.voies.standard"></span></li>
+      </ul>
+```
+
+### B — Une règle CSS, et une seule (dérogation explicite à l'ÉTAPE 4)
+
+L'ÉTAPE 4 interdisait toute règle CSS ; cet avenant en autorise **une**, et rien d'autre :
+
+```css
+.arguments code {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+```
+
+Motif : le contrat de design promet le rendu Plex Mono des noms de commandes en ligne depuis la
+session 5 et ne l'a jamais tenu ; ces quatre noms sont son premier porteur. **Aucune couleur** n'est
+touchée, donc aucune ligne de contraste n'est due. Si tu penses qu'une seconde règle est nécessaire,
+ARRÊTE-TOI et signale.
+
+### C — La portée de la réserve, dans `contraintes` (réserve 5)
+
+Dans `section3.limites.contraintes`, **cinq mots ajoutés** pour que la réserve couvre aussi la
+phrase du piège. FR, la phrase devient :
+
+`Un piège s'y ajoute, plus discret, constaté de la même façon : sur une ligne suivante, un NULL dans une colonne numérique devient zéro sans un mot.`
+
+EN :
+
+`One trap comes on top, and it is quieter, observed the same way: on a later row, a NULL in a numeric column silently becomes zero.`
+
+Le reste de la valeur ne bouge pas.
+
+### D — Le lien vers la fabrique, sous la boîte à outils
+
+Trois clés neuves dans le groupe `section3.renversement`, après `p3` : `fabrique`, `fabriqueLien`,
+`fabriqueUrl`. FR :
+
+- `fabrique` : `L'extrait ci-dessus est recréé pour la lecture. Le mécanisme complet, lui, est public : une solution .Net que j'ai publiée, où la classe est fabriquée par réflexion, propriété par propriété.`
+- `fabriqueLien` : `La fabrique du modèle en C#, sur GitHub`
+- `fabriqueUrl` : `https://github.com/lianazel/API.Response.Dynamic.Model/blob/master/API.Response.Dynamic.Model.Framework/Services/ApiDynamicModelOnDemand.cs`
+
+EN :
+
+- `fabrique` : `The extract above is recreated for reading. The full mechanism is public: a .Net solution I published, where the class is built by reflection, property by property.`
+- `fabriqueLien` : `The model factory in C#, on GitHub`
+- `fabriqueUrl` : la **même adresse** que le français — le dépôt n'a pas de version anglaise, comme
+  `section5.depotUrl`. Ce n'est pas une erreur de parité.
+
+HTML : **entre `</details>` (fin de la boîte à outils) et `<p data-i18n="section3.renversement.p3">`**
+(`index.html` l. 211-213). L'ordre compte : `p3` annonce ce qui « vient juste après », c'est-à-dire
+le bloc `etape` ; le lien s'insère **avant** `p3`, il ne s'intercale pas entre `p3` et `etape`.
+
+Deux `p` : la prose, puis le lien seul, au motif d'« À propos » et de la section 5 — `target="_blank"`,
+`rel="noopener noreferrer"`, `data-i18n` pour le texte, `data-i18n-attr="href:…"` pour l'adresse, et
+le `href` de repli en dur.
+
+**Le libellé ne dit pas « pour les curieux »** : la formule est déjà celle du `summary` juste
+au-dessus, à trois lignes de là.
+
+### E — Le fil
+
+Ajouter à l'entrée **[W39]** (les liens en nouvel onglet) : le compte passe de **trois à quatre**
+liens `_blank` du fait de cet avenant ; le motif reste à trancher une fois à la ligne 13.
+
+Inscrire, à la suite de l'entrée [W20] déjà remboursée, une ligne : **l'arbitrage de la réserve 4
+est rendu** — la nature de chaque voie est dite dans la liste, pas de renvoi à la ligne 13.
+
+### F — Preuves de l'avenant (recalées ; mesurées sur la branche le 31 août 2026)
+
+Bases **avant** l'avenant, mesurées : `data-i18n="` **223** · `data-i18n-attr="` **10** ·
+`<h3` **19** · `target="_blank"` **3** · `' je '` dans `js/i18n.js` **7** ·
+`data-i18n="section3.limites` **5**.
+
+1. `grep -o 'data-i18n="' index.html | wc -l` = **229** (223 + 4 gloses + `fabrique` + `fabriqueLien`).
+2. `grep -o 'data-i18n="section3.limites' index.html | wc -l` = **10** (5 + 4 gloses + `reste`).
+3. `grep -o 'data-i18n-attr="' index.html | wc -l` = **11** (10 + 1).
+4. `grep -o 'target="_blank"' index.html | wc -l` = **4** (3 + 1).
+5. `grep -o '<h3' index.html | wc -l` = **19**, **inchangé** : l'avenant n'ajoute aucun titre.
+6. `grep -c 'DSPFFD' js/i18n.js` = **0** et `grep -c 'sp_help' js/i18n.js` = **0** — les noms de
+   commande ont quitté le dictionnaire. **Si tu lis autre chose : ARRÊTE-TOI.**
+7. `grep -c '\\\\d' js/i18n.js` = **0** — plus aucune barre oblique inverse échappée dans les valeurs
+   (la réserve 2 de la revue devient sans objet). La preuve 6 de l'ÉTAPE 6, qui la mesurait, est
+   **caduque** : ne la rejoue pas, dis-le dans `test-results.md`.
+8. `grep -c '<code>QSYS2.SYSCOLUMNS</code>' index.html` = **1** · `grep -c 'DSPFFD' index.html` = **0**
+   (le nom de la commande ne vit que dans la glose traduite, pas dans le HTML) · `grep -c 'ApiDynamicModelOnDemand.cs' index.html` = **1**
+   (le repli en dur) · `grep -c 'ApiDynamicModelOnDemand.cs' js/i18n.js` = **2** (FR et EN, même adresse).
+9. `grep -o ' je ' js/i18n.js | wc -l` = **7**, **inchangé** — « que j'ai publiée » ne porte pas le
+   mot « je ». **Si tu lis autre chose : ARRÊTE-TOI.**
+10. `grep -c 'font-weight: 600' css/styles.css` : une occurrence **de plus** qu'avant l'avenant
+    (mesure la valeur avant, ne la suppose pas). `git diff --stat` sur `css/styles.css` : **une seule
+    règle ajoutée**, aucune modifiée.
+11. `npm test` : **356/356**.
+12. `git diff --stat` ne touche que `js/i18n.js`, `index.html`, `css/styles.css`, `tasks/ROADMAP.md`
+    et ce prompt.
+
+### G — Hors périmètre de l'avenant
+
+- **Le gras sur « IBM i, SQL Server, PostgreSQL »** dans `section3.limites.cause` : il faudrait un
+  balisage dans les valeurs, que `applyI18n` ne sait pas rendre (`textContent`, mesuré). Écarté :
+  la liste porte désormais la mise en valeur. Le mécanisme, s'il est voulu un jour, est un incrément
+  d'outillage.
+- **Toute autre règle CSS**, toute couleur, tout jeton.
+- **Les clés de la section 5 et le motif de lien lui-même** : [W39], ligne 13.
+- **Le dépôt lié** (son contenu, ses fichiers `.snk`) : il n'appartient pas à ce dépôt-ci.
+- **ANONYMISATION P1, rappel exprès.** Le chef de projet a montré une requête réelle à l'appui de cet
+  arbitrage. **Rien n'en est repris** : aucun nom de table, de bibliothèque, de colonne, aucune adresse
+  IP, aucune capture. Seuls le **nom qualifié de la vue système** et la nature de la voie entrent au
+  livrable. Si tu trouves dans ce prompt un identifiant qui ressemble à un objet réel, ARRÊTE-TOI.
