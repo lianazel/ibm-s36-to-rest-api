@@ -80,8 +80,9 @@ jeton IA, aucun fond sombre). L'austérité n'est pas un défaut de goût, c'est
 
 La maquette validée fait **six choses, et rien d'autre** :
 
-- **A.** Un **chapeau de registre** au-dessus de chaque titre de section : une ligne en Plex Mono,
-  capitales espacées, précédée d'un court filet à la couleur du registre. Le registre est une
+- **A.** Un **chapeau de registre** au-dessus de chaque titre de section : une ligne en Plex Mono
+  espacé, précédée d'un court filet à la couleur du registre. *(Capitalisée à l'origine ; la
+  capitalisation est retirée par l'avenant 1 — elle rendait « IBM i » en « IBM I ».)* Le registre est une
   **information** du contrat (dans quel âge le lecteur se trouve), pas un décor.
 - **B.** L'**accroche** en bandeau : fond bleu très clair (celui des tableaux de l'annexe), filet gauche
   épais bleu S/36 — le motif des cadres de code, repris. Largeur : celle de la colonne de lecture.
@@ -405,7 +406,7 @@ Lance chaque commande. Les preuves en **écart** se calculent sur les **(base)**
   sont pas numérotées dans le texte, un numéro serait un décor.
 - **Tout second usage du sombre**, y compris un thème sombre du site : le contrat ne le permet pas.
 - **La mesure VoiceOver** (six objets) : le chapeau et le bloc IA y ajoutent deux objets à noter dans
-  `changes.md` — ce qu'un lecteur d'écran fait d'un `p` en capitales espacées avant un titre, et du
+  `changes.md` — ce qu'un lecteur d'écran fait d'un `p` en Plex Mono espacé avant un titre, et du
   `pre` région du bloc IA. Elle attend un humain ; ce n'est pas à toi de la faire.
 - **L'écart `CDEMST`**, **le mini-langage**, **les dettes de l'incrément 9** : intouchés.
 - **L'état de la ligne au fil** : geste manuel du chef de projet à l'ouverture suivante.
@@ -468,4 +469,69 @@ le chapeau *nomme* ; la feuille dit comment il se *rend*.
    ligne**, et les six largeurs **identiques** à celles mesurées avant le retrait. Écris les deux
    séries.
 5. `npm test` : **356/356**, tests intouchés (la garde de `section4` reste à 134).
+6. `git diff --stat` ne touche que `css/styles.css` et ce prompt.
+
+## Avenant 2 — 1er septembre 2026, groupé, le dernier — machine à l'arrêt
+
+**`READY` retiré avant d'écrire une ligne.** La revue `SHIP` sur `675609e` est sciemment invalidée :
+le chef de projet en paie une troisième passe. Ordre imposé, identique à l'avenant 1 : retrait du
+`READY`, le travail, le `reviewer` sur le nouveau commit, `READY` réécrit en dernier.
+
+### A — L'étiquette de voix perd sa capitalisation, comme le chapeau
+
+**Motif.** `text-transform: uppercase` sur `.dialogue .voix` capitalise `prompts/v0.1` en
+`PROMPTS/V0.1` — **un chemin réel, dont la casse compte** — et `git log` en `GIT LOG`, **qui n'est
+pas une commande**. Or c'est le registre dont le contrat de design exige des artefacts **« cités mot
+pour mot »**. La faute est celle de l'avenant 1, une règle plus bas : la feuille réécrivait ce que la
+citation disait.
+
+**Le geste, une ligne** : retirer `text-transform: uppercase;` de `.dialogue .voix`. Après quoi la
+feuille ne porte **plus aucun** `text-transform`.
+
+**Aucune valeur du dictionnaire ne change** — même arbitrage qu'à l'avenant 1 : la casse est de la
+donnée, pas du style.
+
+**Même mesure qu'à l'avenant 1** : `.voix` est en Plex Mono, à chasse fixe. Les largeurs sont
+attendues **identiques** avant et après. Remesure et écris ce que tu mesures ; vérifie en particulier
+que le `pre.agent` ne change pas de largeur de défilement.
+
+### B — Les deux mentions du prompt, recalées pour de bon
+
+L'avenant 1 §B3 **annonçait** le recalage de la mention VoiceOver sans jamais toucher la ligne, et
+n'avait pas vu la seconde. Les deux sont réécrites **en place**, cette fois :
+
+1. **l. 84**, « Contexte et périmètre », définition du livrable A : « une ligne en Plex Mono,
+   **capitales espacées** » devient « une ligne en Plex Mono **espacé** », suivie d'une incise qui
+   trace la formulation révoquée et son motif.
+2. **l. 408**, hors périmètre, mesure VoiceOver : « un `p` en **capitales espacées** avant un titre »
+   devient « un `p` en **Plex Mono espacé** avant un titre ».
+
+C'est la règle du dépôt public : un prompt committé décrit ce que la page publiée fait, ou il ment
+aux deux.
+
+**La mesure porte sur le corps du prompt, pas sur les avenants** : ceux-ci **citent** la formulation
+révoquée, c'est leur travail. Compter tout le fichier ferait mordre la garde sur la trace elle-même —
+la faute de la preuve D1 de l'avenant 1, deux fois de suite dans le même incrément.
+
+### C — Ce que cet avenant ne touche pas
+
+- **Le chapeau de la section 3 à 320 px**, qui tient sur deux lignes dans les deux langues : le
+  remède toucherait une **valeur arbitrée**, donc un arbitrage de contenu. **Part au fil comme
+  dette**, ne se corrige pas ici.
+- **« .Net »**, les six valeurs de chapeau, les cinq clés du bloc à deux voix : intouchées.
+- Les 11 réserves ouvertes des deux revues précédentes, et tout le hors-périmètre du prompt.
+
+### D — Preuves de l'avenant 2
+
+1. `grep -c 'text-transform' css/styles.css` = **0**. La feuille n'en porte plus aucune.
+2. Corps du prompt, avenants exclus :
+   `sed -n '1,/^## Avenant 1/p' prompts/v0.1/EVOL_habillage_v1.md | grep -c 'capitales espacées'`
+   = **0** (la mesure d'avant vaut 2 : l. 84 et l. 408). Sur le fichier entier le compte n'est **pas**
+   nul, et ne doit pas l'être : les avenants citent ce qu'ils révoquent.
+3. `git diff` sur `js/i18n.js` et sur `index.html` depuis `675609e` = **vide** l'un et l'autre ·
+   `grep -c 'voix' js/i18n.js` inchangé (mesure l'avant).
+4. **Au navigateur** : les deux étiquettes `.voix` rendent `Chef de projet · prompts/v0.1` et
+   `Claude Code · git log` dans leur casse d'origine ; leurs largeurs et celle de défilement du
+   `pre.agent` sont **identiques** à l'avant. Écris les deux séries.
+5. `npm test` : **356/356**, tests intouchés.
 6. `git diff --stat` ne touche que `css/styles.css` et ce prompt.

@@ -467,6 +467,11 @@ main h3 + .sous-titre {
   line-height: 1.5;
 }
 
+/* Pas de capitalisation ici non plus : l'étiquette de voix porte un chemin réel,
+   `prompts/v0.1`, et un nom de commande, `git log`. La forcer rendait un chemin
+   dont la casse compte et une commande qui n'existe pas (avenant 2). C'est le
+   registre dont le contrat exige des artefacts « cités mot pour mot » : la
+   feuille n'a pas à réécrire ce que la citation dit. */
 .dialogue .voix {
   display: block;
   margin-bottom: 0.5rem;
@@ -474,7 +479,6 @@ main h3 + .sous-titre {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 /* Sur le bloc sombre, le violet des jetons ne passerait pas : la voix y prend sa
