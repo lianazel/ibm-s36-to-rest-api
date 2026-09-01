@@ -630,9 +630,11 @@ describe("avenant 2 : ce que la page affirme doit être vrai", () => {
     // 94 au sortir de l'incrément 6, plus les 23 clés du second sous-incrément,
     // plus les 7 du confort de saisie : six `champ.*` (dont `attente`, gelée à
     // l'avenant 3) et `exemples.donneesModifiees` ; plus les 9 de l'avenant 5 :
-    // les cinq `refus.forme.fautes`, et les couples `inacheve` et `colonneVide`.
-    expect(fr).toHaveLength(133);
-    expect(en).toHaveLength(133);
+    // les cinq `refus.forme.fautes`, et les couples `inacheve` et `colonneVide` ;
+    // plus `section4.chapeau`, le chapeau de registre posé par l'incrément
+    // « Habillage » — une clé de chaque côté, la parité inchangée.
+    expect(fr).toHaveLength(134);
+    expect(en).toHaveLength(134);
     expect(fr).toEqual(en);
   });
 });
