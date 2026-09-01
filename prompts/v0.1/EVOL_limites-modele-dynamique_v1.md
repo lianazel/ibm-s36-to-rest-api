@@ -491,3 +491,65 @@ Inscrire aux **« Décisions actées »**, sous la formulation du chef de projet
 - **Toute règle CSS**, y compris pour le lien dans le bloc — il hérite du style des liens du site.
 - **`section3.renversement.p3`** et le bloc `etape` : intouchés, leurs raccords tiennent.
 - **La sous-section « limites »** : elle est atterrie telle quelle, cet avenant ne la touche pas.
+
+---
+
+## Avenant 3 — 1er septembre 2026, après la passe iPhone 14, machine à l'arrêt
+
+**Annoncé avant d'être écrit, `READY` posé et l'agent en attente.** Trois retouches du chef de projet
+à la lecture du rendu. **Le READY se retire d'abord**, puis tu travailles, puis tu relances le
+`reviewer` sur le nouveau commit et tu réécris READY en dernier. La revue `SHIP` sur `62771aa` est
+sciemment invalidée : le chef de projet en paie une troisième passe.
+
+### A — La glose de `\d` dit où la commande s'exécute
+
+**Motif, et il vient d'une erreur réelle.** Le chef de projet a testé `\d` dans **pgAdmin** et a reçu
+`syntax error`. Deux causes : pgAdmin envoie la ligne au **serveur** comme du SQL, alors que `\d` est
+interprétée par le **client psql** lui-même, et la barre oblique inverse se confond à l'œil avec la
+barre normale. La glose actuelle dit « commande du client psql » — exact, mais le lecteur peut faire
+exactement la même erreur. Elle se précise.
+
+- FR, `section3.limites.voies.postgres` : `sous PostgreSQL, commande du client psql — elle s'exécute dans psql, pas dans un éditeur SQL comme pgAdmin, qui l'enverrait au serveur`
+- EN, `section3.limites.voies.postgres` : `in PostgreSQL, a psql client command — it runs inside psql, not in a SQL editor such as pgAdmin, which would send it to the server`
+
+**Les trois autres gloses ne bougent pas.** N'« harmonise » pas leur longueur : celle-ci est plus
+longue parce qu'elle évite un faux pas mesuré, les autres n'en ont pas besoin.
+
+### B — Les quatre tirets deviennent des flèches
+
+Dans `index.html`, la liste des voies (l. 233-236 à l'état d'après l'avenant 2) sépare le `<code>` de
+sa glose par un tiret cadratin `—`. Les **quatre** deviennent une **flèche vers la droite `→`**
+(U+2192), au même emplacement, avec les mêmes espaces autour.
+
+Les tirets sont **en dur dans le HTML**, hors dictionnaire : un seul geste vaut pour les deux langues.
+Ne touche à **aucun autre** `—` de la page — la glose IBM i en porte un à l'intérieur de sa valeur
+(« comme une table — là où la commande système DSPFFD… »), et celui-là reste un tiret.
+
+### C — La prose du lien dit que le code est commenté en français
+
+`section3.renversement.fabrique` est **réécrite sur place**, une parenthèse ajoutée en fin de valeur :
+
+- FR : `Ces neuf classes ne sont pas une théorie : elles travaillent ensemble dans une solution .Net que j'ai publiée, où la fabrique est lisible en entier (le code est commenté en français).`
+- EN : `These nine classes are not theory: they work together in a .Net solution I published, where the whole factory can be read (the code is commented in French).`
+
+`fabriqueLien` et `fabriqueUrl` ne changent pas.
+
+### D — Preuves de l'avenant 3
+
+1. `grep -c '</code> → <span' index.html` = **4** · `grep -c '</code> — <span' index.html` = **0**.
+   **Si tu lis autre chose : ARRÊTE-TOI.**
+2. `grep -c 'pgAdmin' js/i18n.js` = **2** (une par langue).
+3. `grep -c 'commenté en français' js/i18n.js` = **1** · `grep -c 'commented in French' js/i18n.js` = **1**.
+4. `grep -o 'data-i18n="' index.html | wc -l` : **inchangé** — aucune clé ajoutée ni retirée
+   (mesure la valeur avant, ne la suppose pas).
+5. `grep -c 'DSPFFD' js/i18n.js` = **2**, inchangé : la glose IBM i n'est pas touchée.
+6. `grep -o ' je ' js/i18n.js | wc -l` : **inchangé** (mesure avant ; la parenthèse n'ajoute pas de « je »).
+7. `npm test` : **356/356**.
+8. `git diff --stat` ne touche que `js/i18n.js`, `index.html` et ce prompt.
+
+### E — Hors périmètre
+
+- **Les gloses `ibmi`, `sqlserver`, `standard`** : intouchées.
+- **Toute règle CSS**, y compris pour la flèche.
+- **Le libellé et l'URL du lien**, le motif du lien, sa place dans le bloc dépliable.
+- **La sous-section « limites » et ses quatre paragraphes**, hors la valeur nommée en §A.

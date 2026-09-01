@@ -137,7 +137,7 @@ public Dictionary<string, string> ChargerDictionnaire(Type modele)
         p1: "Les modèles dynamiques, en revanche, je ne les connaissais pas avant ce projet. Alors j'ai renversé le problème. Si le travail consiste à décrire des colonnes une par une, ce n'est pas un travail d'humain. C'est la requête qui porte les noms métier, en renommant ses colonnes au passage, et c'est la machine qui fabrique la classe correspondante.",
         p2: "Le mécanisme tient en quelques gestes. La requête n'est pas connue du code avant l'appel. Le programme regarde les colonnes qu'elle renvoie, relève leur nom et leur type, et construit une classe pendant qu'il tourne, une seule fois. Puis il parcourt les lignes et verse chaque valeur dans une instance de cette classe. Le modèle est un moule : fabriqué une fois, chaque ligne y est coulée. Le moule est jeté quand l'appel se termine, et rien n'en est conservé. Une autre requête au prochain appel donne un autre moule, sans qu'une ligne de code ait changé.",
         p3: "À ce stade, je cherchais une seule réponse : est-ce que l'idée tient. Ce qu'un appelant a le droit de demander est une question de produit, pas de prototype, et elle vient juste après.",
-        fabrique: "Ces neuf classes ne sont pas une théorie : elles travaillent ensemble dans une solution .Net que j'ai publiée, où la fabrique est lisible en entier.",
+        fabrique: "Ces neuf classes ne sont pas une théorie : elles travaillent ensemble dans une solution .Net que j'ai publiée, où la fabrique est lisible en entier (le code est commenté en français).",
         fabriqueLien: "La fabrique du modèle en C#, sur GitHub",
         fabriqueUrl: "https://github.com/lianazel/API.Response.Dynamic.Model/blob/master/API.Response.Dynamic.Model.Framework/Services/ApiDynamicModelOnDemand.cs",
         code3: {
@@ -210,7 +210,7 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
         // et leur nature diffère d'une base à l'autre — c'est ce que dit chaque glose.
         voies: {
           ibmi: "sur IBM i, la vue catalogue de Db2 for i, interrogeable en SQL comme une table — là où la commande système DSPFFD demande un fichier de sortie pour être exploitable",
-          postgres: "sous PostgreSQL, commande du client psql",
+          postgres: "sous PostgreSQL, commande du client psql — elle s'exécute dans psql, pas dans un éditeur SQL comme pgAdmin, qui l'enverrait au serveur",
           sqlserver: "sous SQL Server, procédure appelable depuis le code",
           standard: "la vue standard, que la plupart des bases exposent, interrogeable en SQL",
         },
@@ -741,7 +741,7 @@ public Dictionary<string, string> LoadDictionary(Type model)
         p1: "Dynamic models, though, were new to me when I started this. So I turned the problem around. If the work consists of describing columns one by one, it is not work for a human. The query carries the business names, renaming its columns as it goes, and the machine builds the matching class.",
         p2: "The mechanism comes down to a few moves. The query is unknown to the code until the call. The program looks at the columns it returns, notes their name and their type, and builds a class while it runs, once only. Then it walks the rows and pours each value into an instance of that class. The model is a mould: cast once, every row is poured into it. The mould is thrown away when the call ends, and nothing is kept. Another query on the next call gives another mould, without a single line of code having changed.",
         p3: "At that stage I was after one answer: does the idea hold. What a caller is allowed to ask for is a product question, not a prototype one, and it comes right after.",
-        fabrique: "These nine classes are not theory: they work together in a .Net solution I published, where the whole factory can be read.",
+        fabrique: "These nine classes are not theory: they work together in a .Net solution I published, where the whole factory can be read (the code is commented in French).",
         fabriqueLien: "The model factory in C#, on GitHub",
         // Même adresse que le français : le dépôt n'a pas de version anglaise, comme section5.depotUrl.
         fabriqueUrl: "https://github.com/lianazel/API.Response.Dynamic.Model/blob/master/API.Response.Dynamic.Model.Framework/Services/ApiDynamicModelOnDemand.cs",
@@ -813,7 +813,7 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
         parade: "The remedy is known, and it holds everywhere: ask the database for the description rather than the data. Every database can describe its tables, returning the type and nullability of every column, whether the table is empty or full:",
         voies: {
           ibmi: "on IBM i, the Db2 for i catalog view, queried in SQL like any table — where the DSPFFD system command needs an output file before a program can use it",
-          postgres: "in PostgreSQL, a psql client command",
+          postgres: "in PostgreSQL, a psql client command — it runs inside psql, not in a SQL editor such as pgAdmin, which would send it to the server",
           sqlserver: "in SQL Server, a stored procedure callable from code",
           standard: "the standard view, exposed by most databases, queried in SQL",
         },
