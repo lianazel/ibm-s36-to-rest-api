@@ -209,7 +209,7 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
         // Les noms de commande vivent en dur dans le HTML : ils ne se traduisent pas,
         // et leur nature diffère d'une base à l'autre — c'est ce que dit chaque glose.
         voies: {
-          ibmi: "sur IBM i, commande système, avec sortie dans un fichier pour être exploitable par un programme",
+          ibmi: "sur IBM i, la vue catalogue de Db2 for i, interrogeable en SQL comme une table — là où la commande système DSPFFD demande un fichier de sortie pour être exploitable",
           postgres: "sous PostgreSQL, commande du client psql",
           sqlserver: "sous SQL Server, procédure appelable depuis le code",
           standard: "la vue standard, que la plupart des bases exposent, interrogeable en SQL",
@@ -812,7 +812,7 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
         amont: "There is upstream work too, and it comes from the query itself. Asking the database about a table means knowing which one: in a SELECT that targets a single table, it can be read straight from the query; as soon as the query carries joins, there are several tables, and they must be extracted before anything can be asked. That work belongs to a dedicated class, one that reads the query and returns the list of tables to describe.",
         parade: "The remedy is known, and it holds everywhere: ask the database for the description rather than the data. Every database can describe its tables, returning the type and nullability of every column, whether the table is empty or full:",
         voies: {
-          ibmi: "on IBM i, a system command, writing to an output file so a program can use it",
+          ibmi: "on IBM i, the Db2 for i catalog view, queried in SQL like any table — where the DSPFFD system command needs an output file before a program can use it",
           postgres: "in PostgreSQL, a psql client command",
           sqlserver: "in SQL Server, a stored procedure callable from code",
           standard: "the standard view, exposed by most databases, queried in SQL",

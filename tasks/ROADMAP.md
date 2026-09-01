@@ -160,12 +160,14 @@ avant de compter.
   (l'exception qui crie, le `DBNull` qui passe, le zéro muet) **en prose et non en légende d'extrait**,
   et les rattache à leur cause commune, le schéma déduit de la première ligne. Énoncé d'origine
   conservé tel quel ci-dessous.
-  **Arbitrage de la réserve 4 rendu le 1er septembre 2026** (avenant 1) : les quatre voies passent en
-  liste et **chacune dit sa nature** — commande système sur IBM i, commande du client psql sous
-  PostgreSQL, procédure appelable depuis le code sous SQL Server, vue standard interrogeable en SQL.
-  Deux de ces quatre voies ne s'appellent pas depuis le chemin .Net que la section décrit, et la liste
-  le dit désormais au lieu de les mettre au même rang. **Aucun renvoi à la ligne 13** : la réserve est
-  close, pas reportée. La dissymétrie des quatre gloses est le contenu, elle ne s'harmonise pas.
+  **Arbitrage de la réserve 4 rendu le 31 août 2026 par le chef de projet, inscrit le 1er septembre**
+  (avenant 1) : les quatre voies passent en liste et **chacune dit sa nature**. Côté IBM i, la voie
+  publiée est la **vue catalogue interrogeable en SQL**, `QSYS2.SYSCOLUMNS`, et **non** la commande
+  `DSPFFD` — la section décrit un chemin de code, et une commande dont la sortie va à l'écran
+  n'automatise rien ; la glose nomme quand même `DSPFFD` pour dire ce qu'elle coûte. Vérifié à la
+  documentation IBM : les vues catalogue de Db2 for i vivent dans `QSYS2`. **Il ne reste donc qu'une**
+  voie non appelable depuis du code, `\d` sous PostgreSQL, et la liste le dit. **Aucun renvoi à la
+  ligne 13** : la réserve est close, pas reportée. La dissymétrie des gloses est le contenu.
   L'extrait du temps 3 déréférence `colonne.Value.GetType()` sans garde, et le site ne le dit
   nulle part (revue de session 14, réserve 3 ; choix du prototype assumé dans les notes v15, pas dans le
   produit). **Énoncé corrigé le 20 août 2026 après spike C#** : l'entrée disait qu'une valeur nulle
