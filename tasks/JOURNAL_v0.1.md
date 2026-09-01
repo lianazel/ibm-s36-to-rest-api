@@ -1908,3 +1908,79 @@ déplacement du lien, pas levés.
 
 **La mesure sous VoiceOver reste due**, cinq objets depuis l'incrément 9, et [W42] lui en ajoute un
 sixième : ce qu'un lecteur d'écran annonce sur la flèche.
+
+-----
+
+## Session 25 — 1er septembre 2026 — EVOL `deploiement-et-referentiel` (merge `ce8981d`, 0.1.22 → 0.1.23)
+
+**Ligne 12 bis du fil**, ouverte le jour même. Premier des trois prompts nés de la relecture de la
+maquette d'habillage par le chef de projet : deux constats de **contenu**, sortis de l'habillage pour
+ne pas mélanger les genres. La section 3 s'arrêtait au noyau opérationnel et à « il restait une
+étape » — l'étape en question étant la requête enregistrée, un lecteur pouvait conclure que rien
+n'avait quitté la machine de développement. Elle dit maintenant, **dans un bloc dépliable**, que
+l'API a été déployée via Web Deploy sur un serveur IIS et interrogée depuis l'extérieur, et **par
+quel mécanisme** la connexion à l'IBM i trouve ses tables : un profil dédié dont le programme
+initial, un CL, charge la liste de bibliothèques — ce qui est la raison pour laquelle le code n'en
+nomme aucune. Et la section 5, qui invitait dans le dépôt du site en le disant public, place
+désormais la frontière : le référentiel de la méthode, lui, reste privé.
+
+**Un prompt, deux commits, une revue, aucun avenant.** Trois clés par langue, un `details.boite` et
+un `p`. Aucune règle CSS : `.boite p:last-child` existait déjà et couvrait le bloc neuf — vérifié par
+lecture avant de ne rien écrire, comme l'ÉTAPE 4 du prompt le prescrivait.
+
+### Les douze attendus du prompt se sont tous vérifiés au premier coup
+
+C'est le fait notable de la session, et il se lit contre celui de la précédente. **[W40]** disait la
+cause des quatre preuves périmées de la session 24 : un attendu dérivé à la main d'une *idée* du
+livrable, jamais recalculé sur son *texte*. Ici, les douze mesures de l'ÉTAPE 6 — 233, 11, 19, 62,
+5, 2, les deux ordres, les deux triplets du dictionnaire, les trois invariants — sont sorties justes
+sans une seule reprise. La dette n'est pas remboursée pour autant : son remède est une porte
+d'outillage, ligne 14, et un prompt juste ne prouve pas que le suivant le sera.
+
+Le `reviewer` a comparé les **six valeurs octet par octet** aux lignes du prompt gelé plutôt que de
+reprendre mes artefacts, rejoué les douze preuves, et rendu **SHIP en un tour, 0 FAIL, 4 WARN**.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| Le nom de l'incrément au champ 2 de `STATUS.md` — le prompt le donne sans accents, `spec.md` porte un titre accentué | **La forme littérale du prompt**, `EVOL deploiement-et-referentiel` | La garde de `/land` compare caractère pour caractère ; `spec.md` est un artefact de travail, pas une source de nom. Précédent constant depuis la session 24 (`EVOL limites-modele-dynamique`). Le `reviewer` a nommé le piège avant qu'il ne se referme | **précédent** |
+| Quatre WARN au verdict, aucun FAIL | **`READY` écrit sans second tour**, code intouché | Règle d'arrêt du prompt : 0 FAIL suffit. Et les quatre réserves visent, respectivement, deux fichiers que l'ÉTAPE 4 interdit de toucher, une ligne au fil, et un arbitrage du chef de projet — **aucune ne porte sur le code livré** | **précédent** |
+| La preuve 12 exige le navigateur, et l'outil refuse le protocole `file:` | **Serveur HTTP local éphémère**, arrêté et vérifié mort après la passe | Sans ce détour, une preuve mesurable se serait rendue « non mesurable ». Le relevé s'est fait **par calcul dans la page** (`details.open`, couleur calculée, `lang`, clés vides) et non à l'œil : le rendu sur appareil reste au chef de projet | **précédent** |
+| Niveau de bump | **Patch** 0.1.22 → 0.1.23, sans redemander | Règle en portée `précédent` depuis la session 12. Le défaut `feat/*` vaut minor, soit 0.2.0 ; la cible de fin de jalon est 1.0.0. **Vingt-troisième** inscription | précédent |
+
+**Aucune leçon écrite au registre** : la session n'a produit ni correction du chef de projet ni FAIL.
+Une candidate lui est proposée à la clôture, il tranche.
+
+### Dettes qui partent ouvertes, et nommées
+
+Les quatre réserves du `reviewer`, toutes non bloquantes, toutes hors périmètre par construction :
+
+**[W46]** — **un commentaire que l'insertion a rendu faux.** `index.html:439` dit « le paragraphe
+`preuve` vient de l'annoncer » alors que `section5.prive` s'est glissé entre les deux : « vient de »
+ne désigne plus le paragraphe qui précède. Remède : reformuler ou remonter le commentaire, au
+prochain incrément qui ouvre la section 5.
+
+**[W47]** — **le commentaire de `.boite` ne connaît qu'un client.** `css/styles.css:581` décrit la
+boîte à outils et son tableau qui défile ; la classe a deux porteurs depuis ce commit, le second sans
+tableau ni `div.defile`. Remède : étendre le commentaire quand le CSS sera rouvert, ligne 12 ter.
+
+**[W48]** — **une ancre morte.** `id="deploiement-titre"` n'est référencé par rien : zéro
+`aria-labelledby`, zéro ancre, une seule occurrence dans le fichier. Sa justification — il servira le
+jour où le bloc grandit — ne vivait que dans le prompt gelé. C'est le **sens symétrique de [W22]**,
+que la porte de résolution des ancres déjà proposée ne couvrirait pas. Remède : porte des `id`
+orphelins, ou retrait de l'`id` jusqu'à ce qu'une région le référence.
+
+**[W49]** — **une frontière et une invitation qui se lisent d'affilée.** « Le référentiel de la
+méthode, lui, reste privé » précède de deux paragraphes le lien « La méthode, en détail, sur son
+propre site » : la distinction **dépôt** privé / **site** public n'est pas dite. La phrase est
+conforme au prompt au caractère près ; c'est son voisinage qui peut se lire comme un démenti.
+**Arbitrage du chef de projet** : un mot dans `prive` (« son référentiel »), ou rien.
+
+Tiennent aussi, inchangées : **[W40]** et sa porte d'outillage, **[W41] à [W44]** (la flèche hors de
+la fonderie, ce que les lecteurs d'écran en nomment, les deux puces à double séparateur, le lien en
+`blob/master`), **[W45]** (le champ « Filtre » qui ne déclare pas son fond), et les dettes des
+lignes 13 et 14.
+
+**La mesure sous VoiceOver reste due**, six objets, inchangée : cet incrément reprend un motif déjà
+porté par la mesure et n'en ajoute pas un septième.
