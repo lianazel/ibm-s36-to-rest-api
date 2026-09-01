@@ -1984,3 +1984,61 @@ lignes 13 et 14.
 
 **La mesure sous VoiceOver reste due**, six objets, inchangée : cet incrément reprend un motif déjà
 porté par la mesure et n'en ajoute pas un septième.
+
+## Session 26 — 1er septembre 2026 — EVOL `habillage` (merge `fa8a8a4`, 0.1.23 → 0.1.24)
+
+**Ligne 12 ter du fil.** Le chef de projet trouvait le site « trop austère ». Le diagnostic n'était
+pas de goût : le contrat de design promet **trois registres**, le bleu S/36 et le vert API
+n'apparaissaient qu'aux dessins de la section 3, et le **registre IA n'avait jamais été construit**
+depuis la session 5. L'austérité était un contrat non tenu.
+
+**Six livrables.** Six jetons de couleur, chacun avec sa ligne de contraste remesurée (sept valeurs,
+écart nul avec le prompt) · six **chapeaux de registre**, un `p` avant chaque `h2` de `main`, la
+couleur portée par une variable `--registre` déclarée par section · l'**accroche en bandeau** ·
+le **rythme** (filet gris entre sections retiré, `main h2`/`main h3`, cadres de code sur fond doux) ·
+le **registre IA** en section 5, `figure.dialogue` à deux voix, consigne en Plex Sans sur clair et
+trace de l'agent en Plex Mono sur `#262626` — **seul usage du sombre du site** · le **pied de page**,
+qui rembourse **[W18]** (`.disclaimer` a enfin une règle) et **[W45]** (`#mini-filtre` déclare fond
+et encre, vérifié sous `prefers-color-scheme: dark` émulé).
+
+Les deux citations du bloc IA sont des **artefacts réels vérifiés à la source** : la première phrase
+du contexte du prompt de l'incrément 12, graisse retirée, et deux lignes de `git log` (`5e31650` et
+le merge `e616623`), chacune retrouvée à l'identique et une seule fois dans `git log --all`.
+
+**Trois passes de revue, toutes SHIP, 0 FAIL.** `38c37c4` (7 WARN) · `675609e` après l'avenant 1
+(11 WARN) · `a6734e2` après l'avenant 2 (10 WARN). Les deux avenants sont nés de la **passe
+d'appareil du chef de projet sur iPhone 14**, via le tunnel d'aperçu — le `READY` a été retiré avant
+chacun, et la revue précédente sciemment invalidée. **356/356** à chaque passe.
+
+**Ce que la passe d'appareil a trouvé, et que trois preuves écrites n'avaient pas vu** : la
+capitalisation CSS rendait « IBM i » en « IBM I », sur un site dont le sujet est cette machine ; puis,
+une règle plus bas, `prompts/v0.1` en `PROMPTS/V0.1` et `git log` en `GIT LOG` — un chemin sensible à
+la casse et une commande qui n'existe pas, dans le **seul** registre dont le contrat exige des
+artefacts « cités mot pour mot ». La feuille ne porte désormais **plus aucun** `text-transform`.
+Mesuré aux deux avenants : Plex Mono étant à chasse fixe, les largeurs sont identiques au centième
+avant et après, à 320 comme à 390 px — aucune mise en page ne bouge.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| La garde de `section4` tombe (133 → 134) alors que le prompt annonce « tests intouchés » | Recaler la garde, un mot au commentaire nommant `section4.chapeau` | La preuve était périmée, pas le livrable : une garde doit être invariante sous l'incrément qu'elle garde, celle-ci ne l'était pas | **précédent** |
+| Le chapeau EN de la section 3 déborde à 390 px (351 px pour 343) | « REST API · .Net · prototype tested » (278 px) | « live » dirait « en production », faux et contraire à l'incrément 8 ; « tested for real » perd « prototype » | cas d'espèce |
+| La capitalisation des chapeaux abîme « IBM i » | Retirer `text-transform: uppercase`, **aucune valeur du dictionnaire ne change** | Des capitales écrites en dur seraient **du style dans la donnée** : le dictionnaire dit ce qu'on nomme, la feuille comment ça se rend | **précédent** |
+| Même faute sur `.dialogue .voix` | Retirée aussi, avenant 2, groupé et dernier | Un chemin et une commande ne se réécrivent pas ; la mesure de l'avenant 1 valait telle quelle | **précédent** |
+| Le chapeau de la section 3 tient sur deux lignes à **320 px** | N'entre pas dans l'incrément, part au fil comme dette | Le remède toucherait une valeur arbitrée : arbitrage de contenu, pas de mise en scène | cas d'espèce |
+| Les trois commentaires des WARN de la 12 bis, alors que l'incrément rouvre les trois fichiers | Intouchés | Hors périmètre : « ne pas harmoniser au passage » est précisément ce que cet incrément devait s'interdire | cas d'espèce |
+| Bump : la commande `/land` dit `feat/*` → minor | **Patch, 0.1.23 → 0.1.24** | Le minor **est le jalon** (`prompts/v0.1/`, `JOURNAL_v0.1.md`) ; huit atterrissages `feat/*` de suite ont bumpé d'un patch. Ouvrir le jalon 0.2 est une décision du chef de projet, pas un effet de bord d'un nom de branche | **précédent** |
+
+### Dettes ouvertes à l'issue
+
+Les **10 réserves** de la troisième revue partent ouvertes, toutes WARN. Deux sont nées ici et
+demandent une inscription : le **chapeau à 320 px** (deux lignes, les deux langues, colonne de
+273 px) et l'**asymétrie de révocation** — le corps du prompt prescrit encore deux fois la
+déclaration retirée (l. 184, révoquée nommément par l'avenant 1 ; l. 314, révoquée seulement **en
+substance** par l'avenant 2, dont l'énumération §B ne la nomme pas). Les autres sont reconduites des
+passes précédentes, dont le titre périmé du test de garde (« 117 clés » quand le corps en compte 134),
+la marge de 8 px du chapeau FR, et [W23] qui gagne un porteur — le cadre sombre, le seul.
+
+**La mesure sous VoiceOver gagne deux objets (huit)** : le `p` de chapeau avant chaque titre, et le
+`pre` région du bloc IA dont le contenu est deux lignes de `git log`.

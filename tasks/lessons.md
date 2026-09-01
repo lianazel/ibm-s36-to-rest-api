@@ -790,3 +790,44 @@ exactement pourquoi ils échappent à une revue de diff, et pourquoi il a fallu 
 ouvre les fichiers pour les voir.
 **Applicable globalement ?** : **Oui** — la règle ne tient à aucun langage. Elle s'est manifestée
 ici en HTML et en CSS dans le même incrément, et vaut partout où du code se commente.
+
+## 2026-09-01 — Une garde qui compte un littéral mord sur le texte qui l'explique ; et le remède n'est pas toujours d'appauvrir ce texte
+**Type** : Erreur
+**Contexte** : Incrément « Habillage » (12 ter), **deux avenants de suite, même faute**.
+**Avenant 1** : la déclaration `text-transform: uppercase` est retirée de `.chapeau` parce qu'elle
+rendait « IBM i » en « IBM I ». Le commentaire écrit pour expliquer le retrait citait la déclaration
+**littéralement**. La preuve D1, qui compte cette déclaration dans la feuille, a rendu **2** au lieu
+de 1 : la règle restante, plus ma propre prose.
+**Avenant 2** : les deux mentions « capitales espacées » du prompt sont recalées. La preuve D2, qui
+compte cette formule dans le prompt, a rendu **4** au lieu de 0 : le corps du prompt était propre, et
+les quatre occurrences étaient les **citations de l'avenant lui-même**, qui trace ce qu'il révoque.
+**Erreur** : écrire une garde qui compte un littéral **sans délimiter ce qu'elle regarde**, dans un
+dépôt où le même littéral vit légitimement dans deux régimes — le code, qui est son objet, et le
+texte qui l'explique ou trace sa révocation. La faute n'est pas le compte, c'est le **périmètre non
+dit**. Et elle est passée deux fois dans le même incrément : la première correction n'a pas été
+généralisée, elle a été appliquée à son cas.
+**Correction** : avant d'écrire une garde qui compte un littéral, poser la question du périmètre —
+*où cette chaîne a-t-elle le droit d'exister ?* Puis choisir le remède selon que le texte a **besoin**
+du littéral pour faire son travail :
+
+- **Il n'en a pas besoin** (avenant 1) : reformuler le texte. Un commentaire explique un geste, il
+  n'a pas à en citer la syntaxe — « la forcer rendait » vaut « `text-transform: uppercase` rendait ».
+- **Il en a besoin** (avenant 2) : **restreindre la garde**, jamais appauvrir le texte. La trace des
+  formulations révoquées est la valeur même d'un avenant ; une garde qui obligerait à l'effacer
+  détruirait ce qu'elle prétend protéger. La garde s'est donc bornée au corps du prompt, avenants
+  exclus par construction (`sed -n '1,/^## Avenant 1/p' … | grep -c`), en **déclarant tout haut** que
+  le compte sur le fichier entier n'est pas nul — une garde muette sur son propre angle mort ment
+  par omission.
+
+**Ce qu'une garde de littéral ne prouve pas, et qu'il faut dire** : elle atteste l'absence d'une
+**formule**, jamais l'absence d'une **prescription**. Le `reviewer` l'a montré sur ce même incrément :
+D2 était verte alors que le corps du prompt **prescrit encore deux fois** la déclaration retirée
+(l. 184, l. 314) — que ne compte aucun `grep` sur « capitales espacées ». Une garde de forme se double
+d'une révocation **nommée** dans l'avenant, ou elle laisse passer ce qu'elle avait l'air de couvrir.
+**Parenté** : c'est la même famille que la leçon du 29 août 2026 (« un chiffre de garde doit être
+invariant sous le travail qu'il garde »). Celle-là dit qu'une garde ne doit pas bouger avec le
+travail ; celle-ci dit qu'elle ne doit pas **regarder plus loin que son objet**. Les deux se ramènent
+à une seule exigence : **une garde nomme son périmètre**, en valeur comme en étendue.
+**Applicable globalement ?** : **Oui** — la règle ne tient à aucun langage ni à aucun outil. Elle vaut
+pour tout `grep` de garde, tout test de comptage, tout lint maison, dans tout dépôt où le code et la
+prose qui le documente vivent dans les mêmes fichiers.
