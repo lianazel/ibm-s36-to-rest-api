@@ -252,3 +252,70 @@ geste manuel du chef de projet ([W24]). Ne renumérote rien.
 - **Une porte DOM pour `paintTokens`** : exige un environnement DOM, donc une devDependency et son
   prompt (`SECURITY_METHOD` §3.3, piste R&D de [W32]).
 - **Les dettes des lignes 13 et 14**, **l'écart `CDEMST`**, **l'état de la ligne au fil**.
+
+-----
+
+## Avenant 1 — 1er septembre 2026, après la revue et la passe iPhone 14, machine à l'arrêt
+
+**`READY` posé, puis retiré avant d'écrire une ligne.** La revue `SHIP` sur `cdd6919` est sciemment
+invalidée : le chef de projet en paie une seconde passe. Ordre imposé : retrait du `READY`, puis le
+travail, puis le `reviewer` sur le nouveau commit, puis `READY` réécrit en dernier.
+
+### A — Le commentaire quitte le vert de Visual Studio
+
+**Motif, et il ne vient ni du goût ni de l'écran : il vient de la réserve UX du reviewer, vérifiée
+indépendamment.** Sous **deutéranopie**, la chaîne `#8b4513` et le commentaire `#0a7a0a` se
+rejoignent — **ΔE CIE76 3,3**. Or cet incrément n'existe sous cette forme *que* parce que ΔE 5,5
+entre la chaîne de VS clair `#a31515` et le rouge de refus `#a2191f` a été jugé trop serré, motif
+inscrit au fil, ligne `12 quater` : « une couleur, deux sens ». **Le critère qui a choisi la palette
+condamne la palette.** Il a été appliqué à la paire qu'on regardait et jamais à celle qu'on ne
+regardait pas.
+
+**Piège de mesure, nommé pour qu'il ne se rejoue pas.** Une simulation de dichromatisme par matrice
+3×3 appliquée au RGB linéaire donne ici un résultat **faux** (ΔE ≈ 48 au lieu de 3,3) : elle a
+égaré la première mesure de Cowork avant que l'algorithme complet ne la corrige. Emploie
+**Viénot-Brettel-Mollon 1999 par l'espace LMS** : RGB linéaire → LMS (matrice de Viénot), puis pour
+la deutéranopie `M' = 0,494207·L + 1,24827·S`, puis retour LMS → RGB linéaire → Lab, ΔE CIE76.
+Contrôle de cohérence obligatoire avant d'exploiter le script : bleu pur / jaune pur doit rester
+**très grand** sous deutéranopie, et rouge pur / vert pur doit **chuter**. Si ces deux contrôles ne
+tombent pas ainsi, ton script est faux — ARRÊTE-TOI et signale plutôt que de conclure.
+
+### B — Le geste, et il est d'une valeur
+
+Dans `css/styles.css`, le jeton `--code-commentaire` prend la valeur du jeton de texte secondaire
+**déjà présent dans la feuille** :
+
+```css
+  --code-commentaire: var(--color-ink-soft);   /* commentaire — #525252 ; le vert de VS clair est révoqué : sous deutéranopie il rejoignait la chaîne (ΔE 3,3). 7,10:1 sur #f4f4f4 ; ΔE avec la chaîne : 48,8 normal, 34,8 protanopie, 45,9 deutéranopie */
+```
+
+Rien d'autre ne bouge : ni `.cs-c`, ni les trois autres jetons, ni `js/coloration.js`, ni
+`index.html`, ni aucun test — **aucun test n'asserte de couleur**. Le nombre de jetons `--code-`
+reste **4**.
+
+**Ce que l'on perd, et c'est assumé** : la fidélité de VS sur le commentaire. C'est la moins chère
+des quatre — un commentaire se lit comme un commentaire par son `//`, et le gris dit « secondaire »
+dans n'importe quel éditeur. C'était déjà le traitement de la variante « maison » écartée le même
+jour ; la variante n'est **pas** rouverte pour autant : les mots-clés restent en `#0000ff` sans
+graisse, la chaîne reste `#8b4513`.
+
+### C — Les mentions que cet avenant périme
+
+1. **ÉTAPE 4** : la ligne `--code-commentaire: #0a7a0a;` du bloc CSS prescrit est **révoquée** et
+   remplacée par celle du §B. Le reste du bloc et les quatre règles `.cs-*` sont inchangés.
+2. **Preuve 5** : `grep -c '#0a7a0a' css/styles.css` = **0** s'ajoute à la liste. `#0000ff` = 1 et
+   `#8b4513` = 1 restent vrais. **Restreins chaque `grep` au fichier qu'il surveille** — la leçon du
+   1er septembre 2026, déjà manquée deux fois dans cet incrément (réserve P2 du reviewer).
+
+### D — Preuves de l'avenant
+
+1. `grep -c 'var(--color-ink-soft)' css/styles.css` ≥ **1** dans le bloc `--code-*` ·
+   `grep -c '^  --code-' css/styles.css` = **4**.
+2. Simulation Viénot-LMS, contrôles de cohérence d'abord, puis les **quatre** jetons deux à deux
+   sous normal / protanopie / deutéranopie. **Aucune paire sous ΔE 15.** Écris la matrice complète
+   dans `test-results.md`, y compris les valeurs que tu n'attendais pas.
+3. Contraste `#525252` sur `#f4f4f4` : **7,10:1** (±0,05).
+4. `npm test` : **382/382**, aucun test modifié — `git diff --stat tests/` vide.
+5. `git diff --stat` ne touche que `css/styles.css` et le prompt.
+6. **Au navigateur** : les trois extraits restent colorés, commentaires en gris, chaînes en brun,
+   après une bascule FR → EN → FR. Le texte copié reste identique au dictionnaire.

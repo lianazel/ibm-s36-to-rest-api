@@ -70,12 +70,13 @@
      celle de VS clair (#a31515) est à 3,4° de teinte LCh du rouge de refus du
      mini-langage (#a2191f), ΔE CIE76 5,5 — une couleur, deux sens sur la même
      page. Le brun retenu garde la teinte de la chaîne de VS sombre (#d69d85, trop
-     pâle ici à 2,12:1) à une clarté qui tient sur fond clair. Contrastes mesurés
+     pâle ici à 2,12:1) à une clarté qui tient sur fond clair. Le commentaire fait
+     exception à son tour, pour un motif distinct dit à sa ligne. Contrastes mesurés
      le 1er septembre 2026, formule WCAG. */
   --code-motcle: #0000ff;        /* mot-clé — VS clair ; 7,81:1 sur #f4f4f4 */
   --code-type: #0e6e8c;          /* type ou membre — VS clair #2b91af recalé (3,31:1 → 5,26:1) */
   --code-chaine: #8b4513;        /* chaîne — teinte 57,2° LCh, ΔE 28,0 avec le refus #a2191f ; 6,45:1 */
-  --code-commentaire: #0a7a0a;   /* commentaire — VS clair #008000 recalé (4,67:1 → 5,02:1) */
+  --code-commentaire: var(--color-ink-soft);   /* commentaire — #525252 ; le vert de VS clair est révoqué : sous deutéranopie il rejoignait la chaîne (ΔE 3,3). 7,10:1 sur #f4f4f4 ; ΔE avec la chaîne : 48,8 normal, 34,8 protanopie, 45,9 deutéranopie */
   --font-sans: "IBM Plex Sans", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
   --space: 1rem;
