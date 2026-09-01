@@ -356,8 +356,29 @@ avant de compter.
   motif **une fois** à la **ligne 13** — mention bilingue visuellement masquée ajoutée au motif, ou
   abandon de `target="_blank"` — plutôt que le reconduire à chaque lien neuf.
   **Le compte passe de trois à quatre le 1er septembre 2026** (avenant 1 de l'incrément 12, le lien
-  vers la fabrique du modèle sous la boîte à outils). Le motif reste à trancher une fois à la ligne 13 :
-  chaque lien neuf le reconduit, et c'est précisément ce que la dette dit qu'il ne faut pas faire.
+  vers la fabrique du modèle). Le motif reste à trancher une fois à la ligne 13 : chaque lien neuf le
+  reconduit, et c'est précisément ce que la dette dit qu'il ne faut pas faire. **Nuance de l'avenant 2 :
+  ce quatrième lien vit dans un bloc `details` replié par défaut** — il n'est atteignable qu'après un
+  geste du lecteur, et la surface exposée d'emblée n'a donc pas bougé. Le compte est à quatre, la
+  surface reste à trois.
+
+- **[W40]** **Quatre preuves périmées dans un seul prompt gelé, toutes de la même cause** — l'énoncé
+  attendu d'une preuve est dérivé **à la main d'une idée** du livrable, et jamais recalculé sur son
+  **texte** après la dernière réécriture de la prescription. La preuve vieillit d'un cran à chaque
+  retouche, en silence, et c'est le **geste correct** qui la fait rougir. Relevé sur
+  `EVOL_limites-modele-dynamique_v1` (incrément 12, sessions 24), quatre occurrences mesurées :
+  (1) **ÉTAPE 6, preuve 9** — motif `grep -c 'W20\*\* Remboursée'` amputé du `]`, insatisfaisable avec
+  la forme `- **[W20]**` que l'ÉTAPE 5 du même prompt prescrit (30 entrées du fil s'écrivent à
+  crochets, 0 sans) ; (2) **avenant 1, preuve 1** — attendu 229, oublie `section3.limites.reste` que
+  son propre livrable A prescrit et que sa preuve 2 compte ; l'arbre lit 230 ; (3) **avenant 1,
+  preuve 6** — exige `DSPFFD` = 0 dans le dictionnaire avec ARRÊTE-TOI, quand §A prescrit une glose
+  qui le nomme dans les deux langues, donc 2 ; **arbitrage du chef de projet du 31 août 2026 : §A
+  l'emporte**, la preuve était périmée, le geste était bon ; (4) **avenant 2, preuve 8** — énumère
+  trois fichiers au diff en omettant **le prompt lui-même**, qui porte l'avenant et doit être commité.
+  Remède, à la ligne 14 avec les autres dettes d'outillage : **recalculer les attendus sur le texte
+  final du livrable**, comme dernier geste avant le gel — ou les dériver mécaniquement plutôt qu'à la
+  main. Voisine de la leçon du 29 août 2026 (« un chiffre de garde doit être invariant sous le travail
+  qu'il garde, et le moment de le vérifier est avant le gel »), dont c'est la quatrième confirmation.
 
 - **Points de vigilance recopiés de `.pipeline/` avant qu'il ne s'écrase** (sessions 14 et 15) :
   `attribut?.Nom` rend une valeur nulle pour une propriété sans attribut, comportement du prototype
@@ -365,6 +386,12 @@ avant de compter.
   valeur gelée par le prompt).
 
 ## Décisions actées
+- **Le lien de la section 3 vers le dépôt `API.Response.Dynamic.Model` est maintenu** — arbitrage du
+  chef de projet du **31 août 2026** (réserve du `reviewer` sur l'avenant 1 de l'incrément 12). Motif :
+  le lien pointe **une classe** d'un dépôt **déjà public** ; il ne crée aucune exposition. Les
+  identifiants qu'y a relevés la revue sont des **valeurs de test**, et la solution n'est pas en
+  production. **Le lien vit dans le bloc dépliable** : le lecteur choisit d'y aller. La réserve ne
+  revient pas telle quelle à la prochaine revue.
 - **Le chemin absolu du référentiel central reste dans `CLAUDE.md` l. 15** — arbitrage du chef de projet du
   **29 août 2026** (réserve 5 de la revue de session 23, [W37]), inscrit le 30 août. Motif : ce n'est pas un
   chemin GitHub mais un chemin de disque local — il n'y a aucun accès à interdire, le risque est quasi

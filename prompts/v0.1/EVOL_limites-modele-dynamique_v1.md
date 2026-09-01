@@ -418,3 +418,76 @@ Bases **avant** l'avenant, mesurées : `data-i18n="` **223** · `data-i18n-attr=
   arbitrage. **Rien n'en est repris** : aucun nom de table, de bibliothèque, de colonne, aucune adresse
   IP, aucune capture. Seuls le **nom qualifié de la vue système** et la nature de la voie entrent au
   livrable. Si tu trouves dans ce prompt un identifiant qui ressemble à un objet réel, ARRÊTE-TOI.
+
+---
+
+## Avenant 2 — 31 août 2026, machine à l'arrêt
+
+**Annoncé avant d'être écrit, l'agent arrêté et en attente d'arbitrage** — c'est la seule fenêtre où
+un prompt gelé s'amende (§4.1 du référentiel, règle du prompt gelé, v2.23).
+
+**Motif.** Décision du chef de projet à la lecture du rendu : le lien de la fabrique C# est trop
+technique pour le fil de lecture principal. Il rejoint le **bloc dépliable** « Pour les curieux : la
+boîte à outils », dont il est la suite naturelle — le fichier lié **implémente les neuf classes que
+le tableau énumère** (`AssemblyName`, `AssemblyBuilder`, `TypeBuilder`… vérifié à la source). Le pli
+fait le tri : qui n'ouvre pas le bloc n'a pas besoin du lien ; qui l'ouvre en est le destinataire.
+
+### A — Les deux `p` du §D quittent leur emplacement
+
+Le §D de l'avenant 1 plaçait la prose et le lien **entre `</details>` et
+`<p data-i18n="section3.renversement.p3">`. Ils n'y sont plus.** Ils entrent **dans** le `details`,
+en dernières lignes, **après** `<p><code>List&lt;&gt;</code> …</p>` (`index.html` l. 211) et **avant**
+`</details>`.
+
+Rien d'autre ne bouge dans le bloc : ni le `summary`, ni le tableau, ni le conteneur de défilement,
+ni les deux lignes `Dictionary<>` / `List<>`.
+
+### B — La prose est réécrite : elle s'appuie sur le tableau, plus sur l'extrait
+
+`section3.renversement.fabrique` est **réécrite sur place**. Motif : la valeur de l'avenant 1 disait
+« l'extrait **ci-dessus** » ; dans le bloc, le tableau s'intercale et le renvoi devient faux.
+
+- FR : `Ces neuf classes ne sont pas une théorie : elles travaillent ensemble dans une solution .Net que j'ai publiée, où la fabrique est lisible en entier.`
+- EN : `These nine classes are not theory: they work together in a .Net solution I published, where the whole factory can be read.`
+
+`fabriqueLien` et `fabriqueUrl` **ne changent pas**, dans les deux langues — « La fabrique du modèle
+en C#, sur GitHub » / « The model factory in C#, on GitHub ». Le motif du lien non plus :
+`target="_blank"`, `rel="noopener noreferrer"`, `data-i18n` + `data-i18n-attr`, `href` de repli en dur.
+
+### C — Le fil
+
+Ajouter à l'entrée **[W39]** que le quatrième lien `_blank` **vit dans un bloc replié par défaut** :
+il n'est atteignable qu'après un geste du lecteur. Le motif reste à trancher une fois à la ligne 13,
+mais la surface exposée d'emblée n'a pas bougé.
+
+Inscrire aux **« Décisions actées »**, sous la formulation du chef de projet du 31 août 2026 :
+
+> **Le lien de la section 3 vers le dépôt `API.Response.Dynamic.Model` est maintenu** — arbitrage du
+> chef de projet du 31 août 2026 (réserve du `reviewer` sur l'avenant 1). Motif : le lien pointe
+> **une classe** d'un dépôt **déjà public** ; il ne crée aucune exposition. Les identifiants qu'y a
+> relevés la revue sont des **valeurs de test**, et la solution n'est pas en production. **Le lien
+> vit dans le bloc dépliable** : le lecteur choisit d'y aller.
+
+### D — Preuves de l'avenant 2
+
+1. `grep -o 'data-i18n="' index.html | wc -l` : **inchangé** par rapport à l'état d'après l'avenant 1
+   (mesure la valeur avant de déplacer, ne la suppose pas — le déplacement n'ajoute ni ne retire
+   aucune clé).
+2. `grep -o 'target="_blank"' index.html | wc -l` = **4**, inchangé.
+3. Les deux `p` sont **dans** le `details` : la ligne de `<p data-i18n="section3.renversement.fabrique">`
+   est **inférieure** à celle de `</details>`, et **supérieure** à celle de `<p><code>List&lt;&gt;</code>`.
+   Vérifie-le par les numéros de ligne, pas à l'œil.
+4. `grep -c "l'extrait ci-dessus\|The extract above" js/i18n.js` = **0** — l'ancienne prose a disparu
+   des deux langues. **Si tu lis autre chose : ARRÊTE-TOI.**
+5. `grep -c 'Ces neuf classes' js/i18n.js` = **1** · `grep -c 'These nine classes' js/i18n.js` = **1**.
+6. `grep -c 'fabriqueLien' js/i18n.js` = **2**, inchangé ; les deux libellés sont **identiques** à
+   ceux de l'avenant 1, au caractère près.
+7. `npm test` : **356/356**.
+8. `git diff --stat` ne touche que `js/i18n.js`, `index.html` et `tasks/ROADMAP.md`.
+
+### E — Hors périmètre
+
+- **Le contenu du bloc dépliable** : tableau, gloses, lignes `Dictionary<>` / `List<>`, résumé.
+- **Toute règle CSS**, y compris pour le lien dans le bloc — il hérite du style des liens du site.
+- **`section3.renversement.p3`** et le bloc `etape` : intouchés, leurs raccords tiennent.
+- **La sous-section « limites »** : elle est atterrie telle quelle, cet avenant ne la touche pas.
