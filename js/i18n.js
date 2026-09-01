@@ -200,6 +200,10 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
         title: "Le noyau est opérationnel. Il restait une étape",
         p1: "Le noyau qui construit le modèle dynamique est opérationnel, et je ne suis pas allé plus loin. Il restait une étape. Une requête mise au point pour l'API mériterait d'être enregistrée plutôt que ressaisie : l'appelant la désignerait alors par son nom, et non par son texte. C'est cette étape qui en aurait fait un produit. Pas parfait, mais intéressant. Restreindre ce qu'une requête a le droit de faire, et enregistrer aussi le modèle une fois bâti plutôt que le refabriquer à chaque fois (sérialiser le type CLR lui-même), appartiennent au même chantier, celui d'après.",
       },
+      deploiement: {
+        resume: "Pour les curieux : le déploiement, le prototype hors de l'atelier",
+        p1: "L'API a été déployée via Web Deploy, depuis Visual Studio, sur un serveur IIS, et interrogée depuis l'extérieur : le prototype n'a pas tourné que dans l'atelier. La connexion à l'IBM i passe par un profil dédié dont le programme initial, un CL, charge la liste de bibliothèques voulue. L'API REST .Net trouve ainsi toutes les tables métier dont elle a besoin, sans en nommer aucune dans son code.",
+      },
       limites: {
         title: "Les limites du modèle dynamique, connues et non cachées",
         cause: "Le modèle dynamique ne connaît la table que par ce qu'elle lui montre. Il lit la première ligne du résultat et en déduit le nom et le type de chaque colonne : il ne demande jamais sa description à la base. C'est ce choix, et non la source, qui fixe ses limites. Elles sont les mêmes quel que soit le SGBD, IBM i, SQL Server, PostgreSQL ou un autre.",
@@ -535,6 +539,7 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
       intro: "Ce site n'a pas été tapé à la main, ni dicté à une IA en lui faisant confiance. Il a été construit sous un harnais de travail : TWAIM.",
       comment: "Chaque étape commence par un prompt écrit avant le code. Un agent l'exécute, un autre le relit et rend un verdict. Aucun agent ne fusionne, aucun ne publie : c'est mon geste.",
       preuve: "La preuve n'est pas dans ce texte, elle est dans le dépôt, qui est public. Les prompts qui ont piloté chaque étape y sont entiers, avec le journal des atterrissages et le registre des leçons.",
+      prive: "Le référentiel de la méthode, lui, reste privé : ce site montre comment le harnais fonctionne, pas sa mécanique interne.",
       depot: "Le dépôt de ce site, sur GitHub",
       // Même adresse que la version anglaise, volontairement : le dépôt n'a pas
       // de version anglaise. Ce n'est pas un défaut de parité à « corriger ».
@@ -804,6 +809,10 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
       etape: {
         title: "The core is operational. One step was left",
         p1: "The core that builds the dynamic model is operational, and I did not take it further. One step was left. A query tuned for the API would deserve to be stored rather than retyped: the caller would then name it, instead of sending its text. That step is what would have made it a product. Not a perfect one, but an interesting one. Restricting what a query is allowed to do, and storing the model once built rather than rebuilding it every time (serialising the CLR type itself), belong to the same job, the next one.",
+      },
+      deploiement: {
+        resume: "For the curious: deployment, the prototype outside the workshop",
+        p1: "The API was deployed with Web Deploy, from Visual Studio, to an IIS server, and queried from outside: the prototype did not run only in the workshop. The IBM i connection goes through a dedicated profile whose initial program, a CL, loads the intended library list. The .Net REST API then finds every business table it needs without naming any of them in its code.",
       },
       limites: {
         title: "The dynamic model's limits, known and not hidden",
@@ -1111,6 +1120,7 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
       intro: "This site was not hand-typed, nor dictated to an AI on trust. It was built under a working harness: TWAIM.",
       comment: "Every step starts with a prompt written before any code. One agent carries it out, another reviews it and returns a verdict. No agent merges, no agent publishes — that step is mine.",
       preuve: "The proof is not in this text. It is in the repository, which is public. The prompts that drove every step are there in full, along with the landing journal and the lessons register.",
+      prive: "The method's own repository stays private: this site shows how the harness works, not its inner workings.",
       depot: "This site's repository, on GitHub",
       // Même adresse que la version française, volontairement : le dépôt n'a pas
       // de version anglaise. Ce n'est pas un défaut de parité à « corriger ».
