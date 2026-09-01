@@ -661,6 +661,14 @@ section {
   margin-top: calc(var(--space) / 2);
 }
 
+/* Le contrat de design promet le rendu Mono des noms de commande en ligne depuis la
+   session 5 : ces quatre noms en sont le premier porteur. Aucune couleur touchée,
+   donc aucune ligne de contraste due. */
+.arguments code {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
 /* La légende des teintes : posée une seule fois, avant le premier tableau. */
 .legende {
   margin: var(--space) 0;

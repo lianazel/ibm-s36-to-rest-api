@@ -137,6 +137,9 @@ public Dictionary<string, string> ChargerDictionnaire(Type modele)
         p1: "Les modèles dynamiques, en revanche, je ne les connaissais pas avant ce projet. Alors j'ai renversé le problème. Si le travail consiste à décrire des colonnes une par une, ce n'est pas un travail d'humain. C'est la requête qui porte les noms métier, en renommant ses colonnes au passage, et c'est la machine qui fabrique la classe correspondante.",
         p2: "Le mécanisme tient en quelques gestes. La requête n'est pas connue du code avant l'appel. Le programme regarde les colonnes qu'elle renvoie, relève leur nom et leur type, et construit une classe pendant qu'il tourne, une seule fois. Puis il parcourt les lignes et verse chaque valeur dans une instance de cette classe. Le modèle est un moule : fabriqué une fois, chaque ligne y est coulée. Le moule est jeté quand l'appel se termine, et rien n'en est conservé. Une autre requête au prochain appel donne un autre moule, sans qu'une ligne de code ait changé.",
         p3: "À ce stade, je cherchais une seule réponse : est-ce que l'idée tient. Ce qu'un appelant a le droit de demander est une question de produit, pas de prototype, et elle vient juste après.",
+        fabrique: "Ces neuf classes ne sont pas une théorie : elles travaillent ensemble dans une solution .Net que j'ai publiée, où la fabrique est lisible en entier (le code est commenté en français).",
+        fabriqueLien: "La fabrique du modèle en C#, sur GitHub",
+        fabriqueUrl: "https://github.com/lianazel/API.Response.Dynamic.Model/blob/master/API.Response.Dynamic.Model.Framework/Services/ApiDynamicModelOnDemand.cs",
         code3: {
           legende: "Extrait recréé : les lignes relevées, la classe fabriquée une fois, chaque ligne versée ensuite. La fabrication elle-même est appelée, pas montrée.",
           source: `// La requête vient d'être exécutée ; elle était inconnue du code jusqu'à l'appel.
@@ -196,6 +199,22 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
       etape: {
         title: "Le noyau est opérationnel. Il restait une étape",
         p1: "Le noyau qui construit le modèle dynamique est opérationnel, et je ne suis pas allé plus loin. Il restait une étape. Une requête mise au point pour l'API mériterait d'être enregistrée plutôt que ressaisie : l'appelant la désignerait alors par son nom, et non par son texte. C'est cette étape qui en aurait fait un produit. Pas parfait, mais intéressant. Restreindre ce qu'une requête a le droit de faire, et enregistrer aussi le modèle une fois bâti plutôt que le refabriquer à chaque fois (sérialiser le type CLR lui-même), appartiennent au même chantier, celui d'après.",
+      },
+      limites: {
+        title: "Les limites du modèle dynamique, connues et non cachées",
+        cause: "Le modèle dynamique ne connaît la table que par ce qu'elle lui montre. Il lit la première ligne du résultat et en déduit le nom et le type de chaque colonne : il ne demande jamais sa description à la base. C'est ce choix, et non la source, qui fixe ses limites. Elles sont les mêmes quel que soit le SGBD, IBM i, SQL Server, PostgreSQL ou un autre.",
+        contraintes: "Deux contraintes en découlent, constatées en rejouant le mécanisme sur des cas construits. La table visée doit contenir au moins un enregistrement : sans première ligne, le modèle se construit sans aucune colonne, et rien ne le signale. Et cette première ligne ne doit porter aucune valeur NULL : une valeur absente n'a pas de type, la colonne ne peut pas être décrite. Un piège s'y ajoute, plus discret, constaté de la même façon : sur une ligne suivante, un NULL dans une colonne numérique devient zéro sans un mot. Un délai inconnu se lit alors comme un délai de zéro jour, et rien ne crie.",
+        amont: "Un travail d'amont s'ajoute, et il naît de la requête elle-même. Interroger la base sur une table suppose de savoir laquelle : sur un SELECT qui n'en vise qu'une, elle se lit dans la requête ; dès que la requête porte des jointures, les tables sont plusieurs, et il faut les extraire avant de pouvoir demander quoi que ce soit. Ce travail se confie à une classe dédiée, qui lit la requête et rend la liste des tables à décrire.",
+        parade: "La parade est connue, et elle vaut partout : demander la description à la base plutôt qu'à la donnée. Chaque base sait décrire ses tables, et rend le type et la nullabilité de chaque colonne, table vide ou pleine :",
+        // Les noms de commande vivent en dur dans le HTML : ils ne se traduisent pas,
+        // et leur nature diffère d'une base à l'autre — c'est ce que dit chaque glose.
+        voies: {
+          ibmi: "sur IBM i, la vue catalogue de Db2 for i, interrogeable en SQL comme une table — là où la commande système DSPFFD demande un fichier de sortie pour être exploitable",
+          postgres: "sous PostgreSQL, commande du client psql — elle s'exécute dans psql, pas dans un éditeur SQL comme pgAdmin, qui l'enverrait au serveur",
+          sqlserver: "sous SQL Server, procédure appelable depuis le code",
+          standard: "la vue standard, que la plupart des bases exposent, interrogeable en SQL",
+        },
+        reste: "Puis donner aux propriétés le droit d'être absentes, pour qu'un NULL reste un NULL et ne devienne jamais un zéro. Le prototype ne l'a pas fait. C'est une limite connue, pas une limite cachée.",
       },
       dessin1: {
         legende: "Écrit à la main : tout est figé d'avance, et tout est à maintenir.",
@@ -722,6 +741,10 @@ public Dictionary<string, string> LoadDictionary(Type model)
         p1: "Dynamic models, though, were new to me when I started this. So I turned the problem around. If the work consists of describing columns one by one, it is not work for a human. The query carries the business names, renaming its columns as it goes, and the machine builds the matching class.",
         p2: "The mechanism comes down to a few moves. The query is unknown to the code until the call. The program looks at the columns it returns, notes their name and their type, and builds a class while it runs, once only. Then it walks the rows and pours each value into an instance of that class. The model is a mould: cast once, every row is poured into it. The mould is thrown away when the call ends, and nothing is kept. Another query on the next call gives another mould, without a single line of code having changed.",
         p3: "At that stage I was after one answer: does the idea hold. What a caller is allowed to ask for is a product question, not a prototype one, and it comes right after.",
+        fabrique: "These nine classes are not theory: they work together in a .Net solution I published, where the whole factory can be read (the code is commented in French).",
+        fabriqueLien: "The model factory in C#, on GitHub",
+        // Même adresse que le français : le dépôt n'a pas de version anglaise, comme section5.depotUrl.
+        fabriqueUrl: "https://github.com/lianazel/API.Response.Dynamic.Model/blob/master/API.Response.Dynamic.Model.Framework/Services/ApiDynamicModelOnDemand.cs",
         code3: {
           legende: "Recreated extract: the rows collected, the class built once, every row poured afterwards. The building itself is called, not shown.",
           source: `// The query has just been run; it was unknown to the code until the call.
@@ -781,6 +804,20 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
       etape: {
         title: "The core is operational. One step was left",
         p1: "The core that builds the dynamic model is operational, and I did not take it further. One step was left. A query tuned for the API would deserve to be stored rather than retyped: the caller would then name it, instead of sending its text. That step is what would have made it a product. Not a perfect one, but an interesting one. Restricting what a query is allowed to do, and storing the model once built rather than rebuilding it every time (serialising the CLR type itself), belong to the same job, the next one.",
+      },
+      limites: {
+        title: "The dynamic model's limits, known and not hidden",
+        cause: "The dynamic model only knows the table through what the table shows it. It reads the first row of the result and infers the name and type of every column from it: it never asks the database for a description. That choice, not the source, is what sets its limits. They are the same whatever the database, IBM i, SQL Server, PostgreSQL or any other.",
+        contraintes: "Two constraints follow, observed by replaying the mechanism on constructed cases. The target table must hold at least one record: without a first row, the model is built with no column at all, and nothing reports it. And that first row must carry no NULL value: an absent value has no type, so the column cannot be described. One trap comes on top, and it is quieter, observed the same way: on a later row, a NULL in a numeric column silently becomes zero. An unknown lead time then reads as a lead time of zero days, and nothing cries out.",
+        amont: "There is upstream work too, and it comes from the query itself. Asking the database about a table means knowing which one: in a SELECT that targets a single table, it can be read straight from the query; as soon as the query carries joins, there are several tables, and they must be extracted before anything can be asked. That work belongs to a dedicated class, one that reads the query and returns the list of tables to describe.",
+        parade: "The remedy is known, and it holds everywhere: ask the database for the description rather than the data. Every database can describe its tables, returning the type and nullability of every column, whether the table is empty or full:",
+        voies: {
+          ibmi: "on IBM i, the Db2 for i catalog view, queried in SQL like any table — where the DSPFFD system command needs an output file before a program can use it",
+          postgres: "in PostgreSQL, a psql client command — it runs inside psql, not in a SQL editor such as pgAdmin, which would send it to the server",
+          sqlserver: "in SQL Server, a stored procedure callable from code",
+          standard: "the standard view, exposed by most databases, queried in SQL",
+        },
+        reste: "Then give the properties the right to be absent, so that a NULL stays a NULL and never turns into a zero. The prototype did not do it. That is a known limit, not a hidden one.",
       },
       dessin1: {
         legende: "Written by hand: everything is fixed in advance, and everything has to be maintained.",
