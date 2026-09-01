@@ -2,6 +2,34 @@
 
 > Une leçon = une erreur commise ici, datée, avec la règle qui l'empêche de revenir.
 
+## 2026-09-01 — Une preuve se recalcule sur le texte du prompt, jamais sur l'idée qu'on a du livrable
+**Type** : Erreur
+**Contexte** : Incrément 12, `EVOL_limites-modele-dynamique_v1`. Trois preuves périmées sur le même
+prompt — la 9 amputée d'un `]`, la 1 oubliant la clé `reste`, la 6 exigeant `DSPFFD` = 0 quand §A
+prescrivait une glose qui le nomme.
+**Erreur** : Même cause à chaque fois — la preuve est dérivée de ce que je croyais que le livrable
+serait, et jamais rejouée contre le texte du prompt après sa dernière réécriture. Une garde qui
+contredit sa propre prescription est pire qu'une absence de garde : elle arrête l'exécutant sur un
+travail juste.
+**Correction** : Après toute réécriture, relire les preuves en dernier, une par une, et relancer
+celles qui se mesurent sur le dépôt.
+**Applicable globalement ?** : Oui — deuxième occurrence de la leçon du 21 août 2026.
+
+## 2026-09-01 — On n'injecte pas de nouveaux paramètres dans une machine qui usine
+**Type** : Erreur
+**Contexte** : Le prompt gelé a été réécrit sur le disque pendant que l'agent le lisait : il a lu une
+version, travaillé, puis commité une version différente — le HTML publiait `DSPFFD` quand le prompt
+du même commit prescrivait `QSYS2.SYSCOLUMNS`.
+**Erreur** : La règle existait déjà au référentiel (§4.1, v2.23, « un prompt remis à CC ne se
+retouche plus »), avec un anti-pattern du 12 juillet 2026 qui décrivait ce geste mot pour mot et
+prédisait : « la prochaine fois, l'ajout sera une contradiction ». La prédiction s'est vérifiée à
+sept semaines.
+**Correction** : Formulation du chef de projet, qui est la règle — lorsqu'une pièce part en usinage
+avec ses paramètres, tant que l'usinage tourne, on n'injecte pas de nouveaux paramètres à la machine.
+La machine doit être à l'arrêt. Un amendement ne s'écrit qu'**avant le lancement** ou **après
+`READY`** ; s'il naît en cours d'usinage, il s'annonce et attend le point d'arrêt.
+**Applicable globalement ?** : Oui.
+
 ## 24 août 2026 — Un défaut de série ne vit pas dans la valeur, il vit dans son voisinage
 **Type** : Erreur
 **Contexte** : EVOL `prototype-et-production` (incrément 8). La valeur 4 EN gelée ouvrait sur

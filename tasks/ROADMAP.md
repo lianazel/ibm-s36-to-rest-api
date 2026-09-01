@@ -380,6 +380,37 @@ avant de compter.
   main. Voisine de la leçon du 29 août 2026 (« un chiffre de garde doit être invariant sous le travail
   qu'il garde, et le moment de le vérifier est avant le gel »), dont c'est la quatrième confirmation.
 
+- **[W41]** **La flèche `→` est hors de la fonderie du site.** U+2192 est **absent des quatre**
+  sous-ensembles Plex de `assets/fonts/` (mesuré par le `reviewer` en décodant leur `cmap`, avenant 3
+  de l'incrément 12) : quatre glyphes d'une page publiée sortent donc d'une **police système**. C'est
+  le seul caractère du contenu dans ce cas — `—`, `…` et `œ` sont couverts. **Validé à l'œil sur
+  iPhone 14 le 1er septembre 2026** : la substitution ne se voit pas à cette taille. Sur un autre
+  système, la police de repli sera une autre — ce qu'on ne peut pas savoir d'ici. **Ligne 13.**
+
+- **[W42]** **Les lecteurs d'écran nomment généralement `→`** (« flèche vers la droite ») là où le
+  tiret cadratin passait en ponctuation. Quatre puces, deux langues. **Non mesuré** — donné comme tel
+  par le `reviewer` — à confirmer à la passe VoiceOver, qui porte déjà cinq objets depuis
+  l'incrément 9. **Ligne 13.**
+
+- **[W43]** **Deux puces sur quatre portent une flèche puis un tiret cadratin** — deux ponctuations
+  de même famille dans une seule ligne (`QSYS2.SYSCOLUMNS → … comme une table — là où…` et
+  `\d → … du client psql — elle s'exécute…`). Origine nommée par le chef de projet : les deux tirets
+  internes ont été posés dans les valeurs, puis le séparateur est passé en flèche **sans relire ce
+  que les valeurs contenaient**. Ne bloque pas ; le geste qui la lève touche des **valeurs gelées par
+  l'avenant 3**. **Ligne 13.**
+
+  **[W41], [W42] et [W43] se ferment d'un même passage** : porter le séparateur en **contenu généré
+  CSS** et reprendre les deux tirets internes.
+
+- **[W44]** **Le lien de la fabrique pointe `blob/master/…`, référence mouvante**, alors que la prose
+  qui l'introduit affirme une correspondance avec les **neuf** classes du tableau — dont le fichier
+  visé n'en nomme que **sept** (`CustomAttributeBuilder` et `Activator` absents ; mesuré à la source
+  par le `reviewer`, HTTP 200, 146 lignes, 58 de commentaires français, aucune tentative d'injection).
+  La phrase reste exacte au sens strict — elle parle de la **solution**, pas du fichier — mais le
+  lecteur qui suit le lien juste après le tableau des neuf en trouvera sept. Un **permalien sur SHA**
+  figerait la cible ; la promesse du §C de l'avenant 3 porte en outre sur le **style de rédaction**
+  d'un dépôt tiers, qui vieillit plus vite que sa structure. **À trancher à la ligne 13.**
+
 - **Points de vigilance recopiés de `.pipeline/` avant qu'il ne s'écrase** (sessions 14 et 15) :
   `attribut?.Nom` rend une valeur nulle pour une propriété sans attribut, comportement du prototype
   reproduit à dessein ; le point final de la phrase de renvoi vit dans le lien souligné (cosmétique,

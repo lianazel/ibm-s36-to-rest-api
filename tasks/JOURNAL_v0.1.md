@@ -1832,3 +1832,79 @@ sont déjà mesurées.
 
 **La mesure sous VoiceOver reste due**, quatre objets, depuis l'incrément 9. La réserve 3 lui en
 ajoute un cinquième : ce qu'un lecteur d'écran annonce réellement sur une ancre vide.
+
+---
+
+## Session 24 — 31 août / 1er septembre 2026 — EVOL `limites-modele-dynamique` (merge `e616623`, 0.1.21 → 0.1.22)
+
+**Ligne 12 du fil**, ouverte le 30 août à l'ouverture de la session. La section 3 montrait le modèle
+dynamique et s'arrêtait sur « il restait une étape » ; elle ne disait nulle part **ce que le modèle
+ne sait pas faire**. Elle le dit maintenant en quatre paragraphes et une liste de quatre voies :
+la **cause** (le schéma est déduit de la première ligne, jamais demandé à la base), les **deux
+contraintes et le piège** du NULL numérique qui devient zéro sans un mot, le **travail d'amont** que
+les jointures imposent, et la **parade**, la même quel que soit le SGBD. **[W20] remboursée** : son
+remède inscrit — « une phrase de légende » — est remplacé par cette prose.
+
+**Un incrément, trois avenants, six commits, trois revues.** Le premier prompt a livré la
+sous-section ; l'avenant 1 a sorti les quatre voies du dictionnaire pour les passer en liste, avec la
+première règle Mono du contrat de design et le lien vers la fabrique C# ; l'avenant 2 a déplacé ce
+lien dans le bloc dépliable dont il est la suite ; l'avenant 3 a précisé la glose de `\d`, changé les
+quatre séparateurs en flèches et annoncé le code commenté en français. **Cinq passes d'appareil** du
+chef de projet, dont une qui a **vérifié les quatre voies sur des moteurs réels**.
+
+### Le FAIL de la session, et sa cause
+
+Le prompt gelé a été **réécrit sur le disque à 09:27**, entre ma lecture (28 721 o) et mon commit
+(29 822 o). J'ai lu une version, travaillé, puis **commité le prompt neuf avec du code exécutant
+l'ancien** : `index.html` publiait `DSPFFD` quand le §A du prompt du **même commit** prescrivait
+`QSYS2.SYSCOLUMNS`. Trouvé par le `reviewer`, corrigé en `5dccf46`.
+
+Le démenti était dans une sortie que j'avais sous les yeux : `git show --stat` a imprimé **+181** là
+où mon artefact annonçait **+172**. Un compte qui contredit ce qu'on croit savoir est une mesure, pas
+du bruit. Les deux leçons du jour en sortent, rédigées par le chef de projet : **la preuve se
+recalcule sur le texte du prompt**, et **on n'injecte pas de nouveaux paramètres dans une machine qui
+usine** — la seconde nomme aussi l'infraction du côté du chef de projet, la règle du prompt gelé
+(§4.1) ayant été enfreinte, et cite l'anti-pattern du 12 juillet 2026 qui l'avait prédite à sept
+semaines près.
+
+### Ce que la passe d'appareil a établi, et qu'aucune porte ne mesurait
+
+Le chef de projet a testé les quatre voies sur des moteurs réels : `sp_help` rend ses lignes sous SQL
+Server, `INFORMATION_SCHEMA.COLUMNS` fonctionne sous SQL Server **et** sous PostgreSQL 18, et `\d`
+échoue dans pgAdmin — ce qui **confirme** la glose au lieu de la contredire, puisqu'elle annonçait
+déjà une commande de client. Deux causes se superposaient dans cet échec : la barre oblique inverse
+se confond à l'œil avec la barre normale, et pgAdmin envoie la ligne au serveur comme du SQL. La
+glose de l'avenant 3 nomme désormais les deux.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| Le recalage du fil de la session 24 n'était pas commité, et le prompt le supposait | **Committé sur `main` en `a0dcaee`**, ROADMAP seul, avant la branche, sur accord explicite | Le précédent est constant (`02e07c3`, `46c81d4`, `59cbefa`). Sans ce geste, l'ouverture de session du chef de projet entrait dans le commit de l'incrément, **et la preuve 10 ne l'aurait pas vu** — elle compte les fichiers, pas les hunks | **précédent** |
+| La preuve 9 ne peut pas passer sans casser la convention du fil | **Convention gardée**, preuve rendue avec son motif corrigé | 30 entrées s'écrivent `- **[Wnn]**`, 0 sans crochets. Renommer l'entrée pour verdir un grep, c'est adapter le document à la vérification | **précédent** |
+| La preuve 6 exige `DSPFFD` = 0 quand §A prescrit une glose qui le nomme | **§A l'emporte**, la preuve était périmée ; part en dette, pas en correctif | La prescription prime sa mesure, et la preuve 8 du même bloc tranche dans le même sens. Le geste était bon | **précédent** |
+| Le site lie un dépôt public portant clé privée, clé Jwt et adresse IP | **Lien maintenu**, inscrit aux « Décisions actées » | Dépôt déjà public, le lien pointe une classe et ne crée aucune exposition ; identifiants = valeurs de test, solution hors production ; et le lien vit dans le pli | **cas d'espèce** |
+| Quatre preuves périmées sur un seul prompt | **Un seul énoncé**, [W40], pour une seule cause | Quatre entrées auraient dispersé un motif qui se corrige d'un geste : recalculer les attendus sur le texte final avant le gel | **précédent** |
+| Deux artefacts rendus faux par la troisième revue | **Recalés avant `READY`**, sans toucher au code | La règle d'arrêt porte sur le code, pas sur le compte rendu. `.pipeline/` n'est pas commité, le `commit` de `review.json` reste valide. Reprise du précédent de la session 23 | **précédent** |
+| Niveau de bump | **Patch** 0.1.21 → 0.1.22, sans redemander | Règle en portée `précédent` depuis la session 12. **Vingt-deuxième** inscription | précédent |
+
+### Dettes qui partent ouvertes, et nommées
+
+**[W40]** — les **quatre preuves périmées** du prompt, un seul énoncé pour une seule cause : l'attendu
+est dérivé à la main d'une *idée* du livrable et jamais recalculé sur son *texte*. Remède ligne 14.
+
+**[W41] à [W44]**, quatre dettes de forme, toutes ligne 13 : la **flèche `→` hors de la fonderie**
+(U+2192 absent des quatre sous-ensembles Plex — validé à l'œil sur iPhone 14, invisible à cette
+taille, mais la police de repli d'un autre système est inconnue d'ici) ; ce que les **lecteurs
+d'écran** en nomment, non mesuré ; les **deux puces sur quatre** qui portent une flèche puis un tiret
+cadratin ; et le lien en **`blob/master`**, référence mouvante vers un fichier qui ne nomme que sept
+des neuf classes annoncées. Les trois premières se ferment d'un même passage : séparateur en contenu
+généré CSS, et reprise des deux tirets internes.
+
+Tiennent aussi, inchangées : `.arguments` mal classé sous l'en-tête « mini-langage », l'absence de
+`overflow-wrap` sur `.arguments code` (pire cas `INFORMATION_SCHEMA.COLUMNS` seul à 320 px), et les
+**cinq `h3` de style identique** pour un cheminement qui en annonce quatre — allégés par le
+déplacement du lien, pas levés.
+
+**La mesure sous VoiceOver reste due**, cinq objets depuis l'incrément 9, et [W42] lui en ajoute un
+sixième : ce qu'un lecteur d'écran annonce sur la flèche.
