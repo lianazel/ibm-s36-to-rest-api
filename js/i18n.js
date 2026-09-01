@@ -45,6 +45,7 @@ export const dict = {
         "Un prototype d'API REST .Net qui expose en JSON des fichiers hérités IBM S/36 tournant sur IBM i : démontré, testé, expliqué.",
     },
     section1: {
+      chapeau: "S/36 · IBM i",
       title: "Le décor",
       intro:
         "IBM i fait tourner encore aujourd'hui des applications nées sur System/36 : sur un IBM i 7.5 actuel, la commande STRS36 démarre toujours une session S/36. Ce patrimoine est vivant : il calcule, il facture, il livre. Il est simplement muet pour le web.",
@@ -71,12 +72,14 @@ export const dict = {
       },
     },
     section2: {
+      chapeau: "S/36 · IBM i",
       title: "Le problème",
       intro: "Le défi consiste à exposer en JSON un format de table hérité de l'ère de l'IBM System/36. Ces tables, pour celles qui sont encore en activité, font leur travail : elles enregistrent et restituent sans faillir. Mais demandez-leur ce qu'elles contiennent, elles ne savent pas répondre. Le fichier donne des positions et des noms d'au plus six caractères, jamais ce qu'ils veulent dire. C'est l'application qui connaît la valeur métier de telle ou telle colonne.",
       renvoi: "Pour voir un fichier S/36 de près, ses positions, ses noms abrégés, ses décimales cachées :",
       renvoiLien: "l'annexe, en fin de page.",
     },
     section3: {
+      chapeau: "API REST · .Net · prototype testé en réel",
       title: "La solution",
       sousTitre: "Avec un modèle de données C#",
       intro: "Mon métier, c'est l'IBM i. J'ai découvert C# et .Net au travers d'opportunités professionnelles. Ce qui suit n'est pas une recette. C'est un cheminement, en quatre temps, tel qu'il s'est passé.",
@@ -280,6 +283,7 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
       },
     },
     section4: {
+      chapeau: "API REST · .Net · R&D",
       title: "Le mini-langage",
       ouverture: {
         titre: "Une idée, pas une pièce du système",
@@ -535,11 +539,23 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
       },
     },
     section5: {
+      chapeau: "IA · Harnais TWAIM",
       title: "La méthode",
       intro: "Ce site n'a pas été tapé à la main, ni dicté à une IA en lui faisant confiance. Il a été construit sous un harnais de travail : TWAIM.",
       comment: "Chaque étape commence par un prompt écrit avant le code. Un agent l'exécute, un autre le relit et rend un verdict. Aucun agent ne fusionne, aucun ne publie : c'est mon geste.",
       preuve: "La preuve n'est pas dans ce texte, elle est dans le dépôt, qui est public. Les prompts qui ont piloté chaque étape y sont entiers, avec le journal des atterrissages et le registre des leçons.",
       prive: "Le référentiel de la méthode, lui, reste privé : ce site montre comment le harnais fonctionne, pas sa mécanique interne.",
+      dialogue: {
+        legende: "Deux voix du harnais, telles qu'elles vivent dans le dépôt : la consigne du chef de projet, puis la trace laissée par l'agent. Citées mot pour mot, en français.",
+        voix1: "Chef de projet · prompts/v0.1",
+        // Citation exacte du prompt de l'incrément 12, graisse retirée, vérifiée
+        // à la source : identique dans les deux langues parce que le harnais
+        // s'écrit en français. Un artefact se cite, il ne se traduit pas.
+        consigne: "Demande du chef de projet du 30 août 2026, sur le site publié en 0.1.21 : la section 3 montre le modèle dynamique et s'arrête sur « il restait une étape » ; elle ne dit nulle part ce que le modèle ne sait pas faire.",
+        voix2: "Claude Code · git log",
+        // Deux lignes de `git log --format='%h %s'`, recopiées telles quelles.
+        trace: "5e31650 docs(prompt): prompts/v0.1/EVOL_limites-modele-dynamique_v1.md\ne616623 Merge branch 'feat/limites-modele-dynamique'",
+      },
       depot: "Le dépôt de ce site, sur GitHub",
       // Même adresse que la version anglaise, volontairement : le dépôt n'a pas
       // de version anglaise. Ce n'est pas un défaut de parité à « corriger ».
@@ -548,6 +564,7 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
       lienUrl: "https://twaim-web.vercel.app/",
     },
     annexe: {
+      chapeau: "IBM S/36 · RPG II",
       title: "Annexe : un fichier S/36 de près",
       intro: "Ce chapitre est un détour technique, un petit voyage dans les contraintes de l'époque. Il n'est pas nécessaire pour suivre la suite.",
       memoire: "Ce chapitre s'appuie sur ma mémoire. L'essentiel de ma carrière s'est déroulé sur IBM i ; par avance, pardon pour les erreurs ou les oublis.",
@@ -654,6 +671,8 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
         "A .Net REST API prototype exposing legacy IBM S/36 files running on IBM i as JSON: demonstrated, tested, explained.",
     },
     section1: {
+      // Identique au français : ce chapeau ne porte que des noms propres, rien à traduire.
+      chapeau: "S/36 · IBM i",
       title: "The setting",
       intro:
         "IBM i still runs applications born on System/36: on a current IBM i 7.5, the STRS36 command still starts an S/36 session. This heritage is alive: it computes, it invoices, it ships goods. It is simply mute to the web.",
@@ -680,12 +699,15 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
       },
     },
     section2: {
+      // Identique au français : ce chapeau ne porte que des noms propres, rien à traduire.
+      chapeau: "S/36 · IBM i",
       title: "The problem",
       intro: "The challenge is to expose in JSON a table format inherited from the IBM System/36 era. These tables, those still in service, do their job: they record and return data without fail. But ask them what they hold, and they cannot answer. The file gives positions and names of six characters or fewer, never what those names mean. The application is what knows the business meaning of each column.",
       renvoi: "To see an S/36 file up close, its positions, its abbreviated names, its hidden decimals:",
       renvoiLien: "the appendix, at the end of the page.",
     },
     section3: {
+      chapeau: "REST API · .Net · prototype tested",
       title: "The solution",
       sousTitre: "With a C# data model",
       intro: "My trade is IBM i. C# and .Net came to me through the work I was given. What follows is not a recipe. It is a path, in four steps, the way it actually happened.",
@@ -888,6 +910,7 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
       },
     },
     section4: {
+      chapeau: "REST API · .Net · R&D",
       title: "The mini-language",
       ouverture: {
         titre: "An idea, not a working part",
@@ -1116,11 +1139,23 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
       },
     },
     section5: {
+      chapeau: "AI · TWAIM harness",
       title: "The method",
       intro: "This site was not hand-typed, nor dictated to an AI on trust. It was built under a working harness: TWAIM.",
       comment: "Every step starts with a prompt written before any code. One agent carries it out, another reviews it and returns a verdict. No agent merges, no agent publishes — that step is mine.",
       preuve: "The proof is not in this text. It is in the repository, which is public. The prompts that drove every step are there in full, along with the landing journal and the lessons register.",
       prive: "The method's own repository stays private: this site shows how the harness works, not its inner workings.",
+      dialogue: {
+        legende: "Two voices of the harness, as they live in the repository: the project lead's instruction, then the trace the agent left. Quoted word for word, in French.",
+        voix1: "Project lead · prompts/v0.1",
+        // Citation exacte du prompt de l'incrément 12, graisse retirée, vérifiée
+        // à la source : identique dans les deux langues parce que le harnais
+        // s'écrit en français. Un artefact se cite, il ne se traduit pas.
+        consigne: "Demande du chef de projet du 30 août 2026, sur le site publié en 0.1.21 : la section 3 montre le modèle dynamique et s'arrête sur « il restait une étape » ; elle ne dit nulle part ce que le modèle ne sait pas faire.",
+        voix2: "Claude Code · git log",
+        // Deux lignes de `git log --format='%h %s'`, recopiées telles quelles.
+        trace: "5e31650 docs(prompt): prompts/v0.1/EVOL_limites-modele-dynamique_v1.md\ne616623 Merge branch 'feat/limites-modele-dynamique'",
+      },
       depot: "This site's repository, on GitHub",
       // Même adresse que la version française, volontairement : le dépôt n'a pas
       // de version anglaise. Ce n'est pas un défaut de parité à « corriger ».
@@ -1129,6 +1164,8 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
       lienUrl: "https://twaim-web.vercel.app/en",
     },
     annexe: {
+      // Identique au français : ce chapeau ne porte que des noms propres, rien à traduire.
+      chapeau: "IBM S/36 · RPG II",
       title: "Appendix: an S/36 file up close",
       intro: "This chapter is a technical detour, a short trip into the constraints of the day. It is not needed to follow what comes next.",
       memoire: "This chapter draws on my memory. Most of my career took place on IBM i; my apologies in advance for any errors or omissions.",

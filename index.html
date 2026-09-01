@@ -71,6 +71,7 @@
   <main>
     <section id="decor" aria-labelledby="decor-titre">
       <p class="tagline" data-i18n="hero.tagline"></p>
+      <p class="chapeau" data-i18n="section1.chapeau"></p>
       <h2 id="decor-titre" data-i18n="section1.title"></h2>
       <p data-i18n="section1.intro"></p>
 
@@ -93,12 +94,14 @@
     </section>
 
     <section id="probleme" aria-labelledby="probleme-titre">
+      <p class="chapeau" data-i18n="section2.chapeau"></p>
       <h2 id="probleme-titre" data-i18n="section2.title"></h2>
       <p data-i18n="section2.intro"></p>
       <p><span data-i18n="section2.renvoi"></span> <a href="#annexe" data-i18n="section2.renvoiLien"></a></p>
     </section>
 
     <section id="solution" aria-labelledby="solution-titre">
+      <p class="chapeau" data-i18n="section3.chapeau"></p>
       <h2 id="solution-titre" data-i18n="section3.title"></h2>
       <p class="sous-titre" data-i18n="section3.sousTitre"></p>
       <p data-i18n="section3.intro"></p>
@@ -244,6 +247,7 @@
     </section>
 
     <section id="mini-langage" aria-labelledby="mini-langage-titre">
+      <p class="chapeau" data-i18n="section4.chapeau"></p>
       <h2 id="mini-langage-titre" data-i18n="section4.title"></h2>
 
       <h3 data-i18n="section4.ouverture.titre"></h3>
@@ -431,11 +435,20 @@
     </section>
 
     <section id="methode" aria-labelledby="methode-titre">
+      <p class="chapeau" data-i18n="section5.chapeau"></p>
       <h2 id="methode-titre" data-i18n="section5.title"></h2>
       <p data-i18n="section5.intro"></p>
       <p data-i18n="section5.comment"></p>
       <p data-i18n="section5.preuve"></p>
       <p data-i18n="section5.prive"></p>
+      <figure class="dialogue">
+        <figcaption id="dialogue-legende" data-i18n="section5.dialogue.legende"></figcaption>
+        <p class="consigne">
+          <span class="voix" data-i18n="section5.dialogue.voix1"></span>
+          <span data-i18n="section5.dialogue.consigne"></span>
+        </p>
+        <pre class="agent" tabindex="0" role="region" aria-labelledby="dialogue-legende"><code><span class="voix" data-i18n="section5.dialogue.voix2"></span><span data-i18n="section5.dialogue.trace"></span></code></pre>
+      </figure>
       <!-- Le dépôt d'abord : le paragraphe `preuve` vient de l'annoncer. -->
       <p>
         <a href="https://github.com/lianazel/ibm-s36-to-rest-api" target="_blank" rel="noopener noreferrer"
@@ -448,6 +461,7 @@
     </section>
 
     <section id="annexe" aria-labelledby="annexe-titre">
+      <p class="chapeau" data-i18n="annexe.chapeau"></p>
       <h2 id="annexe-titre" data-i18n="annexe.title"></h2>
       <p data-i18n="annexe.intro"></p>
       <p data-i18n="annexe.memoire"></p>

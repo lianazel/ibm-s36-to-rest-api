@@ -147,7 +147,9 @@ avant de compter.
   par le `reviewer` sur trois passes : le défaut ne s'est pas caché dans le code mais dans **l'adverbe
   du commentaire** (`file` « contrôlé », puis « totale quel que soit ») — cf. `tasks/lessons.md`.
 
-- **[W18]** `index.html` porte `class="disclaimer"` sur le paragraphe de marques du pied de page et
+- **[W18]** **Remboursée le 1er septembre 2026 par l'incrément « Habillage » : `.disclaimer`
+  porte une règle** (`font-size: 0.8125rem`, la mention de marques en plus petit dans le pied
+  de page). Énoncé d'origine : `index.html` porte `class="disclaimer"` sur le paragraphe de marques du pied de page et
   `css/styles.css` ne contient aucune règle `.disclaimer` (mesuré le 19 août 2026, revue de session 13,
   réserve n° 5) : crochet inerte depuis sa pose. À rembourser avec la mise en scène : donner une règle
   à la classe, ou la retirer.
@@ -414,7 +416,9 @@ avant de compter.
   figerait la cible ; la promesse du §C de l'avenant 3 porte en outre sur le **style de rédaction**
   d'un dépôt tiers, qui vieillit plus vite que sa structure. **À trancher à la ligne 13.**
 
-- **[W45]** **Le champ « Filtre » ne déclare pas son fond.** `#mini-filtre` (`css/styles.css`) ne porte
+- **[W45]** **Remboursée le 1er septembre 2026 par l'incrément « Habillage » : `#mini-filtre`
+  déclare fond et encre** (`background: var(--color-bg); color: var(--color-ink)`, le remède
+  inscrit ci-dessous). Énoncé d'origine : **Le champ « Filtre » ne déclare pas son fond.** `#mini-filtre` (`css/styles.css`) ne porte
   ni `background` ni `color` : il suit le `color-scheme` de l'hôte. Vu le 1er septembre 2026 dans la
   maquette d'habillage hébergée, sous thème sombre : champ noir, texte clair, à côté d'une page blanche.
   Le site publié le rend blanc (`rgb(255, 255, 255)` mesuré au navigateur, système en thème sombre)
