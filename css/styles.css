@@ -348,6 +348,11 @@ section {
 #solution, #mini-langage     { --registre: var(--color-api); }
 #methode                     { --registre: var(--color-ia); }
 
+/* Pas de capitalisation ici : la forcer rendait « IBM i » en « IBM I » (passe
+   iPhone 14 du 1er septembre 2026, avenant 1), sur un site dont le sujet est
+   cette machine. Le Plex Mono et l'interlettrage tiennent le registre sans les
+   capitales, et la casse reste dans le dictionnaire, qui dit ce que le chapeau
+   nomme — jamais dans la feuille, qui dit comment il se rend. */
 .chapeau {
   width: fit-content;
   margin: 0 0 0.75rem;
@@ -357,7 +362,6 @@ section {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 /* Les titres du récit grandissent ; celui du panneau « À propos » ne bouge pas,

@@ -409,3 +409,63 @@ Lance chaque commande. Les preuves en **écart** se calculent sur les **(base)**
   `pre` région du bloc IA. Elle attend un humain ; ce n'est pas à toi de la faire.
 - **L'écart `CDEMST`**, **le mini-langage**, **les dettes de l'incrément 9** : intouchés.
 - **L'état de la ligne au fil** : geste manuel du chef de projet à l'ouverture suivante.
+
+## Avenant 1 — 1er septembre 2026, après la passe iPhone 14, machine à l'arrêt
+
+**`READY` posé, puis retiré avant d'écrire une ligne.** La revue `SHIP` sur `38c37c4` est sciemment
+invalidée : le chef de projet en paie une seconde passe. Ordre imposé : retrait du `READY`, puis le
+travail, puis le `reviewer` sur le nouveau commit, puis `READY` réécrit en dernier.
+
+### A — Le chapeau perd sa capitalisation
+
+**Motif, et il vient du rendu, pas du goût.** `text-transform: uppercase` sur `.chapeau` (ÉTAPE 3,
+livrable B3) transforme **« IBM i » en « IBM I »** — sur un site dont le sujet *est* IBM i, et dont
+le contrat de design refuse tout ce qui range cette machine ailleurs qu'au présent. Vu à l'écran d'un
+iPhone 14, chapeaux du décor et du problème.
+
+**Le geste, et il est d'une ligne** : retirer `text-transform: uppercase;` de la règle `.chapeau` de
+`css/styles.css`. Le Plex Mono, l'interlettrage de `0.08em` et le filet de registre tiennent le
+registre sans les capitales.
+
+**Aucune valeur du dictionnaire ne change** — arbitrage explicite du chef de projet : écrire les
+capitales en dur dans `js/i18n.js` mettrait **du style dans la donnée**. Le dictionnaire dit ce que
+le chapeau *nomme* ; la feuille dit comment il se *rend*.
+
+**Mesure du chef de projet, portée ici pour que la preuve 13 ne se rejoue pas à blanc** : Plex Mono
+étant à **chasse fixe**, les six largeurs sont **identiques avec ou sans la règle**, à 320 px comme
+à 390 px. Aucune mise en page ne bouge. Remesure et écris ce que tu mesures.
+
+### B — Les mentions que cet avenant périme
+
+1. **ÉTAPE 3, B3** : la ligne `text-transform: uppercase;` du bloc CSS prescrit est **révoquée**.
+   Le reste de la règle est inchangé.
+2. **ÉTAPE 7, preuve 13** : la formule « les six chapeaux tiennent sur **une ligne** à 390 px » reste
+   vraie et se rejoue ; elle se rejoue **après** le retrait, et la mesure porte désormais aussi sur
+   **320 px**.
+3. **Hors périmètre, mesure VoiceOver** : « ce qu'un lecteur d'écran fait d'un `p` en **capitales
+   espacées** avant un titre » se lit désormais « d'un `p` en Plex Mono espacé avant un titre ».
+   L'objet de la mesure ne change pas, sa description si.
+
+### C — Ce que cet avenant ne touche pas
+
+- **`.dialogue .voix`** garde son `text-transform: uppercase` : hors de cet avenant, qui ne vise que
+  `.chapeau`. *(Le même mécanisme y capitalise `prompts/v0.1` et `git log` — un chemin et une
+  commande. Signalé au chef de projet, non traité ici.)*
+- **« .Net » reste « .Net »** dans les valeurs : l'écart avec la graphie Microsoft « .NET » est un
+  sujet de **contenu**, pas de cet incrément.
+- **Les six valeurs de chapeau**, mot pour mot, dans les deux langues.
+- Tout le reste du hors-périmètre du prompt, inchangé.
+
+### D — Preuves de l'avenant 1
+
+1. `grep -c 'text-transform: uppercase' css/styles.css` = **la valeur d'avant moins 1** (mesure
+   l'avant, ne le suppose pas) ; et la règle `.chapeau` n'en porte plus, lue dans son bloc.
+2. `grep -c 'chapeau:' js/i18n.js` = **12**, **inchangé** · `git diff` sur `js/i18n.js` = **vide** :
+   aucune valeur du dictionnaire n'a bougé.
+3. `grep -o 'data-i18n="' index.html | wc -l` = **244**, inchangé · `git diff` sur `index.html` =
+   **vide**.
+4. **Au navigateur, quatre relevés** (320 px et 390 px, FR puis EN) : les six chapeaux sur **une
+   ligne**, et les six largeurs **identiques** à celles mesurées avant le retrait. Écris les deux
+   séries.
+5. `npm test` : **356/356**, tests intouchés (la garde de `section4` reste à 134).
+6. `git diff --stat` ne touche que `css/styles.css` et ce prompt.
