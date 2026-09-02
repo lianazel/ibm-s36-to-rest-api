@@ -2126,3 +2126,94 @@ Le critère neuf vit aujourd'hui dans deux documents de prose qu'aucune machine 
 
 **La mesure sous VoiceOver reste due**, huit objets, inchangée : cet incrément n'ajoute aucun texte,
 il colore celui qui existe.
+
+## Session 28 — 2 septembre 2026 — CHORE `plancher-permissions-global` (fast-forward `0c6c970`, 0.1.25 inchangée)
+
+**Journée d'outillage de sécurité, hors du fil.** Elle solde la **condition (3) de `RD-054`**, proposée
+le 17 août 2026 et jamais construite : une **liste d'interdits mécaniques**, prouvée à blanc, qui
+remplace l'approbation manuelle quand le mode automatique tourne. Mesuré le 1er septembre : le mode
+auto avait tourné sur trois incréments avec **trois conditions sur quatre**, la quatrième étant tenue
+par un jugement au cas par cas.
+
+**Aucun changement produit. Version inchangée à 0.1.25**, délibérément : rien du site n'a bougé.
+
+### Ce qui a été posé
+
+| Où | Quoi | Nature |
+|---|---|---|
+| `.claude/settings.json` | 16 règles `permissions.deny` | **contrat versionné** — visible du `reviewer`, présent dans un clone |
+| `~/.claude/settings.json` | les mêmes 16 | **plancher machine** — couvre les seize dépôts, hors dépôt |
+| `CLAUDE.md` | section « Règles de sécurité » | `SECURITY_METHOD` §2, **absente depuis la création du projet** |
+
+Les interdits : publication et destruction git (`push`, `merge`, `tag`, `reset --hard`, `clean`) ·
+installation de dépendances (`npm`, `npm ci`, `npm i`, `yarn`, `pnpm`, `pip`, `pip3`) · réseau sortant
+(`curl`, `wget`) · `rm -rf`.
+
+### La preuve, et ce qu'elle a coûté à obtenir
+
+**L'essai 0 a échoué deux fois avant de mesurer quoi que ce soit**, et les deux échecs valent mieux que
+le résultat. Au premier, l'agent a **substitué** `git ls-remote` à la commande interdite : rien n'a été
+tenté, donc aucun refus à voir, et l'écran donnait l'apparence d'un test. Au second, la règle n'avait
+pas été chargée. **Un agent qui reformule la commande rend l'essai inobservable** — tout essai impose
+désormais la commande **littérale** et interdit la substitution.
+
+**Liste projet, en mode automatique** : 7 refus sur 8, le huitième étant un **témoin délibéré**
+(`git branch --list`) qui devait passer et qui passe. Message exact du premier refus :
+`Permission to use Bash with command git push --dry-run has been denied.`
+
+**Plancher machine, depuis `TwaimWeb`** (dépôt tiers sans règle locale, session neuve) : **6 refus par
+le plancher, 1 par l'agent en amont, 1 témoin exécuté**. Le compte n'est pas « 7 sur 8 » — `git push`
+nu n'a jamais atteint le système, l'agent l'ayant refusé de lui-même au nom d'une règle de prose. **Les
+deux couches se recouvrent sans se remplacer** : la règle écrite évite l'intention, la porte mécanique
+évite l'effet.
+
+**Le filtre est syntaxique, jamais sémantique** : `git reset --hard HEAD` et `rm -rf <cible
+inexistante>` étaient, à cet instant, des no-op vérifiés — refusés quand même. Le garde-fou juge la
+forme de la commande, pas son effet, et c'est le bon sens de l'erreur : il tient encore le jour où
+l'état du dépôt rend le geste dangereux.
+
+### Le fait neuf, qui ne figurait dans aucune hypothèse
+
+**Des règles ajoutées pendant qu'une session tourne n'y mordent pas ; elles mordent après relance.**
+Découvert par accident — la liste réécrite à 14 h 43 n'a pas mordu à 14 h 55, seule la règle présente à
+l'ouverture l'a fait — puis confirmé par rejeu. **Le mécanisme n'est pas prouvable de l'intérieur ; le
+fait l'est**, et c'est écrit ainsi. Portée : durcir une liste d'interdits en cours de session donne une
+**garde de papier**, et ça ne rougit pas.
+
+Ce constat **corrige** la règle du prompt gelé par l'inverse de son motif : on ne touche pas aux
+permissions en cours d'usinage, non parce que ça déplacerait la cible sous les pieds de l'agent, mais
+parce que **ça ne ferait rien du tout**.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| `RD-054` nomme « les réglages de permissions du projet » sans distinguer les deux fichiers ; `settings.local.json` est en ligne 2 du `.gitignore` | **La liste va dans `.claude/settings.json`, committé** | Une liste non versionnée n'est ni vue du `reviewer`, ni présente dans un clone, ni opposable : c'est un réglage de poste, pas un contrat | **précédent** |
+| Le mode automatique est devenu l'état de départ de chaque session, par décision d'Anthropic ; `permissions.defaultMode: "default"` existe et fonctionnerait | **Ne pas le poser. Le mode auto reste actif au lancement** | `/session-start` est en lecture seule et n'appelle aucune commande dangereuse ; ce qui rend ce choix tenable aujourd'hui et pas hier, c'est la liste elle-même — le motif reposait sur le bon comportement d'une commande, il repose maintenant sur un contrat | **précédent** |
+| Plancher machine **et** contrat de projet portent la même liste | **Les deux, recouvrement assumé** | Le plancher couvre les dépôts sans réglages ; le contrat est ce qu'un clone reçoit. Un `deny` ne portant pas d'exceptions, aucun ne peut affaiblir l'autre | **précédent** |
+| L'ÉTAPE 0 du prompt `_v2` prescrivait d'enregistrer la `_v1`, que sa propre ligne 8 déclare caduque | **Enregistrer la `_v2`**, écart déclaré dans le message de commit | Le premier enregistrement doit nommer le prompt réellement exécuté ; inscrire un renvoi vers un prompt annulé serait durable | cas d'espèce |
+| Les 10 WARN de la coloration devaient être nommées, mais `[W46]` et `[W47]` existaient déjà dans `lessons.md` sans figurer au fil | **Inscrire `[W46]`–`[W47]` au fil, puis nommer la coloration `[W48]`–`[W57]`** | Fermer le trou coûte moins qu'un fil qui saute deux numéros sans raison ; aucune renumérotation | cas d'espèce |
+
+### Dettes ouvertes à l'issue
+
+**Treize dettes nommées, `[W46]` à `[W58]`** — dont `[W58]`, neuve et d'une autre famille : deux
+commandes (`session-start.md` l. 14, `ship.md` l. 29) prescrivent la relecture de sections
+**inexistantes** du `CLAUDE.md`. Mesuré : « Qualité » et « Anti-patterns » n'y figurent nulle part, et
+« Sécurité » n'existait pas avant ce jour. Une prescription qui désigne une cible vide, **en silence**.
+
+**Neuf des seize règles ne sont pas éprouvées individuellement** (`git merge`, `git tag`, `git clean`,
+`npm ci`, `npm i`, `yarn`, `pnpm`, `pip3 install`, `wget`) : même forme que celles qui mordent, ce qui
+est un argument et non une preuve.
+
+**Un chemin par lequel tout cela peut disparaître sans que personne le voie** : l'outil de sauvegarde et
+restauration de la configuration globale écrase `~/.claude/settings.json` lors d'une restauration. Sa
+garantie « non destructive » est vraie au niveau fichier, fausse au niveau contenu. Piège inscrit dans
+le `CLAUDE.md` de cet outil le même jour ; le remède — comparer le nombre d'interdits, fusionner ou
+refuser — n'est pas encore écrit dans son code. **Leçon générale : une garde placée à l'intérieur de ce
+qu'elle garde n'est pas une garde.**
+
+**`RD-061` ouverte au référentiel** : deux corps de doctrine de sécurité coexistent, et c'est le non
+versionné qui pilote — `SECURITY_METHOD` (22 ko, relu, presque jamais chargé) contre ~30 ko de règles
+globales auto-chargées à chaque session et relues par personne. Audit proposé, non instruit.
+
+**Traces complètes hors dépôt** : `Etude_Technique/PREP_liste-interdits_v3.md`.
