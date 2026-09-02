@@ -831,3 +831,64 @@ travail ; celle-ci dit qu'elle ne doit pas **regarder plus loin que son objet**.
 **Applicable globalement ?** : **Oui** — la règle ne tient à aucun langage ni à aucun outil. Elle vaut
 pour tout `grep` de garde, tout test de comptage, tout lint maison, dans tout dépôt où le code et la
 prose qui le documente vivent dans les mêmes fichiers.
+
+## 2026-09-02 — Un critère qui écarte une option doit être passé sur toutes les paires, pas seulement sur celle qui l'a fait naître
+**Type** : Erreur
+**Contexte** : Incrément « Coloration C# » (12 quater). La palette « VS brun » a été arbitrée sur un
+motif chiffré et vérifiable : la chaîne de Visual Studio clair `#a31515` est à **ΔE CIE76 5,5** du
+rouge de refus du mini-langage `#a2191f` — « une couleur, deux sens sur la même page ». Le brun
+`#8b4513` a été retenu parce qu'il porte ΔE 28,0. L'arbitrage est bon, le motif est bon, et il est
+écrit trois fois : au prompt, au fil, au commentaire du jeton.
+**Erreur** : le critère a été appliqué à **une seule paire** — celle qui avait fait naître la
+question. Les quatre jetons forment **six paires** ; personne n'a mesuré les cinq autres. Sous
+deutéranopie, la chaîne `#8b4513` et le commentaire `#0a7a0a` tombaient à **ΔE 3,3**, soit **plus
+serré que le 5,5 jugé inacceptable**. La palette choisie pour éviter « une couleur, deux sens »
+reproduisait le défaut à l'intérieur d'elle-même. Ni le prompt gelé, ni ma revue des contrastes (les
+quatre jetons passaient AA, mesurés au centième), ni la passe d'appareil ne l'ont vu : tous
+regardaient **le texte contre son fond**, jamais **les couleurs entre elles**.
+**Correction** : quand un critère sert à **écarter** une option, il devient la règle du domaine et
+non l'argument d'un cas. Le passer sur toutes les paires du domaine, et **écrire le plancher** qui en
+résulte — ici « aucune paire sous ΔE 15, sous vision normale, protanopie et deutéranopie ». Deux
+conséquences pratiques :
+
+- **Le nombre de paires est le vrai périmètre.** Quatre couleurs, ce n'est pas quatre vérifications
+  de contraste, c'est six comparaisons plus quatre contrastes. Un jeton ajouté à une palette de
+  quatre en crée **quatre** de plus, pas une.
+- **Un critère appliqué partiellement est pire qu'un critère absent** : il donne la certitude d'avoir
+  regardé. Le motif « une couleur, deux sens » était écrit trois fois dans le dépôt pendant que la
+  palette le violait.
+
+**Ce qui a rattrapé le défaut** : la revue indépendante, sur une réserve que personne ne lui avait
+demandée. C'est le seul filet qui ait fonctionné — la mesure, le prompt et l'œil ont tous échoué au
+même endroit, parce qu'ils posaient la même question.
+**Applicable globalement ?** : **Oui.** Rien ici n'est propre à la couleur : la forme est « un seuil
+qui disqualifie un candidat s'applique à tous les couples du domaine, pas au couple qui l'a fait
+énoncer ». Vaut pour des seuils de similarité de noms, de collisions de raccourcis clavier, de codes
+d'erreur, de délais de retentative. **Attendre une seconde occurrence sur un autre projet avant de
+promouvoir** (le global est la ressource rare).
+
+## 2026-09-02 — Une simulation sans contrôle de cohérence rend des nombres crédibles et faux
+**Type** : Succès
+**Contexte** : L'avenant 1 imposait de mesurer la séparation des couleurs sous dichromatisme par
+**Viénot-Brettel-Mollon 1999 via l'espace LMS**, et — c'est le point — d'exécuter **d'abord** deux
+contrôles : bleu pur / jaune pur doit rester **très grand** sous deutéranopie, rouge pur / vert pur
+doit **chuter**. « Si ces deux contrôles ne tombent pas ainsi, ton script est faux — ARRÊTE-TOI. »
+**Approche** : les contrôles ont été joués avant toute exploitation (235,2 et 30,4 : conformes), et
+seulement ensuite la matrice des six paires. Le `reviewer` a refait la mesure sans lire la mienne,
+en **recalculant** l'inverse de la matrice au lieu de la recopier : douze cellules au dixième près.
+**Pourquoi c'est un succès et pas une formalité** : l'approche naïve — une matrice 3×3 appliquée
+directement au RGB linéaire — rend **48** là où la méthode correcte rend **3,3**. Elle avait déjà
+égaré une première mesure. Rien dans ce 48 ne signale l'erreur : c'est un nombre plausible, du bon
+ordre de grandeur, qui aurait déclaré la palette saine et clos le sujet.
+**Pattern** : toute simulation d'un phénomène qu'on ne peut pas observer directement (vision
+dichromate, latence réseau, charge, horloge décalée) se livre avec **au moins un cas dont on connaît
+la réponse à l'avance**, et dont l'un doit **échouer** si le modèle est faux. Un contrôle qui passe
+quel que soit le modèle ne contrôle rien : ici, bleu/jaune vérifie qu'on n'écrase pas tout, rouge/vert
+vérifie qu'on écrase ce qu'il faut. **La paire de contrôles vaut mieux qu'un contrôle** — il en faut
+un qui monte et un qui descende.
+**Parenté** : même famille que la preuve de morsure (14 août 2026, « une porte se prouve par sa
+morsure »). La morsure prouve qu'une garde voit ; les contrôles de cohérence prouvent qu'une mesure
+mesure. Dans les deux cas, ce qui atteste n'est pas le résultat attendu, c'est **le résultat qu'on
+saurait reconnaître comme faux**.
+**Applicable globalement ?** : **Oui**, et c'est un candidat plus fort que le précédent — il ne parle
+ni de couleur ni de CSS. **Attendre une seconde occurrence sur un autre projet** avant de promouvoir.

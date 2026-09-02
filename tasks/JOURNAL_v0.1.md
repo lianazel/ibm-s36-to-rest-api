@@ -2042,3 +2042,87 @@ la marge de 8 px du chapeau FR, et [W23] qui gagne un porteur — le cadre sombr
 
 **La mesure sous VoiceOver gagne deux objets (huit)** : le `p` de chapeau avant chaque titre, et le
 `pre` région du bloc IA dont le contenu est deux lignes de `git log`.
+
+## Session 27 — 2 septembre 2026 — EVOL `coloration-csharp` (merge `3ffd135`, 0.1.24 → 0.1.25)
+
+**Ligne 12 quater du fil.** Le chef de projet demandait, le 1er septembre : « pour le code C#,
+est-il possible de récupérer la colorisation de Visual Studio ? » Oui, à trois conditions posées par
+le site — **zéro dépendance** (une bibliothèque de coloration s'exécuterait chez le lecteur),
+**aucun HTML dans le dictionnaire** (`applyI18n` écrit par `textContent` : une balise s'afficherait
+en clair), **contraste AA** sur le fond des cadres.
+
+**Quatre livrables.** Un module `js/coloration.js` — `tokenizeCSharp` pure, `KEYWORDS` fermé à
+41 mots, `paintTokens` sans `innerHTML`, `mountColoration` rejoué sur `i18n:applied` · trois
+`data-code="csharp"` et un `<script>` de plus dans `index.html`, CSP intacte · quatre jetons `--code-*`
+et quatre règles `.cs-*` · une suite neuve de **26 tests**.
+
+**L'invariant est le cœur du geste** : la concaténation des jetons est la source, caractère pour
+caractère. C'est ce qui rend la coloration sans conséquence — le texte copié depuis la page reste
+celui du dictionnaire, vérifié en test sur les six sources réelles **et** à l'écran dans les trois
+états de langue.
+
+**Les comptes de jetons ont été dérivés avant d'écrire la suite**, mécaniquement, sur le texte réel :
+3/6/36/16 · 1/0/12/10 · 8/0/29/23, identiques en FR et en EN, conformes au prompt. Deux morsures
+jetables ont éprouvé la suite — un mot ajouté à `KEYWORDS` fait tomber 5 tests, l'invariant cassé en
+fait tomber 7 — module restauré à l'identique au md5 près.
+
+**Trois passes de revue, toutes SHIP, 0 FAIL.** `cdd6919` (6 WARN) · `458f1c0` après l'avenant 1
+(10 WARN) · `ca621dd` après le geste de fil du chef de projet (10 WARN). **382/382** à chaque passe.
+
+### L'avenant 1, et ce qu'il apprend
+
+**Il ne vient pas de l'écran : il vient de la revue.** La seule réserve que le `reviewer` ait posée
+sans qu'on la lui demande signalait que la chaîne `#8b4513` et le commentaire `#0a7a0a` se
+rejoignent sous **deutéranopie**. Le `READY` a été retiré, la revue SHIP de `cdd6919` sciemment
+invalidée, et le chef de projet a payé une seconde passe.
+
+**Le motif tient en une phrase : le critère qui avait choisi la palette la condamnait.** Cet
+incrément n'existait sous cette forme que parce qu'un ΔE de 5,5 entre la chaîne de VS clair et le
+rouge de refus avait été jugé trop serré — « une couleur, deux sens ». Le même critère, appliqué à
+la paire qu'on ne regardait pas, donnait **3,3**. Le geste : `--code-commentaire` prend
+`var(--color-ink-soft)` (`#525252`), **une valeur déjà dans la feuille**. La paire remonte à 45,9.
+
+**Ce que la mesure a appris.** Le défaut ne venait **que** de la deutéranopie : sous protanopie
+l'ancienne paire tenait déjà à 22,5, au-dessus du seuil. Un contrôle qui n'aurait simulé qu'un seul
+dichromatisme aurait déclaré la palette saine. Et la méthode compte : une matrice 3×3 appliquée au
+RGB linéaire rend **48** là où la simulation correcte (Viénot-Brettel-Mollon 1999 **par l'espace
+LMS**) rend 3,3 — l'avenant imposait deux contrôles de cohérence avant toute exploitation, et c'est
+ce qui a écarté le faux résultat. Le `reviewer` a refait la mesure sans lire la mienne, en
+recalculant l'inverse de la matrice plutôt qu'en la recopiant : les douze cellules se rejouent au
+dixième près.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| Deux preuves du prompt (5 et 6) comptent un littéral et mordent sur les commentaires qui l'expliquent — `innerHTML` = 2 au lieu de 0, `#a31515` = 1 au lieu de 0 | **Restreindre la mesure à son objet, garder les commentaires** ; écart déclaré dans `changes.md` avec la mesure de substitution (`\.innerHTML` = 0, aucune déclaration ne porte `#a31515`) | Ce ne sont pas des gardes : rien dans le dépôt ne les exécute. Le remède inverse effacerait le nom du mécanisme évité dans le seul module qui écrit du DOM à la main, et rendrait invérifiable un arbitrage dont tout le motif est une comparaison chiffrée | **précédent** |
+| Le premier commit prescrit par le prompt (`docs(prompt): …`) alors que le prompt est déjà sur `main` en `b69ecf6` | **Étape sans objet, passée et dite** plutôt que refaite | Le refaire produirait un commit vide ; la branche hérite du prompt | cas d'espèce |
+| Le bloc de commentaire de `:root` annonçait **une** exception ; l'avenant en crée une seconde, alors que son §B dit « rien d'autre ne bouge » | **Une phrase de treize mots ajoutée**, déclarée avant la revue et retirable seule | Un geste qui laisse derrière lui un énoncé faux n'est pas fini — et la faute serait publiée par le commit même qui la crée. **Le `reviewer` tranche : complétude, pas désobéissance** ; mais il note que la voie irréprochable était de s'arrêter et de demander | **précédent** |
+| La convention de teinte du prompt (35,9° / 32,5°) ne retombait pas à la première mesure | **Vérifier la convention avant d'écrire** : c'est du **LCh(ab)**, pas du HSL (qui donne 0,0° / 357,4°) | Recopier une teinte qu'on n'a pas retrouvée écrirait une certitude non mesurée dans un commentaire committé | **précédent** |
+| Bump : la commande `/land` dit `feat/*` → minor | **Patch, 0.1.24 → 0.1.25** | Reconduction du précédent de la session 26 : le minor **est le jalon** (`prompts/v0.1/`, `JOURNAL_v0.1.md`) ; ouvrir 0.2 est une décision du chef de projet, pas un effet de bord d'un nom de branche | **précédent** |
+| Le commit de fil `ca621dd` du chef de projet arrive après la revue et fait refuser la garde | **Troisième passe de revue**, plutôt que de retirer le commit ou de contourner | La garde fait exactement son travail : elle interdit d'atterrir un commit que personne n'a revu. La contourner viderait de son sens le champ `commit` de `review.json` | cas d'espèce |
+
+### Dettes ouvertes à l'issue
+
+Les **10 réserves** de la troisième revue partent ouvertes, toutes WARN. Quatre visent
+`js/coloration.js` et étaient explicitement hors périmètre de l'avenant : l'en-tête ne déclare
+qu'une simplification quand quatre formes lexicales C# sont hors de portée (commentaire de bloc,
+chaîne verbatim) · le littéral `/g` partagé au niveau module (correct aujourd'hui — aucun chemin de
+réentrance, prouvé — mais le déclarer dans la fonction supprimerait la classe de défaut) ·
+« invariant ABSOLU » qui ne tient que pour une entrée chaîne (`tokenizeCSharp(42)` rend `[]`) ·
+`paintTokens` qui appelle le `document` global alors que `mountColoration` accepte une couture `root`.
+
+Deux sont neuves et tiennent au **couplage** posé par l'avenant : `--code-commentaire` lit désormais
+`--color-ink-soft`, que **35 autres règles** lisent aussi, et **aucun test ne porte de couleur** — une
+régression future serait silencieuse. Enfin le fil dit « recalés » au pluriel pour `#0000ff` et
+`#0e6e8c` quand un seul l'a été.
+
+**La réserve UX qui a motivé l'avenant est fermée** (3,3 → 45,9) ; **la réserve ARCHI sur le fil
+l'est aussi**, le chef de projet ayant recalé la ligne 12 quater par `ca621dd`.
+
+**R&D reconduite et renforcée** (quatre motifs désormais) : une **porte de palette** en Vitest,
+lisant la feuille et vérifiant contraste AA **et** séparation Viénot deutan/protan, plancher ΔE 15.
+Le critère neuf vit aujourd'hui dans deux documents de prose qu'aucune machine ne relit.
+
+**La mesure sous VoiceOver reste due**, huit objets, inchangée : cet incrément n'ajoute aucun texte,
+il colore celui qui existe.
