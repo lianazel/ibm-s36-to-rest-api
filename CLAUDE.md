@@ -84,6 +84,43 @@ Grossiste fictif, cinq fichiers S36 définis dans l'étude v2 : `CLIMST` (client
 3. **Correspondances JSON** : tableau de référence dans l'étude v2 §3.2. Tout nouvel exemple respecte ce dictionnaire (camelCase métier côté JSON).
 4. **Montants** : stockés sans séparateur décimal (`000012550` = 125,50), deux décimales implicites. Toujours montrer la paire brut/interprété.
 
+## Règles de sécurité
+
+**Interdits mécaniques.** `.claude/settings.json` porte une liste `permissions.deny` : publication et
+destruction git (`push`, `merge`, `tag`, `reset --hard`, `clean`), installation de dépendances (`npm`,
+`yarn`, `pnpm`, `pip`), réseau sortant (`curl`, `wget`), et `rm -rf`. **Aucun agent ne lance ces
+commandes.** Le push, le merge et l'atterrissage sont des gestes du chef de projet. Le fichier est
+**committé** : une liste d'interdits non versionnée n'est pas un contrat, c'est un réglage de poste —
+elle serait invisible au `reviewer` et absente d'un clone neuf.
+
+**Ce que cette liste n'est pas.** Un motif porte sur le **texte** de la commande, pas sur son effet. Il
+se contourne par reformulation : `npx`, `python -m pip install`, `git -c … push`, une redirection `>`
+qui tronque, `find -delete`. **C'est un filet, pas une serrure.** Ce qu'il attrape — et c'est le vrai
+modèle de menace — est un agent qui lance la commande **en clair** parce qu'un prompt l'y a mené. Ne
+l'écrire ni la lire comme un blindage : c'est le compromis accepté de ce dispositif.
+
+**Le blocage est en préfixe, pas en sémantique** : `git push --dry-run` et `npm install --dry-run` sont
+refusés bien qu'ils n'écrivent rien. Le sens de l'erreur est le bon — une simulation légitime se
+demande, elle ne se faufile pas.
+
+**Mesuré le 2 septembre 2026 : des règles ajoutées pendant qu'une session tourne n'y ont pas mordu,
+et ont mordu après relance.** Une session ouverte avec une seule règle a laissé passer les quinze
+ajoutées huit minutes plus tard — alors qu'elle lisait bien le fichier à seize règles ; après
+relance, sept refus sur huit. **Le mécanisme n'est pas prouvé de l'intérieur ; le fait l'est.**
+Durcir la liste pendant qu'une session tourne ne durcit rien, et **ne signale rien** : le fichier a
+l'air bon, la protection est absente. Toute modification n'entre en vigueur qu'au **prochain
+lancement**. Corollaire — on ne touche pas aux permissions en cours d'usinage (`.pipeline/STATUS.md`
+autre que `CLOSED` ou `READY`), non par courtoisie mais parce que ce serait sans effet.
+
+**Zéro dépendance d'exécution** (cf. Stack) : c'est une règle de sécurité autant que de sobriété — zéro
+dépendance, zéro surface d'attaque supply-chain. Toute introduction de devDependency passe par un
+prompt dédié appliquant `SECURITY_METHOD` §3.3 (carence 72 h, installation `--ignore-scripts`, audit,
+vérification de provenance).
+
+**Secrets** : aucun secret (clé, jeton, mot de passe, profil de connexion) dans le code, les commits,
+les logs ou les prompts. Le dépôt est **public** : tout commit est une publication — voir la section
+Anonymisation ci-dessous, qui en est la déclinaison éditoriale et reste **P1**.
+
 ## Anonymisation (non négociable, P1)
 
 - **Interdits partout** (code, contenu, images, commentaires, prompts, commits) : nom de l'éditeur et du produit d'origine du POC, toute adresse IP, tout nom réel de machine, domaine, profil de connexion, bibliothèque, table ou colonne du POC, toute capture d'écran d'origine.
