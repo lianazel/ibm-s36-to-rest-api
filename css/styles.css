@@ -64,6 +64,7 @@
   --color-ink-on-dark: #f4f4f4;  /* encre sur le bloc sombre ; 13,76:1 */
   --color-ia-on-dark: #d4bbff;   /* étiquette de voix sur le bloc sombre ; 8,90:1 */
   --color-bg-s36-soft: #edf5ff;  /* bandeau d'accroche ; #161616 16,46:1 — même teinte que les tableaux de l'annexe, qui gardent leur littéral */
+  --color-bg-api-soft: #defbe6;  /* messages du mini-langage ; #161616 16,41:1, #525252 7,09:1, #198038 4,55:1, #a2191f 7,07:1 */
   /* Coloration des extraits C# — variante « VS brun », arbitrée le 1er septembre
      2026. Les valeurs de Visual Studio clair sont reprises quand elles passent AA
      sur le fond des cadres (#f4f4f4) et recalées sinon. La chaîne fait exception :
@@ -221,7 +222,7 @@ a {
    Sans JavaScript, c'est un bloc en flux sous l'en-tête : rien n'est caché,
    rien n'est piégé. Le mode replié n'existe que sous la classe `nav-js`. */
 .nav-panel {
-  padding: 0 var(--space) var(--space);
+  padding: 0 0 var(--space);
 }
 
 .nav-overlay {
@@ -246,7 +247,7 @@ a {
   /* L'en-tête étant au-dessus, le panneau réserve sa bande : 82 px mesurés à
      360 px (titre replié sur deux lignes), arrondis au-dessus. Sous la bande,
      le contenu du panneau disparaîtrait derrière un en-tête opaque. */
-  padding: calc(var(--space) * 2 + 3.5rem) var(--space) var(--space);
+  padding: calc(var(--space) * 2 + 3.5rem) 0 0;
   background: var(--color-bg);
   border-left: 1px solid var(--color-line);
   /* Hors écran par transformation : un élément `fixed` ne crée pas de
@@ -290,14 +291,66 @@ a {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0;
+}
+
+/* Le sommaire parle la langue de la page : filet gauche à la couleur du
+   registre, titre en encre, chapeau de la section dessous (mêmes clés que
+   sur la page). Arbitré sur maquette le 3 septembre 2026, variante A, contre
+   un panneau gris et un panneau brun clair : sur blanc, ce sont les filets
+   qui portent la structure. Le retrait gauche retire les 3 px du filet pour
+   que le texte s'aligne sur « À propos ». */
+.site-nav li + li {
+  border-top: 1px solid var(--color-line);
 }
 
 .site-nav a {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.125rem;
   min-height: 44px;
+  padding: 0.625rem var(--space) 0.625rem calc(var(--space) - 3px);
+  border-left: 3px solid var(--registre);
+  color: var(--color-ink);
+  line-height: 1.3;
   text-decoration: none;
+}
+
+/* Même table que les sections (l. 360-362) : un lien porte le registre de sa cible. */
+.site-nav a[href="#decor"],
+.site-nav a[href="#probleme"],
+.site-nav a[href="#annexe"]   { --registre: var(--color-s36); }
+.site-nav a[href="#solution"],
+.site-nav a[href="#mini-langage"] { --registre: var(--color-api); }
+.site-nav a[href="#methode"]  { --registre: var(--color-ia); }
+
+.nav-titre {
+  font-weight: 600;
+  font-size: 1.0625rem;
+}
+
+/* 11 px de Plex Mono : la couleur de registre tient AA sur blanc (l. 56, 57, 61)
+   et sur le gris du survol (#0f62fe 4,55:1, #198038 4,56:1, #6929c4 7,03:1,
+   mesurés le 3 septembre 2026). */
+.nav-chapeau {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  color: var(--registre);
+}
+
+@media (hover: hover) {
+  .site-nav a:hover {
+    background: var(--color-bg-soft);
+  }
+}
+
+/* Le liseré global (l. 140) déborderait de la rangée : on le rentre. */
+.site-nav a:focus-visible {
+  background: var(--color-bg-soft);
+  outline-offset: -2px;
 }
 
 /* ---- « À propos », dans le panneau à toutes les largeurs.
@@ -305,9 +358,10 @@ a {
    chapitre et un filet de séparation : on les reprend. */
 .about {
   margin-top: var(--space);
-  padding: var(--space) 0 0;
-  border-top: 1px solid var(--color-line);
+  padding: var(--space);
+  border-top: none;
   border-bottom: none;
+  background: var(--color-bg-soft);
   color: var(--color-ink-soft);
   font-size: 0.875rem;
 }
@@ -725,9 +779,9 @@ main h3 + .sous-titre {
   font-size: 0.8125rem;
 }
 
-/* ---- Boîte à outils (registre API : bloc dépliable natif, aucun script).
-   Repliée par défaut ; le tableau défile dans son conteneur si l'écran est
-   plus étroit que lui, jamais la page (CLAUDE.md, UX). */
+/* ---- Boîte dépliable du registre API (`details` natif, aucun script).
+   Repliée par défaut ; ce qui défile à l'intérieur (`.defile`) défile dans son
+   conteneur, jamais la page (CLAUDE.md, UX). */
 .boite {
   margin: var(--space) 0;
   border: 1px solid var(--color-line);
@@ -758,6 +812,16 @@ main h3 + .sous-titre {
 .boite .defile {
   overflow-x: auto;
   padding: var(--space);
+}
+
+/* La liste de la boîte du déploiement : même encre douce et même corps que
+   `.boite p`, retrait de puce en plus, et le bas de boîte que `p:last-child`
+   assurait quand la boîte finissait par un paragraphe. */
+.boite .arguments {
+  margin: 0;
+  padding: 0 var(--space) var(--space) calc(var(--space) * 2);
+  color: var(--color-ink-soft);
+  font-size: 0.875rem;
 }
 
 .boite table {
@@ -1125,13 +1189,17 @@ main h3 + .sous-titre {
   margin: calc(var(--space) / 2) 0 var(--space);
   padding: calc(var(--space) / 2) 0 calc(var(--space) / 2) var(--space);
   border-left: 3px solid var(--color-api);
+  background: var(--color-bg-api-soft);
+  padding-right: var(--space);
   font-size: 0.875rem;
 }
 
 /* L'ATTENTE n'est pas une réponse : elle ne prend donc ni le vert du service ni
    le rouge du refus. Filet neutre et encre douce, le temps que le lecteur
    envoie sa première demande. Ajout de l'exécutant, déclaré : sans lui, le
-   texte d'attente hériterait du filet vert et se lirait comme un résultat. */
+   texte d'attente hériterait du filet vert et se lirait comme un résultat.
+   Le fond, lui, est celui du registre API, comme pour l'aide : il dit où l'on
+   est, pas ce qui a été répondu. */
 .statut.attente {
   border-left-color: var(--color-line);
   color: var(--color-ink-soft);
@@ -1264,6 +1332,7 @@ main h3 + .sous-titre {
   margin: 0 0 var(--space);
   padding: calc(var(--space) / 2) var(--space);
   border-left: 3px solid var(--color-line);
+  background: var(--color-bg-api-soft);
   font-size: 0.875rem;
 }
 

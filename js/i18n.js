@@ -205,7 +205,9 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
       },
       deploiement: {
         resume: "Pour les curieux : le déploiement, le prototype hors de l'atelier",
-        p1: "L'API a été déployée via Web Deploy, depuis Visual Studio, sur un serveur IIS, et interrogée depuis l'extérieur : le prototype n'a pas tourné que dans l'atelier. La connexion à l'IBM i passe par un profil dédié dont le programme initial, un CL, charge la liste de bibliothèques voulue. L'API REST .Net trouve ainsi toutes les tables métier dont elle a besoin, sans en nommer aucune dans son code.",
+        l1: "L'API a été déployée via Web Deploy, depuis Visual Studio, sur un serveur IIS, et interrogée depuis l'extérieur : le prototype n'a pas tourné que dans l'atelier.",
+        l2: "La connexion à l'IBM i passe par un profil dédié dont le programme initial, un CL, charge la liste de bibliothèques voulue.",
+        l3: "L'API REST .Net trouve ainsi toutes les tables métier dont elle a besoin, sans en nommer aucune dans son code.",
       },
       limites: {
         title: "Les limites du modèle dynamique, connues et non cachées",
@@ -501,8 +503,8 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
           aide: "Un ET entre deux tests : DURAND, et livré en express. 2 commandes, toutes deux de CLAIRE. Le mode vient de CMLIV, joint aux commandes sur nom plus prénom. Remplacez EXP par STD : c'est MARC qui apparaît, seul.",
         },
         jointure: {
-          nom: "ville du client (jointure)",
-          aide: "villeClient vient du fichier des clients, CLIMST : il se joint aux commandes sur NOMCLI plus PRECLI, sans aucun identifiant. 2 commandes ici, toutes deux de CLAIRE qui habite Lyon. Essayez PARIS : 1 commande, celle de l'autre DURAND.",
+          nom: "ville du client (autre fichier)",
+          aide: "La ville (villeClient) n'est pas dans le fichier des commandes : elle vient du fichier des clients, CLIMST, retrouvée par le nom et le prénom, sans aucun numéro de client. Il y a deux clients DURAND : CLAIRE à Lyon, MARC à Paris. Avec LYON, 2 commandes, celles de CLAIRE. Remplacez LYON par PARIS : 1 commande, celle de MARC.",
         },
         comprisEntre: {
           nom: "compris entre",
@@ -834,7 +836,9 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
       },
       deploiement: {
         resume: "For the curious: deployment, the prototype outside the workshop",
-        p1: "The API was deployed with Web Deploy, from Visual Studio, to an IIS server, and queried from outside: the prototype did not run only in the workshop. The IBM i connection goes through a dedicated profile whose initial program, a CL, loads the intended library list. The .Net REST API then finds every business table it needs without naming any of them in its code.",
+        l1: "The API was deployed with Web Deploy, from Visual Studio, to an IIS server, and queried from outside: the prototype did not run only in the workshop.",
+        l2: "The IBM i connection goes through a dedicated profile whose initial program, a CL, loads the intended library list.",
+        l3: "The .Net REST API then finds every business table it needs without naming any of them in its code.",
       },
       limites: {
         title: "The dynamic model's limits, known and not hidden",
@@ -1101,8 +1105,8 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
           aide: "An AND between two tests: DURAND, and shipped express. 2 orders, both CLAIRE's. The mode comes from CMLIV, joined to the orders on last name plus first name. Replace EXP with STD: MARC appears, on his own.",
         },
         jointure: {
-          nom: "customer city (join)",
-          aide: "customerCity comes from the customer file, CLIMST: it joins to the orders on NOMCLI plus PRECLI, with no identifier at all. 2 orders here, both CLAIRE's, who lives in Lyon. Try PARIS: 1 order, the other DURAND's.",
+          nom: "customer city (other file)",
+          aide: "The city (customerCity) is not in the orders file: it comes from the customer file, CLIMST, found by last name and first name, with no customer number at all. There are two DURAND customers: CLAIRE in Lyon, MARC in Paris. With LYON, 2 orders, CLAIRE's. Replace LYON with PARIS: 1 order, MARC's.",
         },
         comprisEntre: {
           nom: "between",

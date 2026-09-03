@@ -44,12 +44,12 @@
   <div id="nav-panel" class="nav-panel" aria-label="Menu" data-i18n-attr="aria-label:menu.title">
     <nav class="site-nav" aria-label="Sections" data-i18n-attr="aria-label:nav.aria">
       <ul>
-        <li><a href="#decor" data-i18n="nav.decor"></a></li>
-        <li><a href="#probleme" data-i18n="nav.probleme"></a></li>
-        <li><a href="#solution" data-i18n="nav.solution"></a></li>
-        <li><a href="#mini-langage" data-i18n="nav.minilangage"></a></li>
-        <li><a href="#methode" data-i18n="nav.methode"></a></li>
-        <li><a href="#annexe" data-i18n="nav.annexe"></a></li>
+        <li><a href="#decor"><span class="nav-titre" data-i18n="nav.decor"></span><span class="nav-chapeau" data-i18n="section1.chapeau"></span></a></li>
+        <li><a href="#probleme"><span class="nav-titre" data-i18n="nav.probleme"></span><span class="nav-chapeau" data-i18n="section2.chapeau"></span></a></li>
+        <li><a href="#solution"><span class="nav-titre" data-i18n="nav.solution"></span><span class="nav-chapeau" data-i18n="section3.chapeau"></span></a></li>
+        <li><a href="#mini-langage"><span class="nav-titre" data-i18n="nav.minilangage"></span><span class="nav-chapeau" data-i18n="section4.chapeau"></span></a></li>
+        <li><a href="#methode"><span class="nav-titre" data-i18n="nav.methode"></span><span class="nav-chapeau" data-i18n="section5.chapeau"></span></a></li>
+        <li><a href="#annexe"><span class="nav-titre" data-i18n="nav.annexe"></span><span class="nav-chapeau" data-i18n="annexe.chapeau"></span></a></li>
       </ul>
     </nav>
 
@@ -230,7 +230,11 @@
 
       <details class="boite">
         <summary id="deploiement-titre" data-i18n="section3.deploiement.resume"></summary>
-        <p data-i18n="section3.deploiement.p1"></p>
+        <ul class="arguments" role="list">
+          <li data-i18n="section3.deploiement.l1"></li>
+          <li data-i18n="section3.deploiement.l2"></li>
+          <li data-i18n="section3.deploiement.l3"></li>
+        </ul>
       </details>
 
       <h3 data-i18n="section3.limites.title"></h3>
@@ -450,7 +454,7 @@
         </p>
         <pre class="agent" tabindex="0" role="region" aria-labelledby="dialogue-legende"><code><span class="voix" data-i18n="section5.dialogue.voix2"></span><span data-i18n="section5.dialogue.trace"></span></code></pre>
       </figure>
-      <!-- Le dépôt d'abord : le paragraphe `preuve` vient de l'annoncer. -->
+      <!-- Le dépôt d'abord : c'est lui que le paragraphe `preuve` annonce. -->
       <p>
         <a href="https://github.com/lianazel/ibm-s36-to-rest-api" target="_blank" rel="noopener noreferrer"
            data-i18n="section5.depot" data-i18n-attr="href:section5.depotUrl"></a>
