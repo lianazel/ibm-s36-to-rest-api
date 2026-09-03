@@ -147,4 +147,4 @@ Anonymisation ci-dessous, qui en est la déclinaison éditoriale et reste **P1**
 - Ne pas confondre les deux niveaux de « fictif » : les données d'exemple sont fictives, mais l'architecture décrite est réelle et doit rester techniquement exacte (l'étude et les PDF privés font foi).
 
 ---
-*Version produit : 0.1.25 · Journal : `tasks/JOURNAL_v0.1.md` · Méthode : v2.29 via `00_START_ICI.md`.*
+*Version produit : 0.1.26 · Journal : `tasks/JOURNAL_v0.1.md` · Méthode : v2.29 via `00_START_ICI.md`.*

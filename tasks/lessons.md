@@ -892,3 +892,49 @@ mesure. Dans les deux cas, ce qui atteste n'est pas le résultat attendu, c'est 
 saurait reconnaître comme faux**.
 **Applicable globalement ?** : **Oui**, et c'est un candidat plus fort que le précédent — il ne parle
 ni de couleur ni de CSS. **Attendre une seconde occurrence sur un autre projet** avant de promouvoir.
+
+## 2026-09-03 — Un nombre hérité d'un prérequis mesuré avant l'incrément est faux dès que l'incrément insère des lignes au-dessus
+**Type** : Erreur
+**Contexte** : Le prompt gelé prescrivait, mot pour mot, deux commentaires CSS renvoyant à des numéros
+de ligne : « Même table que les sections (l. 360-362) » et « Le liseré global (l. 140) ». Ces nombres
+venaient de ses **prérequis**, relevés sur `main` **avant** l'incrément. Ils ont été transcrits tels
+quels.
+**Erreur** : le même commit insère un jeton à la l. 67 et 54 lignes de règles plus haut. À la seconde
+où il est écrit, le premier renvoi désigne les l. 414-416 et le second la l. 141. **Deux commentaires
+faux à la naissance, au commit qui rembourse [W46]** — la dette dont l'énoncé est précisément « un
+commentaire nomme sa cible, il ne la situe pas ». Le troisième renvoi du même commit est juste, mais
+**par chance** : le jeton neuf est tombé après lui. Le `reviewer` a trouvé les trois ; les artefacts
+n'en disaient rien.
+**Correction/Pattern** : deux règles, et la seconde est la vraie.
+(1) Aucun numéro de ligne dans un commentaire commité — acquis, mais visiblement pas appliqué quand le
+numéro est **fourni par le prompt** plutôt que trouvé par soi. Une prescription ne dispense pas de la
+règle permanente : elle passe par l'ÉTAPE 0 comme le reste.
+(2) **Tout nombre relevé avant un incrément est une mesure périmée dès que l'incrément touche ce qui
+le fonde.** Position de ligne, décompte, index, offset : si le geste insère au-dessus, le nombre a
+bougé. Un prérequis est une base de départ, jamais une valeur à recopier dans le livrable. **Le test :
+« ce nombre a-t-il été remesuré après mon écriture, ou seulement avant ? »**
+**Parenté** : prolonge la leçon du 1er septembre 2026 (« un commentaire qui désigne son voisin par sa
+place se périme à la première insertion »). Le durcissement mesuré aujourd'hui : il ne se périme pas
+à la première insertion **suivante**, il naît périmé de sa propre insertion.
+**Applicable globalement ?** : **Oui** — vaut pour toute stack et pour tout renvoi positionnel
+(commentaires, docs, messages d'erreur citant une ligne, tests indexés). **Attendre une seconde
+occurrence sur un autre projet avant de promouvoir** (le global est la ressource rare).
+
+## 2026-09-03 — Une prévision de comptage par sous-chaîne compte du texte, pas des objets
+**Type** : Erreur
+**Contexte** : Le prompt prévoyait `grep -o 'chapeau"' index.html` = **18** après l'ajout de six `span`
+au sommaire : 12 de base + 6, « un par `span` neuf ». Le fichier rend **24**.
+**Erreur** : chaque `span` neuf s'écrit
+`<span class="nav-chapeau" data-i18n="section1.chapeau"></span>` — il porte la sous-chaîne
+`chapeau"` **deux fois**, dans sa classe et dans sa clé. La prévision a raisonné sur les **objets
+ajoutés** (six `span`) là où la commande compte des **occurrences de texte**.
+**Correction/Pattern** : une prévision de comptage se dérive du **texte qui sera écrit**, jamais des
+objets qu'on croit ajouter — on écrit la ligne exacte, on y compte le motif, on multiplie. Quand
+l'écart apparaît, le réflexe utile est de **décomposer le total par sous-motifs disjoints** avant de
+conclure : ici 6 `class="chapeau"` + 6 `class="nav-chapeau"` + 12 `data-i18n="*.chapeau"` a montré en
+une commande que la structure était juste et la prévision fausse. **Un écart de comptage n'est pas une
+alarme, c'est une question** — et sa décomposition dit lequel des deux, du fichier ou de la prévision,
+a tort. Ne jamais déformer le fichier pour satisfaire le nombre.
+**Applicable globalement ?** : Oui, partout où une garde ou une preuve compte par `grep -c`/`grep -o`.
+Même famille que la leçon du 1er septembre 2026 sur la garde qui compte un littéral et mord sur le
+texte qui l'explique. **Attendre une seconde occurrence sur un autre projet avant de promouvoir.**

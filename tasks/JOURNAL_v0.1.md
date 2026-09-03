@@ -2217,3 +2217,137 @@ versionné qui pilote — `SECURITY_METHOD` (22 ko, relu, presque jamais chargé
 globales auto-chargées à chaque session et relues par personne. Audit proposé, non instruit.
 
 **Traces complètes hors dépôt** : `Etude_Technique/PREP_liste-interdits_v3.md`.
+
+## Session 29 — 3 septembre 2026 — EVOL `finitions` (merge `8f41458`, 0.1.25 → 0.1.26)
+
+**Quatre retouches vues sur le site publié**, ligne `12 quinquies` du fil, passée délibérément avant la
+ligne 13 qui interdit l'harmonisation au passage. Trois fichiers, aucun script, aucune image, aucun
+test modifié. La boîte du déploiement en trois points ; un fond vert pâle sous les deux messages du
+mini-langage (jeton neuf `--color-bg-api-soft`, le registre API gagnant le fond clair que S/36 et IA
+avaient déjà) ; le bouton « ville du client (jointure) » devenu « (autre fichier) », son aide nommant
+les deux DURAND ; le sommaire du menu en rangées à filet de registre. **[W46] et [W47] remboursées.**
+
+**Bump `patch` sur override du chef de projet** — `feat/*` vaut `minor` par défaut. Quatre finitions,
+aucune capacité neuve : `0.1.26`.
+
+### Ce que le « caractère pour caractère » a coûté, et ce qu'il a rendu
+
+Les trois puces du déploiement sont les trois phrases du paragraphe qu'elles remplacent. Elles n'ont
+**pas été retapées** : un script a découpé la valeur existante aux points, puis vérifié deux choses —
+que les morceaux sont identiques aux valeurs prescrites, et que **leur recollage rend la valeur
+d'origine sans rien perdre**. C'est ce qui fait du « caractère pour caractère » une mesure et non une
+intention. Le second contrôle est celui qui compte : le premier ne dit que la conformité au prompt, le
+second dit qu'on n'a rien égaré en chemin.
+
+### Le refus qui n'était pas dans l'incrément
+
+**`/land` s'est arrêté net à l'ÉTAPE 2 : `git merge --no-ff` est refusé par la liste d'interdits.** La
+règle `Bash(git merge *)` est entrée la veille au commit `367cc61`, dans le lot des vingt-deux ajoutées
+le 3 septembre, et le journal de la session 28 la nommait parmi les **neuf non éprouvées
+individuellement**. Elle vient de l'être. Message exact :
+`Permission to use Bash with command git merge --no-ff feat/finitions -m "Merge branch 'feat/finitions'" has been denied.`
+
+**La liste d'interdits a désactivé `/land` sans que personne le voie.** Ce n'est pas un défaut de la
+liste ni de la commande : c'est une **contradiction entre deux textes du dépôt, tous deux à jour**. Le
+`CLAUDE.md` écrit « le merge et l'atterrissage sont des gestes du chef de projet » ; `/land` fait
+merger l'agent à son ÉTAPE 2. La session 28 avait atterri en **avance rapide**, ce qui explique que le
+conflit ait dormi deux jours. Le merge a été rendu au chef de projet, qui l'a posé lui-même
+(`8f41458`) ; `/land` a repris à l'ÉTAPE 3. **Aucun contournement tenté** — ni `git -c`, ni `--ff-only`,
+ni manipulation de réf : un agent qui tourne la règle prouve seulement qu'elle ne valait rien.
+
+### Ce que la revue a trouvé et que les artefacts ne disaient pas
+
+SHIP en une passe, **0 FAIL, 8 WARN**. Les trois premières sont **la famille même que l'incrément
+rembourse**, et c'est le résultat le plus utile de la journée :
+
+Deux commentaires écrits à ce commit **situent leur cible par un numéro de ligne, et les deux numéros
+sont faux à la naissance**. « Même table que les sections (l. 360-362) » : la table est aux l. 414-416,
+décalée par les 54 lignes que **le même commit** ajoute plus haut. « Le liseré global (l. 140) » : il
+est à la l. 141, décalé par le jeton inséré à la l. 67. Les deux nombres viennent des **prérequis du
+prompt, relevés sur `main` avant l'incrément**, et ont été transcrits sans être remesurés après. Le
+troisième renvoi est juste **par chance** : le jeton neuf est tombé après lui.
+
+Le commentaire de `.statut.refuse` n'a pas été relu, alors que celui de `.statut.attente`, cinq lignes
+plus haut, l'a été au nom de cette règle exacte. Il affirme « l'état servi ne change pas » — l'état
+servi vient de gagner un fond. Et son `padding-right` est devenu le doublon exact de celui posé au même
+commit. Le commentaire de `.about` annonce un « filet de séparation » que le bloc `section` déclare
+retiré : le prompt tranchait « son commentaire reste vrai », la mesure dit le contraire pour cette
+moitié.
+
+Le `reviewer` a **remesuré tous les contrastes publiés** par calcul indépendant : conformes à 0,01
+près, y compris trois paires qui franchissent AA de moins de 0,06. Il a retenu, en la recomptant, la
+thèse sur l'écart de comptage.
+
+### Une prévision fausse qui ne cachait aucun défaut
+
+La preuve 1 du prompt attendait `grep -o 'chapeau"' index.html` = **18** ; le fichier rend **24**.
+Décomposé : 6 `class="chapeau"` + 6 `class="nav-chapeau"` + 12 `data-i18n="*.chapeau"`. **Chaque `span`
+neuf porte deux fois la sous-chaîne** — dans sa classe et dans sa clé — là où le prompt en comptait
+une par `span`. Les dix-neuf autres motifs d'`index.html`, les quinze de `js/i18n.js` et les dix de
+`css/styles.css` sont conformes, recomptés deux fois. **Erreur d'arithmétique, pas défaut de
+structure** : le fichier n'a pas été déformé pour satisfaire un nombre.
+
+Contrôle ajouté hors suite, non demandé : les **252** références `data-i18n` d'`index.html` résolues
+contre le dictionnaire dans les deux langues, **aucune manquante**. « La suite est verte » ne dit pas
+*pourquoi* elle l'est.
+
+### Le trou ouvert par le mode automatique
+
+**Playwright n'est couvert par aucune des 38 règles d'interdits.** La liste ferme le réseau sortant
+côté Bash — `curl`, `wget`, `ssh`, `scp` — et retire `WebFetch` et `WebSearch` ; mais
+`browser_navigate` atteint n'importe quelle URL sans croiser une seule règle, et `browser_snapshot`
+ramène le contenu de la page dans le contexte de l'agent — le vecteur d'injection de prompt exact que
+la règle auto-chargée décrit, privé du refus mécanique qui le rattraperait. `browser_evaluate` exécute
+du JavaScript arbitraire ; `browser_run_code_unsafe` existe et son nom dit le reste. En mode
+automatique, aucun des vingt-huit outils ne demande rien.
+
+**Découvert par un symptôme, pas par un audit** : la vérification du câblage a été découpée en une
+dizaine d'appels au navigateur là où trois suffisaient, et le chef de projet a coupé. Sans prompt de
+permission, **rien ne freine le compte d'appels** — et le coût, lui, est réel. Rien n'a été corrigé :
+une règle ajoutée en cours de session ne mord pas (fait mesuré session 28), et `Edit(/.claude/**)`
+interdit le geste, ce qui est précisément l'intention. Le seul remède qui morde aujourd'hui est un
+geste du chef de projet au lancement : ne pas ouvrir en mode automatique une session qui conduira un
+navigateur.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| La preuve 1 attend `chapeau"` = 18, le fichier rend 24 | **Livrer, mesurer, nommer la dette** — ne pas toucher au fichier | La structure prescrite est livrée à l'identique ; c'est la prévision qui est fausse. Déformer un fichier pour satisfaire un nombre inverse le rapport entre la mesure et son objet | **précédent** |
+| `git merge` refusé à l'ÉTAPE 2 de `/land` | **Refus propre, merge rendu au chef de projet**, aucun contournement | Un agent qui reformule pour passer prouve seulement que la règle ne valait rien — c'est la leçon de l'essai 0 de la session 28, appliquée contre soi | **précédent** |
+| Écrire le marqueur `LANDING` avant un merge qu'on savait probablement refusé | **L'écrire quand même**, puis le remettre en `READY` après le refus | Le marqueur existe pour survivre à une interruption ; le sauter par prudence fabriquerait précisément le demi-état qu'il prévient. La restauration a été vérifiée par la garde, pas supposée | **précédent** |
+| Le niveau de bump : `feat/*` vaut `minor` | **`patch`, sur override du chef de projet** — 0.1.26 | Quatre retouches de finition, aucune capacité neuve | cas d'espèce |
+| Playwright hors de la liste d'interdits, découvert en cours d'usinage | **Ne rien changer.** Dette nommée, prompt dédié | Une règle ajoutée en cours de session ne mord pas (session 28) : la corriger maintenant donnerait une garde de papier. Et `Edit(/.claude/**)` interdit le geste à l'agent, ce qui est l'intention | cas d'espèce |
+| Le `review.json` du disque portait un SHIP pour l'incrément précédent | **Averti le `reviewer` en entrée, écrasement exigé** | La garde compare le champ `commit` au SHA de la branche et aurait refusé ; mais un avertissement explicite coûte moins qu'un aller-retour de garde, et ne s'y substitue pas | cas d'espèce |
+
+### Dettes ouvertes à l'issue
+
+**Dix dettes nommées, `[W59]` à `[W68]`.** Les huit premières sont les WARN de la revue ; les deux
+dernières sont hors incrément, nées de la journée elle-même.
+
+- **[W59]** `.statut.refuse` : `padding-right` en doublon exact de la l. 1193, et commentaire à
+  contresens depuis que l'état servi porte un fond.
+- **[W60]** Deux renvois « l. NNN » **faux à la naissance**, au commit qui rembourse [W46].
+- **[W61]** Commentaire de `.about` faux pour moitié ; deux `border: none` devenues mortes.
+- **[W62]** La table registre → couleur vit en **deux porteurs** que rien ne tient d'accord : une ancre
+  renommée laisse le filet retomber sur `currentColor`, en silence.
+- **[W63]** La paire `.about a` sur le gris neuf ne publie pas sa ligne de contraste, et franchit AA de
+  **0,048**. Renvoie à la porte de palette committée, proposée à la revue de `ca621dd`, non construite.
+- **[W64]** Le nom accessible des six liens **concatène** titre et chapeau, par un espace qui n'est pas
+  dans le balisage mais dans le calcul de `flex`. À trancher à [W28], sur lecteur d'écran réel.
+- **[W65]** Deux des six rangées du menu portent **le même chapeau** : pour un tiers du sommaire, la
+  ligne ajoutée n'ajoute rien.
+- **[W66]** La base corrigée `chapeau"` = 24 ne vit que dans un artefact **non commité** : le prochain
+  prompt qui relèvera ses bases repartira du nombre faux.
+- **[W67]** **Playwright hors de la liste d'interdits** — réseau sortant et exécution de code
+  arbitraire non couverts, en mode automatique sans aucun prompt.
+- **[W68]** **`/land` prescrit un merge que la liste d'interdits refuse.** À trancher : `/land` perd son
+  merge et s'arrête avant, comme il s'arrête déjà avant le push — ce qui est cohérent avec le
+  `CLAUDE.md` — ou la règle sort de la liste.
+
+**R&D proposée par le `reviewer`, non exécutée** (format B) : une porte Vitest qui refuse tout renvoi
+« l. NNN » dans un commentaire commité. Deux des trois renvois neufs de ce commit sont faux à la
+naissance ; la règle existe en prose depuis deux leçons et **aucune machine ne la lit**.
+
+**À rattacher au prompt de sécurité à venir** : [W67], [W68] et `RD-062` (liste d'autorisations,
+ouverte au référentiel le 3 septembre).
