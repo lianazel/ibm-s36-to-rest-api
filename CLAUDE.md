@@ -87,8 +87,12 @@ Grossiste fictif, cinq fichiers S36 définis dans l'étude v2 : `CLIMST` (client
 ## Règles de sécurité
 
 **Interdits mécaniques.** `.claude/settings.json` porte une liste `permissions.deny` : publication et
-destruction git (`push`, `merge`, `tag`, `reset --hard`, `clean`), installation de dépendances (`npm`,
-`yarn`, `pnpm`, `pip`), réseau sortant (`curl`, `wget`), et `rm -rf`. **Aucun agent ne lance ces
+destruction git (`push`, `merge`, `tag`, `rebase`, `reset --hard`, `clean`, `restore`, `checkout --`,
+`branch -D`, `remote`, et le client `gh`), installation ou exécution de paquets (`npm`, `npx`, `yarn`,
+`pnpm`, `pip`, `python -m pip`), réseau sortant (`curl`, `wget`, `ssh`, `scp`, et les outils `WebFetch`
+et `WebSearch`, retirés), `sudo`, `rm -r`, et l'écriture dans `.claude/`, `.git/` et `~/.claude/` — une
+garde que l'agent pourrait réécrire n'est pas une garde. Seize règles éprouvées le 2 septembre 2026 ;
+vingt-cinq ajoutées le 3, de même forme, **non éprouvées une à une**. **Aucun agent ne lance ces
 commandes.** Le push, le merge et l'atterrissage sont des gestes du chef de projet. Le fichier est
 **committé** : une liste d'interdits non versionnée n'est pas un contrat, c'est un réglage de poste —
 elle serait invisible au `reviewer` et absente d'un clone neuf.
