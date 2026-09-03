@@ -92,7 +92,8 @@ destruction git (`push`, `merge`, `tag`, `rebase`, `reset --hard`, `clean`, `res
 `pnpm`, `pip`, `python -m pip`), réseau sortant (`curl`, `wget`, `ssh`, `scp`, et les outils `WebFetch`
 et `WebSearch`, retirés), `sudo`, `rm -r`, et l'écriture dans `.claude/`, `.git/` et `~/.claude/` — une
 garde que l'agent pourrait réécrire n'est pas une garde. Seize règles éprouvées le 2 septembre 2026 ;
-vingt-cinq ajoutées le 3, de même forme, **non éprouvées une à une**. **Aucun agent ne lance ces
+vingt-deux ajoutées le 3, de même forme, **non éprouvées une à une** (les règles `Edit` couvrent
+tous les outils d'écriture, Claude Code le dit au démarrage). **Aucun agent ne lance ces
 commandes.** Le push, le merge et l'atterrissage sont des gestes du chef de projet. Le fichier est
 **committé** : une liste d'interdits non versionnée n'est pas un contrat, c'est un réglage de poste —
 elle serait invisible au `reviewer` et absente d'un clone neuf.

@@ -37,11 +37,8 @@
       "WebSearch",
       "Read(~/.ssh/**)",
       "Edit(/.claude/**)",
-      "Write(/.claude/**)",
       "Edit(/.git/**)",
-      "Write(/.git/**)",
-      "Edit(~/.claude/**)",
-      "Write(~/.claude/**)"
+      "Edit(~/.claude/**)"
     ]
   }
 }
