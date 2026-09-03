@@ -91,9 +91,13 @@ destruction git (`push`, `merge`, `tag`, `rebase`, `reset --hard`, `clean`, `res
 `branch -D`, `remote`, et le client `gh`), installation ou exécution de paquets (`npm`, `npx`, `yarn`,
 `pnpm`, `pip`, `python -m pip`), réseau sortant (`curl`, `wget`, `ssh`, `scp`, et les outils `WebFetch`
 et `WebSearch`, retirés), `sudo`, `rm -r`, et l'écriture dans `.claude/`, `.git/` et `~/.claude/` — une
-garde que l'agent pourrait réécrire n'est pas une garde. Seize règles éprouvées le 2 septembre 2026 ;
-vingt-deux ajoutées le 3, de même forme, **non éprouvées une à une** (les règles `Edit` couvrent
-tous les outils d'écriture, Claude Code le dit au démarrage). **Aucun agent ne lance ces
+garde que l'agent pourrait réécrire n'est pas une garde. Seize règles posées le 2 septembre 2026,
+vingt-deux ajoutées le 3 ; **dix éprouvées** à ce jour (sept le 2 ; `gh`, `npx` et `git merge` le 3,
+la dernière en refusant l'atterrissage lui-même, voir [W68]), les vingt-huit autres de même forme,
+**non éprouvées une à une**. Les règles `Edit` couvrent tous les outils d'écriture, Claude Code le
+dit au démarrage. **Ce que la liste ne voit pas** : les outils MCP (le navigateur Playwright, entre
+autres) ne sont couverts par aucune règle Bash ; une règle `deny` sait viser un outil ou un serveur
+MCP entier, jamais ses arguments ([W67]). **Aucun agent ne lance ces
 commandes.** Le push, le merge et l'atterrissage sont des gestes du chef de projet. Le fichier est
 **committé** : une liste d'interdits non versionnée n'est pas un contrat, c'est un réglage de poste —
 elle serait invisible au `reviewer` et absente d'un clone neuf.
