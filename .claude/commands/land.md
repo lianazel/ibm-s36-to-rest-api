@@ -1,35 +1,35 @@
 ---
-description: Atterrissage d'incrément IBMiAPI en un geste — merge + tests + bump + journal + STATUS, commit de clôture, STOP avant push (§5.4 / RD-014).
+description: Atterrissage d'incrément IBMiAPI en un geste — tests + bump + journal + STATUS, commit de clôture, STOP avant push (§5.4 / RD-014). Le merge précède /land, il n'en fait plus partie (geste du chef de projet, [W68]).
 argument-hint: "<branche> [bump=patch|minor|major] [note de cadrage]"
 ---
 
 Atterris l'incrément revué SHIP pour : $ARGUMENTS
 
-Commande **autonome et auto-gardée**. Préconditions : `review.json` frais du `reviewer` avec verdict SHIP pour cet incrément (vérifié en pré-garde), **quel que soit le mode de lancement de l'incrément**, tests verts, `.pipeline/STATUS.md = READY`, branche `feat/<slug>`, accord du chef de projet donné. Lis `CLAUDE.md` (source de vérité) avant d'agir. **Ne pousse jamais.**
+Commande **autonome et auto-gardée**. Préconditions : `review.json` frais du `reviewer` avec verdict SHIP pour cet incrément (vérifié en pré-garde), **quel que soit le mode de lancement de l'incrément**, tests verts, `.pipeline/STATUS.md = READY`, branche `feat/<slug>` **déjà fusionnée dans `main` par le chef de projet**, accord du chef de projet donné. Lis `CLAUDE.md` (source de vérité) avant d'agir. **Ne merge jamais, ne pousse jamais** : `git merge` est refusé par la liste d'interdits (`.claude/settings.json`) depuis le 2 septembre 2026, et c'est voulu — le merge et le push sont des gestes du chef de projet.
 
 ## ÉTAPE 0 — PRÉ-GARDES (refus propre si une garde casse)
-- `main` à jour avec `origin/main` : `git rev-list --count origin/main..main` DOIT valoir 0. Sinon REFUS : « clôture précédente non poussée — pousse d'abord ».
+- Clôture précédente poussée : `git log origin/main..main --first-parent --no-merges --format=%h` DOIT être vide (le seul commit de `main` au-delà d'`origin/main` est le merge du chef de projet, exclu par `--no-merges`). Sinon REFUS : « clôture précédente non poussée — pousse d'abord ».
 - Lis `.pipeline/STATUS.md` PAR LE CONTENU (jamais le mtime). Doit valoir `READY` pour cet incrément.
   - Si `LANDING` → un /land a été coupé : bascule en MODE REPRISE (voir /session-start), n'enchaîne pas à l'aveugle.
   - Sinon (pas READY) → REFUS + message clair, aucun effet de bord.
 - **Revue fraîche** : `node tools/land-guard.js .pipeline/review.json .pipeline/STATUS.md $(git rev-parse <branche>)` DOIT imprimer `OK` et sortir en 0. Sinon → REFUS, en citant la ligne `REFUS — …` imprimée, aucun effet de bord. Un verdict `NEEDS_WORK` ou `BLOCK` n'atterrit jamais ; un `BLOCK` overrulé par le chef de projet se traduit par un `review.json` **réémis par le `reviewer`** avec `verdict: "SHIP"` et `overrule` renseigné, jamais par un contournement de la garde. Un commit ajouté à la branche après la revue fait refuser (champ `commit`) : relance le `reviewer`.
 - `git status --porcelain` : aucun fichier SUIVI modifié/indexé en attente. Sinon REFUS.
-- `<branche>` existe et `main` est mergeable (pas de conflit). Sinon REFUS + message.
+- `<branche>` existe et est **déjà fusionnée dans `main`** : `git branch --merged main` DOIT la lister. Sinon REFUS, aucun effet de bord, en affichant EXACTEMENT la commande que le chef de projet doit taper : `git merge --no-ff <branche> -m "Merge branch '<branche>'"` — puis relancer `/land`.
 
 ## ÉTAPE 1 — MARQUEUR D'ENTRÉE
-- Écris `.pipeline/STATUS.md` = `LANDING — <incrément> — <ISO> — <branche>` AVANT tout merge.
+- Écris `.pipeline/STATUS.md` = `LANDING — <incrément> — <ISO> — <branche>` AVANT tout autre geste.
 
-## ÉTAPE 2 — MERGE (idempotent)
-- Si `<branche>` n'est pas déjà dans `git branch --merged main` : `git merge --no-ff <branche>`.
-- Sinon : saute (cas « mergé hors cycle »), continue.
+## ÉTAPE 2 — HASH DE MERGE
+- Relève le hash du commit de merge sur `main` : `git log --merges -1 --format=%h main`. Il sert à l'ÉTAPE 5 et au message de l'ÉTAPE 7.
+- Aucun `git merge` ici, quel que soit l'état constaté : l'ÉTAPE 0 a déjà refusé si la branche n'est pas fusionnée.
 
 ## ÉTAPE 3 — FILET DE TESTS
 - Lance les tests Vitest sur la logique testable (parité du dictionnaire FR/EN, générateurs d'exemples JSON, simulateur du mini-langage) : `npm test`.
-- ROUGE → `git merge --abort` (si on vient de merger), remets `STATUS=READY`, rapport, STOP.
+- ROUGE → remets `STATUS=READY`, rapport nommant les tests rouges, STOP. Aucun `git reset`, aucun `git revert` : défaire le merge est un geste du chef de projet.
 - VERT → continue.
 
 ## ÉTAPE 4 — BUMP SEMVER (idempotent)
-- Niveau : `feat/*`→minor, `fix/*`|`chore/*`→patch ; override `bump=` depuis $ARGUMENTS.
+- Niveau : **tant que le jalon 1 n'est pas fermé** (version du manifeste < 1.0.0), `patch` quel que soit le préfixe de branche (décision du chef de projet, 3 septembre 2026). Après le 1.0.0 : `feat/*`→minor, `fix/*`|`chore/*`→patch. Override `bump=` depuis $ARGUMENTS dans les deux cas.
 - Mets à jour le manifeste de version (`pyproject.toml` ou `package.json` selon le projet) ET le pied de `CLAUDE.md`. Si déjà à la cible, saute.
 
 ## ÉTAPE 5 — JOURNAL + LEÇON (idempotent)

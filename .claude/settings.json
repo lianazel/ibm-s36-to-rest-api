@@ -38,7 +38,11 @@
       "Read(~/.ssh/**)",
       "Edit(/.claude/**)",
       "Edit(/.git/**)",
-      "Edit(~/.claude/**)"
+      "Edit(~/.claude/**)",
+      "mcp__playwright__browser_run_code_unsafe"
+    ],
+    "ask": [
+      "mcp__playwright"
     ]
   }
 }

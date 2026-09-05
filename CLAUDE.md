@@ -21,7 +21,7 @@ Jamais de correction à l'aveugle. Bug non trivial → `/diagnose` (lecture seul
 ### Slash commands (`.claude/commands/`)
 
 `/ship <feature>` · `/diagnose <bug>` · `/fix <bug>` · `/land <branche>` · `/session-start`.
-Projet équipé `/land` : `/session-close` est **désactivée** (clôture absorbée par `/land`, méthode §5.5). `/land` s'arrête **avant push** ; le push est un geste du chef de projet.
+Projet équipé `/land` : `/session-close` est **désactivée** (clôture absorbée par `/land`, méthode §5.5). `/land` **commence après le merge et s'arrête avant le push** ; le merge et le push sont des gestes du chef de projet (le merge depuis le 4 septembre 2026, [W68] : `/land` refuse une branche non fusionnée et affiche la commande à taper).
 
 > **Handoff** : les prompts rédigés par Cowork vivent dans `prompts/v<minor>/`. `/session-start` les **liste** (jalon courant) ; pour en exécuter un, le **désigner par son chemin**. Premier commit d'une branche d'incrément : `docs(prompt): <chemin exact du prompt>` (règle du premier enregistrement, §4.1).
 
@@ -90,14 +90,32 @@ Grossiste fictif, cinq fichiers S36 définis dans l'étude v2 : `CLIMST` (client
 destruction git (`push`, `merge`, `tag`, `rebase`, `reset --hard`, `clean`, `restore`, `checkout --`,
 `branch -D`, `remote`, et le client `gh`), installation ou exécution de paquets (`npm`, `npx`, `yarn`,
 `pnpm`, `pip`, `python -m pip`), réseau sortant (`curl`, `wget`, `ssh`, `scp`, et les outils `WebFetch`
-et `WebSearch`, retirés), `sudo`, `rm -r`, et l'écriture dans `.claude/`, `.git/` et `~/.claude/` — une
-garde que l'agent pourrait réécrire n'est pas une garde. Seize règles posées le 2 septembre 2026,
-vingt-deux ajoutées le 3 ; **dix éprouvées** à ce jour (sept le 2 ; `gh`, `npx` et `git merge` le 3,
-la dernière en refusant l'atterrissage lui-même, voir [W68]), les vingt-huit autres de même forme,
-**non éprouvées une à une**. Les règles `Edit` couvrent tous les outils d'écriture, Claude Code le
-dit au démarrage. **Ce que la liste ne voit pas** : les outils MCP (le navigateur Playwright, entre
-autres) ne sont couverts par aucune règle Bash ; une règle `deny` sait viser un outil ou un serveur
-MCP entier, jamais ses arguments ([W67]). **Aucun agent ne lance ces
+et `WebSearch`, retirés), `sudo`, `rm -r`, l'écriture dans `.claude/`, `.git/` et `~/.claude/` — une
+garde que l'agent pourrait réécrire n'est pas une garde —, et un outil du serveur MCP `playwright`,
+`browser_run_code_unsafe` (exécution de code arbitraire, aucun usage légitime). Seize règles posées le
+2 septembre 2026, vingt-deux ajoutées le 3, une le 4 : **trente-neuf**. **Dix éprouvées** à ce jour (sept
+le 2 ; `gh`, `npx` et `git merge` le 3, la dernière en refusant l'atterrissage lui-même, voir [W68]),
+les vingt-neuf autres de même forme, **non éprouvées une à une** — la règle MCP le sera par l'essai 0 du
+4 septembre, dont le résultat s'inscrit ici. Les règles `Edit` couvrent tous les outils d'écriture,
+Claude Code le dit au démarrage.
+
+**Le frein à clic.** Le même fichier porte **une règle `ask`** : `mcp__playwright`, tout le serveur.
+Chaque appel au navigateur — ouvrir une page, la lire, cliquer, exécuter du JavaScript — **demande
+au chef de projet, même en mode automatique** (doc officielle : « explicit ask rules still force a
+prompt »), et un `ask` prime sur tout `allow`, même plus précis : un clic « ne plus demander » ne le
+désactive pas. Ce n'est pas une garde contre un dégât, c'est une garde contre la **boucle** : le
+3 septembre, une vérification de rendu s'est étirée sur une dizaine d'appels là où trois suffisaient,
+sans qu'aucune question ne vienne l'interrompre. Le frein ne compte rien — trois appels ou trente,
+c'est le chef de projet qui compte ; le compteur mécanique est un *hook* `PreToolUse`, inscrit au
+référentiel (RD-063), non construit.
+
+**Ce que la liste voit des outils MCP, et ce qu'elle n'en voit pas** (doc officielle, vérifiée les 3 et
+4 septembre) : une règle `deny` ou `ask` vise un outil (`mcp__playwright__browser_run_code_unsafe`) ou
+un serveur entier (`mcp__playwright`) ; un `deny` **retire l'outil du contexte de l'agent** — il ne le
+voit plus ; ni l'une ni l'autre ne sait filtrer un argument (une règle `mcp__…(…)` est ignorée au
+chargement, sans erreur). `browser_navigate` atteint donc **n'importe quelle URL** : c'est le seul
+chemin réseau sortant de l'agent, gardé par le `ask`, par le prompt et par le chef de projet, pas par
+un interdit ; le borner à `127.0.0.1` demanderait le même *hook* (RD-063). **Aucun agent ne lance ces
 commandes.** Le push, le merge et l'atterrissage sont des gestes du chef de projet. Le fichier est
 **committé** : une liste d'interdits non versionnée n'est pas un contrat, c'est un réglage de poste —
 elle serait invisible au `reviewer` et absente d'un clone neuf.
