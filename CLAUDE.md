@@ -29,6 +29,7 @@ Projet équipé `/land` : `/session-close` est **désactivée** (clôture absorb
 
 - `diagnostician` — Phase 1 du diagnostic, lecture seule.
 - `reviewer` — revue contre les 6 piliers ; verdict `SHIP` / `NEEDS WORK` / `BLOCK` (veto P5, overrulable par le chef de projet).
+- `prompt-reviewer` — relecture du **prompt** avant son exécution, appelée par `/ship` en ÉTAPE 0, avant tout commit (4 septembre 2026, RD-060) : **C1** contradiction avec `CLAUDE.md`, la liste d'interdits ou une commande → `BLOCK` ; **C2** prérequis chiffrés remesurés ; **C3** lignes §8.1 recalculées ; **C4** périmètre et `docs(prompt):` exact. Verdict dans `.pipeline/prompt-review.json`, fraîcheur par `sha256` du prompt ; tout verdict autre que `SHIP` = refus propre, aucune branche, aucun commit. **Verrou des trois** : trois refus sur un même sujet → `/ship` s'arrête, on découpe en session neuve. Ne juge pas l'idée, ne lance rien. **Non éprouvé** : essai 0 à faire (prompt piège → `BLOCK`).
 
 Prompts minces : les agents lisent ce `CLAUDE.md`, ils ne recopient pas les règles. **Aucun agent ne merge ni ne push** : le chef de projet valide (E5) ; la validation visuelle/comportementale reste au chef de projet.
 
