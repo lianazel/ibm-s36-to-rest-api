@@ -29,7 +29,7 @@ Projet équipé `/land` : `/session-close` est **désactivée** (clôture absorb
 
 - `diagnostician` — Phase 1 du diagnostic, lecture seule.
 - `reviewer` — revue contre les 6 piliers ; verdict `SHIP` / `NEEDS WORK` / `BLOCK` (veto P5, overrulable par le chef de projet).
-- `prompt-reviewer` — relecture du **prompt** avant son exécution, appelée par `/ship` en ÉTAPE 0, avant tout commit (4 septembre 2026, RD-060) : **C1** contradiction avec `CLAUDE.md`, la liste d'interdits ou une commande → `BLOCK` ; **C2** prérequis chiffrés remesurés ; **C3** lignes §8.1 recalculées ; **C4** périmètre et `docs(prompt):` exact. Verdict dans `.pipeline/prompt-review.json`, fraîcheur par `sha256` du prompt ; tout verdict autre que `SHIP` = refus propre, aucune branche, aucun commit. **Verrou des trois** : trois refus sur un même sujet → `/ship` s'arrête, on découpe en session neuve. Ne juge pas l'idée, ne lance rien. **Non éprouvé** : essai 0 à faire (prompt piège → `BLOCK`).
+- `prompt-reviewer` — relecture du **prompt** avant son exécution, appelée par `/ship` en ÉTAPE 0, avant tout commit (4 septembre 2026, RD-060) : **C1** contradiction avec `CLAUDE.md`, la liste d'interdits ou une commande → `BLOCK` ; **C2** prérequis chiffrés remesurés ; **C3** lignes §8.1 recalculées ; **C4** périmètre et `docs(prompt):` exact. Verdict dans `.pipeline/prompt-review.json`, fraîcheur par `sha256` du prompt ; tout verdict autre que `SHIP` = refus propre, aucune branche, aucun commit. **Verrou des trois** : trois refus sur un même sujet → `/ship` s'arrête, on découpe en session neuve. Ne juge pas l'idée, ne lance rien. **Éprouvé le 7 septembre 2026** : quatre `/ship` sur le prompt piège `SPIKE_piege-prompt-reviewer_v1`, trois `BLOCK` reproductibles par trois relecteurs neufs (8 `fails` identiques), refus spécial au quatrième, zéro effet de bord. Limite connue : la carence de 72 h d'un paquet ne se vérifie pas depuis le dépôt, ce contrôle reste au chef de projet. Le cas positif (`SHIP`) s'éprouve au prochain incrément réel.
 
 Prompts minces : les agents lisent ce `CLAUDE.md`, ils ne recopient pas les règles. **Aucun agent ne merge ni ne push** : le chef de projet valide (E5) ; la validation visuelle/comportementale reste au chef de projet.
 
@@ -94,19 +94,25 @@ destruction git (`push`, `merge`, `tag`, `rebase`, `reset --hard`, `clean`, `res
 et `WebSearch`, retirés), `sudo`, `rm -r`, l'écriture dans `.claude/`, `.git/` et `~/.claude/` — une
 garde que l'agent pourrait réécrire n'est pas une garde —, et un outil du serveur MCP `playwright`,
 `browser_run_code_unsafe` (exécution de code arbitraire, aucun usage légitime). Seize règles posées le
-2 septembre 2026, vingt-deux ajoutées le 3, une le 4 : **trente-neuf**. **Dix éprouvées** à ce jour (sept
-le 2 ; `gh`, `npx` et `git merge` le 3, la dernière en refusant l'atterrissage lui-même, voir [W68]),
-les vingt-neuf autres de même forme, **non éprouvées une à une** — la règle MCP le sera par l'essai 0 du
-4 septembre, dont le résultat s'inscrit ici. Les règles `Edit` couvrent tous les outils d'écriture,
-Claude Code le dit au démarrage.
+2 septembre 2026, vingt-deux ajoutées le 3, une le 4 : **trente-neuf**. **Onze éprouvées** à ce jour (sept
+le 2 ; `gh`, `npx` et `git merge` le 3, la dernière en refusant l'atterrissage lui-même, voir [W68] ;
+`mcp__playwright__browser_run_code_unsafe` le 7 septembre 2026, par l'essai 0 : l'outil **absent** de la
+liste de l'agent, ses 23 voisins présents, la première règle prouvée par une absence et non par un
+refus), les vingt-huit autres de même forme, **non éprouvées une à une**. La règle `ask` du paragraphe
+suivant est éprouvée le même jour. Les règles `Edit` couvrent tous les outils d'écriture, Claude Code le
+dit au démarrage.
 
 **Le frein à clic.** Le même fichier porte **une règle `ask`** : `mcp__playwright`, tout le serveur.
 Chaque appel au navigateur — ouvrir une page, la lire, cliquer, exécuter du JavaScript — **demande
 au chef de projet, même en mode automatique** (doc officielle : « explicit ask rules still force a
 prompt »), et un `ask` prime sur tout `allow`, même plus précis : un clic « ne plus demander » ne le
-désactive pas. Ce n'est pas une garde contre un dégât, c'est une garde contre la **boucle** : le
-3 septembre, une vérification de rendu s'est étirée sur une dizaine d'appels là où trois suffisaient,
-sans qu'aucune question ne vienne l'interrompre. Le frein ne compte rien — trois appels ou trente,
+désactive pas. **Éprouvé le 7 septembre 2026** (`ESSAI0_mcp.md`) : question à l'écran au `navigate` et
+au `snapshot`, deux sur deux, en mode automatique, alors que `settings.local.json` portait quatre `allow`
+sur ces mêmes outils. Un `ask` approuvé est **invisible depuis la place de l'agent** (l'appel part, le
+serveur répond) : sa preuve est à l'écran du chef de projet, jamais dans le rapport de l'agent. Ce n'est
+pas une garde contre un dégât, c'est une garde contre la **boucle** : le 3 septembre, une vérification
+de rendu s'est étirée sur une dizaine d'appels là où trois suffisaient, sans qu'aucune question ne
+vienne l'interrompre. Le frein ne compte rien — trois appels ou trente,
 c'est le chef de projet qui compte ; le compteur mécanique est un *hook* `PreToolUse`, inscrit au
 référentiel (RD-063), non construit.
 
@@ -114,9 +120,12 @@ référentiel (RD-063), non construit.
 4 septembre) : une règle `deny` ou `ask` vise un outil (`mcp__playwright__browser_run_code_unsafe`) ou
 un serveur entier (`mcp__playwright`) ; un `deny` **retire l'outil du contexte de l'agent** — il ne le
 voit plus ; ni l'une ni l'autre ne sait filtrer un argument (une règle `mcp__…(…)` est ignorée au
-chargement, sans erreur). `browser_navigate` atteint donc **n'importe quelle URL** : c'est le seul
-chemin réseau sortant de l'agent, gardé par le `ask`, par le prompt et par le chef de projet, pas par
-un interdit ; le borner à `127.0.0.1` demanderait le même *hook* (RD-063). **Aucun agent ne lance ces
+chargement, sans erreur). `browser_navigate` atteint donc **n'importe quelle adresse réseau**, et
+aucune adresse locale : le serveur Playwright refuse `file:` de lui-même (mesuré le 7 septembre 2026,
+une vérification de rendu exige un serveur local). C'est le chemin réseau sortant de l'agent, avec
+`browser_network_request`, plus direct encore, et `browser_file_upload` pour la sortie de fichier ;
+tous trois gardés par le `ask`, par le prompt et par le chef de projet, pas par un interdit ; borner une
+URL demanderait le même *hook* (RD-063). **Aucun agent ne lance ces
 commandes.** Le push, le merge et l'atterrissage sont des gestes du chef de projet. Le fichier est
 **committé** : une liste d'interdits non versionnée n'est pas un contrat, c'est un réglage de poste —
 elle serait invisible au `reviewer` et absente d'un clone neuf.

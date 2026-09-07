@@ -938,3 +938,20 @@ a tort. Ne jamais déformer le fichier pour satisfaire le nombre.
 **Applicable globalement ?** : Oui, partout où une garde ou une preuve compte par `grep -c`/`grep -o`.
 Même famille que la leçon du 1er septembre 2026 sur la garde qui compte un littéral et mord sur le
 texte qui l'explique. **Attendre une seconde occurrence sur un autre projet avant de promouvoir.**
+
+## 2026-09-07 — Une règle `ask` ne s'éprouve jamais par le rapport de l'agent seul : un `ask` approuvé lui est invisible
+**Type** : Succès
+**Contexte** : Essai 0 des deux règles MCP (IBMiAPI, `ESSAI0_mcp.md`). Le prompt attendait « une question
+à l'écran » au premier `browser_navigate`. L'agent a rapporté : appel parti, réponse du serveur reçue,
+aucun refus, et, mot pour mot : « depuis ma place, aucune question posée et question posée puis approuvée
+rendent la même chose ». Le chef de projet, lui, avait la question sous les yeux, à chacun des deux appels.
+**Approche** : l'agent n'a pas conclu à vide. Il a écrit ce qu'il pouvait observer, nommé ce qu'il ne
+pouvait pas, et demandé au chef de projet ce qu'il avait vu. La réponse a été inscrite dans le rapport,
+citée comme telle, à côté de chaque appel. Le rapport porte deux sources et dit laquelle dit quoi.
+**Règle** : un `deny` se constate de l'intérieur (outil absent, ou refus reçu). Un `ask` approuvé ne se
+constate que de l'extérieur : sa preuve est humaine. Tout essai 0 d'une règle `ask`, d'une confirmation,
+d'un hook qui demande, prévoit le témoin humain et la case où sa réponse s'inscrit. Sans cela il conclut
+à vide, et le pire cas est qu'il conclue « aucune question » alors qu'il y en a eu une : la ligne grise
+proposée à la saisie ce jour-là disait exactement cela, et elle était fausse.
+**Applicable globalement ?** : Oui, pour toute règle dont l'effet est une interaction avec l'humain.
+**Attendre une seconde occurrence sur un autre projet avant de promouvoir.**
