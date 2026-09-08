@@ -318,7 +318,8 @@ a {
   text-decoration: none;
 }
 
-/* Même table que les sections (l. 360-362) : un lien porte le registre de sa cible. */
+/* Même table que celle des sections elles-mêmes (`#decor` à `#methode`) : un
+   lien porte le registre de sa cible. */
 .site-nav a[href="#decor"],
 .site-nav a[href="#probleme"],
 .site-nav a[href="#annexe"]   { --registre: var(--color-s36); }
@@ -331,7 +332,8 @@ a {
   font-size: 1.0625rem;
 }
 
-/* 11 px de Plex Mono : la couleur de registre tient AA sur blanc (l. 56, 57, 61)
+/* 11 px de Plex Mono : la couleur de registre tient AA sur blanc (jetons
+   `--color-s36`, `--color-api`, `--color-ia`)
    et sur le gris du survol (#0f62fe 4,55:1, #198038 4,56:1, #6929c4 7,03:1,
    mesurés le 3 septembre 2026). */
 .nav-chapeau {
@@ -347,20 +349,20 @@ a {
   }
 }
 
-/* Le liseré global (l. 140) déborderait de la rangée : on le rentre. */
+/* Le liseré global posé par `:focus-visible` déborderait de la rangée : on le rentre. */
 .site-nav a:focus-visible {
   background: var(--color-bg-soft);
   outline-offset: -2px;
 }
 
 /* ---- « À propos », dans le panneau à toutes les largeurs.
-   Le sélecteur d'élément `section` (plus bas) poserait ici une marge de
-   chapitre et un filet de séparation : on les reprend. */
+   Le sélecteur d'élément `section` (plus bas) poserait ici l'espacement d'un
+   chapitre du récit : la marge et le retrait le reprennent. Aucun filet à
+   annuler, `section` n'en pose plus ; c'est le fond gris qui tient la
+   séparation. */
 .about {
   margin-top: var(--space);
   padding: var(--space);
-  border-top: none;
-  border-bottom: none;
   background: var(--color-bg-soft);
   color: var(--color-ink-soft);
   font-size: 0.875rem;
@@ -1115,7 +1117,7 @@ main h3 + .sous-titre {
   gap: calc(var(--space) / 2);
 }
 
-/* Gabarit du bouton de bascule de langue (l. 149-154), au plancher tactile de
+/* Gabarit du bouton de bascule de langue (`.lang-switch`), au plancher tactile de
    44 px que le site s'impose déjà partout où le doigt travaille. */
 .champ .actions button {
   min-width: 44px;
@@ -1207,11 +1209,10 @@ main h3 + .sous-titre {
 
 .statut.refuse {
   border-left-color: #a2191f;
-  /* C'est le REFUS qu'on distingue, pas le service qu'on décore : l'état servi
-     (`.statut` sans `.refuse`) ne change pas. Le padding droit répond au gauche,
-     pour que le texte ne colle pas au bord du fond. */
+  /* C'est le REFUS qu'on distingue, pas le service qu'on décore. `.statut` pose
+     déjà le fond du registre API et le padding des deux états : cette règle ne
+     reprend que le filet et le fond. */
   background: var(--color-bg-soft);
-  padding-right: var(--space);
 }
 
 .statut strong {
@@ -1237,9 +1238,9 @@ main h3 + .sous-titre {
 }
 
 /* Le plancher de 44 px est celui que le site s'impose déjà au bouton de menu
-   (l. 142-143), aux entrées de navigation (l. 268) et au lien « À propos »
-   (l. 302). Ces treize boutons sont les commandes les plus sollicitées de la
-   page : ils ne peuvent pas être les seules à en être privées. */
+   (`.nav-toggle`), aux entrées de navigation (`.site-nav a`) et au lien
+   « À propos » (`.about a`). Ces treize boutons sont les commandes les plus
+   sollicitées de la page : ils ne peuvent pas être les seules à en être privées. */
 .exemples button {
   display: inline-grid;
   grid-template-areas: "nom";
@@ -1439,7 +1440,7 @@ main h3 + .sous-titre {
    tombait alors à 44 % de la hauteur de l'écran, et la cellule éditée elle-même
    sortait du champ. Le tableau s'élargit en conséquence ; il défile déjà dans
    son conteneur, et c'est le prix accepté pour que le lecteur voie ce qu'il
-   fait. Même valeur que le champ du filtre, l. 801. */
+   fait. Même valeur que le champ du filtre (`#mini-filtre`). */
 .fichier td input {
   box-sizing: content-box;
   padding: 0;

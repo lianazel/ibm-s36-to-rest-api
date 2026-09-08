@@ -10,7 +10,7 @@ Quatre volets structurent le contenu : IBM i / S36 · .Net / C# (modèle à attr
 
 ## 🧭 Méthode de travail & agents
 
-Ce projet applique la **Méthode de travail IA v2.29** et ses satellites (`SECURITY_METHOD.md` · `UX_METHOD.md` · `RD_METHOD.md` · `SQL_METHOD.md` · `PEDAGOGY_METHOD.md` · `STYLE_METHOD.md` · `ASSURANCE_METHOD.md` · `VISION_METHOD.md`). Pour les détails **projet** (stack, architecture, contenu), ce `CLAUDE.md` prévaut.
+Ce projet applique la **Méthode de travail IA v2.32** et ses satellites (`SECURITY_METHOD.md` · `UX_METHOD.md` · `RD_METHOD.md` · `SQL_METHOD.md` · `PEDAGOGY_METHOD.md` · `STYLE_METHOD.md` · `ASSURANCE_METHOD.md` · `VISION_METHOD.md`). Pour les détails **projet** (stack, architecture, contenu), ce `CLAUDE.md` prévaut.
 
 > **Référentiel central** : `C:\JobDirectory\CLAUDE_PROJECTS\_CLAUDE_TEAM_WORKFLOW_AI_METHODOLOGY\Etude_technique` — commencer par `00_START_ICI.md`.
 
@@ -179,4 +179,4 @@ Anonymisation ci-dessous, qui en est la déclinaison éditoriale et reste **P1**
 - Ne pas confondre les deux niveaux de « fictif » : les données d'exemple sont fictives, mais l'architecture décrite est réelle et doit rester techniquement exacte (l'étude et les PDF privés font foi).
 
 ---
-*Version produit : 0.1.26 · Journal : `tasks/JOURNAL_v0.1.md` · Méthode : v2.29 via `00_START_ICI.md`.*
+*Version produit : 0.1.26 · Journal : `tasks/JOURNAL_v0.1.md` · Méthode : v2.32 via `00_START_ICI.md`.*
