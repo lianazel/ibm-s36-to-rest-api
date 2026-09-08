@@ -4,11 +4,11 @@ Référentiel central : C:\JobDirectory\CLAUDE_PROJECTS\_CLAUDE_TEAM_WORKFLOW_AI
 Projet du jour      : C:\JobDirectory\CLAUDE_PROJECTS\_WEB\IBMiAPI\ibm-s36-to-rest-api
 Notes et prompts    : C:\JobDirectory\CLAUDE_PROJECTS\_WEB\IBMiAPI\Etude_Technique
 
-Dernière session Claude Code close : **30**, lue dans `.pipeline/STATUS.md` le 7 septembre 2026 au soir. C'est le
-SEUL compteur ; relis-la le jour même avant de la recopier. Ce fichier est `tasks/REPRISE.md`, écrasé à chaque fin
-de session et commité avec elle (`docs: reprise 2026-09-07`) ; la pile, c'est `git log -- tasks/REPRISE.md`. La
-conversation Cowork qui se ferme s'appelle « IBMiAPI Continuation 20 » dans l'application : c'est un titre, pas un
-compteur, ne le recopie nulle part dans un prérequis. La tienne est datée du jour où tu lis ceci.
+Dernière session Claude Code close : **31**, lue dans `.pipeline/STATUS.md` le 8 septembre 2026 à 13:13 (heure de
+Paris). C'est le SEUL compteur ; relis-la le jour même avant de la recopier. Cette session Cowork est du
+**8 septembre 2026** : Cowork date ses sessions, il ne les numérote plus. Ce fichier est `tasks/REPRISE.md`,
+écrasé à chaque fin de session et commité avec elle (`docs: reprise 2026-09-08`) ; la pile, c'est
+`git log -- tasks/REPRISE.md`.
 
 ---
 
@@ -21,33 +21,30 @@ entier, la personne d'abord, la méthode au moment d'agir** (Core §5.1). Ton ra
 Dans cet ordre, et sans rien me dire entre-temps :
 
 1. **La personne** : au référentiel, `PEDAGOGY_PROFILE.local.md` et `STYLE_PROFILE.local.md`, en entier. Je ne suis
-   pas de ton monde, je suis du monde IBM i : mots simples, une idée par phrase, analogie IBM i quand ça aide. Le
-   profil a gagné le 7 septembre un acquis (WSL) et une analogie (PASE) : lis-les, ne les ré-explique pas. Quand je
-   clique une réponse à choix, vérifie que j'ai compris avant d'agir. Quand ta consigne est dense, je le dis, et
-   c'est la consigne qui est fautive : le 7 septembre, j'ai dû dire « j'ai rien compris » une fois.
-2. **Le projet, par tranches** : `CLAUDE.md` en entier (« Règles de sécurité » et « Agents » ont changé le
-   7 septembre : plus aucun « Non éprouvé ») · `.pipeline/STATUS.md` (une ligne) · `tasks/ROADMAP.md` : **le tableau
-   du fil** (lignes `12 sexies`, `12 septies`, `12 octies`, 13) et les dettes `[W59]` à `[W69]` au bas de « Dettes et
-   reports » · `tasks/lessons.md` : la liste des titres (`grep '^## '`) et la dernière entrée (7 septembre) ·
-   `tasks/JOURNAL_v0.1.md` : l'entrée « Session 30 » seulement (les 100 dernières lignes) · `.claude/settings.json`
-   en entier (39 `deny`, 1 `ask`) · `.claude/settings.local.json` (11 `allow`, non commité) · `.claude/commands/ship.md`,
-   ÉTAPE 0.
+   pas de ton monde, je suis du monde IBM i : mots simples, une idée par phrase, analogie IBM i quand ça aide.
+   Quand je clique une réponse à choix, **vérifie que j'ai compris avant d'agir** : le 8 septembre j'ai cliqué C
+   sur une maquette et écrit D dans la phrase suivante, et c'est le message qui disait vrai. Quand ta consigne est
+   dense, je le dis, et c'est la consigne qui est fautive.
+2. **Le projet, par tranches** : `CLAUDE.md` en entier (il épingle **v2.32** depuis le 8 septembre) ·
+   `.pipeline/STATUS.md` (une ligne) · `tasks/ROADMAP.md` : **le tableau du fil** (lignes `12 septies`,
+   `12 nonies`, 13, 14, 15) et les dettes `[W62]` à `[W69]` au bas de « Dettes et reports » · `tasks/lessons.md` :
+   la liste des titres (`grep '^## '`) et **les deux dernières entrées** (7 et 8 septembre) ·
+   `tasks/JOURNAL_v0.1.md` : l'entrée « Session 31 » seulement · `.claude/settings.json` en entier (39 `deny`,
+   1 `ask`) · `.claude/agents/prompt-reviewer.md` en entier, parce que c'est la porte que ton prompt devra passer.
 3. **La méthode, au moment d'écrire seulement** : Core §4.1 et table §8.1 ; puis les satellites que la table
-   désigne pour ce que tu vas écrire. Pour la tâche du jour (un prompt qui touche `index.html`, `js/i18n.js`,
-   `css/styles.css` et une image) : `UX_METHOD`, `STYLE_METHOD` + profil, `VISION_METHOD` si une capture entre en
-   jeu, `ASSURANCE_METHOD` couche A pour toute porte ou preuve chiffrée.
+   désigne. Pour la tâche du jour (une image refaite hors dépôt, puis un prompt qui touche `assets/`) :
+   `STYLE_METHOD` + profil, `AGENT_SCOPE_METHOD`, `ASSURANCE_METHOD` couche A si une porte entre en jeu.
 4. **Mesure** l'état du dépôt **par lecture de fichiers**, jamais par une commande git depuis la VM Cowork (chaque
-   `git status` y laisse un `index.lock` insupprimable ; deux traînent déjà dans `.git/`,
-   `_to_delete_index.lock.s19*`) : `.git/HEAD` · `.git/refs/heads/*` · `.git/refs/remotes/origin/main` ·
-   `.git/logs/HEAD` (trois dernières lignes) · `grep '"version"' package.json` · `.pipeline/STATUS.md` ·
-   `grep -c '^      "' .claude/settings.json` · `grep -o '\[W[0-9]*\]' tasks/ROADMAP.md | sort -t W -k2 -n | tail -1` ·
-   `grep -c '^## ' tasks/lessons.md`. `npm test` et les commandes git sont pour Claude Code ou pour moi. Le `HOME`
-   de la VM n'est pas celui de la machine : tu ne lis ni `~/.claude/`, ni `~/.claude.json`.
-5. **La machine, une fois pour toutes** (mesuré le 7 septembre) : Claude Code, Node, npm et git tournent **dans
-   WSL**, pas dans PowerShell. Toute commande que tu me donnes dit de quel côté elle se tape, et en chemin WSL
-   (`/mnt/c/…`). Le plancher machine qui compte est `/home/jcc_1a/.claude/settings.json` ; il se pose par
-   `TWAIM_Kit/poser-plancher.js`, lancé par moi, jamais par un agent (guide :
-   `USER_OPERATING_DOCUMENTATION/GUIDE_UTILISATEUR_poser-plancher.docx`).
+   `git status` y laisse un `index.lock` insupprimable, et il rend en plus la mesure des fichiers modifiés par
+   leurs dates inutilisable pour la journée : je l'ai fait le 7 septembre, ne le refais pas) : `.git/HEAD` ·
+   `.git/refs/heads/*` · `.git/refs/remotes/origin/main` · `.git/logs/HEAD` (trois dernières lignes) ·
+   `grep '"version"' package.json` · `.pipeline/STATUS.md` · `grep -c '^      "' .claude/settings.json` ·
+   `grep -o '\[W[0-9]*\]' tasks/ROADMAP.md | sort -t W -k2 -n | tail -1` · `grep -c '^## ' tasks/lessons.md` ·
+   `find . -newer .git/index -type f -not -path './node_modules/*' -not -path './.git/*' -not -path './.pipeline/*'`.
+   `npm test` et les commandes git sont pour Claude Code ou pour moi.
+5. **La machine** : Claude Code, Node, npm et git tournent **dans WSL**, pas dans PowerShell. Toute commande que tu
+   me donnes dit de quel côté elle se tape, et en chemin WSL (`/mnt/c/…`). Le plancher machine est
+   `/home/jcc_1a/.claude/settings.json`, posé par `TWAIM_Kit/poser-plancher.js`, lancé par moi, jamais par un agent.
 
 Ne déclare aucune lecture que tu n'as pas faite. Ne cite aucun chiffre que tu n'as pas mesuré. Si un document et le
 dépôt se contredisent, le dépôt gagne et tu me le signales.
@@ -56,118 +53,132 @@ dépôt se contredisent, le dépôt gagne et tu me le signales.
 
 ## Où en est le travail
 
-Mesuré le 7 septembre 2026 à 17:19 (heure de Paris), par lecture de fichiers, **après le push**.
+Mesuré le 8 septembre 2026 à 13:13 (heure de Paris), par lecture de fichiers, **après le push**.
 
-- **`main` = `origin/main` = `c329158`** (« docs(securite): essai 0 des deux gardes… », 16:40), version **0.1.26**,
-  `STATUS` = `CLOSED — session 30`. Une seule branche. **Arbre propre** (0 fichier plus récent que `.git/index`
-  hors `node_modules`, `.git`, `.pipeline`) au moment d'écrire, sauf **ce fichier**, que le chef de projet commite
-  par-dessus (`docs: reprise 2026-09-07`).
-- **Tests : 382/382** selon `review.json` (commit `674d8bb`, verdict SHIP, session 29), **pas relancés depuis**.
-  Je compte **239** blocs `it(`/`test(` dans les **7** fichiers de `tests/`, **18** `.each` : l'écart vient des
-  tests paramétrés. **40** leçons. Dernière dette : **`[W69]`**.
-- **Les deux gardes du 4 septembre sont éprouvées** (7 septembre, deux sessions Claude Code neuves, mode auto).
-  `deny` sur `mcp__playwright__browser_run_code_unsafe` : outil absent, 23 voisins présents. `ask` sur
-  `mcp__playwright` : question à l'écran à chacun des deux appels, malgré 4 `allow` sur ces outils dans
-  `settings.local.json`. `prompt-reviewer` : quatre `/ship` sur le prompt piège, trois `BLOCK` reproductibles
-  (8 `fails` identiques), verrou des trois au quatrième, zéro effet de bord. **Onze `deny` éprouvées sur
-  trente-neuf**, plus le `ask`. Rapports non commités : `.pipeline/ESSAI0_mcp.md` (135 lignes),
-  `.pipeline/prompt-reviews.log` (3 lignes), `.pipeline/prompt-review.json`. Les faits sont recopiés au journal.
-- **Liste d'interdits : 39 `deny` + 1 `ask`**, inchangée. Plancher machine v3 (37 + 1) **posé** le 7 septembre à
-  09:59 dans `/home/jcc_1a/.claude/settings.json` ; `/permissions` montre chaque règle MCP deux fois (dépôt et
-  machine). Le fichier machine ne porte plus que les permissions (`effortLevel` et `tui` avaient disparu avant
-  le 7, sans doute à la pose de v2 par copie entière).
-- **`/land` ne merge plus**, **non éprouvé** : le prochain atterrissage réel sera le premier. **Le cas positif du
-  `prompt-reviewer`** (un vrai prompt qui obtient `SHIP`) est **non éprouvé** : la tâche du jour est ce cas.
-- `CLAUDE.md` épingle toujours **« Méthode v2.29 »** ; la méthode est en **v2.32**. **Le re-pin se fait dans
-  l'incrément du jour** (`MAINTENANCE.md`, règle 3 : au prochain incrément, et c'est celui-ci).
-- Le site est en ligne : https://lianazel.github.io/ibm-s36-to-rest-api/ — 0.1.26. **Le dépôt est public : tout
-  commit est une publication.** Anonymisation P1 inchangée. Règle de partage : des instances, jamais des invariants.
-- Le doc d'état complet est dans le projet Claude (`claude/ETAT_SESSION_IBMiAPI_v27.md`). **Il n'est pas la source
-  de vérité : le dépôt l'est.** Notes hors dépôt qui font foi : `PREP_poser-plancher_v1.md` (naissance du script),
-  `PREP_liste-interdits_v3.md`.
+- **`main` = `origin/main` = `4b9035f`**, version **0.1.27**, `STATUS` = `CLOSED — session 31`. **Une seule
+  branche** : `feat/finitions-2` a été fusionnée (merge `1ed4f2a`) puis supprimée. Arbre propre, sauf **ce
+  fichier** et `tasks/ROADMAP.md`, que le chef de projet commite (`docs: reprise 2026-09-08`).
+- **Tests : 395/395**, +13 par rapport aux 382 du 3 septembre, tous portés par la porte neuve
+  `tests/partage.test.js`. **8** fichiers de test. **41** leçons. Dernière dette : **`[W69]`**. Liste d'interdits
+  inchangée : **39 `deny` + 1 `ask`**.
+- **`12 nonies` est atterrie** : la carte de partage (neuf balises `og:`/`twitter:` en anglais seul,
+  `assets/og-card.png` 1200 × 630 au dépôt, porte de concordance avec le dictionnaire anglais), le balayage des
+  **six** commentaires de `css/styles.css` qui situaient leur cible (`grep -c 'l. [0-9]'` = **0**), et le re-pin
+  `CLAUDE.md` v2.29 → **v2.32**. **[W59], [W60] et [W61] remboursées.** SHIP en une passe, 0 FAIL, 5 WARN.
+- **Trois gardes éprouvées le 8 septembre**, et c'était l'enjeu de la journée. Le `prompt-reviewer` en **cas
+  positif** après **deux `BLOCK`** sur mes propres erreurs d'arithmétique (révisions 3 et 4 refusées, révision 5
+  passée) : le verrou des trois est retombé à zéro sur ce sujet. `/land` a **refusé** une branche non fusionnée,
+  affiché la commande et n'a rien écrit : **[W68] est éprouvée**. Et la porte neuve a mordu à sa naissance, deux
+  tests rouges sur un seul caractère faussé, sous mes yeux.
+- **La carte est en ligne et lue.** Site publié à jour, image servie en 200 pour 73 476 octets. LinkedIn a relu
+  les deux adresses par le Post Inspector et gardé sa propre copie : le site **et** le dépôt GitHub affichent
+  maintenant la même carte, `assets/og-card.png` ayant été téléversée en « Social preview » du dépôt. Reste gris :
+  le média **TWAIM** du profil, dont le site n'a pas encore de balises.
+- Le site : https://lianazel.github.io/ibm-s36-to-rest-api/ — 0.1.27. **Le dépôt est public : tout commit est une
+  publication.** Anonymisation P1 inchangée. Règle de partage : des instances, jamais des invariants.
+- Le doc d'état complet est dans le projet Claude (`claude/ETAT_SESSION_IBMiAPI_v27.md`, à mettre à jour).
+  **Il n'est pas la source de vérité : le dépôt l'est.**
 - **Écarts mesurés, à assumer** : (1) le skill Cowork `prompt-de-reprise` dit encore « hors dépôt,
-  `PROMPT_REPRISE_session<N>.md` » ; le gabarit du référentiel (`TEMPLATE_REPRISE_SESSION.md`, v2.32) dit
-  `tasks/REPRISE.md`, écrasé, commité. **Le référentiel gagne** ; le texte du skill est à mettre à jour par le chef
-  de projet (Cowork peut le proposer). Le 7 septembre, Cowork a d'abord suivi le skill, puis le gabarit : ce fichier
-  est le seul exemplaire, il n'y a pas de `PROMPT_REPRISE_session30.md` dans `Etude_Technique`. Le dépôt est public :
-  ce fichier montre des instances, pas de doctrine. (2) Les commits « du 4 septembre » sont datés du 5 par la machine ; le journal de la session 30 le dit.
-  (3) Mesuré pour la tâche du jour : `og:` = **0** et `twitter:` = **0** dans `index.html` ; « environnement S/36 » =
-  **0** dans `index.html` et `js/i18n.js` ; `chapeau"` = **24** dans `index.html` (base du jour, `[W66]`).
+  `PROMPT_REPRISE_session<N>.md` » ; le gabarit du référentiel dit `tasks/REPRISE.md`, écrasé, commité. **Le
+  référentiel gagne** ; le texte du skill est à mettre à jour par le chef de projet. (2) Le kit **a** désormais un
+  gabarit `.claude/settings.json` (48 lignes, 40 règles dont un `ask`), contrairement à ce que disait la reprise
+  du 7 ; en revanche `_TEMPLATE_AGENTS/.claude/commands/land.md` prescrit toujours `git merge`, **3 fois** : cette
+  dette de propagation est ouverte. (3) `.claude/commands/ship.md` épingle encore « Core §4.1 v2.29 » : l'agent
+  n'a pas le droit d'écrire dans `.claude/`, c'est ton geste, voie (a).
 
 ## Ce qu'on fait aujourd'hui
 
-**Une seule tâche : écrire le prompt de Finitions 2, et le faire passer la porte.** C'est le premier vrai prompt
-depuis que le relecteur existe : son verdict attendu est `SHIP`, et c'est le cas positif qu'il manque à l'essai 0.
-Le prompt est bloqué depuis le 4 septembre « après la preuve du CHORE, parce qu'un chantier en mode auto rouvre
-le navigateur » : la preuve est faite, le frein mord.
+**Une seule tâche : refaire l'image de la carte de partage, pour que son JSON respecte le dictionnaire du site.**
 
-Ce qu'il porte, tel qu'inscrit au fil et dans les dettes : les balises **Open Graph et Twitter** (une image
-1200 × 630, **une seule langue**, anglais recommandé), les trois dettes de commentaires CSS **`[W59]`, `[W60]`,
-`[W61]`** (un `padding-right` en doublon et un commentaire à contresens, deux renvois « l. NNN » faux à la naissance,
-un commentaire de `.about` faux pour moitié et deux `border: none` mortes), et le **re-pin v2.29 → v2.32** de
-`CLAUDE.md`, puisque c'est « le prochain incrément ».
+Le `reviewer` l'a relevé en réserve n° 1 le 8 septembre, et je l'ai vérifié en mesurant : la carte publie
+`"itemCount"` et `"totalBeforeTax"`, et **ces deux noms n'ont aucun porteur dans le dépôt** (`grep -rn` rend zéro).
+Le dictionnaire anglais que le site publie (`js/i18n.js`, `en.modele`) connaît `orderNumber`, `orderAmount`,
+`customerLastName`, et **ne connaît ni `NBRART` ni `TOTHTG`**. Ta règle d'or n° 3 dit que tout nouvel exemple
+respecte ce dictionnaire : la carte est un nouvel exemple, et deux de ses quatre champs ne le respectent pas.
 
-Ce qui décide de sa qualité : le prompt doit **passer C1 à C4 du relecteur du premier coup**. Donc : aucune commande
-de la liste d'interdits, aucune promesse que `/land` merge ; chaque prérequis chiffré avec sa commande et sa
-conduite d'échec « sinon ARRÊTE-TOI », base relevée « sur `main` à `c329158` » et **remesurée le jour même** ; le
-bloc « Satellites consultés » recalculé depuis le contenu (UX, STYLE, VISION si capture, ASSURANCE A si porte) ;
-une section « Ce que ce prompt NE fait PAS » qui nomme des fichiers ; `docs(prompt): <chemin exact>` ; **aucun
-numéro de ligne prescrit dans un commentaire à écrire** (leçon du 3 septembre, et le relecteur le vérifie).
+**Ce que le relecteur a nommé au-delà de ma faute** : cet écart fait sortir en vitrine le **troisième trou** du
+fil, relevé le 27 août 2026 et jamais arbitré — l'annexe du site nomme les colonnes `NBRART` et `TOTHTG`, le
+modèle nomme le montant `MTTCDE`. La carte est devenue un porteur de plus du dictionnaire d'exemples, gravé dans
+un binaire qu'aucune porte ne relit.
 
-**Le premier arbitrage à me demander, avant d'écrire une ligne** : l'image Open Graph. Laquelle (une existante
-dans `assets/`, recréée, ou une nouvelle à produire), et confirmer « anglais seul ». Sans cette réponse, le prompt
-ne peut pas fermer son périmètre. Une seule question, avec ta recommandation.
+**Le premier arbitrage à me demander, avant de toucher à l'image** : est-ce qu'on aligne la carte sur le
+dictionnaire existant (donc on retire les deux champs fautifs et on montre `orderNumber`, `orderAmount`,
+`customerLastName`), ou est-ce qu'on ouvre d'abord l'arbitrage du troisième trou, qui déciderait aussi de
+l'annexe ? Une seule question, avec ta recommandation.
+
+**Ce que porte ensuite la tâche** : la maquette hors dépôt `Etude_Technique/MAQUETTE_carte-open-graph_v1.html` est
+le seul moyen de refabriquer le PNG. Elle lit les polices du dépôt par un chemin relatif, elle se rend en 1200 × 630
+avec Chromium à l'échelle 1, et **le bloc signé de métadonnées ajouté par le transport doit être retiré** avant
+dépôt (5 758 octets illisibles dans un dépôt public ; le fichier doit finir au bit près celui que la maquette
+produit).
 
 **Pièges déjà connus, qui te concernent aujourd'hui :**
 
-- Le prompt se confronte au dépôt **avant** d'être gelé (leçon du 29 août), et le relecteur remesure tout nombre :
-  un chiffre repris d'un document n'est pas mesuré. Les trois mesures ci-dessus datent du 7 septembre au soir ;
-  remesure-les avant de les écrire dans un prérequis.
-- Le geste du chef de projet reste le merge et le push. `/land` refuse une branche non fusionnée et affiche la
-  commande. Bump `patch` tant que la version est < 1.0.0 (0.1.26 → 0.1.27).
-- Pendant l'exécution en mode auto, chaque appel au navigateur posera une question au chef de projet ; il répond
-  `1. Yes`, jamais « don't ask again ». Le serveur Playwright refuse `file:` : toute vérification de rendu exige un
-  serveur local, sinon on ne la prescrit pas.
+- **Ne gèle pas un prompt tant qu'un arbitrage dont il dépend n'est pas rendu.** Le 8 septembre j'ai gelé trois
+  fois trop tôt, et chaque changement d'image a périmé un prérequis chiffré, donc imposé une révision. Règle
+  candidate pour le Core : un prompt se gèle après le dernier arbitrage, jamais avant.
+- **Un prérequis ne cite pas le poids exact d'un binaire.** La révision 5 vérifie signature PNG, dimensions et un
+  plancher souple : c'est ce qui a rendu le prompt insensible aux retouches du visuel. Garde cette forme.
+- **Corriger le `fail` qu'on te montre ne corrige pas le défaut** (leçon du 8 septembre, la dernière du registre) :
+  après toute correction d'un chiffre, balaie **tous** ses porteurs, message de commit et critères d'acceptation
+  compris. Les deux `BLOCK` de la journée viennent exactement de là.
+- **`grep -c` compte des lignes, `grep -o | wc -l` compte des occurrences**, et ni l'un ni l'autre ne compte des
+  objets. Dis toujours laquelle des trois tu mesures.
+- Le geste du chef de projet reste le merge et le push. `/land` exige que la clôture précédente soit **poussée**
+  avant de tourner : `git log origin/main..main --first-parent --no-merges` doit être vide. Bump `patch` tant que
+  la version est < 1.0.0 (0.1.27 → 0.1.28).
 - Voie (a) : Cowork écrit dans `.claude/` si besoin, le chef de projet commite ; l'agent ne peut pas y écrire.
 
 ## Ce qui n'est PAS au programme, et pourquoi
 
-- **Trois outils MCP à examiner pour un `deny`** (`browser_network_request`, `browser_file_upload`,
-  `browser_network_requests`) : nommés au fil (`12 sexies`) et au `CLAUDE.md`, sous le seul `ask` ; c'est un
-  arbitrage du chef de projet et un CHORE dédié, pas un ajout en passant dans un prompt de finitions.
+- **Le champ « Mode d'exécution » du gabarit** (AUTO MODE autorisé / interdit, avec son motif, et la règle
+  « interdit dès que la preuve exige un témoin humain ») : idée du chef de projet le 8 septembre, acceptée,
+  **écrite nulle part**. Elle touche `TEC_IA_TWAIM_CORE.md` §4.1 et `_TEMPLATE_AGENTS/.claude/agents/prompt-reviewer.md`,
+  donc le référentiel, pas IBMiAPI. Un dépôt à la fois.
+- **La coupure de C1 en deux** dans le contrat du `prompt-reviewer` : un fait faux du dépôt devrait rendre
+  `NEEDS_WORK`, pas `BLOCK`, qui doit rester pour ce qui **ne doit pas tourner**. Analysé le 8 septembre, non
+  écrit. Même dépôt que le point précédent, et on ne modifie pas une garde pendant qu'on usine.
 - **Ligne `12 septies`, « Les coulisses »** : arbitrée, inscrite, non rédigée ; la seule question qui compte est
-  « quels trois artefacts » ; elle passe **après** la carte Open Graph pour que le lien s'affiche proprement.
-- **Ligne 13, « Mise en scène »** : attend la réponse du chef de projet sur `[W29]`/`[W30]`, posée depuis le
-  3 septembre.
+  « quels trois artefacts ». La carte Open Graph qu'elle attendait est faite : la ligne est désormais dégagée.
+- **Ligne 13, « Mise en scène »** : attend ta réponse sur `[W29]`/`[W30]`, posée depuis le 3 septembre.
+- **Les quatre autres réserves du `reviewer`** du 8 septembre, toutes WARN, toutes à porter au fil et non à
+  corriger à chaud : deux titres de tests qui promettent un peu plus qu'ils ne mesurent (`tests/partage.test.js`
+  l. 138 et 161), le motif `\bLIB[A-Z0-9]{2,}\b` du scrub qui rend six faux positifs en `-i` sur les mots français
+  commençant par « lib », et huit lignes de `decodeEntities` écrites sans être demandées (arbitrage : garder ou
+  retirer).
+- **Trois outils MCP à examiner pour un `deny`** (`browser_network_request`, `browser_file_upload`,
+  `browser_network_requests`) : arbitrage du chef de projet et CHORE dédié.
 - **La feuille pour DSI IBM i** (`Etude_Technique/DSI_une-feuille_v1.md`) : relecture humaine d'abord.
+- **Les balises Open Graph du site TWAIM** (autre dépôt) : c'est ce qui laisse le premier média gris sur ton
+  profil LinkedIn. Chantier voisin, autre projet.
 - **R&D nommées, non instruites** : le compteur des trois qui ne distingue pas trois révisions de trois relances
-  du même fichier (le `prompt_sha256` porterait l'information) ; `/fix` sans garde `prompt-reviewer` ; `RD-062`,
-  `RD-063` (hook compteur), `RD-061` ; les vingt-huit `deny` non éprouvées une à une ; GMFCC.
-- **Le kit** : `poser-plancher.js` et le plancher v3 y sont, `NEW_WORKSTATION.md` a son § 3 bis ; le gabarit du kit
-  n'a toujours ni `settings.json`, ni section « Règles de sécurité », ni `review.json`, ni `land-guard.js` : dette
-  de propagation, référentiel, pas IBMiAPI.
-- **Une version Python de `poser-plancher.js`** (sans prérequis Node) : seulement si la machine de déplacement n'a
-  pas Node dans WSL, et ça se re-prouve (14 essais).
+  du même fichier (`prompt_sha256`) ; `/fix` sans garde `prompt-reviewer` ; `RD-061`, `RD-062`, `RD-063` (hook
+  compteur) ; les vingt-huit `deny` non éprouvées une à une ; GMFCC.
 
 ## Trous et questions ouvertes à me rappeler
 
 1. `node` et `python3` sont permis à l'agent et savent tout faire, réseau compris : c'est le prompt qui le tient.
-   Et `node poser-plancher.js --go` n'est retenu que par une variable d'environnement (un filet, pas une serrure).
-2. `browser_navigate` atteint n'importe quelle adresse **réseau** (pas le local) ; `browser_network_request` est un
-   chemin plus direct ; tous deux sous le seul `ask`. Le bornage par URL demande le hook `RD-063` / `[W69]`.
+   Le périmètre d'un incrément est tenu par du texte, pas par une serrure — risque résiduel assumé, improbable,
+   visible, survivable.
+2. `browser_navigate` atteint n'importe quelle adresse **réseau** (pas le local, Playwright refuse `file:`) ;
+   `browser_network_request` est un chemin plus direct ; tous deux sous le seul `ask`. Le bornage par URL demande
+   le hook `RD-063` / `[W69]`.
 3. La carence de 72 h d'un paquet **n'est pas vérifiable par le relecteur** (réseau fermé) : ce contrôle reste au
    chef de projet, et le croire couvert serait la lecture dangereuse.
 4. La mesure VoiceOver porte neuf objets et attend un humain depuis l'incrément 9.
 5. Les deux rangées « S/36 · IBM i » du menu (`[W65]`) se règlent avec le texte des chapeaux.
-6. `[W66]` : toute base se remesure le jour même ; `chapeau"` = 24 ce soir, pas 18.
+6. `[W66]` : toute base se remesure le jour même.
 7. Le fichier machine `settings.json` a perdu `effortLevel` et `tui` entre le 2 et le 7 septembre : à remettre par
    le chef de projet s'il y tient, le script ne les recrée pas.
+8. Les vignettes de médias déjà épinglées sur LinkedIn gardent parfois l'ancienne image même après relecture : il
+   faut retirer le média et le remettre.
 
 ---
 
-Et si tu trouves que quelque chose dans ce message est faux, dis-le. Il a été écrit par ton prédécesseur, qui s'est
-trompé **six fois** dans la journée qu'il vient de terminer — dont : affirmer que Node était sur la machine Windows
-sans l'avoir mesuré (il est dans WSL, et `node` était inconnu dans PowerShell) ; indiquer `C:\Users\…\.claude` comme
-fichier du plancher alors que Claude Code lit celui de WSL ; livrer une première version du script qui lisait mal son
-argument dans le cas réel, sans `--cible` (trouvé à la relecture, avant usage) ; et écrire au chef de projet une
-consigne si dense qu'il a répondu « j'ai rien compris ».
+Et si tu trouves que quelque chose dans ce message est faux, dis-le. Il a été écrit par ton prédécesseur, qui
+s'est trompé **cinq fois** dans la journée qu'il vient de terminer — dont : lire un compte de lignes rendu par
+`grep -c` comme un compte de commentaires, et propager ce nombre faux dans quatre endroits du prompt ; ne corriger
+que les quatre nombres qu'on lui montrait et laisser le cinquième dans le message de commit, ce qui a valu un
+second `BLOCK` ; geler trois fois un prompt avant que l'arbitrage dont il dépendait soit rendu ; publier sur la
+carte deux noms de propriétés JSON que le dictionnaire du site ne connaît pas ; et lancer un `git status` depuis
+la VM Cowork contre la règle, ce qui a rendu la mesure des fichiers modifiés inutilisable pour la journée.
