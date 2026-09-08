@@ -2452,3 +2452,131 @@ entière. Le script ne remplace que le bloc `permissions`, précisément pour ce
 `prompt_sha256` = `85b0c9937073cbb0fb255e6fb8db4d47b723635760b50a7f0950411b1e1cce0c`. `unknowns` du
 troisième passage : date de publication du paquet non vérifiable ; satellites hors dépôt, lignes §8.1
 recalculées d'après la table ; contradiction C1 établie par lecture, aucune commande du prompt lancée.
+
+---
+
+## Session 31 — 8 septembre 2026 — EVOL `finitions-2` (merge `1ed4f2a`, 0.1.26 → 0.1.27)
+
+**Premier incrément réel depuis que le `prompt-reviewer` existe, et son cas positif.** L'essai 0 du
+7 septembre n'avait éprouvé que le refus : trois `BLOCK` sur un prompt piège. Le prompt de Finitions 2 a
+fait la démonstration inverse, mais pas du premier coup — **deux `BLOCK` puis un `SHIP`**, sur trois
+révisions. La garde n'a laissé passer qu'à la troisième, sur remesure complète, à un cran du verrou des
+trois. Elle n'est donc ni décorative, ni infranchissable : c'est exactement ce qu'on lui demandait.
+
+**Trois objets sans recouvrement, cinq fichiers, aucun changement visible sur la page.** Rembourse
+**[W59]**, **[W60]** et **[W61]**. Tests **382/382 → 395/395**.
+
+### Ce que la garde a attrapé, et ce que cela dit
+
+Les deux refus portent sur **le même défaut, sous trois formes** : le rédacteur avait lu `grep -c` comme
+un compte d'objets. `grep -c 'l\. [0-9]'` rend **7 lignes** ; `grep -o … | wc -l` rend **8 renvois** ; et
+ces huit renvois vivent dans **6 commentaires**. Trois nombres pour une seule chose regardée de trois
+façons.
+
+- **`BLOCK` 1** (11:11, révision 3, C1 FAIL) : quatre nombres faux dans le corps du prompt — « sept
+  commentaires », « neuf renvois », « six renvois faux », et un livrable C3 qui annonçait « huit
+  remplacements » pour en prescrire six. Le relecteur a compté à la main, bloc par bloc.
+- **`BLOCK` 2** (11:28, révision 4, C1 FAIL) : **un seul** nombre faux restant, dans le **message de
+  commit** — « sept renvois nommés » là où le passage en nomme huit. La révision 3 avait corrigé partout
+  sauf là. Le relecteur l'a nommée « quatrième occurrence de l'erreur, restée dans le seul endroit que la
+  correction n'a pas balayé », et a relevé qu'écrit tel quel, ce commit publiait dans un dépôt public un
+  nombre que son propre diff dément.
+- **`SHIP`** (11:47, révision 5, 0 `fails`, 5 `warns`) : les quatre nombres justes, la correction balayée
+  aux cinq endroits qui la portent, et **vingt-et-un prérequis chiffrés remesurés conformes**.
+
+**Le fait de méthode du jour** : la correction ciblée d'un `fail` en laisse un ailleurs. Le relecteur ne
+relit pas le correctif, il relit le prompt entier, à chaque fois — c'est ce qui a rattrapé le message de
+commit que personne n'avait rouvert.
+
+### Les trois livrables
+
+**A — La carte de partage** (`index.html`, +14 lignes dans le `<head>`). Neuf balises `og:*` et
+`twitter:*`, **anglais seul**. Ce n'est pas une préférence : les robots de LinkedIn et de X ne lancent pas
+le JavaScript, la bascule FR/EN ne les atteint jamais, et une balise bilingue n'existe pas. Le titre et la
+description ne sont pas rédigés — ils sont repris mot pour mot de `dict.en.site.title` et
+`dict.en.meta.description`, ce qui crée un second porteur d'une même chaîne, la famille de **[W62]**.
+D'où le livrable B, qui existe pour tenir les deux d'accord. L'image `assets/og-card.png` (1200 × 630,
+73 476 octets, recréée hors dépôt par le chef de projet) est entrée au dépôt sans être touchée par
+l'agent : constatée au prérequis, enregistrée par son chemin exact.
+
+**B — La porte de concordance** (`tests/partage.test.js`, fichier neuf, 13 tests). Sept assertions, une
+garde de non-vacuité à neuf balises, cinq témoins de vivacité. **Les deux morsures ont été jouées, pas
+supposées** : un caractère faussé dans `og:title` → 2 rouges nommant la balise ; le motif de relevé cassé
+→ 8 rouges, la garde d'aveuglement rougissant la première (`porte AVEUGLE : relevé vide ou HTML
+introuvable`). Rétablies, 395/395 les deux fois. Le `reviewer` a **recalculé le second nombre à la main**
+(6 échecs dans le premier `describe` + 2 dans le second = 8) pour vérifier que la preuve avait bien été
+jouée : « ce nombre ne se devine pas ».
+
+**C — Les commentaires qui situent au lieu de nommer** (`css/styles.css`). Huit commentaires réécrits,
+trois déclarations retirées, **zéro renvoi de ligne restant**. Le remède est celui de la dette : un
+commentaire **nomme** sa cible, il ne la situe pas. Le seul renvoi encore juste (`.nav-chapeau`,
+`l. 56, 57, 61`) part avec les autres — il ne l'était que par chance, et la première insertion au-dessus
+l'aurait périmé en silence. [W60] n'en nommait que deux ; le balayage complet en a trouvé six. Leçon du
+19 août appliquée : un défaut déclaré une fois se cherche partout où il peut être.
+
+**D — Le re-pin** : `CLAUDE.md` passe de « Méthode v2.29 » à **v2.32**, deux occurrences.
+`.claude/commands/ship.md` épingle encore « Core §4.1 v2.29 » — geste du chef de projet, l'agent n'écrit
+pas dans `.claude/`.
+
+### L'arrêt du scrub, et ce qu'il a révélé
+
+L'ÉTAPE 6 attendait **zéro ligne** au scrub d'anonymisation ; la commande en a rendu **six**. L'agent
+s'est arrêté, comme prescrit, et a mesuré avant de conclure : **cinq préexistent sur `main`** (le scrub
+porte sur le fichier entier, pas sur le diff) et la sixième est le mot **« libre »** de la porte neuve.
+Cause : le motif `\bLIB[A-Z0-9]{2,}\b`, lu en `-i`, attrape tout mot français commençant par « lib » —
+« libre », « libellé ». Le même scrub relancé sur les **seules lignes ajoutées** ne rend rien.
+
+**Rien n'a été renommé pour faire passer le compteur.** C'est la même règle qu'à la session 29 : ne jamais
+déformer un fichier pour satisfaire un nombre. Le chef de projet a arbitré la poursuite. La dette du
+motif est nommée ci-dessous — sans quoi le scrub restera bruyant à chaque incrément et **un vrai positif
+s'y noiera**.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| Le scrub rend six lignes là où le prompt en attend zéro | **Poursuivre**, après mesure de l'origine de chaque ligne | Zéro ligne introduite par l'incrément ; cinq antérieures au travail, une faux positif du motif en `-i`. La commande mesure le fichier, pas le diff : c'est la mesure qui est mal cadrée, pas le livrable | **précédent** |
+| Renommer « libre » dans la porte neuve pour ramener le scrub à zéro | **Refusé** | Déformer un fichier pour satisfaire un nombre maquille la mesure au lieu de la lire. Même règle qu'au `chapeau"` = 24 de la session 29 | **précédent** |
+| Corriger le motif du scrub dans cet incrément | **Refusé, dette nommée** | Le périmètre du prompt est fermé et la correction touche un outil, pas le livrable. Une dette portée au fil survit au pipeline ; `.pipeline/changes.md` n'est pas commité | cas d'espèce |
+| Le niveau de bump : `feat/*` vaudrait `minor` | **`patch`** — 0.1.27 | Décision du 3 septembre : `patch` tant que la version est < 1.0.0, quel que soit le préfixe | cas d'espèce |
+| `decodeEntities`, huit lignes qu'aucune assertion du prompt ne demande | **Gardée**, déclarée hors spec dans `changes.md` et couverte par un témoin | Elle protège une comparaison stricte au dictionnaire le jour où une esperluette entrera dans l'une des deux chaînes. Le `reviewer` la laisse en WARN d'arbitrage, pas en défaut | cas d'espèce |
+| La casse de l'incrément dans `STATUS.md` : « finitions » ou « Finitions » | **Minuscule**, celle que le prompt prescrit littéralement et que le `reviewer` a inscrite dans `review.json` | La garde compare caractère pour caractère ; `spec.md` portait la majuscule. Vérifié par `land-guard`, pas supposé | cas d'espèce |
+| Le premier `/land` a refusé : branche non fusionnée | **Refus propre**, commande de merge affichée au chef de projet | `/land` ne merge plus depuis le 4 septembre ([W68]). Première mise à l'épreuve du `/land` réécrit, et elle a mordu du bon côté | **précédent** |
+
+### Ce qui s'est éprouvé aujourd'hui, sans qu'on l'ait cherché
+
+- **Le cas positif du `prompt-reviewer`** — le trou nommé le 7 septembre est comblé. La garde refuse ET
+  laisse passer, sur mesure et non sur lassitude.
+- **`/land` sans merge, non éprouvé depuis le 4 septembre** : éprouvé deux fois dans la même heure. Un
+  **refus** (branche non fusionnée, quatre gardes vertes sur cinq, commande exacte affichée, aucun effet
+  de bord), puis un **atterrissage** après le merge du chef de projet. [W68] est soldée pour de bon.
+- **Le verrou des trois n'a pas mordu** : deux refus, puis un `SHIP`. Il était à un cran.
+
+### Dettes ouvertes à l'issue
+
+- **[W70]** — **Le motif `\bLIB[A-Z0-9]{2,}\b` du scrub d'anonymisation, lu en `-i`, attrape tout mot
+  français commençant par « lib »** (« libre », « libellé »). Six lignes rendues pour zéro fuite. À ancrer
+  en casse stricte, ou à sortir du `-i`. Sans quoi le scrub reste bruyant à chaque incrément, et un vrai
+  positif s'y noie.
+- **[W71]** — **La carte de partage est un porteur de plus du dictionnaire d'exemples, et personne ne le
+  relit.** `assets/og-card.png` publie `"itemCount": 12` et `"totalBeforeTax": 125.50` ; le dictionnaire
+  que le site sert réellement (`js/i18n.js`, `en.modele`) ne connaît ni `NBRART` ni `TOTHTG`, et nomme ce
+  montant `orderAmount`. Le côté S/36 de l'image, lui, est exact et vérifié. Ce n'est pas un défaut neuf :
+  c'est le **troisième trou** nommé au fil le 27 août 2026, jamais arbitré, qui sort pour la première fois
+  en vitrine — gravé dans un binaire qu'aucune porte ne relit, sur l'artefact le plus vu du projet.
+  L'arbitrage `CDEMST` de la ligne 13 ou 14 devra désormais **aussi refaire l'image**.
+- **[W72]** — **Deux assertions de `tests/partage.test.js` promettent plus qu'elles ne mesurent.** L. 138,
+  « le fichier que cette adresse désigne existe » vérifie une constante jamais dérivée de
+  `pageTags["og:image"]` : trois porteurs de la même adresse dans un fichier dont l'en-tête dénonce
+  précisément ce défaut. L. 161, « la balise fautive est nommée » n'inspecte aucun message d'erreur.
+  Étroit, mais c'est la forme douce du théâtre que la couche A cherche à éviter.
+- **Reste au chef de projet** : le **rendu réel de la carte** chez LinkedIn et X, après publication, avec
+  les outils de ces plateformes. Aucune vérification au navigateur n'a été faite — le serveur Playwright
+  refuse `file:`, le dépôt n'a pas de serveur local, et le prompt l'interdisait explicitement.
+
+### Traces
+
+Prompt `prompts/v0.1/EVOL_finitions-2_v5.md` (`sha256` `1e293644…b47b7`), commit `8dcbad2` en premier
+enregistrement. Incrément `a598215`, merge `1ed4f2a`. Journal des relectures `.pipeline/prompt-reviews.log` :
+trois lignes pour ce sujet, `BLOCK` `BLOCK` `SHIP`. Les révisions 1 à 4 sont sorties du dépôt par le chef
+de projet — un contrat gelé et faux qu'un lancement pourrait désigner n'a rien à faire dans l'arbre.

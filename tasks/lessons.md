@@ -955,3 +955,23 @@ d'un hook qui demande, prévoit le témoin humain et la case où sa réponse s'i
 proposée à la saisie ce jour-là disait exactement cela, et elle était fausse.
 **Applicable globalement ?** : Oui, pour toute règle dont l'effet est une interaction avec l'humain.
 **Attendre une seconde occurrence sur un autre projet avant de promouvoir.**
+
+## 2026-09-08 — Corriger le `fail` qu'on vous a montré ne corrige pas le défaut : il faut balayer tous ses porteurs
+**Type** : Erreur
+**Contexte** : Prompt de Finitions 2 (IBMiAPI), deux `BLOCK` du `prompt-reviewer` avant le `SHIP`. Le
+défaut d'origine était une confusion de comptage : `grep -c` rend des **lignes**, `grep -o … | wc -l` rend
+des **occurrences**, et les occurrences vivaient dans un troisième nombre d'objets — 7 lignes, 8 renvois,
+6 commentaires. Le premier refus a listé quatre nombres faux dans le corps du prompt.
+**Erreur** : la révision suivante a corrigé les quatre nombres cités, exactement ceux-là, et rien d'autre.
+Le second `BLOCK` a porté sur **un cinquième porteur du même nombre**, dans le message de commit de
+l'ÉTAPE 7 — le seul endroit que la correction n'avait pas rouvert. Un nombre publié dans l'historique
+d'un dépôt public que son propre diff aurait démenti.
+**Correction** : un `fail` désigne un **symptôme à un endroit**, jamais l'inventaire de ses occurrences.
+Après toute correction d'un chiffre, d'un nom ou d'un chemin, chercher **tous** ses porteurs dans le
+document (titre, en-tête, prérequis, livrable, preuves, message de commit, critères d'acceptation) et
+vérifier qu'ils disent la même chose. C'est la même règle que la leçon du 19 août — un défaut déclaré une
+fois se cherche partout où il peut être — appliquée cette fois au **texte qui prescrit le travail**, et
+pas seulement au code. Le relecteur, lui, relit le document entier à chaque passage : c'est ce qui a
+rattrapé le cinquième porteur.
+**Applicable globalement ?** : Oui. Vaut pour tout correctif ciblé sur un défaut signalé, en code comme
+en prose. **Attendre une seconde occurrence sur un autre projet avant de promouvoir.**
