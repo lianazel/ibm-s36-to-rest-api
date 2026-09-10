@@ -2580,3 +2580,122 @@ Prompt `prompts/v0.1/EVOL_finitions-2_v5.md` (`sha256` `1e293644…b47b7`), comm
 enregistrement. Incrément `a598215`, merge `1ed4f2a`. Journal des relectures `.pipeline/prompt-reviews.log` :
 trois lignes pour ce sujet, `BLOCK` `BLOCK` `SHIP`. Les révisions 1 à 4 sont sorties du dépôt par le chef
 de projet — un contrat gelé et faux qu'un lancement pourrait désigner n'a rien à faire dans l'arbre.
+
+## Session 32 — 10 septembre 2026 — EVOL `coulisses-arret` (merge `831f638`, 0.1.27 → 0.1.28)
+
+Le chapitre « La méthode » gagne **son premier sous-titre**. Un bloc de quatre paragraphes et une
+citation d'artefact : la garde que le prompt du 27 août 2026 porte depuis ce jour-là, recopiée mot pour
+mot de `prompts/v0.1/EVOL_annexe-s36_v1.md`, et tenue d'accord avec sa source par une porte neuve.
+
+**Quatre fichiers, 195 insertions, zéro suppression.** Tests **395/395 → 401/401**. C'est le découpage
+du sujet `EVOL_les-coulisses`, refusé trois fois le 10 septembre au matin : le verrou des trois a produit
+exactement ce qu'il promettait, un sujet neuf, plus petit, qui passe la porte du premier coup.
+
+### Les quatre livrables
+
+**A — Dix valeurs** (`js/i18n.js`), cinq par langue, sous `section5.arret`, entre `prive` et `dialogue`.
+`citation` est **identique dans les deux langues**, à dessein : le harnais s'écrit en français, un
+artefact se cite et ne se traduit pas. Même choix que `dialogue.consigne`, déjà en place.
+
+**B — Cinq éléments** (`index.html`), après le bloc à deux voix. Aucun `id`, aucune ancre, aucune entrée
+au sommaire : ce `h3` est un sous-titre de chapitre, comme les quatre du « Décor ».
+
+**C — La classe `.citation`** (`css/styles.css`), une règle, **aucun jeton de couleur neuf**. Registre IA
+sur fond clair : le contrat réserve le sombre au seul bloc à deux voix, et une citation en ligne n'y
+touche pas.
+
+**D — La porte** (`tests/coulisses.test.js`, 144 lignes, 6 tests). Elle garde une chose : **la citation
+publiée ne s'écarte jamais de son fichier source**. Table `SOURCES` en porteur unique, garde de
+non-vacuité à deux conditions, normalisation des blancs seuls — ni casse, ni ponctuation, ni apostrophes.
+
+**Les deux preuves ont été jouées, pas supposées.** Morsure : un caractère faussé → 2 rouges, la clé
+nommée, rétabli 401/401. Aveuglement : la garde de cécité **neutralisée** → les deux témoins rougissent,
+ce qui prouve qu'ils constatent une levée et non son absence. Scrub : 14 lignes avant, 14 après,
+identiques, **aucune neuve**.
+
+### Le fait de la journée : quatre revues pour un code qui n'a jamais bougé
+
+L'incrément livré est **exactement** celui du premier `SHIP`, `4867fa2`. Entre les deux, trois commits
+sont nés et ont été retirés. Le chemin mérite d'être écrit, parce qu'il ne se devine pas :
+
+| Passe | Commit | Verdict | Ce qui s'est passé |
+|---|---|---|---|
+| 1 | `4867fa2` | `SHIP` / 7 WARN | Réserve n° 1 : « `p2` publie un fait non recoupable dans le dépôt public » |
+| 2 | `9d45426` | `SHIP` / 8 WARN | `p2` réécrit sur cette réserve. Réserve neuve : la dérogation n'est tracée que dans `.pipeline/`, gitignoré — perdue au merge |
+| 3 | `4d82643` | **`NEEDS_WORK` / 1 FAIL** | L'avenant écrit pour porter la trace affirme « aucune trace publique » — **et c'est faux**. Le relecteur mesure ce qu'il avait manqué et **retire sa propre réserve n° 1** |
+| 4 | `4867fa2` | `SHIP` / 9 WARN | Retour à l'état initial. La réserve tombe sur sa prémisse, mesurée élément par élément |
+
+**Ce que la première passe avait manqué** : `prompts/v0.1/EVOL_annexe-s36_v1.md` porte **en tête, l. 7 à
+11**, commité sur `main` depuis le 28 août, la note qui énonce les quatre éléments du fait — « deux
+prérequis étaient faux », « `attente` vaut 4, pas 2 », « avant le premier enregistrement », « aucune
+branche créée ». La réserve avait été écrite en lisant les l. 43 et 505, jamais l'en-tête. Le relecteur
+l'a qualifiée lui-même de mesure incomplète à sa charge, et l'a corrigée sans qu'on la lui conteste.
+
+**Le `prompt-reviewer`, lui, avait vu juste dès l'ÉTAPE 0** : son warn n° 4 disait « le fait chiffré du
+`p2` est exact au fichier ». La garde de prompt a rendu `SHIP` du premier coup et n'a pas erré. **La
+boucle vient de la revue de sortie, pas de la relecture de prompt** — s'il fallait durcir quelque chose,
+ce serait la seconde, et ce serait punir celui qui avait raison.
+
+**Ce que le retour a refermé sans qu'on le cherche** : le `sha256` du prompt redevient
+`9cf137db…258738f2`, identique à celui de `.pipeline/prompt-review.json`. La garde de l'ÉTAPE 0 relit de
+nouveau le prompt courant. L'écart n'existait que parce qu'un avenant l'avait creusé.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| Le fait chiffré du `p2` (« deux annoncées, quatre réelles ») est-il recoupable dans le dépôt public ? | **Oui** — les deux valeurs d'origine sont rendues, les trois commits de correction retirés | Mesuré à la quatrième passe : la citation est unique dans le dépôt, et la note qui porte le fait est en tête **du même fichier**. Le chemin est d'un saut, pas de deux | **précédent** |
+| Tracer la dérogation par un avenant au prompt | **Abandonné** avec le retour à `4867fa2` : l'avenant devient sans objet | Il n'y a plus de divergence entre le prompt gelé et le livrable. Un avenant qui ne corrige rien est un porteur de plus à tenir d'accord | cas d'espèce |
+| Réécrire un texte publié sur une réserve du `reviewer` avant de l'avoir remesurée soi-même | **Non**, et c'est la leçon du jour | Une réserve qui affirme une **absence** demande un balayage, pas deux lignes lues. Trois commits et deux revues ont été dépensés à corriger un défaut qui n'existait pas | **précédent** |
+| `.citation` en Plex Mono, que le contrat rangerait en Plex Sans | **Appliqué tel que le prompt le prescrit**, réserve consignée, décision laissée ouverte | Le prompt le déclare lui-même « choix de conception, pas arbitrage rendu ». L'agent exécute le contrat et porte la réserve ; il ne tranche pas à la place du chef de projet | cas d'espèce |
+| `overflow-wrap: break-word`, propriété que le prompt ne nomme pas | **Gardée**, déclarée hors spec | Elle sert littéralement la contrainte dure du prompt (« se replier à 320 px, jamais élargir la page »). Coût nul aujourd'hui ; elle ne mordra que sur une citation future sans espace | cas d'espèce |
+| L'assertion de concordance : `toContain` sur le fichier source entier | **Remplacée par un booléen**, hors spec, et la morsure **rejouée** après | Mesuré, pas supposé : la première morsure a rendu ~30 Ko de diff pour un caractère d'écart, la clé fautive noyée dedans. Une porte dont le rouge est illisible se lira mal le jour où elle mordra | **précédent** |
+| Corriger deux chiffres faux de `.pipeline/changes.md` après le `SHIP` | **Corrigés** (143 → 144 lignes ; « 3 fichiers, 51 insertions » → « 4 fichiers, 195 insertions ») | La règle « `SHIP` avec des WARN : n'y touche pas » vise le **livrable**, pas le compte rendu. Un rapport qui affirme un nombre non mesuré est le défaut même que ce projet traque. Aucun commit, aucun verdict rouvert | **précédent** |
+| Le niveau de bump | **`patch`** — 0.1.28 | Décision du 3 septembre : `patch` tant que la version est < 1.0.0, quel que soit le préfixe | cas d'espèce |
+
+### Dettes ouvertes à l'issue — les neuf `WARN`
+
+- **[W73]** — **Le double littéral de `tests/coulisses.test.js`** : `section5.arret.citation` est écrit
+  deux fois, l. 35 (clé de `SOURCES`) et l. 109 (`const KEY`). Forme atténuée de [W72] : une divergence
+  **rougit**, elle ne passe pas au vert en silence. Remède d'une ligne : `const [KEY] = Object.keys(SOURCES)`.
+- **[W74]** — **Le témoin d'écart n'assère pas sur le bon discriminant** (l. 135) :
+  `.toThrow(/section5\.arret\.citation/)`, motif que les deux messages « porte AVEUGLE » portent aussi.
+  Mesuré en miroir : en portant `MIN_SOURCE_CHARS` à 10 000 000, le témoin **reste vert** alors que le
+  contrôle d'écart ne tourne plus. Remède : assérer `/ne se lit plus mot pour mot/`.
+- **[W75]** — **`lang="fr"` absent sur les citations françaises** quand la page bascule en anglais
+  (`index.html` l. 474). WCAG 2.1 SC 3.1.2, niveau AA, alors que le contrat exige AA partout. **Motif
+  préexistant** : `dialogue.consigne` et `.trace` sont déjà dans ce cas ; cet incrément en fait la
+  troisième occurrence. À traiter **pour les trois d'un coup**, jamais ici seul.
+- **[W76]** — **Le contraste cité mesure le filet, pas le texte** (`css/styles.css` l. 574) : « 7,02:1 »
+  est le rapport de `--color-ia` sur son fond, quand le texte hérite de `--color-ink` et fait **16,43:1**,
+  documenté l. 62 mais jamais cité là où il sert. AA est largement tenu ; c'est le chiffre invoqué qui ne
+  mesure pas ce qu'il prétend. Et `--color-bg-ia-soft` compte désormais deux usagers sans que son
+  commentaire le dise ([W60]).
+- **[W77]** — **Le trou de méthode des avenants.** Aucun avenant n'est jamais relu : huit prompts en
+  portent un, vingt-neuf commits, `prompt-reviews.log` ne porte aucune seconde relecture, et `CLAUDE.md`
+  **ne contient pas le mot « avenant »** (0 occurrence). Cette session en a donné le coût exact : `C2`,
+  « prérequis chiffrés remesurés », est précisément le contrôle qui aurait attrapé la mesure fausse de
+  l'avenant 1 avant qu'elle ne soit commitée. Le commit ne porte plus l'écart — le fait reste vrai du dépôt.
+- **[W78]** — **Le `p2` est daté, pas faux.** Un lecteur qui recompte aujourd'hui lit **2**, les deux
+  `annexe.attente` ayant été retirées par l'incrément du 27 août lui-même. Le texte tient, mais la
+  vérification naïve le contredit tant que la note datée n'est pas lue, et le site ne nomme aucun chemin.
+- **Restent ouvertes** : le Plex Mono de `.citation` (arbitrage du chef de projet, coût d'une ligne), le
+  repli à 320 px (passe d'appareil réel, jamais vérifiée — le prompt interdit le navigateur), et
+  [W62] à [W72], dont [W70] le motif du scrub, [W71] l'écart `CDEMST` et [W72] les deux assertions larges
+  de `tests/partage.test.js`.
+
+### Ce qui reste au chef de projet
+
+La lecture du chapitre sur appareil réel et le repli de la citation à 320 px : **aucune vérification de
+rendu n'a été faite**, le prompt l'interdit, le serveur Playwright refuse `file:` et le dépôt n'a pas de
+serveur local. La ligne `12 septies` du fil décrit toujours **trois** sous-titres et nomme
+`EVOL_les-coulisses_v2` : elle est à reprendre, l'incrément n'en livre qu'un. Les dettes [W73] à [W78]
+sont à porter au fil. Et `.claude/commands/ship.md` épingle encore « Core §4.1 v2.29 ».
+
+### Traces
+
+Prompt `prompts/v0.1/EVOL_coulisses-arret_v1.md` (`sha256` `9cf137db…258738f2`), commit `d97742d` en
+premier enregistrement. Incrément `4867fa2`, merge `831f638`. Relecture ÉTAPE 0 : `SHIP` du premier coup,
+7 warns, `.pipeline/prompt-reviews.log`. Quatre revues de sortie sur trois commits, verdicts `SHIP`,
+`SHIP`, `NEEDS_WORK`, `SHIP`. Les trois commits retirés (`9d45426`, `715953e`, `4d82643`) n'ont jamais
+été poussés : l'histoire publique ne les porte pas.

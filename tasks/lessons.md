@@ -975,3 +975,28 @@ pas seulement au code. Le relecteur, lui, relit le document entier à chaque pas
 rattrapé le cinquième porteur.
 **Applicable globalement ?** : Oui. Vaut pour tout correctif ciblé sur un défaut signalé, en code comme
 en prose. **Attendre une seconde occurrence sur un autre projet avant de promouvoir.**
+
+## 2026-09-10 — Une réserve qui affirme une **absence** se prouve par un balayage, jamais par deux lignes lues
+**Type** : Erreur
+**Contexte** : Incrément `coulisses-arret` (IBMiAPI). Le `reviewer` rend `SHIP` et porte une réserve P4 :
+la valeur `section5.arret.p2` publie un fait chiffré « qui n'est pas recoupable dans le dépôt public ».
+Il l'appuie sur deux mesures exactes — les l. 43 et 505 du fichier cité. Le chef de projet réécrit le
+paragraphe, puis, sur une seconde réserve, ajoute un avenant au prompt pour tracer la dérogation dans un
+porteur commité.
+**Erreur** : le fait **était** recoupable. Le même fichier porte, **en tête, l. 7 à 11**, commité depuis
+le 28 août, la note qui en énonce les quatre éléments. La réserve avait lu le milieu du fichier, jamais
+son en-tête. Coût : trois commits, deux revues supplémentaires, un avenant qui affirmait « aucune trace
+publique » dans un dépôt qui la portait — et un `FAIL` à la troisième passe, sur ce seul avenant. Le
+relecteur a fini par mesurer ce qu'il avait manqué et a retiré sa propre réserve. Retour à l'état initial :
+**les quatre fichiers livrés n'avaient pas bougé d'un octet.**
+**Correction** : une réserve qui affirme qu'une chose **existe** se prouve par un exemple ; une réserve
+qui affirme qu'une chose **n'existe pas** ne se prouve que par un balayage. Avant d'écrire « ce fait
+n'est pas recoupable », « cette valeur n'a pas d'autre porteur », « rien ne garde ceci » : balayer
+l'arbre (`git grep`), et lire **le fichier entier** quand on ne l'a lu qu'en deux endroits — un en-tête,
+un préambule, une note de correction sont précisément là où un projet range ce qu'il a déjà reconnu.
+C'est la leçon du 8 septembre prise par l'autre bout : un défaut déclaré une fois se cherche partout où
+il peut être ; **une absence déclarée une fois se cherche partout avant d'être affirmée**.
+Corollaire pour celui qui reçoit la réserve : **remesurer soi-même avant de réécrire un texte publié.**
+Une garde qui se trompe coûte plus cher qu'une garde qui se tait, parce qu'on lui obéit.
+**Applicable globalement ?** : Oui — vaut pour toute revue, tout audit, toute affirmation négative sur
+un dépôt ou une base de code. **Attendre une seconde occurrence sur un autre projet avant de promouvoir.**
