@@ -566,6 +566,24 @@ main h3 + .sous-titre {
   color: var(--color-ia-on-dark);
 }
 
+/* Citation d'artefact en ligne, dans la prose : la garde du prompt du 27 août 2026,
+   recopiée mot pour mot depuis `prompts/v0.1/EVOL_annexe-s36_v1.md`. Registre IA sur
+   fond clair — le contrat réserve le fond sombre au seul bloc à deux voix, et une
+   citation en ligne n'y touche pas. Plex Mono parce que c'est du texte de dépôt et
+   non de la prose du site, comme les données et le code. Les deux jetons réemployés
+   portent déjà leur ligne de contraste au fichier (7,02:1).
+   `overflow-wrap` : la citation doit se replier à 320 px, jamais élargir la page. */
+.citation {
+  margin: var(--space) 0;
+  padding: var(--space);
+  border-left: 3px solid var(--color-ia);
+  background: var(--color-bg-ia-soft);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  overflow-wrap: break-word;
+}
+
 /* ---- Dessins (registre API : cases, filets, vert ; le fichier S/36 en bleu).
    Dessins en HTML : texte bilingue par le dictionnaire, empilement en écran étroit,
    aucune image. Les listes sont ordonnées parce que l'ordre porte le sens. */

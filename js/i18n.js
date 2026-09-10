@@ -547,6 +547,20 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
       comment: "Chaque étape commence par un prompt écrit avant le code. Un agent l'exécute, un autre le relit et rend un verdict. Aucun agent ne fusionne, aucun ne publie : c'est mon geste.",
       preuve: "La preuve n'est pas dans ce texte, elle est dans le dépôt, qui est public. Les prompts qui ont piloté chaque étape y sont entiers, avec le journal des atterrissages et le registre des leçons.",
       prive: "Le référentiel de la méthode, lui, reste privé : ce site montre comment le harnais fonctionne, pas sa mécanique interne.",
+      // Le bloc cite un artefact du dépôt : la garde que le prompt du 27 août 2026
+      // porte depuis ce jour-là. La valeur `citation` est donc identique dans les
+      // deux langues, à dessein — le harnais s'écrit en français, un artefact se
+      // cite et ne se traduit pas. Même choix que `dialogue.consigne` et
+      // `dialogue.trace` ci-dessous. Ce n'est pas un défaut de parité à corriger,
+      // et la porte `tests/coulisses.test.js` tient cette valeur d'accord avec son
+      // fichier source.
+      arret: {
+        title: "L'arrêt qui a le plus rapporté",
+        p1: "Un prompt ne commence pas par ce qu'il faut faire. Il commence par des mesures à refaire : un compte de lignes, un numéro de version, l'état du dépôt. L'agent les vérifie avant d'agir. Si une mesure ne tombe pas juste, il s'arrête et le signale, sans avoir rien écrit.",
+        p2: "Le 27 août 2026, c'est la consigne qui était fausse. Elle annonçait deux occurrences d'un mot dans le dictionnaire du site. Il y en avait quatre. Deux appartenaient au simulateur, écrites la veille, et les effacer aurait cassé son vocabulaire. L'agent s'est arrêté avant le premier enregistrement, aucune branche créée. La consigne porte depuis sa propre garde, et la voici, mot pour mot :",
+        citation: "Si tu lis 0, tu as supprimé des clés du mini-langage : ARRÊTE-TOI et signale.",
+        p3: "Le harnais n'a pas rattrapé une erreur d'exécution. Il a rattrapé une erreur de consigne, avant la première ligne de code. Et la consigne, c'est moi qui la transmets.",
+      },
       dialogue: {
         legende: "Deux voix du harnais, telles qu'elles vivent dans le dépôt : la consigne du chef de projet, puis la trace laissée par l'agent. Citées mot pour mot, en français.",
         voix1: "Chef de projet · prompts/v0.1",
@@ -1149,6 +1163,20 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
       comment: "Every step starts with a prompt written before any code. One agent carries it out, another reviews it and returns a verdict. No agent merges, no agent publishes — that step is mine.",
       preuve: "The proof is not in this text. It is in the repository, which is public. The prompts that drove every step are there in full, along with the landing journal and the lessons register.",
       prive: "The method's own repository stays private: this site shows how the harness works, not its inner workings.",
+      // Le bloc cite un artefact du dépôt : la garde que le prompt du 27 août 2026
+      // porte depuis ce jour-là. La valeur `citation` est donc identique dans les
+      // deux langues, à dessein — le harnais s'écrit en français, un artefact se
+      // cite et ne se traduit pas. Même choix que `dialogue.consigne` et
+      // `dialogue.trace` ci-dessous. Ce n'est pas un défaut de parité à corriger,
+      // et la porte `tests/coulisses.test.js` tient cette valeur d'accord avec son
+      // fichier source.
+      arret: {
+        title: "The stop that paid the most",
+        p1: "A prompt does not start with what to do. It starts with measurements to take again: a line count, a version number, the state of the repository. The agent checks them before acting. If one measurement does not match, it stops and says so, having written nothing.",
+        p2: "On 27 August 2026 it was the instruction that was wrong. It announced two occurrences of a word in the site's dictionary. There were four. Two belonged to the simulator, written the day before, and removing them would have broken its vocabulary. The agent stopped before the first commit, with no branch created. The instruction has carried its own guard ever since, in French, word for word:",
+        citation: "Si tu lis 0, tu as supprimé des clés du mini-langage : ARRÊTE-TOI et signale.",
+        p3: "The harness did not catch an execution error. It caught an error in the instruction, before a single line of code existed. And I am the one who hands the instruction over.",
+      },
       dialogue: {
         legende: "Two voices of the harness, as they live in the repository: the project lead's instruction, then the trace the agent left. Quoted word for word, in French.",
         voix1: "Project lead · prompts/v0.1",
