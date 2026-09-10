@@ -1000,3 +1000,44 @@ Corollaire pour celui qui reçoit la réserve : **remesurer soi-même avant de r
 Une garde qui se trompe coûte plus cher qu'une garde qui se tait, parce qu'on lui obéit.
 **Applicable globalement ?** : Oui — vaut pour toute revue, tout audit, toute affirmation négative sur
 un dépôt ou une base de code. **Attendre une seconde occurrence sur un autre projet avant de promouvoir.**
+
+## 2026-09-10 — Un contre-essai qui dégrade un fichier du dépôt laisse un demi-état si la main est reprise entre la dégradation et le rétablissement
+**Type** : Erreur
+**Contexte** : Incrément `coulisses-machine-humain` (IBMiAPI), preuve 9 de l'ÉTAPE 6 : vérifier que les
+témoins de la porte sont « verts pour la bonne raison ». Deux miroirs ont été joués en modifiant
+`tests/coulisses.test.js` — plancher de cécité porté à dix millions, puis garde de cécité commentée —
+chacun suivi d'un rétablissement. Le mode plan s'est activé **entre la seconde dégradation et son
+rétablissement**, interdisant toute écriture.
+**Erreur** : l'arbre de travail est resté plusieurs échanges avec une porte **neutralisée**, une suite à
+403/405, et aucun moyen de la rétablir. Le fichier de plan lui-même n'a pas pu s'écrire : le chemin
+`~/.claude/plans/` tombe sous la liste d'interdits du projet. Rien n'a été commité dans cet état et le
+rétablissement a suivi la sortie du mode, mais la fenêtre a existé — et elle n'était visible que parce
+que la dégradation venait d'être annoncée. Un `/ship` coupé une seconde plus tôt aurait laissé un
+dépôt dont le rouge ressemble à un défaut d'incrément.
+**Correction** : une manipulation temporaire d'un fichier du dépôt est un **demi-état par construction**.
+Trois règles : (1) préférer le miroir **en mémoire** chaque fois que la couture existe — la source
+injectable de cette porte le permettait pour les témoins d'aveuglement, pas pour la garde elle-même ;
+(2) quand la dégradation du fichier est inévitable, **annoncer l'état produit avant de le produire**,
+pour qu'une interruption laisse une trace lisible plutôt qu'un rouge muet ; (3) rétablir et **reconstater
+le vert** dans le même geste que la dégradation, jamais dans un tour d'échange séparé.
+**Applicable globalement ?** : Oui — vaut pour tout essai destructif temporaire (mutation testing manuel,
+neutralisation d'une garde, bascule d'un flag) dans n'importe quelle stack. **Attendre une seconde
+occurrence sur un autre projet avant de promouvoir.**
+
+## 2026-09-10 — Une preuve énoncée en caractères se satisfait à la lettre, sinon son vert demande une explication
+**Type** : Succès
+**Contexte** : Même incrément. La preuve 3 exige que `git diff -U0 css/styles.css` ne montre « que des
+lignes de commentaire : aucune accolade, aucun point-virgule, aucune déclaration ». Le commentaire
+réécrit portait deux points-virgules **typographiques**, dans de la ponctuation française parfaitement
+légitime.
+**Approche** : les deux ont été remplacés — « , et » et un point — avant de lancer la preuve. Aucune
+règle CSS n'était touchée dans un cas comme dans l'autre : le sens de la preuve était tenu des deux
+côtés. Le contrôle mécanique sur les lignes modifiées rend désormais **0**, sans commentaire à ajouter.
+**Pattern** : une preuve est écrite pour être lue **mécaniquement**, par quelqu'un qui n'a pas le
+contexte — c'est tout son intérêt. Quand son énoncé porte sur des **caractères** et que le livrable ne
+la satisfait qu'à l'esprit, on a le choix entre corriger le livrable et annoter le rapport. Corriger
+coûte une minute ; annoter crée un second porteur, une explication qu'il faudra retrouver et rejouer à
+chaque passage. **Une preuve dont le vert s'explique n'est plus une preuve.** Le réflexe inverse — élargir
+le motif de la preuve pour qu'il accepte le livrable — est le même défaut vu de l'autre côté.
+**Applicable globalement ?** : Oui — vaut pour toute garde exprimée par motif (lint, `grep` de CI, règle
+d'audit). **Attendre une seconde occurrence sur un autre projet avant de promouvoir.**

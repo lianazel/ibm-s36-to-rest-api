@@ -2699,3 +2699,121 @@ premier enregistrement. Incrément `4867fa2`, merge `831f638`. Relecture ÉTAPE 
 7 warns, `.pipeline/prompt-reviews.log`. Quatre revues de sortie sur trois commits, verdicts `SHIP`,
 `SHIP`, `NEEDS_WORK`, `SHIP`. Les trois commits retirés (`9d45426`, `715953e`, `4d82643`) n'ont jamais
 été poussés : l'histoire publique ne les porte pas.
+
+## Session 33 — 10 septembre 2026 — EVOL `coulisses-machine-humain` (merge `bf6f0f2`, 0.1.28 → 0.1.29)
+
+Le chapitre « La méthode » passe **d'un sous-titre à trois**, et le sujet `EVOL_les-coulisses` est clos.
+Deux blocs de même forme que celui du matin : *Ce qu'une machine garde* — le refus du `prompt-reviewer`
+du 8 septembre, cité au journal — et *Ce qu'aucune machine ne garde* — le titre de la leçon du 24 août
+sur la suite verte. Deux artefacts déjà publics du dépôt, cités en français dans les deux langues.
+
+**Quatre fichiers, 131 insertions, 44 suppressions.** Tests **401/401 → 405/405**, la porte
+`tests/coulisses.test.js` passant de six à dix tests. Le découpage du 10 septembre au matin aura donc
+produit deux incréments, tous deux relus `SHIP` du premier coup, là où le sujet entier avait été refusé
+trois fois. Le verrou des trois tient sa promesse une seconde fois.
+
+### Les quatre livrables
+
+**A — Vingt valeurs** (`js/i18n.js`), dix par langue, sous `section5.machine` et `section5.humain`, entre
+`arret` et `dialogue`. Les deux valeurs `citation` sont identiques dans les deux langues, comme celles
+d'`arret` et du bloc à deux voix : un artefact se cite, il ne se traduit pas. Un commentaire de parité le
+dit, posé dans **chacun des deux blocs de langue** — le fichier tient déjà ce parallélisme pour `arret`.
+
+**B — Dix éléments** (`index.html`), entre `section5.arret.p3` et le lien du dépôt. Le motif `h3` + `p` +
+`p` + `p.citation` + `p` est réemployé deux fois, aucune mise en page inventée. Aucun `id`, aucune ancre,
+aucune entrée au sommaire, **aucun attribut `lang`** : la question se traite pour tous ses porteurs à la
+fois, jamais ici.
+
+**C — Un commentaire réécrit** (`css/styles.css`), et **rien d'autre**. La classe `.citation` habille
+désormais trois citations ; son commentaire n'en nommait qu'une, avec son fichier source et un rapport de
+contraste. Il dit maintenant où vivent la table des sources et la comparaison, sans nommer de fichier
+source, sans date, sans numéro de ligne et **sans chiffre de contraste**. Contrôle mécanique sur les
+lignes modifiées du diff : zéro accolade, zéro point-virgule.
+
+**D — La porte passe d'une clé à trois** (`tests/coulisses.test.js`). Table `SOURCES` à trois entrées,
+seul endroit du fichier où une chaîne de clé est écrite en toutes lettres — la constante `KEY` et
+l'exemple du commentaire de `resolve` ont disparu, ce qui fait tomber [W73] par construction. Un test
+nommé par clé et par règle : le rouge dit laquelle des trois a dérivé sans qu'on ouvre le fichier. Le
+témoin d'écart assère désormais sur le motif propre à l'échec de comparaison, et le nom de la clé **en
+plus**, jamais à la place : c'est la forme que [W74] réclamait.
+
+### Les quatre rouges provoqués, et ce qu'ils prouvent
+
+**Deux morsures**, une par clé neuve. Chacune rougit en nommant sa clé, son fichier source et « ne se lit
+plus mot pour mot » ; chacune prouve **en plus** que le chemin de sa source se résout — une table juste
+avec un chemin faux serait verte à la naissance et aveugle pour toujours. C'est pourquoi le prompt en
+exigeait deux et non une.
+
+**Deux miroirs de vivacité.** Plancher de cécité porté à dix millions : le témoin d'écart **rougit**,
+là où son ancienne forme restait verte alors que la comparaison ne tournait plus — [W74] mesuré en
+miroir, pas supposé. Garde de cécité neutralisée : les **deux** témoins d'aveuglement rougissent, le
+second parce que plus rien ne lève du tout, une valeur vide étant « contenue » dans n'importe quel texte.
+
+### Le fait de la session : deux gardes ont mordu, aucune n'était en jeu
+
+Le mode plan s'est activé **entre la seconde dégradation et son rétablissement**. L'arbre a porté une
+porte neutralisée et une suite à 403/405 le temps que l'écriture redevienne possible. Rien n'a été
+commité dans cet état, et le rétablissement a suivi la sortie du mode — mais la fenêtre a existé, et elle
+n'était lisible que parce que la dégradation venait d'être annoncée. Leçon écrite.
+
+Dans la même minute, la liste d'interdits a refusé l'écriture du fichier de plan : le chemin
+`~/.claude/plans/` tombe sous `Edit(~/.claude/**)`. **Douzième règle éprouvée**, et la première à l'être
+sans qu'on la cherche — par le harnais lui-même, non par un essai. Le `reviewer`, de son côté, a buté sur
+l'interdit `npm` et a lancé Vitest directement : **treizième**. Deux règles posées le 2 septembre, jamais
+jouées jusqu'ici, qui se vérifient un jour ordinaire sur un incrément qui ne les visait pas.
+
+### Arbitrages rendus
+
+| Question | Ce qui a été tranché | Motif | Portée |
+|---|---|---|---|
+| Deux points-virgules **typographiques** dans le commentaire CSS, quand la preuve 3 exige « aucun point-virgule » | **Retirés** avant de lancer la preuve | Une preuve est écrite pour être lue mécaniquement, par quelqu'un sans le contexte. Corriger coûte une minute ; annoter crée un second porteur. Une preuve dont le vert s'explique n'est plus une preuve | **précédent** |
+| Le commentaire de parité : une fois, ou une fois par langue ? | **Une fois par bloc de langue** | Le prompt dit « un seul commentaire, avant `machine` ». Le fichier tient déjà ce parallélisme pour `arret`, dont le bloc anglais porte le même commentaire français. Unique **par bloc**, comme son voisin | cas d'espèce |
+| Compléter `.pipeline/changes.md` après le `SHIP`, sur une réserve du `reviewer` | **Complété**, aucun commit rouvert, livrable intouché | La règle « `SHIP` avec des `WARN` : n'y touche pas » vise le **livrable**, pas le compte rendu. Confirme le précédent de la session 32 | **précédent** |
+| Le contre-essai de la garde de cécité : en mémoire ou dans le fichier ? | **Dans le fichier**, faute de couture — et c'est ce qui a produit le demi-état | La source injectable permet le miroir en mémoire pour les témoins d'aveuglement, pas pour la garde elle-même. Le coût s'est payé le jour même | cas d'espèce |
+| Le niveau de bump | **`patch`** — 0.1.29 | Décision du 3 septembre : `patch` tant que la version est < 1.0.0, quel que soit le préfixe | cas d'espèce |
+
+### Dettes à l'issue — les six `WARN`, dont trois neuves
+
+- **[W79]** — **La concordance est une inclusion dans le fichier entier**, et deux des trois sources sont
+  écrites par le harnais **à propos du site**. Une future entrée de journal qui recopierait une citation
+  publiée deviendrait un **second ancrage** : la porte resterait verte même si le passage d'origine
+  disparaissait. Balayé par le `reviewer` : 1 occurrence par source aujourd'hui, risque non matérialisé,
+  rien ne l'empêche. Éprouvé le jour même — l'écriture de cette entrée et des deux leçons a été suivie
+  d'un recomptage, resté à 1. Remède proposé, non exécuté : une porte d'unicité des citations.
+- **[W80]** — **Signal asymétrique côté anglais** (`js/i18n.js`) : `machine.p2` prévient que la citation
+  qui suit est en français, `humain.p2` non. Valeurs dictées au caractère près par le prompt : le constat
+  vise le texte, pas l'exécution.
+- **[W81]** — **Le repli à 320 px n'est mesuré par personne.** Par la mécanique le risque est faible —
+  `break-word` ne mord que sur une suite insécable, et ces deux phrases se coupent aux espaces — mais
+  faible n'est pas mesuré. Troisième session consécutive où ce constat est porté sans être levé.
+- **[W75]** passe de **3 à 5 occurrences** (`lang="fr"` absent sur les citations françaises, WCAG 3.1.2
+  niveau AA). Dette nommée avec un plan, donc pas silencieuse, mais elle croît plus vite qu'elle ne se
+  rembourse. Les cinq se traitent d'un coup.
+- **[W76]** — **remboursée à moitié, par effet mécanique et sans que rien ne le dise.** Le « 7,02:1 » a
+  disparu du seul endroit où il mesurait le mauvais texte ; il subsiste aux deux lignes de jetons, où il
+  est juste. Aucun geste de cet incrément ne la visait. Le fil la porte encore entière, avec un renvoi de
+  ligne désormais périmé. Sa seconde moitié ([W60], deux usagers de `--color-bg-ia-soft`) reste vraie.
+- **[W78]** passe de **un à trois** : les deux blocs neufs disent « au journal du dépôt » sans nommer de
+  chemin, comme le `p2` d'`arret`.
+- **Restent ouvertes** : [W62] à [W72] et [W77] (aucun avenant n'est jamais relu). [W73] et [W74] sont
+  **tombées par construction** — la première parce qu'une porte à trois clés ne peut pas en porter une
+  seule en double, la seconde par la forme imposée du témoin d'écart. Ni l'une ni l'autre n'était un
+  geste de remboursement.
+
+### Ce qui reste au chef de projet
+
+La lecture du chapitre sur appareil réel et le **repli des deux citations neuves à 320 px** : aucune
+vérification de rendu n'a été faite, le prompt l'interdit, le serveur Playwright refuse `file:` et le
+dépôt n'a pas de serveur local. La plus longue des deux citations fait 94 caractères contre 77 pour celle
+d'`arret` déjà en ligne. La ligne `12 septies` du fil décrit toujours **trois** sous-titres et nomme
+`EVOL_les-coulisses_v2` : le sujet est clos en deux incréments, elle est à reprendre ou à fermer. Les
+dettes [W79] à [W81] sont à porter au fil, et l'arbitrage du Plex Mono de `.citation` reste ouvert.
+Enfin `.claude/commands/ship.md` épingle encore « Core §4.1 v2.29 ».
+
+### Traces
+
+Prompt `prompts/v0.1/EVOL_coulisses-machine-humain_v1.md` (`sha256` `22882bfe…31589eb1`), commit
+`5868441` en premier enregistrement. Incrément `49a894e`, merge `bf6f0f2`. Relecture ÉTAPE 0 : `SHIP` du
+premier coup, 3 warns, `.pipeline/prompt-reviews.log`. **Une seule revue de sortie**, `SHIP`, 0 `FAIL`,
+6 `WARN` — le `reviewer` a rejoué les douze preuves lui-même et relancé la suite sans passer par `npm`.
+Scrub d'anonymisation : 14 lignes avant, 14 après, aucune neuve.
