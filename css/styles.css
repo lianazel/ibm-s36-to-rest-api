@@ -566,12 +566,15 @@ main h3 + .sous-titre {
   color: var(--color-ia-on-dark);
 }
 
-/* Citation d'artefact en ligne, dans la prose : la garde du prompt du 27 août 2026,
-   recopiée mot pour mot depuis `prompts/v0.1/EVOL_annexe-s36_v1.md`. Registre IA sur
+/* Citations d'artefacts en ligne, dans la prose du chapitre « La méthode » : des
+   fragments recopiés mot pour mot depuis des fichiers du dépôt. La table qui dit
+   lequel, et la comparaison mot pour mot elle-même, vivent dans
+   `tests/coulisses.test.js`, et cette règle n'habille que leur rendu. Registre IA sur
    fond clair — le contrat réserve le fond sombre au seul bloc à deux voix, et une
    citation en ligne n'y touche pas. Plex Mono parce que c'est du texte de dépôt et
    non de la prose du site, comme les données et le code. Les deux jetons réemployés
-   portent déjà leur ligne de contraste au fichier (7,02:1).
+   portent déjà leur ligne de contraste au fichier. Elle ne se recopie pas ici, un
+   nombre recopié étant un second porteur que rien ne tient d'accord.
    `overflow-wrap` : la citation doit se replier à 320 px, jamais élargir la page. */
 .citation {
   margin: var(--space) 0;
