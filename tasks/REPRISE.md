@@ -4,11 +4,14 @@ Référentiel central : C:\JobDirectory\CLAUDE_PROJECTS\_CLAUDE_TEAM_WORKFLOW_AI
 Projet du jour      : C:\JobDirectory\CLAUDE_PROJECTS\_WEB\IBMiAPI\ibm-s36-to-rest-api
 Notes et prompts    : C:\JobDirectory\CLAUDE_PROJECTS\_WEB\IBMiAPI\Etude_Technique
 
-Dernière session Claude Code close : **31**, lue dans `.pipeline/STATUS.md` le 9 septembre 2026 à 22:52
+Dernière session Claude Code close : **31**, lue dans `.pipeline/STATUS.md` le 10 septembre 2026 à 14:05
 (heure de Paris). C'est le SEUL compteur ; relis-la le jour même avant de la recopier. Cette session Cowork
-est du **9 septembre 2026** : Cowork date ses sessions, il ne les numérote plus. Ce fichier est
-`tasks/REPRISE.md`, écrasé à chaque fin de session et commité avec elle (`docs: reprise 2026-09-09`) ;
+est du **10 septembre 2026** : Cowork date ses sessions, il ne les numérote plus. Ce fichier est
+`tasks/REPRISE.md`, écrasé à chaque fin de session et commité avec elle (`docs: reprise 2026-09-10`) ;
 la pile, c'est `git log -- tasks/REPRISE.md`.
+
+**Cette session s'est terminée sur un verrou, pas sur un atterrissage. Tu es la session neuve que ce
+verrou impose.** Lis le bloc « Où en est le travail » avant de faire quoi que ce soit.
 
 ---
 
@@ -24,33 +27,40 @@ Dans cet ordre, et sans rien me dire entre-temps :
    suis pas de ton monde, je suis du monde IBM i : mots simples, une idée par phrase, analogie IBM i quand ça
    aide. Quand je clique une réponse à choix, **vérifie que j'ai compris avant d'agir**. Quand ta consigne est
    dense, je le dis, et c'est la consigne qui est fautive.
-2. **Le travail en cours, et c'est la tranche qui compte le plus aujourd'hui** :
-   `prompts/v0.1/DRAFT_EVOL_les-coulisses_v1.md` **en entier** (26 591 octets, écrit le 9 septembre au soir,
-   non suivi par git, **non gelé**) · et hors dépôt `Etude_Technique/NOTES_CONTENU_les-coulisses_v1.md`, la
-   matière qui l'a produit.
+2. **Les trois refus d'hier, et c'est la tranche qui compte le plus aujourd'hui** :
+   `.pipeline/prompt-review.json` **en entier** (17 796 octets, le troisième verdict, écrit le 10 septembre à
+   12:16) · `.pipeline/prompt-reviews.log` (9 lignes, dont les **trois dernières** portent `EVOL_les-coulisses
+   BLOCK`) · et le prompt refusé lui-même, `prompts/v0.1/EVOL_les-coulisses_v3.md`, **en entier** (31 064
+   octets, gelé, jamais exécuté, non suivi par git). **Lis les trois avant de proposer quoi que ce soit.**
 3. **Le projet, par tranches** : `CLAUDE.md` en entier (il épingle **v2.32**) · `.pipeline/STATUS.md` (une
-   ligne) · `tasks/ROADMAP.md` : **la ligne `12 septies` du fil** et les dettes `[W62]` à `[W69]` au bas de
-   « Dettes et reports » · `tasks/lessons.md` : la liste des titres (`grep '^## '`) et **les deux dernières
-   entrées** (7 et 8 septembre) · `tasks/JOURNAL_v0.1.md` : l'entrée « Session 31 » seulement, dont son bloc
-   « Dettes ouvertes à l'issue » · `.claude/settings.json` en entier · `.claude/agents/prompt-reviewer.md` en
-   entier, parce que c'est la porte que ton prompt devra passer.
+   ligne) · `tasks/ROADMAP.md` : **la ligne `12 septies` du fil**, dont son bloc d'arbitrages des 9 et 10
+   septembre, et les dettes `[W62]` à `[W69]` au bas de « Dettes et reports » · `tasks/lessons.md` : la liste
+   des titres (`grep '^## '`) et **les deux dernières entrées** (7 et 8 septembre) · `tasks/JOURNAL_v0.1.md` :
+   l'entrée « Session 31 » seulement, dont son bloc « Dettes ouvertes à l'issue » · `.claude/settings.json` en
+   entier · `.claude/agents/prompt-reviewer.md` en entier, parce que c'est la porte que ton prompt devra
+   passer, et qu'elle a mordu trois fois de suite.
 4. **La méthode, au moment d'écrire seulement** : Core §4.1 et table §8.1 ; puis les satellites que la table
-   désigne. Pour la tâche du jour (une maquette hors dépôt, puis un dessin dans le dépôt) : `STYLE_METHOD` +
-   profil, `UX_METHOD`, `AGENT_SCOPE_METHOD`, `VISION_METHOD`.
+   désigne. Pour la tâche du jour : `STYLE_METHOD` + profil, `UX_METHOD`, `AGENT_SCOPE_METHOD`,
+   `VISION_METHOD`, `ASSURANCE_METHOD` couche A. À §4.1, lis **la règle du destinataire unique** : elle décide
+   de l'arbitrage que je te demande plus bas.
 5. **Mesure** l'état du dépôt **par lecture de fichiers**, jamais par une commande git depuis la VM Cowork
-   (chaque `git status` y laisse un `index.lock` insupprimable, et il rend la mesure des fichiers modifiés par
-   leurs dates inutilisable pour la journée) : `.git/HEAD` · `.git/refs/heads/*` ·
-   `.git/refs/remotes/origin/main` · `.git/logs/HEAD` (trois dernières lignes) · la date de `.git/index`, qui
-   date le dernier commit · `grep '"version"' package.json` · `.pipeline/STATUS.md` ·
-   `grep -c '^      "' .claude/settings.json` · `grep -o '\[W[0-9]*\]' tasks/ROADMAP.md | sort -t W -k2 -n | tail -1`
-   · `grep -c '^## ' tasks/lessons.md`. Les fichiers modifiés ou non suivis se trouvent en comparant les dates
-   de modification à celle de `.git/index`. `npm test` et les commandes git sont pour Claude Code ou pour moi.
-6. **Piège d'outillage mesuré le 9 septembre, à connaître avant de mesurer quoi que ce soit.** Ton bac à sable
-   n'est **pas** un miroir du dépôt : il ne contient que les fichiers que tu y as copiés. Une commande qui
-   balaie un dossier (`ls tests/*.js | wc -l`, `grep -r`) y rend un chiffre **faux et crédible** : elle a rendu
-   **5** fichiers de test là où le dépôt en porte **8**. Mesure fichier par fichier, ou par le listage du
-   dossier sur ma machine. Ne balaie jamais un dossier depuis ton bac à sable.
-7. **La machine** : Claude Code, Node, npm et git tournent **dans WSL**, pas dans PowerShell. Toute commande
+   (chaque `git status` y laisse un `index.lock` insupprimable) : `.git/HEAD` · `.git/refs/heads/*` ·
+   `.git/refs/remotes/origin/main` · `.git/logs/HEAD` (trois dernières lignes) ·
+   `grep '"version"' package.json` · `.pipeline/STATUS.md` · `grep -c '^      "' .claude/settings.json` ·
+   `grep -o '\[W[0-9]*\]' tasks/ROADMAP.md | sort -t W -k2 -n | tail -1` · `grep -c '^## ' tasks/lessons.md`.
+   `npm test` et les commandes git sont pour Claude Code ou pour moi.
+6. **Ce qui date le dernier commit, c'est `.git/logs/HEAD`, PAS `.git/index`.** Mesuré le 10 septembre : le
+   dernier commit était du 8 septembre à 13:16:46 (dernière ligne de `logs/HEAD`, et `refs/heads/main` à la
+   même heure) alors que `.git/index` portait le **9 septembre à 21:22:24**. Un simple `git status` touche
+   l'index sans rien commiter. La reprise du 9 septembre prescrivait l'inverse : elle avait tort, et c'est
+   corrigé ici. Les fichiers modifiés ou non suivis se trouvent en comparant les dates de modification à celle
+   du **dernier commit lu dans `logs/HEAD`**.
+7. **Piège d'outillage, à connaître avant de mesurer quoi que ce soit.** Ton bac à sable n'est **pas** un
+   miroir du dépôt : il ne contient que les fichiers que tu y as copiés. Une commande qui balaie un dossier
+   (`ls tests/*.js | wc -l`, `grep -r`) y rend un chiffre **faux et crédible** : elle a rendu **5** fichiers de
+   test là où le dépôt en porte **8**. Mesure fichier par fichier, ou par le listage du dossier sur ma machine.
+   Ne balaie jamais un dossier depuis ton bac à sable.
+8. **La machine** : Claude Code, Node, npm et git tournent **dans WSL**, pas dans PowerShell. Toute commande
    que tu me donnes dit de quel côté elle se tape, et en chemin WSL (`/mnt/c/…`). Le plancher machine est
    `/home/jcc_1a/.claude/settings.json`, posé par `TWAIM_Kit/poser-plancher.js`, lancé par moi, jamais par un
    agent.
@@ -62,99 +72,128 @@ et le dépôt se contredisent, le dépôt gagne et tu me le signales.
 
 ## Où en est le travail
 
-Mesuré le 9 septembre 2026 à 22:52 (heure de Paris), par lecture de fichiers.
+Mesuré le 10 septembre 2026 à 14:05 (heure de Paris), par lecture de fichiers.
 
-- **`main` = `origin/main` = `dcf02b5`**, version **0.1.27**, `STATUS` = `CLOSED — session 31`. **Une seule
-  branche.** Rien n'a bougé depuis le 8 septembre : `.git/index` date du **8 septembre à 13:16:46**.
-- **Dérogation, et je la dis en toutes lettres.** La session du 9 septembre n'a produit **aucun atterrissage,
-  aucun commit, aucun push**. C'était une session d'écriture. Trois fichiers en sortent, nommés un par un :
-  - dans le dépôt, **non suivi** : `prompts/v0.1/DRAFT_EVOL_les-coulisses_v1.md`, 26 591 octets ;
-  - dans le dépôt, **modifié** : `tasks/REPRISE.md`, ce fichier, que je commite ;
-  - **hors dépôt** : `Etude_Technique/NOTES_CONTENU_les-coulisses_v1.md`.
+- **`main` = `origin/main` = `385d327`**, version **0.1.27**, `STATUS` = `CLOSED — session 31`. **Une seule
+  branche.** Deux commits ce jour, tous deux poussés, tous deux de documentation seule : `fcb5f17`
+  (`docs: reprise 2026-09-09`) et `385d327` (`docs: fil 12 septies, arbitrages des 9 et 10 septembre`).
+- **Dérogation, et je la dis en toutes lettres. La journée du 10 septembre n'a produit aucun incrément :
+  trois `/ship`, trois refus du `prompt-reviewer`, le verrou des trois est armé.** Aucune branche, aucun
+  commit d'incrément, aucun fichier de livrable touché. Le site est inchangé.
+- **Un fichier gelé traîne dans le dépôt, non suivi** : `prompts/v0.1/EVOL_les-coulisses_v3.md`, 31 064
+  octets. Il est **refusé**, donc il ne doit pas rester là : la règle de la session 31 dit qu'un contrat gelé
+  et faux qu'un lancement pourrait désigner n'a rien à faire dans l'arbre. **Premier geste manuel à me
+  rappeler** : le déplacer vers `Etude_Technique/`, hors dépôt, pour que la session neuve reparte de son
+  corps sans qu'il soit lançable.
 - **Tests : 395/395**, chiffre lu dans `.pipeline/review.json` (commit `a598215`, 8 septembre), **non relancé
-  depuis**. **8** fichiers de test. **41** leçons. Liste d'interdits inchangée : **39 `deny` + 1 `ask`** en
-  objets, **40** lignes au motif `^      "`.
+  depuis**. **8** fichiers de test. **41** leçons (lignes `^## `). Liste d'interdits inchangée : **39 `deny`
+  + 1 `ask`** en objets, **40** lignes au motif `^      "`.
 - **Le site** : https://lianazel.github.io/ibm-s36-to-rest-api/ — 0.1.27, inchangé. **Le dépôt est public :
   tout commit est une publication.** Anonymisation P1 inchangée. Règle de partage : des instances, jamais des
   invariants.
+- Hors dépôt, la matière du chapitre : `Etude_Technique/NOTES_CONTENU_les-coulisses_v2.md` (13 691 octets),
+  à jour du bloc `machine` réécrit le 10 septembre.
 - Le doc d'état complet est dans le projet Claude (`claude/ETAT_SESSION_IBMiAPI_v27.md`, à mettre à jour).
   **Il n'est pas la source de vérité : le dépôt l'est.**
 
 **Écarts mesurés, à traiter ou à assumer :**
 
-1. **`[W70]`, `[W71]` et `[W72]` sont nommées au journal (Session 31) et absentes du fil** : `tasks/ROADMAP.md`
-   s'arrête à `[W69]`, mesuré. Une dette qui ne vit qu'au journal n'est pas portée par le fil, et le fil est ce
-   qu'on relit. Geste manuel du chef de projet, famille `[W24]`.
-2. **La dette de propagation de `land.md` est close, contrairement à ce que disait la reprise du 8.** Mesuré le
-   9 septembre sur `TWAIM_Kit/_TEMPLATE_AGENTS/.claude/commands/land.md` (61 lignes, modifié le 9 septembre à
-   18:24) : les **trois** occurrences de `git merge` sont désormais une précondition, une garde et une
-   interdiction explicite (« Aucun `git merge` ici »). Le gabarit ne prescrit plus le merge. À ne pas
-   reconduire comme dette ouverte.
+1. **Le fil `12 septies` désigne `EVOL_les-coulisses_v2`**, soit deux révisions de retard sur le dernier
+   fichier relu (`_v3`). Le prérequis 3 ne mesure que `grep -c 'Les coulisses' ≥ 1`, qui rend 1 : aucune
+   conséquence mécanique, mais le fil ment sur l'état du travail. Geste manuel du chef de projet, famille
+   `[W24]`.
+2. **`[W70]`, `[W71]` et `[W72]` sont nommées au journal (Session 31) et absentes du fil** : `tasks/ROADMAP.md`
+   s'arrête à `[W69]`, mesuré le 10 septembre. Une dette qui ne vit qu'au journal n'est pas portée par le fil,
+   et le fil est ce qu'on relit. Inchangé depuis hier.
 3. **`.claude/commands/ship.md` épingle encore « Core §4.1 v2.29 »** (une ligne, mesurée). L'agent n'a pas le
    droit d'écrire dans `.claude/`, c'est mon geste, voie (a).
-4. **Le skill Cowork `prompt-de-reprise` dit encore « hors dépôt, `PROMPT_REPRISE_session<N>.md »**, quand le
+4. **Le skill Cowork `prompt-de-reprise` dit encore « hors dépôt, `PROMPT_REPRISE_session<N>.md` »**, quand le
    gabarit du référentiel dit `tasks/REPRISE.md`, écrasé, commité. **Le référentiel gagne** ; le texte du skill
-   est à mettre à jour par le chef de projet.
+   est à mettre à jour par le chef de projet. Inchangé depuis hier.
+
+## Ce qui s'est passé, en quatre lignes, parce que ça décide de ta tâche
+
+Le prompt des « Coulisses » a été soumis trois fois au `prompt-reviewer`. Trois `BLOCK`, tous en **C1**, et
+**les trois portent sur une phrase du § Contexte et périmètre** — jamais sur un livrable, jamais sur un
+prérequis. Le corps du prompt passe **C2, C3 et C4** depuis deux tours, onze prérequis chiffrés remesurés
+justes. Ce n'est pas l'incrément qui est mauvais : c'est le paragraphe qui **justifie** l'incrément, et que le
+rédacteur réécrit à chaque tour sans le remesurer.
+
+Les trois phrases, telles qu'elles ont été refusées :
+
+1. « Les trois artefacts sont déjà publics » — le critère du fil n'est pas la visibilité du dépôt, c'est
+   **doctrine contre instance**. L'artefact n° 2 était l'en-tête du contrat du `reviewer`, que la ligne
+   `12 septies` range nommément dans la doctrine.
+2. « Le chapitre La méthode est le plus court du site et le seul sans sous-titre » — les deux moitiés fausses.
+   « Le problème » n'a pas de sous-titre non plus, et il fait **598** caractères de valeurs FR contre **1 345**,
+   **5** lignes de balisage contre **24**.
+3. « Le contrat du `reviewer`, celui du `prompt-reviewer`, la table des satellites et l'ordre des étapes restent
+   au référentiel privé » — trois des quatre sont **commités dans ce dépôt public** : `.claude/agents/reviewer.md`
+   (37 lignes), `.claude/agents/prompt-reviewer.md` (101 lignes), `.claude/commands/ship.md` (82 lignes). Seule
+   la table §8.1 est hors dépôt. `CLAUDE.md` ligne 164 dit l'inverse. Et la même phrase substituait de nouveau
+   le critère privé/public à celui du fil, c'est-à-dire l'erreur du premier refus, à l'envers.
 
 ## Ce qu'on fait aujourd'hui
 
-**Une seule tâche : la maquette hors dépôt du dessin des quatre temps du harnais**, pour l'incrément qui suit
-celui des « Coulisses ».
+**Une seule tâche : reprendre le prompt des « Coulisses » en session neuve, découpé.** C'est ce que le verrou
+des trois impose, et son motif est écrit au Core : *la première hypothèse à tester n'est pas le prompt, c'est
+le contexte saturé de celui qui l'écrit*. Tu es cette tête neuve. Tu n'as pas vu la conversation d'hier, et
+c'est ta force : ne va pas la chercher.
 
-**Avant tout, mesure où en est l'incrément précédent** : `grep '"version"' package.json` et la première ligne
-de `.pipeline/STATUS.md`. Si la version est toujours **0.1.27** et le `STATUS` toujours `CLOSED — session 31`,
-le prompt des « Coulisses » n'est **pas** parti : la tâche du jour change, et tu me demandes ce que j'en fais
-avant de toucher à la maquette. Un prompt non gelé qui traîne pendant qu'on en prépare un autre est la
-situation qui produit deux contrats concurrents.
+**Le premier arbitrage à me demander, avant d'écrire une ligne** — et c'est le seul qui compte aujourd'hui :
 
-**Ce que porte la maquette.** Le contenu est arbitré et il est de moi, le 9 septembre au soir. Quatre temps,
-**avant la première ligne de code**, chacun avec ce qu'il voit et son angle mort :
+> Le § « Contexte et périmètre » doit-il **disparaître** du prompt, plutôt qu'être réécrit une quatrième fois ?
 
-1. **Une IA rédige la consigne.** Elle voit le dépôt, la méthode, la demande. Son angle mort : elle se relit
-   avec la tête qui a écrit.
-2. **Je la relis et je la transmets.** Je vois l'intention. Mon angle mort : la fatigue, le détail qui
-   m'échappe.
-3. **Un agent relit à tête reposée et rend son verdict.** Il voit ce que le dépôt dit vraiment, il remesure les
-   chiffres. Son angle mort : il ne juge pas l'idée, et il ne mesure pas ce qui n'est pas dans le dépôt.
-4. **L'agent d'exécution confronte, puis exécute.** Il voit ce que la consigne fait au contact des fichiers, et
-   il peut encore s'arrêter, mode automatique compris, si un ordre foule aux pieds une règle stricte du
-   harnais. Son angle mort : il obéit fidèlement, donc une consigne cohérente et fausse passe.
+Ce paragraphe ne prescrit rien. Il justifie. Or Core §4.1 porte la **règle du destinataire unique** : un prompt
+ne s'adresse qu'à Claude Code, et tout ce qui n'est pas une instruction exécutable par lui vit dans la
+conversation chef de projet ↔ Cowork ou dans la `ROADMAP`. La justification du choix des trois artefacts est
+désormais **écrite au fil**, dans le bloc d'arbitrages du 10 septembre : elle a un domicile, et il n'est pas
+dans le prompt. Un prompt qui n'affirme rien sur le dépôt ne peut pas affirmer un fait que le dépôt dément.
+**C'est une recommandation, pas une décision : c'est à moi de trancher.** Repli si je refuse : réécrire le
+paragraphe en ne citant que des faits remesurés le jour même, chacun avec sa commande.
 
-**Le dessin s'arrête là, et c'est un arbitrage, pas un oubli.** On ne noie pas le lecteur avec la revue du
-travail, l'atterrissage et le push : la prose du chapitre les porte déjà. Ligne éditoriale du chapitre, dite le
-9 septembre : **on ne cherche pas à convaincre, le lecteur se fera son idée ; on expose la réalité.**
+**Ce que porte l'incrément** (inchangé, arbitré par moi les 9 et 10 septembre, et écrit au fil) : trois
+sous-titres dans le chapitre « La méthode », un artefact réel du dépôt par sous-titre, un seul cadre sombre
+(celui qui existe déjà), les trois citations neuves en ligne dans la prose. Les trois artefacts sont des
+**sorties** : la garde chiffrée d'un prompt gelé (27 août), un refus du `prompt-reviewer` cité au journal
+(8 septembre), une leçon datée (24 août). Quatre fichiers : `js/i18n.js`, `index.html`, `css/styles.css` et
+une porte neuve `tests/coulisses.test.js`.
+
+**Le corps de `EVOL_les-coulisses_v3.md` est bon et il est à réemployer**, pas à réécrire : ses onze prérequis
+sont remesurés justes par le relecteur, sa table §8.1 est recalculée juste, son périmètre est fermé des deux
+côtés. **Remesure-le quand même le jour même** : la base `385d327` sera périmée dès que je commiterai le fil.
 
 **Pièges déjà connus, qui te concernent aujourd'hui :**
 
-- **Une maquette avant le gel, c'est le précédent maison.** Les incréments 4, 9 et 10 ont tous eu la leur,
-  validée par moi avant que le prompt soit gelé, et c'est ce qui a évité les allers-retours.
-- **Le site a déjà sa famille de dessin.** `css/styles.css` porte `.dessin`, avec légende, liste ordonnée,
-  boîtes `.case`, étapes `.etape` à titre et sous-titre, et les couleurs de registre. Deux dessins l'emploient,
-  dans « La solution ». Le dessin du harnais **réemploie** cette famille, il n'en invente pas une autre.
-- **HTML et CSS, pas SVG** (arbitrage du 19 août 2026), bilingue par le dictionnaire, empilable sur petit
-  écran. Une maquette lit les polices du dépôt par un chemin relatif, comme
-  `MAQUETTE_carte-open-graph_v1.html`.
-- **Ne gèle pas un prompt tant qu'un arbitrage dont il dépend n'est pas rendu.** Règle du 8 septembre, tenue le
-  9 : trois arbitrages rendus avant la première ligne du prompt.
-- **Corriger le chiffre qu'on te montre ne corrige pas le défaut** (leçon du 8 septembre) : après toute
-  correction d'un nombre, balaie **tous** ses porteurs, y compris les documents hors dépôt qui l'ont produit.
+- **Trois refus au compteur.** Un `/ship` de plus sur ce sujet s'arrête avant même de relire, tant que le
+  verrou n'est pas levé. Le journal des relectures est `.pipeline/prompt-reviews.log`.
+- **Une phrase qui justifie est une phrase qui affirme.** Les trois refus viennent de là. Si tu écris une
+  phrase sur l'état du dépôt, elle porte sa commande de mesure, ou elle ne s'écrit pas.
+- **Corriger le défaut qu'on te montre ne corrige pas le défaut** (leçon du 8 septembre) : après toute
+  correction, balaie **tous** ses porteurs, y compris les documents hors dépôt qui l'ont produit. Les trois
+  refus d'hier sont trois applications ratées de cette leçon.
 - **`grep -c` compte des lignes, `grep -o | wc -l` compte des occurrences**, et ni l'un ni l'autre ne compte
   des objets. Dis toujours laquelle des trois tu mesures.
+- **Une maquette avant le gel, c'est le précédent maison.** Les incréments 4, 9 et 10 ont tous eu la leur.
 - Le geste du chef de projet reste le merge et le push. Bump `patch` tant que la version est < 1.0.0.
 - Voie (a) : Cowork écrit dans `.claude/` si besoin, le chef de projet commite ; l'agent ne peut pas y écrire.
 
 ## Ce qui n'est PAS au programme, et pourquoi
 
-- **Nommer Cowork sur le site.** Mesuré : zéro occurrence de « Cowork » dans `js/i18n.js` et dans
-  `index.html`. Le site ne dit pas qui rédige les prompts. Ma ligne éditoriale du 9 septembre fait pencher la
-  question, elle ne la tranche pas. **Arbitrage propre, jamais une ligne glissée dans un incrément.**
-- **Le champ « Mode d'exécution ».** Il existe désormais **en instance**, en tête de
-  `DRAFT_EVOL_les-coulisses_v1.md`. Sa place au gabarit (`TEC_IA_TWAIM_CORE.md` §4.1 et
-  `_TEMPLATE_AGENTS/.claude/agents/prompt-reviewer.md`) reste à faire, au référentiel. Un dépôt à la fois.
+- **La maquette du dessin des quatre temps du harnais.** C'était la tâche prévue le 10 septembre, jamais
+  commencée : la journée est passée dans les trois refus. Elle appartient à l'incrément **suivant** celui des
+  « Coulisses », et un prompt non gelé qui traîne pendant qu'on en prépare un autre est la situation qui
+  produit deux contrats concurrents. **Rien avant que les « Coulisses » soient atterries.**
+- **Nommer Cowork sur le site.** Mesuré le 9 septembre : zéro occurrence de « Cowork » dans `js/i18n.js` et
+  dans `index.html`. **Arbitrage propre, jamais une ligne glissée dans un incrément.**
+- **Le champ « Mode d'exécution »**, qui existe en instance en tête du prompt refusé. Sa place au gabarit
+  (`TEC_IA_TWAIM_CORE.md` §4.1 et `_TEMPLATE_AGENTS/.claude/agents/prompt-reviewer.md`) reste à faire, au
+  référentiel. Un dépôt à la fois.
 - **La coupure de C1 en deux** dans le contrat du `prompt-reviewer` : un fait faux du dépôt devrait rendre
-  `NEEDS_WORK`, pas `BLOCK`. Analysé le 8 septembre, non écrit, même dépôt que le point précédent.
-- **L'écart `CDEMST`**, troisième trou du fil et `[W71]` : ni tranché, ni harmonisé, et l'image de la carte
-  n'est pas refaite. Il se tranche à la ligne 13 ou 14, jamais en passant.
+  `NEEDS_WORK`, pas `BLOCK`. Analysé le 8 septembre, non écrit, même dépôt que le point précédent. **Les trois
+  refus d'hier en sont trois illustrations** : les trois auraient été des `NEEDS_WORK` sous cette règle, et le
+  verrou ne serait pas armé. À réexaminer avec ce matériel, mais **pas dans cet incrément**.
+- **L'écart `CDEMST`**, troisième trou du fil et `[W71]`. Il se tranche à la ligne 13 ou 14, jamais en passant.
 - **`[W70]`** motif du scrub et **`[W72]`** les deux assertions trop larges de `tests/partage.test.js` : portées
   au fil d'abord, corrigées ensuite.
 - **Ligne 13, « Mise en scène »** : attend ma réponse sur `[W29]`/`[W30]`, posée depuis le 3 septembre.
@@ -162,41 +201,47 @@ travail, l'atterrissage et le push : la prose du chapitre les porte déjà. Lign
   `browser_network_requests`) : mon arbitrage et un CHORE dédié.
 - **La feuille pour DSI IBM i** (`Etude_Technique/DSI_une-feuille_v1.md`) : relecture humaine d'abord.
 - **Les balises Open Graph du site TWAIM** : autre dépôt, chantier voisin.
-- **Le site en cinq ou six langues** : curiosité du 9 septembre, notée comme R&D à creuser plus tard. **Pas un
-  chantier ouvert**, rien au fil.
+- **Le site en cinq ou six langues** : curiosité du 9 septembre, notée comme R&D à creuser plus tard.
 - **R&D nommées, non instruites** : le compteur des trois qui ne distingue pas trois révisions de trois
   relances du même fichier (`prompt_sha256`) ; `/fix` sans garde `prompt-reviewer` ; `RD-061`, `RD-062`,
   `RD-063` (hook compteur) ; les vingt-huit `deny` non éprouvées une à une ; GMFCC.
 
 ## Trous et questions ouvertes à me rappeler
 
-1. `node` et `python3` sont permis à l'agent et savent tout faire, réseau compris : c'est le prompt qui le
-   tient. Le périmètre d'un incrément est tenu par du texte, pas par une serrure. Risque résiduel assumé,
-   improbable, visible, survivable.
-2. `browser_navigate` atteint n'importe quelle adresse **réseau** (pas le local, Playwright refuse `file:`) ;
+1. **La réserve qui traverse les trois relectures, jamais tranchée** : les premiers paragraphes des blocs
+   `arret` et `machine` énoncent des invariants du harnais (« Un prompt ne commence pas par ce qu'il faut
+   faire », « Il est en lecture seule »), là où la ligne `12 septies` pose que le « pourquoi » est doctrine.
+   Le relecteur la classe en WARN, pas en FAIL : **arbitrage du chef de projet, pas un obstacle mécanique**.
+   Argument mesuré en faveur du maintien : `section5.comment`, déjà publié, dit déjà « Un agent l'exécute, un
+   autre le relit et rend un verdict ». **Demande-le-moi.**
+2. `node` et `python3` sont permis à l'agent et savent tout faire, réseau compris : c'est le prompt qui le
+   tient. Risque résiduel assumé, improbable, visible, survivable.
+3. `browser_navigate` atteint n'importe quelle adresse **réseau** (pas le local, Playwright refuse `file:`) ;
    `browser_network_request` est un chemin plus direct ; tous deux sous le seul `ask`. Le bornage par URL
    demande le hook `RD-063` / `[W69]`.
-3. La carence de 72 h d'un paquet **n'est pas vérifiable par le relecteur** (réseau fermé) : ce contrôle reste
+4. La carence de 72 h d'un paquet **n'est pas vérifiable par le relecteur** (réseau fermé) : ce contrôle reste
    au chef de projet.
-4. La mesure VoiceOver porte neuf objets et attend un humain depuis l'incrément 9.
-5. Les deux rangées « S/36 · IBM i » du menu (`[W65]`) se règlent avec le texte des chapeaux.
-6. `[W66]` : toute base se remesure le jour même.
-7. Le fichier machine `settings.json` a perdu `effortLevel` et `tui` entre le 2 et le 7 septembre : à remettre
+5. La mesure VoiceOver porte neuf objets et attend un humain depuis l'incrément 9.
+6. Les deux rangées « S/36 · IBM i » du menu (`[W65]`) se règlent avec le texte des chapeaux.
+7. `[W66]` : toute base se remesure le jour même.
+8. Le fichier machine `settings.json` a perdu `effortLevel` et `tui` entre le 2 et le 7 septembre : à remettre
    par le chef de projet s'il y tient, le script ne les recrée pas.
-8. Les vignettes de médias déjà épinglées sur LinkedIn gardent parfois l'ancienne image même après relecture :
+9. Les vignettes de médias déjà épinglées sur LinkedIn gardent parfois l'ancienne image même après relecture :
    il faut retirer le média et le remettre.
-9. **Ton bac à sable n'est pas le dépôt.** Voir le point 6 de la porte : c'est le piège neuf du 9 septembre, et
-   il rend des chiffres faux sans rien signaler.
+10. **Ton bac à sable n'est pas le dépôt.** Voir le point 7 de la porte : il rend des chiffres faux sans rien
+    signaler.
 
 ---
 
 Et si tu trouves que quelque chose dans ce message est faux, dis-le. Il a été écrit par ton prédécesseur, qui
-s'est trompé **cinq fois** dans la journée qu'il vient de terminer — dont : avoir écrit « douze clés par
-langue, vingt-quatre en tout » là où trois titres, neuf paragraphes et trois citations en font **quinze et
-trente** ; avoir mis un point final à une citation dont la source n'en porte pas, ce qui aurait fait rougir à
-sa naissance la porte écrite dans le même prompt ; avoir publié une phrase qui attribuait au chef de projet une
-erreur que le dépôt attribue à Cowork, et qui niait en même temps que c'était une erreur d'IA, fausse donc dans
-les deux sens ; et avoir mesuré un dossier depuis son bac à sable incomplet, ce qui a rendu **5** fichiers de
-test au lieu de **8**. Ces quatre-là ont été rattrapées avant le gel, dont une par le chef de projet en cinq
-mots. La cinquième n'est pas un chiffre : un message annonçait « il reste un arbitrage » et ne posait pas la
-question, ce qui a coûté un aller-retour au chef de projet.
+s'est trompé **sept fois** dans la journée qu'il vient de terminer, dont **trois** ont produit un refus du
+relecteur — dont : avoir laissé passer, à sa propre relecture du matin, la citation du contrat du `reviewer`
+alors qu'il avait la ligne `12 septies` sous les yeux et que ses propres notes la signalaient comme « la plus
+proche de la doctrine » ; avoir écrit que « La méthode » était le chapitre le plus court du site, sur un
+tableau de comparaison, de sa main, qui **oubliait un chapitre** ; avoir écrit que le contrat du `reviewer` et
+l'ordre des étapes « restent au référentiel privé » alors qu'il avait lu ces trois fichiers dans le dépôt le
+matin même, et avoir dans la même phrase **remplacé le critère du chef de projet par le sien**, celui-là même
+dont le premier refus venait de montrer qu'il était faux ; et avoir annoncé une citation de « cent cinquante
+caractères » sans jamais la mesurer, quand la plus longue en fait **94**. Les trois refus portent tous sur le
+même paragraphe, et aucun sur un livrable : c'est le signe que la porte a fait exactement son travail, et que
+le rédacteur, lui, ne remesurait plus ce qu'il affirmait.
