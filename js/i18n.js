@@ -561,6 +561,28 @@ public List<object> ConstruireModeleDepuisResultat(IEnumerable<IDictionary<strin
         citation: "Si tu lis 0, tu as supprimé des clés du mini-langage : ARRÊTE-TOI et signale.",
         p3: "Le harnais n'a pas rattrapé une erreur d'exécution. Il a rattrapé une erreur de consigne, avant la première ligne de code. Et la consigne, c'est moi qui la transmets.",
       },
+      // Les deux blocs qui suivent citent chacun un artefact du dépôt : un refus du
+      // relecteur de prompts, inscrit au journal, et le titre d'une leçon du
+      // registre. Leurs valeurs `citation` sont donc identiques dans les deux
+      // langues, à dessein — le harnais s'écrit en français, un artefact se cite et
+      // ne se traduit pas. Même choix que `arret` ci-dessus et que `dialogue`
+      // ci-dessous. Ce n'est pas un défaut de parité à corriger, et la porte
+      // `tests/coulisses.test.js` tient ces deux valeurs d'accord avec leur fichier
+      // source.
+      machine: {
+        title: "Ce qu'une machine garde",
+        p1: "La consigne est relue avant d'être exécutée, par un agent qui ne l'a pas écrite. Il est en lecture seule. Il n'a pas vu la conversation qui a produit la consigne, et c'est sa force : il lit le texte, pas l'intention qu'on avait en l'écrivant.",
+        p2: "Le 8 septembre 2026, il a refusé une consigne pour un seul nombre faux, resté dans le message d'enregistrement qu'elle prescrivait, alors que tout le reste avait été corrigé. Le refus est inscrit au journal du dépôt, et sa phrase avec :",
+        citation: "quatrième occurrence de l'erreur, restée dans le seul endroit que la correction n'a pas balayé",
+        p3: "Un refus n'écrit rien : aucune branche, aucun enregistrement. La consigne est revenue à son auteur, a été corrigée, et c'est la révision suivante qui a été exécutée. Le nombre faux n'est jamais entré dans l'historique public.",
+      },
+      humain: {
+        title: "Ce qu'aucune machine ne garde",
+        p1: "Une porte ne garde que ce qu'on lui a écrit. Le reste n'est gardé par personne. Le dire fait partie du travail.",
+        p2: "Un jour, toute la suite de tests était verte et la page ne s'affichait plus. Les tests couvraient la logique ; aucun ne montait la page. La leçon est datée, enregistrée dans le dépôt avec les autres, et son titre suffit :",
+        citation: "Une suite entièrement verte ne dit rien du montage",
+        p3: "Le registre nomme mes erreurs autant que celles des agents. Une réserve de revue ne s'efface pas : elle est écrite, datée, et son remboursement attend son tour. Et certaines vérifications ne se délèguent pas du tout. La lecture au lecteur d'écran attend un humain, et elle attend depuis plusieurs incréments.",
+      },
       dialogue: {
         legende: "Deux voix du harnais, telles qu'elles vivent dans le dépôt : la consigne du chef de projet, puis la trace laissée par l'agent. Citées mot pour mot, en français.",
         voix1: "Chef de projet · prompts/v0.1",
@@ -1176,6 +1198,28 @@ public List<object> BuildModelFromResult(IEnumerable<IDictionary<string, object>
         p2: "On 27 August 2026 it was the instruction that was wrong. It announced two occurrences of a word in the site's dictionary. There were four. Two belonged to the simulator, written the day before, and removing them would have broken its vocabulary. The agent stopped before the first commit, with no branch created. The instruction has carried its own guard ever since, in French, word for word:",
         citation: "Si tu lis 0, tu as supprimé des clés du mini-langage : ARRÊTE-TOI et signale.",
         p3: "The harness did not catch an execution error. It caught an error in the instruction, before a single line of code existed. And I am the one who hands the instruction over.",
+      },
+      // Les deux blocs qui suivent citent chacun un artefact du dépôt : un refus du
+      // relecteur de prompts, inscrit au journal, et le titre d'une leçon du
+      // registre. Leurs valeurs `citation` sont donc identiques dans les deux
+      // langues, à dessein — le harnais s'écrit en français, un artefact se cite et
+      // ne se traduit pas. Même choix que `arret` ci-dessus et que `dialogue`
+      // ci-dessous. Ce n'est pas un défaut de parité à corriger, et la porte
+      // `tests/coulisses.test.js` tient ces deux valeurs d'accord avec leur fichier
+      // source.
+      machine: {
+        title: "What a machine holds",
+        p1: "The instruction is reviewed before it runs, by an agent that did not write it. It is read-only. It never saw the conversation that produced the instruction, and that is its strength: it reads the text, not the intention behind it.",
+        p2: "On 8 September 2026 it refused an instruction for a single wrong number, left in the commit message the instruction prescribed, when everything else had been corrected. The refusal is recorded in the repository's journal, in French, and so is its sentence:",
+        citation: "quatrième occurrence de l'erreur, restée dans le seul endroit que la correction n'a pas balayé",
+        p3: "A refusal writes nothing: no branch, no commit. The instruction went back to its author, was corrected, and the next revision is the one that ran. The wrong number never entered the public history.",
+      },
+      humain: {
+        title: "What no machine holds",
+        p1: "A gate holds only what someone wrote into it. The rest is held by nobody. Saying so is part of the work.",
+        p2: "One day the whole test suite was green and the page no longer displayed. The tests covered the logic; none of them mounted the page. The lesson is dated, recorded in the repository with the others, and its title says enough:",
+        citation: "Une suite entièrement verte ne dit rien du montage",
+        p3: "The register names my own mistakes as much as the agents'. A review reservation is never erased: it is written down, dated, and its repayment waits its turn. And some checks cannot be delegated at all. The screen-reader pass is waiting for a human, and it has been waiting for several increments.",
       },
       dialogue: {
         legende: "Two voices of the harness, as they live in the repository: the project lead's instruction, then the trace the agent left. Quoted word for word, in French.",
