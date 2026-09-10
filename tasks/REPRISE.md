@@ -1,16 +1,18 @@
+```markdown
 Tiens Man, tu te rappelles comment on fonctionne ?
 
 Référentiel central : C:\JobDirectory\CLAUDE_PROJECTS\_CLAUDE_TEAM_WORKFLOW_AI_METHODOLOGY\Etude_technique
 Projet du jour      : C:\JobDirectory\CLAUDE_PROJECTS\_WEB\IBMiAPI\ibm-s36-to-rest-api
 Notes et prompts    : C:\JobDirectory\CLAUDE_PROJECTS\_WEB\IBMiAPI\Etude_Technique
 
-Dernière session Claude Code close : **32**, lue dans `.pipeline/STATUS.md`. C'est le SEUL compteur ; relis-la le
-jour même avant de la recopier. Cette session Cowork est du **10 septembre 2026** : Cowork date ses sessions, il ne
-les numérote plus. Ce fichier est `tasks/REPRISE.md`, écrasé à chaque fin de session et commité avec elle
-(`docs: reprise 2026-09-10`) ; la pile, c'est `git log -- tasks/REPRISE.md`.
+Dernière session Claude Code close : **33**, lue dans `.pipeline/STATUS.md`. C'est le SEUL compteur ; relis-la le
+jour même avant de la recopier. Cette session Cowork est du **10 septembre 2026 au soir** : Cowork date ses
+sessions, il ne les numérote plus. Ce fichier est `tasks/REPRISE.md`, écrasé à chaque fin de session et commité
+avec elle (`docs: reprise 2026-09-10`) ; la pile, c'est `git log -- tasks/REPRISE.md`.
 
-**Cette session s'est terminée sur un atterrissage, et sur une leçon qui a coûté trois heures.** Lis le bloc
-« Où en est le travail » avant de faire quoi que ce soit.
+**Deux incréments ont atterri dans la journée, tous deux relus `SHIP` du premier coup.** Le sujet « Les coulisses »
+est clos. Ce qui reste n'est pas du code : c'est un fil qui a douze dettes de retard. Lis le bloc « Où en est le
+travail » avant de faire quoi que ce soit.
 
 ---
 
@@ -23,22 +25,25 @@ entier, la personne d'abord, la méthode au moment d'agir** (Core §5.1). Ton ra
 Dans cet ordre, et sans rien me dire entre-temps :
 
 1. **La personne** : au référentiel, `PEDAGOGY_PROFILE.local.md` et `STYLE_PROFILE.local.md`, en entier. Je ne suis
-   pas de ton monde, je suis du monde IBM i : mots simples, une idée par phrase, analogie IBM i quand ça aide. Quand
-   je clique une réponse à choix, **vérifie que j'ai compris avant d'agir**. Quand ta consigne est dense, je le dis,
-   et c'est la consigne qui est fautive.
-2. **La leçon d'hier, et c'est la tranche qui compte le plus** : `tasks/lessons.md`, **la dernière entrée**
-   (10 septembre 2026, « Une réserve qui affirme une **absence** se prouve par un balayage, jamais par deux lignes
-   lues »). Elle est née d'une journée où **quatre revues de sortie** ont tourné sur **un code qui n'a jamais bougé**.
-   Lis-la avant de juger quoi que ce soit dans le dépôt.
-3. **Le projet, par tranches** : `CLAUDE.md` en entier (il épingle **v2.32**, voir l'écart 3) · `.pipeline/STATUS.md`
-   (une ligne) · `tasks/ROADMAP.md` : **la ligne `12 septies` du fil**, et les dettes au bas de « Dettes et reports »
-   · `tasks/lessons.md` : la liste des titres (`grep '^## '`) · `tasks/JOURNAL_v0.1.md` : l'entrée « Session 32 »
-   seulement, dont son bloc de dettes · `.claude/settings.json` en entier · `.claude/agents/prompt-reviewer.md` en
+   pas de ton monde, je suis du monde IBM i : mots simples, une idée par phrase, analogie IBM i quand ça aide. Ton
+   prédécesseur s'est fait reprendre **deux fois** hier soir sur ce point, et la seconde fois j'ai abandonné un
+   arbitrage que je venais de rendre parce que son explication ne me parlait pas. Une consigne que je ne comprends
+   pas est une consigne fautive, pas une question idiote.
+2. **La leçon qui compte pour aujourd'hui** : `tasks/lessons.md`, **les deux dernières entrées** (10 septembre 2026).
+   La première dit qu'un contre-essai qui dégrade un fichier du dépôt laisse un demi-état si la main est reprise
+   entre la dégradation et le rétablissement. La seconde dit qu'une preuve énoncée en caractères se satisfait à la
+   lettre. Lis aussi l'avant-dernière du 10 septembre, « une réserve qui affirme une **absence** se prouve par un
+   balayage » : elle a coûté trois heures avant-hier et elle vaut pour tout ce que tu écriras.
+3. **Le projet, par tranches** : `CLAUDE.md` en entier (il épingle **v2.32**, voir l'écart 2) · `.pipeline/STATUS.md`
+   (une ligne) · `tasks/ROADMAP.md` : **la ligne `12 septies` du fil** (l. 27), et les dettes au bas de « Dettes et
+   reports » · `tasks/lessons.md` : la liste des titres (`grep '^## '`) · `tasks/JOURNAL_v0.1.md` : les entrées
+   « Session 32 » et « Session 33 » seulement, dont leurs blocs de dettes — **les deux, parce que les douze dettes du
+   jour se répartissent entre elles** · `.claude/settings.json` en entier · `.claude/agents/prompt-reviewer.md` en
    entier.
 4. **La méthode, au moment d'écrire seulement** : Core §4.1 et table §8.1 ; puis les satellites que la table désigne.
-   Pour la tâche du jour : `STYLE_METHOD` + profil, `UX_METHOD`, `ASSURANCE_METHOD` couche A, `VISION_METHOD`.
-   `AGENT_SCOPE_METHOD` ne se charge que si un geste sort du dépôt : l'incrément d'hier a montré qu'une preuve
-   d'aveuglement se joue **en mémoire**, sans fichier temporaire, sur le précédent de `tests/partage.test.js`.
+   La tâche du jour n'écrit **pas de code** : elle ne déclenche ni `ASSURANCE`, ni `UX`, ni `VISION`. Elle déclenche
+   `STYLE_METHOD` + profil, parce qu'elle produit un texte destiné à être lu. `AGENT_SCOPE_METHOD` ne se charge que
+   si un geste sort du dépôt.
 5. **Mesure** l'état du dépôt **par lecture de fichiers**, jamais par une commande git depuis la VM Cowork (chaque
    `git status` y laisse un `index.lock` insupprimable) : `.git/HEAD` · `.git/refs/heads/*` (un nom de branche avec
    `/` est un sous-dossier) · `.git/refs/remotes/origin/main` · `.git/logs/HEAD` (trois dernières lignes) ·
@@ -51,15 +56,16 @@ Dans cet ordre, et sans rien me dire entre-temps :
 7. **Piège d'outillage, à connaître avant de mesurer quoi que ce soit.** Ton bac à sable n'est **pas** un miroir du
    dépôt : il ne contient que les fichiers que tu y as copiés. Une commande qui balaie un dossier
    (`ls tests/*.js | wc -l`, `grep -r`, une boucle `for f in tests/*.js`) y rend un chiffre **faux et crédible**.
-   Ton prédécesseur s'y est fait prendre hier, en comptant des cas de test : sa boucle a vu **2** fichiers là où le
-   dépôt en porte **9**, et il avait ce piège écrit sous les yeux depuis le matin. Mesure fichier par fichier, ou par
-   le listage du dossier sur ma machine.
+   Mesure fichier par fichier, ou par le **listage du dossier sur ma machine**. Hier soir le shell distant n'a pas pu
+   monter mes dossiers du tout (`no Plan9 drive shares mounted`) : tout s'est lu par copie de fichiers, un par un, et
+   les comptes d'objets sont venus du listage. Si ça t'arrive, c'est la bonne conduite, pas une panne.
 8. **La machine** : Claude Code, Node, npm et git tournent **dans WSL**, pas dans PowerShell. Toute commande que tu me
    donnes dit de quel côté elle se tape, et en chemin WSL (`/mnt/c/…`). Le plancher machine est
    `/home/jcc_1a/.claude/settings.json`, posé par `TWAIM_Kit/poser-plancher.js`, lancé par moi, jamais par un agent.
-9. **Le pont ne sait pas écrire dans `.claude/`.** Mesuré hier : toute écriture par les outils distants y est refusée
+9. **Le pont ne sait pas écrire dans `.claude/`.** Toute écriture par les outils distants y est refusée
    (`Writing to .claude is not permitted via remote tools`). La voie (a) passe donc par un fichier déposé **à côté**
-   et une commande de copie que je tape.
+   et une commande de copie que je tape. Le reste du dépôt, lui, s'écrit sans problème : `prompts/v0.1/` et `tasks/`
+   ont été écrits par le pont hier soir.
 
 Ne déclare aucune lecture que tu n'as pas faite. Ne cite aucun chiffre que tu n'as pas mesuré. Si un document et le
 dépôt se contredisent, le dépôt gagne et tu me le signales.
@@ -68,114 +74,113 @@ dépôt se contredisent, le dépôt gagne et tu me le signales.
 
 ## Où en est le travail
 
-Mesuré le 10 septembre 2026, **après le push**, par lecture de fichiers.
+Mesuré le 10 septembre 2026 à 22:40, **après le push**, par lecture de fichiers.
 
-- **`main` = `origin/main` = `2ca0406`**, version **0.1.28**, `STATUS` = `CLOSED — session 32`. **Une seule
-  branche** : `refs/heads/` ne porte que `main`, `feat/coulisses-arret` a été supprimée.
-- Les trois dernières lignes de `.git/logs/HEAD` : `checkout` vers `main`, `merge feat/coulisses-arret` (`831f638`),
-  puis `docs: journal session 32 + bump 0.1.27 -> 0.1.28 — clôture (merge 831f638)` (`2ca0406`).
-- **Le chapitre « La méthode » a son premier sous-titre en ligne.** Quatre fichiers touchés, 195 insertions, zéro
-  suppression : dix valeurs dans `js/i18n.js`, cinq éléments dans `index.html`, la classe `.citation` dans
-  `css/styles.css`, et une porte neuve `tests/coulisses.test.js`. Morsure et aveuglement joués, pas supposés.
-- **Tests : 401/401**, chiffre lu dans `.pipeline/review.json`, relancé par Claude Code, **pas par moi**. **9**
-  fichiers de test (objets, listage du dossier). **42** leçons (lignes `^## `).
-- **Le site** : https://lianazel.github.io/ibm-s36-to-rest-api/, en 0.1.28. **Le dépôt est public : tout commit est une
-  publication.** Anonymisation P1 inchangée. Règle de partage : des instances, jamais des invariants.
-- Le doc d'état complet est dans le projet Claude (`claude/ETAT_SESSION_IBMiAPI_v27.md`, à mettre à jour).
+- **`main` = `origin/main` = `c89bb85`**, version **0.1.29**, `STATUS` = `CLOSED — session 33`. **Une seule
+  branche** : `refs/heads/` ne porte que `main`.
+- Les trois dernières lignes de `.git/logs/HEAD` : `checkout` vers `main`, `merge feat/coulisses-machine-humain`
+  (`bf6f0f2`), puis `docs: journal session 33 + bump 0.1.28 -> 0.1.29 — clôture (merge bf6f0f2)` (`c89bb85`).
+- **Le chapitre « La méthode » a ses trois sous-titres.** Le second incrément a touché quatre fichiers, 131
+  insertions, 44 suppressions : vingt valeurs dans `js/i18n.js`, dix éléments dans `index.html`, **un commentaire
+  réécrit** dans `css/styles.css` (aucune règle changée), et la porte `tests/coulisses.test.js` passée d'une clé à
+  trois. Quatre rouges provoqués et rétablis : deux morsures, deux miroirs de vivacité.
+- **Tests : 405/405**, chiffre lu dans `.pipeline/STATUS.md` et dans l'entrée de journal, **non relancé par moi**.
+  **9** fichiers de test (objets, listage du dossier). **44** leçons (lignes `^## `), deux écrites hier.
+- **Le site** : https://lianazel.github.io/ibm-s36-to-rest-api/, en 0.1.29. **Le dépôt est public : tout commit est
+  une publication.** Anonymisation P1 inchangée. Règle de partage : des instances, jamais des invariants.
+- **Deux règles d'interdit se sont éprouvées seules**, sur un incrément qui ne les visait pas : `Edit(~/.claude/**)`
+  a refusé l'écriture du fichier de plan, et le `reviewer` a buté sur l'interdit `npm` et a lancé Vitest
+  directement. **Treize règles éprouvées** sur trente-neuf, contre onze la veille.
+- Le doc d'état complet est dans le projet Claude (`claude/ETAT_SESSION_IBMiAPI_v27.md`, **à mettre à jour**).
   **Il n'est pas la source de vérité : le dépôt l'est.**
-- Hors dépôt, la matière du chapitre : `Etude_Technique/NOTES_CONTENU_les-coulisses_v2.md` (13 691 octets), qui porte
-  encore les **trois** blocs. Deux restent à livrer.
-
-**Ce qui s'est passé hier, en quatre lignes, parce que ça décide de ta prudence.** Le prompt du premier bloc a passé
-le `prompt-reviewer` du premier coup, `SHIP`. Puis **quatre revues de sortie** ont tourné sur **trois commits qui
-n'auraient jamais dû exister** : une réserve du `reviewer` affirmait qu'un fait publié n'était pas recoupable dans le
-dépôt. Il l'était, en tête du fichier cité, commité depuis le 27 août. Cowork a suivi cette réserve, réécrit deux
-valeurs, écrit un avenant, récolté un `FAIL` sur son propre avenant, et tout a été retiré. **Le code livré est
-exactement celui de la première revue.** Le `prompt-reviewer`, lui, avait écrit dès l'ÉTAPE 0 : « le fait chiffré du
-`p2` est, lui, exact au fichier ». Il avait raison, personne ne l'a écouté.
+- Hors dépôt : `Etude_Technique/RAPPORT_OUVERTURE_2026-09-10_v2.md` (rapport d'ouverture d'hier soir) et
+  `Etude_Technique/PREP_fil-decoupage-et-dettes_v1.md`, **périmé, voir la tâche du jour**.
 
 **Écarts mesurés, à traiter ou à assumer :**
 
-1. **Le fil s'arrête à `[W69]`, et neuf dettes vivent au journal seul** : `[W70]` à `[W78]` sont nommées aux entrées
-   des sessions 31 et 32 de `tasks/JOURNAL_v0.1.md`, et **absentes** de `tasks/ROADMAP.md`, mesuré après le push.
-   C'était trois hier matin, c'est neuf ce soir. Une dette qui ne vit qu'au journal n'est pas portée par le fil, et
-   le fil est ce qu'on relit. Geste manuel du chef de projet, famille `[W24]`.
-2. **La ligne `12 septies` ne dit pas le découpage.** Elle décrit toujours trois sous-titres en un incrément et
-   nomme `EVOL_les-coulisses_v2` comme prompt. Le sujet a été découpé hier, le premier bloc est atterri, deux
-   restent. `tasks/ROADMAP.md` n'a pas été touché depuis 11:50. Même geste que l'écart 1.
-3. **`CLAUDE.md` épingle « v2.32 », et le Core est passé en v2.33 hier soir** (règle du mode d'exécution, posée au
-   référentiel). Re-pin à faire, geste du chef de projet.
+1. **Le fil s'arrête à `[W69]`, et douze dettes vivent au journal seul** : `[W70]` à `[W81]` sont nommées aux
+   entrées des sessions 31, 32 et 33 de `tasks/JOURNAL_v0.1.md`, et **absentes** de `tasks/ROADMAP.md` — mesuré
+   après le push, `grep -o '\[W7[0-9]\]\|\[W8[01]\]' tasks/ROADMAP.md | wc -l` rend **0** (occurrences). C'était
+   trois avant-hier matin, neuf hier soir, douze ce soir. Une dette qui ne vit qu'au journal n'est pas portée par le
+   fil, et le fil est ce qu'on relit.
+2. **`CLAUDE.md` épingle « v2.32 », et le Core est en v2.33** depuis le 10 septembre (règle du mode d'exécution).
+   Deux endroits à reprendre : l. 13 et la ligne de pied l. 182. Geste du chef de projet. À noter : `/land` a bien
+   mis à jour « Version produit : 0.1.29 » dans cette même ligne de pied, sans toucher au numéro de méthode.
+3. **La ligne `12 septies` est fausse sur les trois points qui comptent.** Elle décrit trois sous-titres en un
+   incrément, nomme `EVOL_les-coulisses_v2` comme prompt, et se donne pour « à rédiger ». Le sujet est **clos**, en
+   deux incréments (`EVOL_coulisses-arret_v1`, `EVOL_coulisses-machine-humain_v1`). `tasks/ROADMAP.md` n'a pas été
+   touché depuis le 10 septembre à 11:50.
 4. **`.claude/` d'IBMiAPI est en retard sur son propre gabarit.** Le contrat du `prompt-reviewer` du projet porte
-   **quatre** contrôles (6 714 octets) quand le gabarit `_TEMPLATE_AGENTS` en porte **cinq** (10 088 octets depuis
-   hier) : **C5, « Le document ne se dément pas lui-même »**, n'est jamais descendu. Le texte à poser, C5 et le champ
-   « Mode d'exécution », est prêt dans `Etude_Technique/PREP_mode-execution-au-gabarit_v1.md`. Rien n'est posé côté
-   projet ; le référentiel, lui, est fait.
+   **quatre** contrôles (6 714 octets) quand le gabarit `_TEMPLATE_AGENTS` en porte **cinq** (10 088 octets) : **C5,
+   « Le document ne se dément pas lui-même »**, n'est jamais descendu. Le texte à poser, C5 et le champ « Mode
+   d'exécution », est prêt dans `Etude_Technique/PREP_mode-execution-au-gabarit_v1.md`. **Le moment est venu** : la
+   consigne était « après l'atterrissage du prochain incrément », et il a atterri.
 5. **Une réserve non tranchée sur `.claude/commands/ship.md`** : sa ligne 56 cite « Core §4.1 v2.29 ». Ce n'est
    peut-être pas un épinglage périmé, mais la référence à la révision qui a **créé** la règle du premier
-   enregistrement, comme sa ligne 11 cite v2.32 pour la garde déléguée. Détail au §5 du `PREP` ci-dessus. À trancher
-   avant de toucher au fichier.
-6. **Deux fichiers de travail traînent hors dépôt** : `Etude_Technique/DRAFT_EVOL_coulisses-arret_v1.md` (le brouillon
-   du prompt atterri, sans objet) et `Etude_Technique/EVOL_les-coulisses_v3_REFUSE.md` (le contrat gelé refusé trois
-   fois). Ni l'un ni l'autre n'est lançable. À supprimer quand tu veux.
+   enregistrement. Détail au §5 du `PREP` ci-dessus. Non mesuré hier soir, personne n'a ouvert le fichier.
+6. **Deux fichiers de travail traînent hors dépôt** : `Etude_Technique/DRAFT_EVOL_coulisses-arret_v1.md` et
+   `Etude_Technique/EVOL_les-coulisses_v3_REFUSE.md`. Ni l'un ni l'autre n'est lançable. À supprimer quand tu veux.
 
 ## Ce qu'on fait aujourd'hui
 
-**Une seule tâche : écrire le prompt du second incrément des « Coulisses », les blocs `machine` et `humain`.**
+**Une seule tâche : remettre le fil à jour.** Deux gestes dans le même commit, et rien d'autre.
 
-Ce qu'il porte, arbitré les 9 et 10 septembre et déjà écrit au fil : deux sous-titres de plus dans le chapitre « La
-méthode », un artefact réel du dépôt par sous-titre, **un seul cadre sombre** (celui qui existe déjà), les citations
-neuves en ligne dans la prose. Les deux artefacts restants sont des **sorties** : un refus du `prompt-reviewer` cité
-au journal (8 septembre), une leçon datée (24 août). Quatre fichiers, comme la fois précédente : `js/i18n.js`,
-`index.html`, `css/styles.css` et la porte `tests/coulisses.test.js`, qui passe d'une clé à trois.
+**Geste 1 — fermer la ligne `12 septies`.** Elle doit dire que le sujet est **clos**, par quels deux prompts, et à
+quelle version chacun est atterri. Elle ne retire aucun des arbitrages que j'y ai écrits les 3, 9 et 10 septembre :
+la règle de partage, le cadre sombre unique, les trois artefacts, le refus du contrat du `reviewer`, la phrase
+« deux annoncées, quatre réelles » qui doit rester. **On ajoute, on ne réécrit pas.** C'est la faute exacte que j'ai
+failli commettre avant-hier, et que le journal de la session 32 cite comme précédent.
+
+**Geste 2 — porter les douze dettes au fil**, `[W70]` à `[W81]`, au bas du chapitre « Dettes et reports », après le
+bloc `[W69]`. Leur texte se prend aux entrées des sessions 31, 32 et 33 du journal, **condensé, jamais inventé**.
+Trois d'entre elles ont bougé et il faut le dire : `[W73]` et `[W74]` sont **tombées par construction** hier soir,
+elles descendent au fil déjà marquées comme telles ; `[W76]` est **remboursée à moitié**, le « 7,02:1 » ayant
+disparu du seul endroit où il mesurait le mauvais texte.
+
+**Ce qui manque à cette tâche, et c'est le piège du jour.** Le fichier `Etude_Technique/PREP_fil-decoupage-et-dettes_v1.md`
+a été écrit hier soir pour ce geste, **et il est périmé sur les deux moitiés** : il ne porte que neuf dettes sur
+douze, et son texte pour la ligne `12 septies` annonce « un incrément atterri, un à rédiger » alors que les deux ont
+atterri. **Ne le recopie pas. Refais-le, ou vérifie-le ligne à ligne contre le journal.** Un texte préparé la veille
+est exactement le genre de porteur qu'on croit juste parce qu'il a l'air fini.
 
 **Le premier arbitrage à me demander, avant d'écrire une ligne :**
 
-> Le fil est-il repris **avant** que le prompt soit écrit, ou après ?
+> La ligne `12 septies` est-elle **fermée** (« fait, clos »), ou **remplacée** par une ligne neuve qui ouvre
+> l'incrément suivant ?
 
-Le prérequis du prompt mesurera `grep -c 'Les coulisses' tasks/ROADMAP.md` : il tombera juste dans les deux cas.
-Mais un prompt qui s'appuie sur une ligne de fil qui décrit un autre incrément que le sien est la situation qui a
-produit la réserve `C3/C2` de la première relecture. **C'est une recommandation, pas une décision : reprends le fil
-d'abord.** Les écarts 1 et 2 se règlent dans le même geste.
-
-**Ce que le corps du prompt atterri hier réemploie**, et c'est la raison du découpage : ses onze prérequis, sa table
-§8.1, son § « Ce que ce prompt NE fait PAS », sa preuve de morsure, sa garde de non-vacuité jouée en mémoire. Rien
-ne se recopie sans être **remesuré le jour même** : la base `2ca0406` sera périmée dès que je commiterai le fil.
+Recommandation : **fermée**. Le fil est un journal de décisions, pas un tableau de bord ; une ligne close se relit
+et se recoupe, une ligne réécrite perd son histoire. L'incrément suivant prendra son propre numéro.
 
 **Pièges déjà connus, qui te concernent aujourd'hui :**
 
-- **Le `prompt-reviewer` avait raison hier, la revue de sortie s'est trompée.** Quand deux gardes se contredisent sur
-  le même fait, on ne suit pas la plus récente : **on mesure**. Le journal des relectures est
-  `.pipeline/prompt-reviews.log`, 10 lignes, la dernière `EVOL_coulisses-arret SHIP`.
-- **Une phrase qui affirme une absence porte son balayage, ou elle ne s'écrit pas.** Prouver qu'une chose existe
-  demande un exemple ; prouver qu'elle n'existe pas demande d'avoir tout lu, en-tête du fichier compris.
-- **Tout texte que Cowork écrit dans le dépôt franchit une porte.** Hier, trois écritures n'en ont franchi aucune, et
-  la revue de sortie les a rattrapées une par une, en fabriquant à chaque fois la réserve suivante. Un avenant n'est
-  relu par personne : c'est `[W77]`, huit prompts en portent un, zéro n'a jamais été relu.
-- **Corriger le défaut qu'on te montre ne corrige pas le défaut** (leçon du 8 septembre) : après toute correction,
-  balaie **tous** ses porteurs, y compris les documents hors dépôt qui l'ont produit.
+- **Tout texte que Cowork écrit dans le dépôt franchit une porte.** Celui-ci n'en a pas : `tasks/ROADMAP.md` n'est
+  gardé par aucun test. Donc le geste est le mien, pas le tien : tu prépares le texte **à côté**, dans
+  `Etude_Technique`, et je colle. C'est la voie qu'on a prise hier soir.
 - **`grep -c` compte des lignes, `grep -o | wc -l` compte des occurrences**, un listage compte des objets. Dis
   toujours laquelle des trois tu mesures.
-- **Une maquette avant le gel, c'est le précédent maison.** Les incréments 4, 9 et 10 ont tous eu la leur.
+- **Une phrase qui affirme une absence porte son balayage, ou elle ne s'écrit pas.**
+- **Corriger le défaut qu'on te montre ne corrige pas le défaut** : après toute correction, balaie **tous** ses
+  porteurs, y compris les documents hors dépôt qui l'ont produit.
 - Le geste du chef de projet reste le merge et le push. Bump `patch` tant que la version est < 1.0.0.
-- Voie (a) : Cowork écrit dans `.claude/` si besoin, le chef de projet commite ; le pont refuse d'y écrire, donc le
-  fichier se dépose à côté et je le copie.
+- Une bonne mesure de contrôle après mon commit : `grep -o '\[W7[0-9]\]\|\[W8[01]\]' tasks/ROADMAP.md | wc -l` doit
+  rendre **12** (occurrences), contre **0** ce soir.
 
 ## Ce qui n'est PAS au programme, et pourquoi
 
-- **La maquette du dessin des quatre temps du harnais.** Prévue le 10 septembre, jamais commencée, deux jours de
-  suite. Elle appartient à l'incrément **suivant** celui des deux blocs, et un prompt non gelé qui traîne pendant
-  qu'on en prépare un autre produit deux contrats concurrents.
-- **La pose de C5 et du champ « Mode d'exécution » dans `.claude/` d'IBMiAPI.** Le texte est prêt, le geste est court,
-  mais il touche `.claude/` et n'entre en vigueur qu'au **prochain lancement** de Claude Code. À faire **après**
-  l'atterrissage du prochain incrément, jamais pendant qu'un prompt lui est soumis. Écart 4.
-- **Nommer Cowork sur le site.** Mesuré le 9 septembre : zéro occurrence de « Cowork » dans `js/i18n.js` et dans
-  `index.html`. **Arbitrage propre, jamais une ligne glissée dans un incrément.**
-- **La coupure de C1 en deux** dans le contrat du `prompt-reviewer` : un fait faux du dépôt devrait rendre
-  `NEEDS_WORK`, pas `BLOCK`. Analysé le 8 septembre, non écrit. Même dépôt que le point précédent, même attente.
-- **Les six dettes neuves d'hier** : `[W73]` double littéral de la porte, `[W74]` témoin non discriminant, `[W75]`
-  `lang="fr"` absent (3 occurrences, WCAG AA), `[W76]` contraste cité qui mesure le filet, `[W77]` aucun avenant
-  n'est jamais relu, `[W78]` le `p2` est daté et le site ne nomme aucun chemin. Portées au fil d'abord, corrigées
-  ensuite. `[W75]` demande son propre prompt : trois occurrences, dont deux préexistantes.
+- **La maquette du dessin des quatre temps du harnais.** C'est bien le prochain incrément, et elle attend depuis
+  trois jours. Mais un prompt qui s'appuie sur une ligne de fil fausse est ce qui a produit la réserve `C3/C2`
+  d'avant-hier. Le fil d'abord, la maquette ensuite, dans une session où elle sera la seule tâche.
+- **La pose de C5 et du champ « Mode d'exécution » dans `.claude/` d'IBMiAPI** (écart 4). Le texte est prêt et le
+  moment est venu, mais ça touche `.claude/` et ça n'entre en vigueur qu'au **prochain lancement** de Claude Code.
+  Geste court, à faire seul, jamais pendant qu'un prompt est soumis.
+- **`[W75]`, `lang="fr"` absent sur les citations françaises.** Elle est passée de **3 à 5** occurrences hier soir,
+  WCAG 3.1.2 niveau AA. Les cinq se traitent d'un coup, dans un prompt qui leur est propre. Portée au fil d'abord.
+- **`[W79]`, la porte d'unicité des citations.** Le remède est nommé au journal, non exécuté. C'est du code, donc un
+  incrément à part.
+- **Nommer Cowork sur le site.** Mesuré le 9 septembre : zéro occurrence. **Arbitrage propre, jamais une ligne
+  glissée dans un incrément.**
+- **La coupure de `C1` en deux** dans le contrat du `prompt-reviewer` : un fait faux du dépôt devrait rendre
+  `NEEDS_WORK`, pas `BLOCK`. Analysé le 8 septembre, non écrit.
 - **L'écart `CDEMST`**, troisième trou du fil et `[W71]`. Il se tranche à la ligne 13 ou 14, jamais en passant.
 - **Ligne 13, « Mise en scène »** : attend ma réponse sur `[W29]`/`[W30]`, posée depuis le 3 septembre.
 - **Trois outils MCP à examiner pour un `deny`** (`browser_network_request`, `browser_file_upload`,
@@ -185,17 +190,17 @@ ne se recopie sans être **remesuré le jour même** : la base `2ca0406` sera p�
 - **Le site en cinq ou six langues** : curiosité du 9 septembre, notée comme R&D à creuser plus tard.
 - **R&D nommées, non instruites** : le compteur des trois qui ne distingue pas trois révisions de trois relances du
   même fichier (`prompt_sha256`) ; `/fix` sans garde `prompt-reviewer` ; `RD-061`, `RD-062`, `RD-063` (hook
-  compteur) ; les vingt-huit `deny` non éprouvées une à une ; GMFCC.
+  compteur) ; les vingt-six `deny` non éprouvées une à une ; GMFCC.
 
 ## Trous et questions ouvertes à me rappeler
 
-1. **Le Plex Mono de la classe `.citation`**, levé par les deux relecteurs et jamais tranché. Le contrat de design
-   range la consigne du chef de projet en **Plex Sans**, et `.dialogue .consigne`, qui habille le même genre
-   d'artefact, ne porte **aucun** `font-family` (mesuré). Le prompt d'hier prescrivait Plex Mono en disant lui-même
-   que c'était « un choix de conception, pas un arbitrage rendu ». **Demande-le-moi** : le prochain incrément rouvre
-   `css/styles.css` et c'est l'occasion.
-2. **La passe d'appareil à 320 px** sur la citation publiée : seule contrainte dure qu'aucune commande ne vérifie.
-   Aucune vérification au navigateur n'a été faite, le prompt l'interdisait. Reste à moi.
+1. **Le Plex Mono de la classe `.citation`**, levé par les relecteurs et jamais tranché. Le contrat de design range
+   la consigne du chef de projet en **Plex Sans**, et `.dialogue .consigne`, qui habille le même genre d'artefact,
+   ne porte **aucun** `font-family`. Trois citations sont maintenant en ligne au lieu d'une : la question a triplé
+   de portée sans avoir été posée. **Demande-le-moi** au prochain incrément qui rouvre `css/styles.css`.
+2. **La passe d'appareil à 320 px** sur les trois citations publiées : `[W81]`, et troisième session consécutive où
+   le constat est porté sans être levé. Aucune vérification au navigateur n'a été faite. La plus longue citation
+   fait **94** caractères contre **77** pour celle du premier bloc. Reste à moi.
 3. La mesure VoiceOver porte neuf objets et attend un humain depuis l'incrément 9.
 4. `node` et `python3` sont permis à l'agent et savent tout faire, réseau compris : c'est le prompt qui le tient.
    Risque résiduel assumé, improbable, visible, survivable.
@@ -209,20 +214,19 @@ ne se recopie sans être **remesuré le jour même** : la base `2ca0406` sera p�
    chef de projet s'il y tient, le script ne les recrée pas.
 10. Les vignettes de médias déjà épinglées sur LinkedIn gardent parfois l'ancienne image même après relecture : il
     faut retirer le média et le remettre.
-11. **Ton bac à sable n'est pas le dépôt.** Voir le point 7 de la porte : il rend des chiffres faux sans rien
-    signaler, et ton prédécesseur s'y est fait prendre hier alors qu'il venait de l'écrire.
+11. **Le mode plan peut s'activer au milieu d'un contre-essai.** C'est arrivé hier soir, entre une dégradation
+    volontaire et son rétablissement : l'arbre a porté une porte neutralisée et une suite à 403/405 le temps que
+    l'écriture redevienne possible. Rien n'a été commité dans cet état. Leçon écrite, remède non écrit.
 
 ---
 
 Et si tu trouves que quelque chose dans ce message est faux, dis-le. Il a été écrit par ton prédécesseur, qui s'est
-trompé **neuf fois** dans la journée qu'il vient de terminer, dont : avoir affirmé qu'un fait publié n'était pas
-recoupable dans le dépôt **sans avoir lu l'en-tête du fichier qu'il citait**, où le fait était écrit en toutes
-lettres depuis le 27 août, ce qui a produit trois commits inutiles et quatre revues de sortie sur un code immobile ;
-avoir lu le verdict du `prompt-reviewer` qui disait « le fait chiffré du `p2` est, lui, exact au fichier », en avoir
-retenu la moitié qui alarmait et laissé la moitié qui acquittait ; avoir fait défaire au chef de projet un arbitrage
-**écrit de sa main au fil**, qui cite littéralement « deux annoncées, quatre réelles » comme ce qui doit rester, et
-que ce même prédécesseur avait lu et cité le matin ; avoir tracé une dérogation dans `.pipeline/changes.md`, qui est
-gitignoré, donc dans une trace qui disparaissait au merge ; et avoir compté des cas de test en balayant un dossier
-depuis son bac à sable, qui lui a rendu **2** fichiers sur **9**, le jour même où il écrivait ce piège dans ce
-fichier. Les trois premières sont la même faute vue sous trois angles : **une mesure qu'on n'a pas terminée, portée
-avec l'assurance d'une mesure faite**.
+trompé **quatre** fois dans la soirée qu'il vient de terminer, dont : avoir écrit dans le prompt gelé qu'une citation
+« dépasse d'un tiers » une autre, quand 94 contre 77 fait **+22 %** et non +33 % — erreur attrapée par le
+`prompt-reviewer`, pas par lui, et impossible à corriger puisque le prompt était gelé ; avoir décrit faussement les
+trois occurrences d'une clé dans un prérequis, en citant le motif d'un témoin là où c'était l'exemple d'un
+commentaire, faute rattrapée de justesse avant le gel ; et surtout m'avoir répondu **deux fois de suite** dans un
+français si dense que j'ai fini par abandonner un arbitrage que je venais de rendre, non parce qu'il était mauvais,
+mais parce que je n'avais pas compris ce qu'il impliquait. Cette dernière n'est pas une erreur de mesure. C'est la
+seule qui ait changé le cours de la soirée.
+```
