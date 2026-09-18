@@ -27,15 +27,15 @@
 //      ce qui garantit a la fois « jamais d'exception » et « exactement une
 //      ligne » : aucun chemin ne peut imprimer deux fois ni zero fois.
 //
-// DEUX INCONNUES, NON MESUREES AU 16 SEPTEMBRE 2026. Ce script existe pour les
-// trancher a sa premiere execution reelle :
-//   a. le champ permission_mode arrive-t-il sur UserPromptSubmit ? La page des
-//      hooks dit que tous les evenements ne le recoivent pas, et ne donne aucun
-//      exemple de charge utile pour celui-ci ;
-//   b. ce qui est imprime ici arrive-t-il jusqu'a l'agent ?
+// DEUX INCONNUES, TRANCHEES PAR LA MESURE. Ce script est ne pour y repondre, et
+// deux poses reelles l'ont fait, sur deux depots differents :
+//   a. le champ permission_mode arrive-t-il sur UserPromptSubmit ? OUI. La page
+//      des hooks ne donnait aucun exemple de charge utile pour cet evenement ;
+//   b. ce qui est imprime ici arrive-t-il jusqu'a l'agent ? OUI : interroge sans
+//      droit de lire un fichier, l'agent a nomme son mode et a cite cette ligne.
 // Les deux se lisent dans hook-mode-last.json et dans hook-mode.log apres le
-// premier prompt tape. Rien ne peut mal tourner en attendant : la sortie est 0,
-// donc le pire cas est que ce script ne serve a rien.
+// premier prompt tape. Rien ne peut mal tourner : la sortie est 0, donc le pire
+// cas est que ce script ne serve a rien.
 //
 // TABLE DE DECISION — quoi qu'il trouve, Y COMPRIS RIEN DU TOUT, il imprime et
 // il sort en 0. Ce qu'il imprime distingue CINQ etats, et cette distinction est

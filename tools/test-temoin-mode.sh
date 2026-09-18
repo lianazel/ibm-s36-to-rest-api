@@ -109,10 +109,11 @@ case "$CIBLE" in
 esac
 # La cible tournant AILLEURS, son chemin doit etre absolu — et l'objet illisible
 # du chemin 7 aussi.
-# DIVERGENCE IBMiAPI, 17 septembre 2026 : le portfolio pointait ici
-# "$ROOT/scripts/fixtures", un dossier de SA porte i18n. Un depot qui ne l'a pas
-# voyait le chemin 7 echouer. On prend le dossier qui contient la cible : il
-# existe toujours, par construction, et il n'appartient a aucun autre outil.
+# L'OBJET ILLISIBLE DU CHEMIN 7 EST LE DOSSIER QUI CONTIENT LA CIBLE. Il existe
+# toujours, par construction, et il n'appartient a aucun autre outil. Une
+# version anterieure pointait le dossier de fixtures d'une autre porte du depot
+# d'origine : le chemin 7 echouait alors sur tout depot qui ne l'avait pas, et
+# la pose s'arretait a la preuve. Mesure du 17 septembre 2026.
 ILLISIBLE_ABS="$(dirname "$CIBLE_ABS")"
 PREFIXE='MODE DE PERMISSION COURANT : '
 
