@@ -44,5 +44,18 @@
     "ask": [
       "mcp__playwright"
     ]
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/tools/temoin-mode.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
   }
 }
