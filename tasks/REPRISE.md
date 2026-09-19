@@ -138,6 +138,12 @@ pages. Son §15 porte CME, son §16 l'inventaire des pièces et de leur adresse.
 procédure ; le fichier `Etude_Technique/PILOTE_AMO_2026-09-17_v1.md` ne l'est pas** — c'est une feuille
 de mesure, et il porte un avertissement en tête qui le dit.
 
+**Au référentiel, une pièce neuve du 19 septembre** : `TWAIM_Kit/TEMPLATE_REPRISE_SESSION.md` porte
+désormais un **§9, « La preuve de pose »** (12 524 octets, contre 10 395). Il dit qu'une reprise déposée
+n'est **écrite** que lorsque sa taille et sa ligne de date ont été relues **du côté de la machine du
+chef de projet**, et que la taille attendue se donne dans la commande de commit. Applique-le à la
+tienne.
+
 ### Ce qui fait foi, et ce qui n'en fait pas
 
 `.pipeline/STATUS.md` et `tasks/JOURNAL_v0.1.md` **racontent**. Ils ne sont pas la source de vérité :
@@ -338,7 +344,7 @@ Cowork prépare le texte **à côté**, dans `Etude_Technique`, et il colle.
 
 Si tu trouves que quelque chose dans ce message est faux, **dis-le**.
 
-Il a été écrit par ton prédécesseur, qui s'est trompé **dix** fois dans la journée et demie qu'il vient
+Il a été écrit par ton prédécesseur, qui s'est trompé **onze** fois dans la journée et demie qu'il vient
 de terminer. Trois d'entre elles, pour te donner le ton :
 
 - Il a livré une porte **dont le premier contrôle ne mordait pas quand on l'oubliait** : un prompt sans
@@ -356,6 +362,13 @@ de terminer. Trois d'entre elles, pour te donner le ton :
 Et la dixième, qui est la plus bête : il a **rapiécé ce message trois fois** au lieu de le réécrire,
 jusqu'à ce que son en-tête annonce une heure qui n'était plus vraie. C'est le chef de projet qui l'a
 vu. La reprise s'écrit **en dernier**, après le push, d'un seul jet.
+
+Et la onzième, arrivée après avoir écrit ces lignes, qui est de la même famille : il a annoncé « la
+reprise est posée, 18 130 octets » en regardant le fichier écrit **de son côté**. Le pont avait recopié
+l'ancien texte ; Git a répondu « nothing to commit », et les 18 130 octets étaient la taille de
+l'**ancienne** version. C'est le chef de projet qui a tranché : « je pense que tu n'as RIEN écrit dans
+le dossier tasks. » La règle qui en sort est au **§9 du gabarit de reprise** : une pose ne se déclare
+pas, elle se relit du côté de la cible.
 
 Le chef de projet ne relit pas ce message avant de te le coller. Tu es le seul contrôle.
 
