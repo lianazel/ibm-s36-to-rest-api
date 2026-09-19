@@ -128,7 +128,7 @@ Poussé à **20:48:12**. `main` et `origin/main` sont au même commit.
 | `prompts/v0.1/SPIKE_essai-CME_v1.md` | trace de l'essai | jetable, ne pas rejouer (voir É-4) |
 
 La procédure de référence est le document Word
-`Etude_technique/TWAIM_TECHNICAL_DOCUMENTATION/TEC_IA_CLAUDE_MEP_HOOK_MODE_AMO.DOCX`, **V1.0.7**. Son
+`Etude_technique/TWAIM_TECHNICAL_DOCUMENTATION/TEC_IA_CLAUDE_MEP_HOOK_MODE_AMO.DOCX`, **V1.0.8**. Son
 §16 porte l'inventaire des pièces et de leur adresse. **Ce document est la procédure ; le fichier
 `Etude_Technique/PILOTE_AMO_2026-09-17_v1.md` ne l'est pas** — c'est une feuille de mesure, et il porte
 un avertissement en tête qui le dit.
@@ -156,6 +156,9 @@ Un prompt qui ne porte pas le champ « Mode d'exécution » rendait deux WARN, d
 quand on l'oubliait. Décision du chef de projet : **l'absence du champ vaut maintenant `BLOCK`**,
 motif « le prompt ne déclare pas son mode d'exécution ; la comparaison est impossible ». Le refus se
 corrige en ajoutant six lignes au prompt.
+
+**Éprouvé le 19 septembre 2026 à 10:34**, passe 3 du §15.6 : un prompt écrit sans déclaration rend
+`BLOCK`, une seule entrée dans `checks`, zéro WARN. Le mode de la session n'entre pas en jeu.
 
 *Reste, et ce n'est plus une garde mais un confort* : aucun gabarit ne porte le champ tout fait
 (`TWAIM_Kit/PROMPT_CHANNEL.md`, 0 occurrence). Le texte à recopier est au §15.4 du document.
@@ -233,8 +236,9 @@ Cowork prépare le texte **à côté**, dans `Etude_Technique`, et il colle.
 ## 6. Ce qui n'est PAS au programme
 
 - **Toute pose du témoin sur un troisième dépôt.** *Motif* : la procédure est complète depuis la
-  V1.0.7, mais elle n'a été **pilotée qu'une fois**, sur un dépôt qui avait déjà son `.pipeline/`. Le
-  §3.1 — celui qui dit comment créer ce dossier — n'a jamais été joué par personne. À faire dans une
+  V1.0.8, mais elle n'a été **pilotée qu'une fois**, sur un dépôt qui avait déjà son `.pipeline/`.
+  Deux choses n'ont donc jamais été jouées par personne : le **§3.1**, qui dit comment créer ce
+  dossier, et le **geste 6** de la fiche de pose, qui copie le contrat du relecteur. À faire dans une
   séance où c'est la seule tâche.
 - **Porter le champ « Mode d'exécution » à un gabarit de prompt.** *Motif* : ce n'est plus une garde,
   CME refuse déjà l'absence. C'est du confort de rédaction, et ça attendra.
