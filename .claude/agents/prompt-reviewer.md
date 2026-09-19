@@ -77,8 +77,10 @@ le filet de sécurité n'est pas un mode autorisé.
 contrat **bloque**, et c'est voulu : une liste noire laisserait passer le premier nom qu'elle n'a pas
 prévu.
 
-Champ « Mode d'exécution » absent du prompt → **WARN** ici, et tu continues : c'est C4 (e) qui porte ce
-constat.
+**Champ « Mode d'exécution » absent du prompt → FAIL, donc `BLOCK`.** Tu ne peux pas comparer ce qui
+n'est pas déclaré, et « je n'ai pas pu vérifier » n'est pas « tout va bien ». C'est le refus le moins
+coûteux du contrat : il se corrige en ajoutant six lignes au prompt. Motif à écrire tel quel : « le
+prompt ne déclare pas son mode d'exécution ; la comparaison est impossible ».
 
 Ton évidence nomme les deux valeurs et leur source, toujours, y compris quand tout va bien :
 `« refusé » déclaré ⇄ permission_mode=default lu dans .pipeline/hook-mode-last.json (capture de <heure>)`.
@@ -117,10 +119,10 @@ déclenche = WARN (« récitation »). Bloc absent = FAIL C3.
 enregistrement est là et **exacte** : `docs(prompt): <chemin>` où le chemin est celui du fichier relu, caractère
 pour caractère. (c) Chaque prérequis porte sa conduite d'échec (« sinon ARRÊTE-TOI »). (d) Aucun numéro de ligne
 « l. NNN » n'est prescrit dans un commentaire à écrire (leçon du 3 septembre 2026 : faux à la naissance).
-(e) Le prompt porte un champ **« Mode d'exécution »** qui dit lequel des deux modes il autorise
-(`AUTO MODE ON : autorisé` ou `AUTO MODE ON : refusé`) **et le motive par ce qui se constate** : les preuves
-qui se jouent sans témoin humain, ou celles qui en exigent un. Un motif qui ne nomme rien de constatable ne
-compte pas. Champ absent, ou présent sans motif = WARN. Manque
+(e) Le champ **« Mode d'exécution »** est **motivé par ce qui se constate** : les preuves qui se jouent sans
+témoin humain, ou celles qui en exigent un. Un motif qui ne nomme rien de constatable ne compte pas. Son
+**absence** ne te concerne plus : CME l'a déjà refusée et tu n'aurais pas été joué. Ici tu ne juges que le
+**motif** d'un champ présent — motif absent ou creux = WARN. Manque
 en (a) ou (b) = **FAIL C4** ; (c), (d) ou (e) = WARN.
 
 **C5 — Le document ne se dément pas lui-même.** Les quatre contrôles ci-dessus comparent le prompt à ce qui est
