@@ -2,10 +2,10 @@
 
 > **Mode d'emploi.** Ce fichier n'est pas une note : c'est le **premier message** à coller tel quel au
 > Cowork entrant. Écrit par le Cowork sortant, qui sait ; lu par le Cowork entrant, qui ne sait rien.
-> Rédigé le **18 septembre 2026 à 21 h**, après le dernier push.
+> Rédigé le **19 septembre 2026 à 10 h 41**, après le dernier push.
 >
-> **État de la séance close** : trois commits sur `main`, tout poussé, aucune branche ouverte, aucune
-> dérogation.
+> **État de la séance close** : cinq commits sur `main` en deux jours, tout poussé, aucune branche
+> ouverte, aucune dérogation. Le pilote AMO est posé et **éprouvé trois fois**.
 
 ---
 
@@ -25,7 +25,7 @@ Tiens Man, tu te rappelles comment on fonctionne ?
 **Deux compteurs de session coexistent, ne pas les confondre.**
 
 - Côté **Claude Code** : la session **33** reste la dernière close (`.pipeline/STATUS.md` porte
-  `CLOSED — session 33`). Le travail du 18 septembre n'était **pas un incrément** : trois commits
+  `CLOSED — session 33`). Le travail des 18 et 19 septembre n'était **pas un incrément** : cinq commits
   directs sur `main`, aucun `/ship`, aucun `/land`, aucun bump. La version n'a pas bougé.
 - Côté **Cowork** : les séances sont **datées**, pas numérotées.
 
@@ -69,7 +69,8 @@ satellites que la table désigne.
   mounted`. Une mise à jour Windows du 8 septembre empêche le montage. Il reste `device_list_dir`,
   `device_stage_files`, `device_commit_files`.
 - **Le pont refuse d'écrire dans `.claude/`** : « Writing to .claude is not permitted via remote
-  tools ». Toute modification y passe par le chef de projet, qui colle lui-même.
+  tools ». Toute modification y passe par le chef de projet, qui colle lui-même. C'est la **voie (a)** :
+  Cowork écrit le fichier à côté, dans `Etude_Technique`, et il le copie.
 - **Claude Code, Node, npm et git tournent dans WSL**, pas dans PowerShell. Toute commande donnée dit
   de quel côté elle se tape et emploie un chemin WSL (`/mnt/c/…`).
 
@@ -88,34 +89,37 @@ seuls.
 
 ## 3. La situation exacte
 
-Mesurée le 18 septembre 2026 entre 20 h 47 et 21 h, par lecture de fichiers.
+Mesurée le 19 septembre 2026 à 10 h 41, par lecture de fichiers `.git`.
 
 | Grandeur | Valeur mesurée | Où elle a été lue |
 |---|---|---|
 | `HEAD` | `ref: refs/heads/main` | `.git/HEAD` |
-| `main` | **`030b91d`** | `.git/refs/heads/main` |
-| `origin/main` | **`030b91d`** | `.git/refs/remotes/origin/main` |
+| `main` | **`f2ecec2`** | `.git/refs/heads/main` |
+| `origin/main` | **`f2ecec2`** | `.git/refs/remotes/origin/main` |
 | Branches | **1 objet** : `main` | listage de `.git/refs/heads/` |
+| `packed-refs` | en-tête seul, **aucune référence** | `.git/packed-refs` |
 | Version produit | **0.1.29**, inchangée | `grep '"version"' package.json` |
 | État pipeline | `CLOSED — session 33` | `.pipeline/STATUS.md` |
 | Tests | **405/405** | chiffre **lu** dans `STATUS.md`, **non relancé** |
-| Leçons | **44 lignes** `^## ` | `tasks/lessons.md` |
+| Leçons | **44 lignes** `^## ` | `tasks/lessons.md`, intact depuis le 10 sept. 22:31 |
 | Dette la plus haute au fil | **[W69]** | `grep -o … \| sort \| tail -1` (occurrences) |
 | `[W70]`…`[W81]` au fil | **0 occurrence** | `grep -o '\[W7[0-9]\]\|\[W8[01]\]' tasks/ROADMAP.md \| wc -l` |
 
-**Les trois commits du 18 septembre**, heures de Paris :
+**Les cinq commits des 18 et 19 septembre**, heures de Paris :
 
 | Commit | Objet | Heure |
 |---|---|---|
-| `02c8f22` | `chore: poser le temoin de mode (AMO) dans tools/ et le brancher sur UserPromptSubmit` | 10:50:28 |
-| `f77c269` | `chore: CME au contrat du relecteur de prompts, et C5 redescendu du gabarit` | 17:50:02 |
-| `030b91d` | `chore: aligner le temoin sur la paire de reference et tracer l'essai de CME` | 20:47:07 |
+| `02c8f22` | `chore: poser le temoin de mode (AMO) dans tools/ et le brancher sur UserPromptSubmit` | 18/09 10:50:28 |
+| `f77c269` | `chore: CME au contrat du relecteur de prompts, et C5 redescendu du gabarit` | 18/09 17:50:02 |
+| `030b91d` | `chore: aligner le temoin sur la paire de reference et tracer l'essai de CME` | 18/09 20:47:07 |
+| `74e232b` | le refus sur absence de déclaration, au contrat du relecteur | 19/09 10:26:30 |
+| `f2ecec2` | la trace de la passe 3 | 19/09 10:39:48 |
 
-Poussé à **20:48:12**. `main` et `origin/main` sont au même commit.
+Poussé à **10:40:41**. `main` et `origin/main` sont au même commit.
 
 > **Limite de ma mesure, dite en clair.** Je ne peux pas lancer `git status` depuis la VM. La dernière
-> vue réelle du tampon est une capture d'écran du chef de projet à 20:47 : trois fichiers, tous
-> commités depuis. **À vérifier d'un `git status` à l'ouverture.**
+> vue réelle du tampon est la parole du chef de projet : « c poussé des deux côtés ». **À vérifier d'un
+> `git status` à l'ouverture.**
 
 ### Ce qui est neuf sur ce dépôt depuis le 18 septembre
 
@@ -125,18 +129,58 @@ Poussé à **20:48:12**. `main` et `origin/main` sont au même commit.
 | `tools/test-temoin-mode.sh` | 17 171 octets | sa preuve, 10 chemins, se lance à la main |
 | `.claude/settings.json` | 1 364 octets | 39 `deny`, 1 `ask`, **1 bloc `hooks`** |
 | `.claude/agents/prompt-reviewer.md` | **14 330** octets | **six** contrôles : CME, puis C1 à C5 |
-| `prompts/v0.1/SPIKE_essai-CME_v1.md` | trace de l'essai | jetable, ne pas rejouer (voir É-4) |
+| `prompts/v0.1/SPIKE_essai-CME_v1.md` | trace des passes 1 et 2 | jetable, **verrou à 2/3** (É-4) |
+| `prompts/v0.1/SPIKE_essai-CME-champ-absent_v1.md` | trace de la passe 3 | jetable, **verrou à 1/3** |
 
 La procédure de référence est le document Word
-`Etude_technique/TWAIM_TECHNICAL_DOCUMENTATION/TEC_IA_CLAUDE_MEP_HOOK_MODE_AMO.DOCX`, **V1.0.8**. Son
-§16 porte l'inventaire des pièces et de leur adresse. **Ce document est la procédure ; le fichier
-`Etude_Technique/PILOTE_AMO_2026-09-17_v1.md` ne l'est pas** — c'est une feuille de mesure, et il porte
-un avertissement en tête qui le dit.
+`Etude_technique/TWAIM_TECHNICAL_DOCUMENTATION/TEC_IA_CLAUDE_MEP_HOOK_MODE_AMO.DOCX`, **V1.0.8**, 22
+pages. Son §15 porte CME, son §16 l'inventaire des pièces et de leur adresse. **Ce document est la
+procédure ; le fichier `Etude_Technique/PILOTE_AMO_2026-09-17_v1.md` ne l'est pas** — c'est une feuille
+de mesure, et il porte un avertissement en tête qui le dit.
 
 ### Ce qui fait foi, et ce qui n'en fait pas
 
 `.pipeline/STATUS.md` et `tasks/JOURNAL_v0.1.md` **racontent**. Ils ne sont pas la source de vérité :
 le dépôt l'est.
+
+---
+
+## 3 bis. Le pilote AMO, et où il en est
+
+**Ce que c'est, en trois phrases.** Un *hook* `UserPromptSubmit` appelle `tools/temoin-mode.mjs` à
+chaque phrase envoyée ; le témoin écrit dans `.pipeline/hook-mode-last.json` le mode de permission réel
+de la session. Le relecteur de prompts lit ce fichier et le compare au mode que le prompt **déclare**.
+S'ils ne s'accordent pas, il rend `BLOCK` et **n'examine rien d'autre** — c'est le court-circuit.
+
+**Le témoin est une lampe torche, pas une porte** : il sort toujours en code 0, il ne bloque rien
+jamais. La garde, c'est CME, au contrat du relecteur.
+
+**Les trois passes, toutes jouées, toutes vérifiées dans `.pipeline/prompt-review.json` :**
+
+| Passe | Ce qu'on éprouvait | Session | Verdict lu | Ce que ça prouve |
+|---|---|---|---|---|
+| 1 — 18/09 soir | prompt `refusé`, session en mode automatique | `auto` | **`BLOCK`**, `CME` en `FAIL`, C1–C5 non joués | la garde mord, et elle court-circuite |
+| 2 — 18/09 soir | le même prompt, session rendue à la main | `default` | `CME` en **`PASS`**, relecture continuée, `NEEDS_WORK` sur **C5** | une garde qui refuse toujours ne prouve rien |
+| 3 — 19/09 10:34 | prompt **sans** champ « Mode d'exécution » | sans objet | **`BLOCK`**, une seule entrée dans `checks`, **zéro WARN** | l'oubli du champ ne passe plus |
+
+Le `NEEDS_WORK` de la passe 2 n'était pas un raté de l'essai : **C5 a attrapé une contradiction dans mon
+propre prompt** — il promettait « aucun travail, ne touche pas à `.pipeline/` » tout en gardant la
+phrase « l'arrêt reste à `READY` ». Une heure après que j'aie installé C5. C'est au §15.6 du document.
+
+**La table de décision de CME se lit en liste blanche : ce qui n'est pas nommé est refusé.**
+
+| Le prompt déclare | `permission_mode` lu | Verdict |
+|---|---|---|
+| `refusé` | `default`, `plan`, `acceptEdits` | PASS |
+| `refusé` | **tout le reste**, connu ou inconnu | **BLOCK** |
+| `autorisé` | `default`, `plan`, `acceptEdits`, `auto` | PASS |
+| `autorisé` | **tout le reste**, connu ou inconnu | **BLOCK** |
+| **champ absent** | quelle qu'elle soit | **BLOCK** — « le prompt ne déclare pas son mode d'exécution ; la comparaison est impossible » |
+
+Avant toute comparaison, trois vérifications de validité : le `cwd` de la capture est la racine du
+dépôt, la capture a moins de quinze minutes, et la valeur n'est pas l'un des cinq mots d'échec du
+témoin. Un échec de validité vaut `BLOCK`, pas WARN : « rien trouvé » et « je n'ai pas pu vérifier »
+sont deux conclusions différentes.
 
 ---
 
@@ -150,27 +194,27 @@ neuf lignes à cocher, toutes sur le témoin. Quelqu'un qui posait le système s
 la lampe torche sans la porte. La V1.0.7 ajoute le **geste 6, copier le contrat du relecteur**, et la
 fiche compte désormais **dix** lignes.
 
-**É-3 — SOLDÉ le 18 septembre au soir, et c'est le changement le plus important de la journée.**
-Un prompt qui ne porte pas le champ « Mode d'exécution » rendait deux WARN, donc un `SHIP` possible :
-**son mode n'était jamais contrôlé**. La porte la plus importante était la seule qui ne mordait pas
-quand on l'oubliait. Décision du chef de projet : **l'absence du champ vaut maintenant `BLOCK`**,
-motif « le prompt ne déclare pas son mode d'exécution ; la comparaison est impossible ». Le refus se
-corrige en ajoutant six lignes au prompt.
-
-**Éprouvé le 19 septembre 2026 à 10:34**, passe 3 du §15.6 : un prompt écrit sans déclaration rend
-`BLOCK`, une seule entrée dans `checks`, zéro WARN. Le mode de la session n'entre pas en jeu.
+**É-3 — SOLDÉ et ÉPROUVÉ le 19 septembre à 10:34.** Un prompt qui ne porte pas le champ « Mode
+d'exécution » rendait deux WARN, donc un `SHIP` possible : **son mode n'était jamais contrôlé**. La
+porte la plus importante était la seule qui ne mordait pas quand on l'oubliait. Décision du chef de
+projet : **l'absence du champ vaut maintenant `BLOCK`**. La passe 3 l'a prouvé : une seule entrée dans
+`checks`, zéro WARN, aucun fichier touché.
 
 *Reste, et ce n'est plus une garde mais un confort* : aucun gabarit ne porte le champ tout fait
 (`TWAIM_Kit/PROMPT_CHANNEL.md`, 0 occurrence). Le texte à recopier est au §15.4 du document.
 
-**É-4 — Le verrou des trois est à 2 sur le sujet `SPIKE_essai-CME`.** Une troisième relecture de ce
-prompt déclenchera le refus spécial. L'essai est acquis, **ne pas le rejouer**.
+**É-4 — Le verrou des trois est à 2 sur le sujet `SPIKE_essai-CME`**, et à 1 sur
+`SPIKE_essai-CME-champ-absent`. Une troisième relecture du premier déclencherait le refus spécial. Les
+deux essais sont acquis, **ne pas les rejouer**.
 
 **É-5 — `dontAsk` et `bypassPermissions` ne sont mesurés par personne.** CME les refuse par liste
 blanche, donc le risque est couvert. Mais on ne sait toujours pas s'ils laissent tenir les 39 `deny`.
 L'essai 0 proposé et non joué : ouvrir une session en `bypassPermissions` sur un dépôt bidon et lancer
 `npm install --dry-run`, qui est dans la liste d'interdits et n'écrit rien. Sans risque quel que soit
 le résultat.
+
+**É-6 — Le portfolio est en retard de CME.** Son contrat de relecteur porte encore quatre contrôles.
+Son développement est arrêté jusqu'à nouvel ordre ; c'est noté, ce n'est pas une urgence.
 
 ---
 
@@ -181,7 +225,7 @@ document AMO. Deux lignes à remplir — `AUTO MODE ON : autorisé` ou `refusé`
 constate — le reste se recopie tel quel.
 
 **Un prompt sans ce champ est refusé** par CME, avant tout autre contrôle. Ce n'est pas un WARN : c'est
-un `BLOCK`. Tu ne peux pas l'oublier sans t'en apercevoir, et c'est voulu.
+un `BLOCK`, et c'est mesuré, pas supposé. Tu ne peux pas l'oublier sans t'en apercevoir, et c'est voulu.
 
 Et la conduite d'exécution qui va avec : l'agent lit `.pipeline/hook-mode-last.json` et **écrit la
 comparaison en première ligne de sa réponse**, avant toute action. Une ligne absente est un signal.
@@ -220,9 +264,9 @@ Cowork prépare le texte **à côté**, dans `Etude_Technique`, et il colle.
 
 **La mesure de contrôle après son commit** :
 `grep -o '\[W7[0-9]\]\|\[W8[01]\]' tasks/ROADMAP.md | wc -l` doit rendre **12** (occurrences), contre
-**0** ce soir.
+**0** ce matin.
 
-**Geste 3, au même commit ou à part — reprendre `CLAUDE.md`.** Trois endroits mesurés :
+**Geste 3, au même commit ou à part — reprendre `CLAUDE.md`.** Quatre endroits mesurés :
 
 | Ligne | Ce qui est écrit | Ce qui est juste |
 |---|---|---|
@@ -244,7 +288,8 @@ Cowork prépare le texte **à côté**, dans `Etude_Technique`, et il colle.
   CME refuse déjà l'absence. C'est du confort de rédaction, et ça attendra.
 - **Le hook `PreToolUse`** qui ferait de CME une vraie porte (`RD-063` au référentiel, `[W69]` au fil).
   *Motif* : c'est du code, donc un incrément à part, avec sa preuve à la naissance. Et le jour où il
-  existe, **CME n'est pas doublé, il est remplacé**.
+  existe, **CME n'est pas doublé, il est remplacé** — sinon deux textes portent la même règle et
+  divergent en silence.
 - **La maquette du dessin des quatre temps du harnais.** C'est le prochain incrément de contenu, et
   elle attend depuis le 12 septembre. *Motif* : un prompt qui s'appuie sur une ligne de fil fausse est
   ce qui a produit la réserve `C3/C2` du 8 septembre. Le fil d'abord.
@@ -270,8 +315,9 @@ Cowork prépare le texte **à côté**, dans `Etude_Technique`, et il colle.
 1. **Le témoin ne commande rien.** Il informe, CME refuse. Mais CME est une consigne lue par un agent,
    pas une garde mécanique. Sa tenue vient de ce que `/ship` refuse tout verdict autre que `SHIP`.
 2. **Le journal du témoin n'est pas infalsifiable.** N'importe quel essai lancé à la main y écrit une
-   ligne indistinguable d'une vraie. CME valide la capture avant de la lire (cwd, fraîcheur, valeur),
-   mais la falsification reste possible.
+   ligne indistinguable d'une vraie — c'est arrivé trois fois le 17 septembre sur le portfolio, dont
+   une qui a laissé `bypassPermissions` comme dernière valeur. CME valide la capture avant de la lire
+   (cwd, fraîcheur, valeur), mais la falsification reste possible.
 3. **La charge utile du témoin contient le texte tapé, en clair**, dans `.pipeline/`. Ce dossier est
    ignoré par git — vérifié — donc rien ne part au dépôt public. Le fichier reste sur le disque.
 4. **Le journal du témoin s'accumule, sans rotation.**
@@ -292,8 +338,8 @@ Cowork prépare le texte **à côté**, dans `Etude_Technique`, et il colle.
 
 Si tu trouves que quelque chose dans ce message est faux, **dis-le**.
 
-Il a été écrit par ton prédécesseur, qui s'est trompé **neuf** fois dans la journée qu'il vient de
-terminer. Trois d'entre elles, pour te donner le ton :
+Il a été écrit par ton prédécesseur, qui s'est trompé **dix** fois dans la journée et demie qu'il vient
+de terminer. Trois d'entre elles, pour te donner le ton :
 
 - Il a livré une porte **dont le premier contrôle ne mordait pas quand on l'oubliait** : un prompt sans
   champ « Mode d'exécution » rendait deux WARN, donc un `SHIP` possible, donc aucun contrôle du mode.
@@ -307,9 +353,13 @@ terminer. Trois d'entre elles, pour te donner le ton :
   `bypassPermissions` » — qui laisse passer le premier mode inconnu. C'est le chef de projet qui a vu
   d'instinct qu'il fallait une **liste blanche**.
 
+Et la dixième, qui est la plus bête : il a **rapiécé ce message trois fois** au lieu de le réécrire,
+jusqu'à ce que son en-tête annonce une heure qui n'était plus vraie. C'est le chef de projet qui l'a
+vu. La reprise s'écrit **en dernier**, après le push, d'un seul jet.
+
 Le chef de projet ne relit pas ce message avant de te le coller. Tu es le seul contrôle.
 
 ---
 
-*Écrit le 18 septembre 2026 à 21 h par le Cowork sortant · tous les chiffres mesurés à cette heure-là,
-par lecture de fichiers · aucune commande git lancée depuis la VM.*
+*Écrit le 19 septembre 2026 à 10 h 41 par le Cowork sortant · tous les chiffres mesurés à cette
+heure-là, par lecture de fichiers · aucune commande git lancée depuis la VM.*
